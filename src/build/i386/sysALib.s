@@ -68,14 +68,5 @@ FUNC_LABEL(sysInit)
 	call	FUNC(usrInit)		/* Call usrInit */
 	iret
 
-/*****************************************************************************
-* Include rest of assembler code
-*****************************************************************************/
-
-/* Basic architecure dependent stuff */
-#include <arch/i386/sysALib.s>
-#include <arch/i386/segALib.s>
-#include <arch/i386/intALib.s>
-#include <arch/i386/excALib.s>
 #include <arch/i386/kernALib.s>
 

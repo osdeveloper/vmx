@@ -27,6 +27,7 @@
 #include <arch/regs.h>
 #include <arch/iv.h>
 #include <arch/esf.h>
+#include <arch/sysArchLib.h>
 #include <arch/intArchLib.h>
 #include <arch/excArchLib.h>
 #include <vmx/memPartLib.h>
@@ -37,6 +38,8 @@ IMPORT void		intVBRSet (FUNCPTR *baseAddr);
 IMPORT void		kernIntEnt(void);
 IMPORT void		kernIntExit(void);
 IMPORT u_int32_t	sysIntIdtType;
+IMPORT u_int32_t        sysCsExc;
+IMPORT u_int32_t        sysCsInt;
 
 /* Globals */
 u_int32_t	intCnt		= 0;

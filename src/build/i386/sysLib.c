@@ -25,36 +25,8 @@
 #include <sys/types.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
-#include <vmx/memPartLib.h>
-
-/* Basic architecture dependent stuff */
 #include <arch/sysArchLib.h>
-#include <arch/i386/segArchLib.c>
-#include <arch/i386/intArchLib.c>
-#include <arch/i386/excArchLib.c>
-#include <arch/i386/taskArchLib.c>
-
-/* Kernel */
-#include <vmx/kernLib.c>
-#include <vmx/kernQLib.c>
-#include <vmx/vmxLib.c>
-#include <vmx/taskLib.c>
-#include <vmx/kernHookLib.c>
-
-#include <util/dllLib.c>
-#include <util/qLib.c>
-#include <util/qPrioLib.c>
-#include <util/qFifoLib.c>
-
-/* Os */
-#include <vmx/errnoLib.c>
-#include <vmx/objLib.c>
-#include <vmx/classLib.c>
-#include <vmx/listLib.c>
-#include <vmx/semLib.c>
-#include <vmx/semBLib.c>
-#include <vmx/memPartLib.c>
-#include <vmx/logLib.c>
+#include <vmx/memPartLib.h>
 
 #ifdef	DEBUG
 #undef  INCLUDE_VGA
@@ -73,17 +45,6 @@
 
 #ifdef 	 INCLUDE_PIC
 #include <drv/intrCtl/i8259Pic.c>
-#endif
-
-#ifdef	 INCLUDE_LIBC
-#include <libc/stdio/puts.c>
-#include <libc/stdlib/itoa.c>
-#include <libc/stdlib/itox.c>
-#include <libc/stdlib/malloc.c>
-#include <libc/stdlib/free.c>
-#include <libc/string/memset.c>
-#include <libc/string/memcpy.c>
-#include <libc/string/strlen.c>
 #endif
 
 u_int32_t sysIntIdtType	= SYS_INT_TRAPGATE;

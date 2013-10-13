@@ -32,10 +32,12 @@
 
 #include <vmx/logLib.h>
 
-/* Externals */
+/* Imports */
 IMPORT u_int8_t		excCallTbl[];
 IMPORT VOIDFUNCPTR	intCallTbl[];
-IMPORT u_int32_t	sysIntIdtType;
+IMPORT u_int32_t        sysIntIdtType;
+IMPORT u_int32_t        sysCsExc;
+IMPORT u_int32_t        sysCsInt;
 
 /* Forward declarations */
 LOCAL BOOL	programError(int vecNum);
