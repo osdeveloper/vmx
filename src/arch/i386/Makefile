@@ -21,8 +21,8 @@
 # Makefile - i386 architecture specific stuff
 
 AR = ar
-OBJS = excALib.o excArchLib.o intALib.o intArchLib.o segALib.o segArchLib.o\
-       taskArchLib.o sysALib.o
+OBJS = excALib.o excArchLib.o intALib.o intArchLib.o kernALib.o \
+       segALib.o segArchLib.o sysALib.o taskArchLib.o
 LIB_TGT = arch
 
 include $(VMX_BASE)/include/make/build.defaults
