@@ -1,0 +1,80 @@
+ ##############################################################################
+ #   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ #
+ #   This file is part of Real VMX.
+ #   Copyright (C) 2013 Surplus Users Ham Society
+ #
+ #   Real VMX is free software: you can redistribute it and/or modify
+ #   it under the terms of the GNU General Public License as published by
+ #   the Free Software Foundation, either version 3 of the License, or
+ #   (at your option) any later version.
+ #
+ #   Real VMX is distributed in the hope that it will be useful,
+ #   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ #   GNU General Public License for more details.
+ #
+ #   You should have received a copy of the GNU General Public License
+ #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
+ #
+
+AR = ar
+CC = gcc
+LD = ld
+RM = rm -f
+OUTPUT = vmx
+
+# $(ADDED_*FLAGS) is to come from the Makefile.
+# $(EXTRA_*FLAGS) is to come from the command line.
+
+CFLAGS = -nostdinc -fno-builtin -m32 -fno-stack-protector \
+         $(ADDED_CFLAGS) $(EXTRA_CFLAGS)
+INCFLAGS = -I$(VMX_BASE)/include -I$(VMX_BASE)/src \
+           $(ADDED_INCFLAGS) $(EXTRA_INCFLAGS)
+DFLAGS = -DCPU=$(CPU) $(ADDED_DFLAGS) $(EXTRA_DFLAGS)
+
+ARFLAGS = -r
+
+# default build
+ifeq ($(CPU),)
+    CPU = PENTIUM2
+endif
+
+%.o: %.c
+	@mkdir -p $(VMX_BASE)/lib/$(CPU)/$(LIB_TGT)
+	$(CC) $(CFLAGS) $(INCFLAGS) $(DFLAGS) -c $^ -o \
+               $(VMX_BASE)/lib/$(CPU)/$(LIB_TGT)/$@
+	$(AR) $(ARFLAGS) $(VMX_BASE)/lib/$(CPU)/lib$(LIB_TGT).a \
+               $(VMX_BASE)/lib/$(CPU)/$(LIB_TGT)/$@
+
+%.o: %.s
+	@mkdir -p $(VMX_BASE)/lib/$(CPU)/$(LIB_TGT)
+	$(CC) $(CFLAGS) $(INCFLAGS) $(DFLAGS) -x assembler-with-cpp -c $^ -o \
+               $(VMX_BASE)/lib/$(CPU)/$(LIB_TGT)/$@
+	$(AR) $(ARFLAGS) $(VMX_BASE)/lib/$(CPU)/lib$(LIB_TGT).a \
+               $(VMX_BASE)/lib/$(CPU)/$(LIB_TGT)/$@
+
+#
+# Added $(OBJS) to list of dependencies to cover case when a directory
+# has both SUBDIRS and files to compile.  If the $(OBJS) is not present
+# here then only the SUBDIRS will build for this case.
+#
+$(SUBDIRS): force_look $(OBJS)
+	@$(foreach subdir, $(SUBDIRS), $(MAKE) -C $(subdir);)
+
+default: $(OBJS) $(SUBDIRS)
+	
+force_look:
+	true
+
+help:
+	@echo "make CPU=<cpu>, where <cpu> is one of the following ..."
+	@echo "     PENTIUM2"
+	@echo ""
+	@echo "clean  - does not yet exist"
+	@echo "       - current rules force a rebuild"
+	@echo "       - to be fixed later"
+	@echo ""
+	@echo "rclean - see 'clean'"
+	@echo ""
+
