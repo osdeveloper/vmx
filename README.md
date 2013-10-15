@@ -1,5 +1,5 @@
-Real VMX Operating System  
-Starting from scratch with the operating system based on the work at:  
+Real VMX  - Real Time Operating System  
+Starting from scratch based on the work at:  
 http://sourceforge.net/projects/vmx/  
    
 Setup enviroment:  
