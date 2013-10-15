@@ -80,8 +80,8 @@ int runMe(ARG arg0)
   return (int)arg0;
 }
 
-volatile int num = 0;
 #ifdef RESTART_TASK
+volatile int num = 0;
 int restartMe(ARG arg0)
 {
   TCB_ID pTcb;
@@ -277,10 +277,11 @@ int initTasks(void)
 	     DEFAULT_STACK_SIZE, (FUNCPTR) printSysTime,
 #ifdef RESTART_TASK
 	     (ARG) restartTcbId,
+	     (ARG) &num,
 #else
 	     (ARG) NULL,
+	     (ARG) 31,
 #endif
-	     (ARG) &num,
 	     (ARG) 32,
 	     (ARG) 33,
 	     (ARG) 34,
