@@ -35,8 +35,8 @@
         .globl  GDATA(kernelState)
         .globl  GDATA(intCnt)
         .globl  GDATA(taskExit)
-        .globl  GDATA(kernQEmpty)
-        .globl  GDATA(kernQDoWork)
+        .globl  GDATA(workQEmpty)
+        .globl  GDATA(workQDoWork)
 
         /* Internals */
         .globl  GTEXT(kernIntEnt)
@@ -175,16 +175,16 @@ FUNC_LABEL(kernCheckTaskReady)
         /* FALL TRU TO CHECK KERNEL QUEUE */
 
 /******************************************************************************
- * kernQCheck - Check if kernel work need to be done (helper)
+ * workQCheck - Check if kernel work need to be done (helper)
  *
  * RETURNS: N/A
  */
 
-FUNC_LABEL(kernQCheck)
+FUNC_LABEL(workQCheck)
 
         cli                                     /* Lock interrupts */
-        cmpl    $0,FUNC(kernQEmpty)             /* Check for kernel work */
-        je      FUNC(kernQWorkPreSave)          /* Work to to */
+        cmpl    $0,FUNC(workQEmpty)             /* Check for kernel work */
+        je      FUNC(workQWorkPreSave)          /* Work to to */
 
         movl    $0,FUNC(kernelState)            /* Release mutex */
         sti                                     /* Unlock interrupts */
@@ -194,17 +194,17 @@ FUNC_LABEL(kernQCheck)
         ret
 
 /******************************************************************************
- * kernQWorkPreSave - Exit kernel mode (helper)
+ * workQWorkPreSave - Exit kernel mode (helper)
  *
  * RETURNS: N/A
  */
 
         .balign 16,0x90
 
-FUNC_LABEL(kernQWorkPreSave)
+FUNC_LABEL(workQWorkPreSave)
 
         sti                                     /* Unlock interrputs */
-        call    FUNC(kernQDoWork)               /* Do kernel work */
+        call    FUNC(workQDoWork)               /* Do kernel work */
         jmp     FUNC(kernCheckTaskSwitch)       /* Check task switch */
 
 /******************************************************************************
@@ -232,7 +232,7 @@ FUNC_LABEL(kernCheckTaskSwitch)
 
         movl    FUNC(taskIdCurrent),%edx
         cmpl    FUNC(kernReadyQ),%edx           /* Compare task to queue */
-        je      FUNC(kernQCheck)                /* If the same leave */
+        je      FUNC(workQCheck)                /* If the same leave */
 
         /* If preemption is allowed, check if task is ready */
         cmpl    $0,TASK_TCB_LOCK_COUNT(%edx)
@@ -323,8 +323,8 @@ FUNC_LABEL(kernDispatch)
 
         /* Now exit kernel mode */
         cli                                             /* Disable interrupts */
-        cmpl    $0,FUNC(kernQEmpty)                     /* Check for work */
-        je      FUNC(kernQWorkUnlock)
+        cmpl    $0,FUNC(workQEmpty)                     /* Check for work */
+        je      FUNC(workQWorkUnlock)
 
         movl    $0,FUNC(kernelState)                    /* Exit kern mode */
 
@@ -332,28 +332,28 @@ FUNC_LABEL(kernDispatch)
         iret
 
 /******************************************************************************
- * kernQWorkUnlock - Unlock interrputs and do fall tru to do work (helper)
+ * workQWorkUnlock - Unlock interrputs and do fall tru to do work (helper)
  *
  * RETURNS: N/A
  */
 
         .balign 16,0x90
 
-FUNC_LABEL(kernQWorkUnlock)
+FUNC_LABEL(workQWorkUnlock)
 
         sti                                             /* Unlock interrupts */
 
         /* FALL TRU TO KERNEL WORK */
 
 /******************************************************************************
- * kernQWork - Do kernel work (helper)
+ * workQWork - Do kernel work (helper)
  *
  * RETURNS: N/A
  */
 
-FUNC_LABEL(kernQWork)
+FUNC_LABEL(workQWork)
 
-        call    FUNC(kernQDoWork)                       /* Do work */
+        call    FUNC(workQDoWork)                       /* Do work */
 
         /* Check task queue if resheduling is needed */
         movl    FUNC(taskIdCurrent),%edx

@@ -31,6 +31,7 @@
 #include <vmx/memPartLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
+#include <vmx/workQLib.h>
 #include <vmx/private/kernLibP.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
@@ -645,7 +646,7 @@ STATUS taskSuspend(TCB_ID pTcb)
   if (kernelState == TRUE)
   {
     /* Add to kernel queue */
-    kernQAdd1 ((FUNCPTR) vmxSuspend, (ARG) pTcb);
+    workQAdd1 ((FUNCPTR) vmxSuspend, (ARG) pTcb);
 
     return(OK);
   }
@@ -705,7 +706,7 @@ STATUS taskResume(TCB_ID pTcb)
   if (kernelState == TRUE)
   {
     /* Put on kernel queue */
-    kernQAdd1((FUNCPTR) vmxResume, (ARG) pTcb);
+    workQAdd1((FUNCPTR) vmxResume, (ARG) pTcb);
 
     return(OK);
   }
@@ -830,7 +831,7 @@ STATUS taskUndelay(TCB_ID pTcb)
   if (kernelState == TRUE)
   {
     /* Put on kernel queue */
-    kernQAdd1((FUNCPTR) vmxUndelay, (ARG) pTcb);
+    workQAdd1((FUNCPTR) vmxUndelay, (ARG) pTcb);
 
     return(OK);
   }
@@ -890,7 +891,7 @@ STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority)
   if (kernelState == TRUE)
   {
     /* Add work to kernel */
-    kernQAdd2 ((FUNCPTR) vmxPrioritySet, (ARG) pTcb, (ARG) priority);
+    workQAdd2 ((FUNCPTR) vmxPrioritySet, (ARG) pTcb, (ARG) priority);
 
     return(OK);
   }

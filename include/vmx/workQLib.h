@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernQLib.h - Kernel work queue library */
+/* workQLib.h - Kernel work queue library */
 
-#ifndef _kernQLib_h
-#define _kernQLib_h
+#ifndef _workQLib_h
+#define _workQLib_h
 
 #ifndef _ASMLANGUAGE
 
@@ -29,79 +29,72 @@
 extern "C" {
 #endif
 
-/* Struct */
-typedef struct
-{
-    FUNCPTR func;    /* ptr to function that was added */
-    int     numArgs; /* # of arguments to added item */
-    ARG     arg1;    /* 1st argument of added function (if applicable) */
-    ARG     arg2;    /* 2nd argument of added function (if applicable) */
-} KERN_JOB;
+#include <vmx.h>
 
 /* Globals */
-extern volatile BOOL kernQEmpty;
+IMPORT volatile BOOL workQEmpty;
 
 /* Functions */
 /******************************************************************************
- * kernQLibInit - Initialize kernel work queue
+ * workQLibInit - Initialize kernel work queue
  *
  * RETURNS: OK
  */
 
-STATUS kernQLibInit(
+STATUS workQLibInit(
     void
     );
 
 /******************************************************************************
- * kernQAdd0 - Add a kernel job with no aguments
+ * workQAdd0 - Add a kernel job with no aguments
  *
  * RETURNS: N/A
  */
 
-void kernQAdd0(
+void workQAdd0(
     FUNCPTR func    /* ptr to deferred function */
     );
 
 /******************************************************************************
- * kernQAdd1 - Add a kernel job with one agument
+ * workQAdd1 - Add a kernel job with one agument
  *
  * RETURNS: N/A
  */
 
-void kernQAdd1(
+void workQAdd1(
     FUNCPTR func,     /* ptr to function to add */
     ARG arg1          /* 1st argument to deferred function */
     );
 
 /******************************************************************************
- * kernQAdd2 - Add a kernel job with two aguments
+ * workQAdd2 - Add a kernel job with two aguments
  *
  * RETURNS: N/A
  */
 
-void kernQAdd2(
+void workQAdd2(
     FUNCPTR func,     /* ptr to function to add */
     ARG arg1,         /* 1st argument to deferred function */
     ARG arg2          /* 2nd argument to deferred function */
     );
 
 /******************************************************************************
- * kernQDoWork - Do job on the kernel queue
+ * workQDoWork - Do job on the kernel queue
  *
  * RETURNS: N/A
  */
 
-void kernQDoWork(
+void workQDoWork(
     void
     );
 
 /******************************************************************************
- * kernQPanic - Fatal error in queue
+ * workQPanic - Fatal error in queue
  *
  * RETURNS: N/A
  */
 
-void kernQPanic(
+void workQPanic(
     void
     );
 
@@ -111,5 +104,5 @@ void kernQPanic(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _kernQLib_h */
+#endif /* _workQLib_h */
 

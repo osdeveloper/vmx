@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
+#include <vmx/workQLib.h>
 #include <vmx/private/kernLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/tickLib.h>
@@ -61,7 +62,7 @@ void tickAnnounce(
 {
     if (kernelState)
     {
-        kernQAdd0(vmxTickAnnounce);
+        workQAdd0((FUNCPTR) vmxTickAnnounce);
     }
     else
     {

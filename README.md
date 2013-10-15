@@ -1,6 +1,6 @@
 Real VMX Operating System  
-   
-Starting from scratch with the operating system  
+Starting from scratch with the operating system based on the work at:  
+http://sourceforge.net/projects/vmx/  
    
 Setup enviroment:  
 export VMX_BASE=/vmx-source-path  

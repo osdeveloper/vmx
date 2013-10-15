@@ -35,7 +35,7 @@
 #include <vmx/private/kernLibP.h>
 #include <vmx/private/tickLibP.h>
 #include <vmx/kernLib.h>
-#include <vmx/kernQLib.h>
+#include <vmx/workQLib.h>
 #include <vmx/taskLib.h>
 #ifndef NO_WDLIB
 #include <vmx/wdLib.h>
@@ -244,7 +244,7 @@ void vmxTickAnnounce(
             intCnt--;
 
             /* Do kernel work */
-            kernQDoWork();
+            workQDoWork();
         }
 #endif
     }

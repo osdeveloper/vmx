@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernQLib.c - Kernel work queue library */
+/* workQLib.c - Kernel work queue library */
 
 /*
 The kernel queue is implemented as a ring buffer.
@@ -30,67 +30,77 @@ The kernel queue is implemented as a ring buffer.
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
 #include <vmx/errnoLib.h>
-#include <vmx/kernQLib.h>
+#include <vmx/workQLib.h>
 
 /* defines */
 
-#define MAX_KERN_Q_JOBS        256    /* Always a power of two. */
+#define MAX_WORK_Q_JOBS        256    /* Always a power of two. */
+
+/* structs */
+
+typedef struct
+{
+    FUNCPTR func;    /* ptr to function that was added */
+    int     numArgs; /* # of arguments to added item */
+    ARG     arg1;    /* 1st argument of added function (if applicable) */
+    ARG     arg2;    /* 2nd argument of added function (if applicable) */
+} WORK_Q_JOB;
 
 /* globals */
-volatile BOOL kernQEmpty;
+volatile BOOL workQEmpty;
 
 /* locals */
-LOCAL volatile unsigned kernQReadIndex;
-LOCAL volatile unsigned kernQWriteIndex;
-LOCAL KERN_JOB          kernJobs[MAX_KERN_Q_JOBS];
+LOCAL volatile unsigned workQReadIndex;
+LOCAL volatile unsigned workQWriteIndex;
+LOCAL WORK_Q_JOB        workQJobs[MAX_WORK_Q_JOBS];
 
 /******************************************************************************
- * kernQLibInit - Initialize kernel work queue
+ * workQLibInit - Initialize kernel work queue
  *
  * RETURNS: OK
  */
 
-STATUS kernQLibInit(
+STATUS workQLibInit(
     void
     )
 {
-    kernQReadIndex = 0;
-    kernQWriteIndex = 0;
-    kernQEmpty = TRUE;
+    workQReadIndex = 0;
+    workQWriteIndex = 0;
+    workQEmpty = TRUE;
 
     return OK;
 }
 
 /******************************************************************************
- * kernQAdd0 - Add a kernel job with no aguments
+ * workQAdd0 - Add a kernel job with no aguments
  *
  * RETURNS: N/A
  */
 
-void kernQAdd0(
+void workQAdd0(
     FUNCPTR func    /* ptr to deferred function */
     )
 {
     int oldLevel;                 /* previous interrupt lock level */
-    FAST KERN_JOB *pJob;          /* ptr to job item */
+    FAST WORK_Q_JOB *pJob;        /* ptr to job item */
 
     INT_LOCK(oldLevel);           /* LOCK INTERRUPTS */
 
     /* Get place to store job in buffer */
-    pJob = (KERN_JOB *) &kernJobs[kernQWriteIndex];
+    pJob = (WORK_Q_JOB *) &workQJobs[workQWriteIndex];
 
-    kernQWriteIndex++;                   /* Advance ring buffer write index */
-    kernQWriteIndex &= (MAX_KERN_Q_JOBS - 1);
+    workQWriteIndex++;                   /* Advance ring buffer write index */
+    workQWriteIndex &= (MAX_WORK_Q_JOBS - 1);
 
-    if (kernQWriteIndex == kernQReadIndex)
+    if (workQWriteIndex == workQReadIndex)
     {
-        kernQPanic();
+        workQPanic();
     }
 
     INT_UNLOCK(oldLevel);                /* UNLOCK INTERRUPTS */
 
     /* Queue not empty */
-    kernQEmpty = FALSE;
+    workQEmpty = FALSE;
 
     /* Store data */
     pJob->func = func;
@@ -98,36 +108,36 @@ void kernQAdd0(
 }
 
 /******************************************************************************
- * kernQAdd1 - Add a kernel job with one agument
+ * workQAdd1 - Add a kernel job with one agument
  *
  * RETURNS: N/A
  */
 
-void kernQAdd1(
+void workQAdd1(
     FUNCPTR func,     /* ptr to function to add */
     ARG arg1          /* 1st argument to deferred function */
     )
 {
     int oldLevel;
-    FAST KERN_JOB *pJob;
+    FAST WORK_Q_JOB *pJob;
 
     INT_LOCK(oldLevel);                  /* LOCK INTERRUPTS */
 
     /* Get place to store job in buffer */
-    pJob = (KERN_JOB *) &kernJobs[kernQWriteIndex];
+    pJob = (WORK_Q_JOB *) &workQJobs[workQWriteIndex];
 
-    kernQWriteIndex++;                   /* Advance ring buffer write index */
-    kernQWriteIndex &= (MAX_KERN_Q_JOBS - 1);
+    workQWriteIndex++;                   /* Advance ring buffer write index */
+    workQWriteIndex &= (MAX_WORK_Q_JOBS - 1);
 
-    if (kernQWriteIndex == kernQReadIndex)
+    if (workQWriteIndex == workQReadIndex)
     {
-        kernQPanic();
+        workQPanic();
     }
 
     INT_UNLOCK(oldLevel);                /* UNLOCK INTERRUPTS */
 
     /* Queue not empty */
-    kernQEmpty = FALSE;
+    workQEmpty = FALSE;
 
     /* Store data */
     pJob->func = func;
@@ -136,37 +146,37 @@ void kernQAdd1(
 }
 
 /******************************************************************************
- * kernQAdd2 - Add a kernel job with two aguments
+ * workQAdd2 - Add a kernel job with two aguments
  *
  * RETURNS: N/A
  */
 
-void kernQAdd2(
+void workQAdd2(
     FUNCPTR func,     /* ptr to function to add */
     ARG arg1,         /* 1st argument to deferred function */
     ARG arg2          /* 2nd argument to deferred function */
     )
 {
     int oldLevel;
-    FAST KERN_JOB *pJob;
+    FAST WORK_Q_JOB *pJob;
 
     INT_LOCK(oldLevel);                  /* LOCK INTERRUPTS */
 
     /* Get place to store job in buffer */
-    pJob = (KERN_JOB *) &kernJobs[kernQWriteIndex];
+    pJob = (WORK_Q_JOB *) &workQJobs[workQWriteIndex];
 
-    kernQWriteIndex++;                   /* Advance ring buffer write index */
-    kernQWriteIndex &= (MAX_KERN_Q_JOBS - 1);
+    workQWriteIndex++;                   /* Advance ring buffer write index */
+    workQWriteIndex &= (MAX_WORK_Q_JOBS - 1);
 
-    if (kernQWriteIndex == kernQReadIndex)
+    if (workQWriteIndex == workQReadIndex)
     {
-        kernQPanic();
+        workQPanic();
     }
 
     INT_UNLOCK(oldLevel);                /* UNLOCK INTERRUPTS */
 
     /* Queue not empty */
-    kernQEmpty = FALSE;
+    workQEmpty = FALSE;
 
     /* Store data */
     pJob->func = func;
@@ -176,16 +186,16 @@ void kernQAdd2(
 }
 
 /******************************************************************************
- * kernQDoWork - Do job on the kernel queue
+ * workQDoWork - Do job on the kernel queue
  *
  * RETURNS: N/A
  */
 
-void kernQDoWork(
+void workQDoWork(
     void
     )
 {
-    FAST KERN_JOB *pJob;
+    FAST WORK_Q_JOB *pJob;
     int keepErrno;
     int level;
 
@@ -199,13 +209,13 @@ void kernQDoWork(
      * is important to lock interrupts while mucking with the indices.
      */
 
-    while (kernQReadIndex != kernQWriteIndex)
+    while (workQReadIndex != workQWriteIndex)
     {
         /* Get next job */
-        pJob = (KERN_JOB *) &kernJobs[kernQReadIndex];
+        pJob = (WORK_Q_JOB *) &workQJobs[workQReadIndex];
 
-        kernQReadIndex++;                  /* Advance ring buffer read index */
-        kernQReadIndex &= (MAX_KERN_Q_JOBS - 1);
+        workQReadIndex++;                  /* Advance ring buffer read index */
+        workQReadIndex &= (MAX_WORK_Q_JOBS - 1);
 
         INT_UNLOCK(level);
 
@@ -226,19 +236,19 @@ void kernQDoWork(
         INT_LOCK(level);   /* Lock interrupts again. */
     }
 
-    kernQEmpty = TRUE;     /* Queue must be empty */
+    workQEmpty = TRUE;     /* Queue must be empty */
     INT_UNLOCK(level);     /* Restore interrupts */
 
     errno = keepErrno;     /* Restore errno */
 }
 
 /******************************************************************************
- * kernQPanic - Fatal error in queue
+ * workQPanic - Fatal error in queue
  *
  * RETURNS: N/A
  */
 
-void kernQPanic(
+void workQPanic(
     void
     )
 {

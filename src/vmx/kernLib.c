@@ -29,7 +29,7 @@
 #include <util/qPrioLib.h>
 #include <util/qFifoLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/kernQLib.h>
+#include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/kernLib.h>
 
@@ -57,7 +57,7 @@ void kernInit(
     TCB_ID rootTcb, idleTcb;
 
     /* Initialize kernel work queue */
-    kernQLibInit();
+    workQLibInit();
 
     /* Initialize queues */
     qInit(&kernActiveQ, qFifoClassId);
