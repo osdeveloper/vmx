@@ -20,6 +20,8 @@
 
 /* memPartLib.c - Memory partitions */
 
+#define NO_TASKLIB
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,8 +33,6 @@
 #include <vmx/memPartLib.h>
 #include <vmx/private/memPartLibP.h>
 #include <vmx/memLib.h>
-
-#define NO_TASKLIB
 #ifndef NO_TASKLIB
 #include <vmx/semLib.h>
 #include <vmx/private/kernLibP.h>

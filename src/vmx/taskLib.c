@@ -890,7 +890,7 @@ STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority)
   if (kernelState == TRUE)
   {
     /* Add work to kernel */
-    kernQAdd2 ((FUNCPTR) vmxPriorityNormalSet, (ARG) pTcb, (ARG) priority);
+    kernQAdd2 ((FUNCPTR) vmxPrioritySet, (ARG) pTcb, (ARG) priority);
 
     return(OK);
   }
@@ -899,7 +899,7 @@ STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority)
   kernelState = TRUE;
 
   /* Set priority */
-  vmxPriorityNormalSet(pTcb, priority);
+  vmxPrioritySet(pTcb, priority);
 
   /* Exit trough kernel */
   kernExit();
