@@ -34,7 +34,6 @@
 #include <vmx/kernLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
-#include <vmx/kernHookLib.h>
 
 #define DELAY_TIME	(18 * 1)
 
@@ -44,12 +43,6 @@ IMPORT unsigned kernTicks;
 
 /* Globals */
 SEM_ID sem;
-int created_tasks = 0;
-int task_switch = 0;
-int deleted_tasks = 0;
-int reg_switch = 0;
-int reg_switch_in = 0;
-int reg_switch_out = 0;
 char bigString[] = "\n"
 		   "******************************************************\n"
   		   "Suddenly I awoke. I must have falled asleep under the \n"
@@ -88,6 +81,7 @@ int runMe(ARG arg0)
 }
 
 volatile int num = 0;
+#ifdef RESTART_TASK
 int restartMe(ARG arg0)
 {
   TCB_ID pTcb;
@@ -107,6 +101,7 @@ int restartMe(ARG arg0)
 
   return *pInt;
 }
+#endif
 
 int init(ARG arg0,
 	 ARG arg1,
@@ -158,19 +153,6 @@ int printBigString(void)
 	       	     (ARG) 0);
     semTake(sem, WAIT_FOREVER);
     puts(bigString);
-    puts("Task info : ");
-    puts(itoa2(created_tasks));
-    puts(" CRE ");
-    puts(itoa2(task_switch));
-    puts(" SWI ");
-    puts(itoa2(reg_switch));
-    puts(" SWA ");
-    puts(itoa2(reg_switch_in));
-    puts(" SIN ");
-    puts(itoa2(reg_switch_out));
-    puts(" SOT ");
-    puts(itoa2(deleted_tasks));
-    puts(" DEL.\n");
     semGive(sem);
     taskDelay(DELAY_TIME * 5);
     semTake(sem, WAIT_FOREVER);
@@ -190,14 +172,17 @@ int printBigString(void)
 int printSysTime(ARG arg0, ARG arg1)
 {
   int i;
+#ifdef RESTART_TASK
   TCB_ID pTcb = (TCB_ID) arg0;
   volatile int *pInt = (volatile int *) arg1;
+#endif
 
   for (i = 0;;i++) {
     semTake(sem, WAIT_FOREVER);
     puts("System time is: ");
     puts(itoa2(kernTicks/18));
     puts("...");
+#ifdef RESTART_TASK
     if (i == 3)
     {
       i=0;
@@ -209,6 +194,7 @@ int printSysTime(ARG arg0, ARG arg1)
       puts(" time");
       taskRestart(pTcb);
     }
+#endif
     puts("\n");
     semGive(sem);
     taskDelay(DELAY_TIME);
@@ -233,51 +219,12 @@ int slowFill(void)
   return 3;
 }
 
-int createHook(TCB_ID pTcb)
-{
-  created_tasks++;
-
-  return 0;
-}
-
-int switchHook(TCB_ID pTcb1, TCB_ID pTcb2)
-{
-  task_switch++;
-
-  return 0;
-}
-
-int deleteHook(TCB_ID pTcb)
-{
-  deleted_tasks++;
-
-  return 0;
-}
-
-int regHook(TCB_ID pTcb1, TCB_ID pTcb2)
-{
-  reg_switch++;
-
-  return 0;
-}
-
-int regHookIn(TCB_ID pTcb1, TCB_ID pTcb2)
-{
-  reg_switch_in++;
-
-  return 0;
-}
-
-int regHookOut(TCB_ID pTcb1, TCB_ID pTcb2)
-{
-  reg_switch_out++;
-
-  return 0;
-}
-
 int initTasks(void)
 {
-  TCB_ID restartTcbId, slowFillTcbId, printBigStringTcbId, printSysTimeTcbId;
+  TCB_ID slowFillTcbId, printBigStringTcbId, printSysTimeTcbId;
+#ifdef RESTART_TASK
+  TCB_ID restartTcbId;
+#endif
 
   puts("Welcome to Real VMX...\n");
   puts("This system is released under GNU public license.\n\n");
@@ -295,6 +242,7 @@ int initTasks(void)
 	     (ARG) 18,
 	     (ARG) 19);
 
+#ifdef RESTART_TASK
   restartTcbId =
   taskSpawn("restartMe", 100, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) restartMe,
@@ -308,6 +256,7 @@ int initTasks(void)
 	     (ARG) 0,
 	     (ARG) 0,
 	     (ARG) 0);
+#endif
 
   printBigStringTcbId =
   taskSpawn("printBigString", 2, 0,
@@ -326,7 +275,11 @@ int initTasks(void)
   printSysTimeTcbId =
   taskSpawn("printSysTime", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) printSysTime,
+#ifdef RESTART_TASK
 	     (ARG) restartTcbId,
+#else
+	     (ARG) NULL,
+#endif
 	     (ARG) &num,
 	     (ARG) 32,
 	     (ARG) 33,
@@ -350,17 +303,6 @@ int initTasks(void)
 	     (ARG) 37,
 	     (ARG) 38,
 	     (ARG) 39);
-
-  /* Install hooks */
-  kernCreateHookAdd(createHook);
-  kernSwitchHookAdd(switchHook);
-  kernDeleteHookAdd(deleteHook);
-  kernSwapHookAdd(regHook);
-  kernSwapHookAdd(regHookIn);
-  kernSwapHookAdd(regHookOut);
-  kernSwapHookAttach(regHook, slowFillTcbId, TRUE, TRUE);
-  kernSwapHookAttach(regHookIn, printBigStringTcbId, TRUE, FALSE);
-  kernSwapHookAttach(regHookOut, printSysTimeTcbId, FALSE, TRUE);
 
   return 0;
 }

@@ -21,7 +21,6 @@
 /* vmxLib.c - Task scheduling library */
 
 #include <stdlib.h>
-#include <sys/types.h>
 #include <vmx.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
@@ -43,7 +42,6 @@ IMPORT Q_HEAD kernReadyQ;		/* Ready tasks: TCB.qNode */
 IMPORT volatile unsigned kernTicks;
 IMPORT volatile unsigned kernAbsTicks;
 IMPORT TCB_ID kernCurrTaskId;
-IMPORT int kernSwapReference[];
 
 /******************************************************************************
 * vmxSpawn - Add a new task, initiallly in suspended state
@@ -69,8 +67,6 @@ void vmxSpawn(TCB_ID pTcb)
 
 STATUS vmxDelete(TCB_ID pTcb)
 {
-  u_int16_t mask;
-  int i;
   BOOL status = OK;
 
   logString("vmxDelete() called:",
@@ -94,15 +90,6 @@ STATUS vmxDelete(TCB_ID pTcb)
       Q_REMOVE(&kernTickQ, &pTcb->tickNode);
 
   }
-
-  /* Disconnect to all swap hooks */
-  for (i = 0, mask = pTcb->swapInMask; mask != 0; i++, mask = mask << 1)
-    if (mask & 0x8000)
-      kernSwapReference[i]--;
-
-  for (i = 0, mask = pTcb->swapOutMask; mask != 0; i++, mask = mask << 1)
-    if (mask & 0x8000)
-      kernSwapReference[i]--;
 
   /* Deactivate task */
   Q_REMOVE(&kernActiveQ, &pTcb->activeNode);

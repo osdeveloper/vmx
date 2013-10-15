@@ -32,7 +32,6 @@
 #include <vmx/kernLib.h>
 #include <vmx/kernQLib.h>
 #include <vmx/vmxLib.h>
-#include <vmx/kernHookLib.h>
 
 /* Imports */
 IMPORT void kernTaskLoadContext(void);
@@ -47,11 +46,6 @@ Q_HEAD kernTickQ;
 Q_HEAD kernReadyQ;
 volatile unsigned kernTicks = 0;
 volatile unsigned kernAbsTicks = 0;
-FUNCPTR kernCreateHooks[MAX_KERNEL_CREATE_HOOKS + 1];
-FUNCPTR kernSwitchHooks[MAX_KERNEL_SWITCH_HOOKS + 1];
-FUNCPTR kernDeleteHooks[MAX_KERNEL_DELETE_HOOKS + 1];
-FUNCPTR kernSwapHooks[MAX_KERNEL_SWAP_HOOKS + 1];
-int kernSwapReference[MAX_KERNEL_SWAP_HOOKS + 1];
 
 /******************************************************************************
 * kernInit - Initialize kernel
@@ -78,9 +72,6 @@ void kernInit(FUNCPTR rootTask)
    kernRoundRobinTimeSlice = 0;
    kernTicks = 0;
    kernAbsTicks = 0;
-
-  /* Initialize kernel extension library */
-  kernHookLibInit();
 
   /* Initialize root task */
   rootTcb = taskCreate("rootTask", 0, 0,

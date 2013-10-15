@@ -50,7 +50,6 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
 #include <arch/regs.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
@@ -82,10 +81,6 @@ typedef struct taskTCB {
   unsigned id;				/* 0x68 */
   unsigned status;			/* 0x6c */
   unsigned lockCount;			/* 0x70 */
-
-  /* Kernel hooks */
-  u_int16_t swapInMask;			/* 0x74 */
-  u_int16_t swapOutMask;		/* 0x76 */
 
   char name[MAX_TASK_NAME_LEN];
   unsigned stackDepth;
@@ -122,7 +117,8 @@ typedef struct taskTCB {
 * RETURNS: OK or ERROR
 *******************************************************************************/
 
-#define TASK_ID_VERIFY(tcbId) (OBJ_VERIFY(tcbId, taskClassId))
+#define TASK_ID_VERIFY(tcbId)						       \
+    (OBJ_VERIFY(tcbId, taskClassId))
 
 typedef TCB *TCB_ID;
 CLASS_ID taskClassId;

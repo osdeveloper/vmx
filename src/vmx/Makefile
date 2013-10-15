@@ -21,7 +21,7 @@
 # Makefile - Real VMX Operating System library
 
 OBJS = logLib.o errnoLib.o classLib.o objLib.o memPartLib.o kernLib.o \
-       kernQLib.o kernHookLib.o vmxLib.o taskLib.o semLib.o semBLib.o
+       kernQLib.o vmxLib.o taskLib.o semLib.o semBLib.o
 SUBDIRS =
 LIB_TGT = vmx
 

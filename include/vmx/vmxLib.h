@@ -30,7 +30,6 @@ extern "C" {
 #endif
 
 #include <util/qLib.h>
-#include <vmx/taskLib.h>
 
 IMPORT void vmxSpawn(TCB_ID pTcb);
 IMPORT STATUS vmxDelete(TCB_ID pTcb);

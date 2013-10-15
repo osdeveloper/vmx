@@ -20,34 +20,25 @@
 
 /* taskLib.c - Task handeling library */
 
-#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vmx.h>
-#include <util/qLib.h>
-#include <util/qPrioLib.h>
+#include <arch/intArchLib.h>
 #include <vmx/logLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
 #include <vmx/memPartLib.h>
-#include <vmx/vmxLib.h>
-#include <arch/intArchLib.h>
-#include <vmx/sigLib.h>
-#include <vmx/kernQLib.h>
-#include <vmx/kernHookLib.h>
-#include <arch/taskArchLib.h>
+#include <util/qLib.h>
+#include <util/qPrioLib.h>
 #include <vmx/taskLib.h>
+#include <vmx/vmxLib.h>
+#include <vmx/sigLib.h>
 
 /* Imports */
-IMPORT TCB_ID kernCurrTaskId;
 IMPORT BOOL kernState;
+IMPORT TCB_ID kernCurrTaskId;
 Q_HEAD kernReadyQ;
 IMPORT STATUS kernExit(void);
-IMPORT FUNCPTR kernCreateHooks[];
-IMPORT FUNCPTR kernSwitchHooks[];
-IMPORT FUNCPTR kernDeleteHooks[];
-IMPORT FUNCPTR kernSwapHooks[];
-IMPORT int kernSwapReference[];
 
 /* Locals */
 LOCAL OBJ_CLASS taskClass;
@@ -180,7 +171,7 @@ TCB_ID taskCreate(const char *name,
 
   /* Allocate new TCB plus stack */
   pTaskMem = objAllocPad(taskClassId,
-			 (unsigned) stackDepth,
+		  	 (unsigned) stackDepth,
 			 (void **) NULL);
   if (pTaskMem == NULL) {
     logString("ERROR - Memory allocation for TCB failed.",
@@ -242,7 +233,7 @@ STATUS taskInit(TCB_ID pTcb,
 		ARG arg9)
 {
   static unsigned new_id;
-  int i, len;
+  int len;
   ARG args[MAX_TASK_ARGS];
 
   logString("taskInit() called:",
@@ -339,11 +330,6 @@ STATUS taskInit(TCB_ID pTcb,
   /* Object core */
   objCoreInit(&pTcb->objCore, taskClassId);
 
-  /* Run create hooks */
-  for (i = 0; i < MAX_KERNEL_CREATE_HOOKS; i++)
-    if (kernCreateHooks[i] != NULL)
-      (*kernCreateHooks[i])(pTcb);
-
   /* Start task */
   vmxSpawn(pTcb);
 
@@ -395,7 +381,7 @@ STATUS taskDestroy(TCB_ID pTcb,
 		   BOOL forceDestroy)
 {
   STATUS status;
-  int i, level;
+  int level;
   TCB_ID tcbId;
 
   logString("taskDestroy() called:",
@@ -558,11 +544,6 @@ STATUS taskDestroy(TCB_ID pTcb,
        /* Unlock interrupts */
        INT_UNLOCK(level);
     }
-
-    /* Run deletion hooks */
-    for (i = 0; i < MAX_KERNEL_DELETE_HOOKS; i++)
-      if (kernDeleteHooks[i] != NULL)
-        (*kernDeleteHooks[i])(tcbId);
 
     /* Lock task */
     taskLock();
@@ -1309,7 +1290,6 @@ STATUS taskUnsafe(void)
     return(ERROR);
   }
 
-#if 1
   /* Verify that it is actually a task */
   if (TASK_ID_VERIFY(kernCurrTaskId))
   {
@@ -1318,7 +1298,6 @@ STATUS taskUnsafe(void)
 	      LOG_LEVEL_ERROR);
     return(ERROR);
   }
-#endif
 
   /* Check if state is chaged */
   if ( (kernCurrTaskId->safeCount > 0) && (--kernCurrTaskId->safeCount == 0) )
@@ -1366,7 +1345,6 @@ TCB_ID taskTcb(TCB_ID pTcb)
   /* If NULL, return current task id */
   if (pTcb == NULL) return(kernCurrTaskId);
 
-#if 1
   /* Verify that it is actually a task */
   if (TASK_ID_VERIFY(kernCurrTaskId))
   {
@@ -1375,7 +1353,6 @@ TCB_ID taskTcb(TCB_ID pTcb)
 	      LOG_LEVEL_ERROR);
     return(NULL);
   }
-#endif
 
   /* Else trivial */
   return(pTcb);
