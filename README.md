@@ -4,9 +4,9 @@ Starting from scratch with the operating system
    
 Setup enviroment:  
 export VMX_BASE=/vmx-source-path  
-cd $VMX_BASE  
    
 Build instructions:  
+cd $VMX_BASE  
 cd src  
 make CPU=PENTIUM2  
 cd build/i386  
