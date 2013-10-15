@@ -24,21 +24,17 @@
 #include <string.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
+#include <arch/kernArchLib.h>
 #include <vmx/logLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
 #include <vmx/memPartLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/sigLib.h>
-
-/* Imports */
-IMPORT BOOL kernState;
-IMPORT TCB_ID kernCurrTaskId;
-Q_HEAD kernReadyQ;
-IMPORT STATUS kernExit(void);
 
 /* Locals */
 LOCAL OBJ_CLASS taskClass;
@@ -390,7 +386,7 @@ STATUS taskDestroy(TCB_ID pTcb,
 
   /* Null will commit suicide */
   if (pTcb == NULL)
-    tcbId = kernCurrTaskId;
+    tcbId = taskIdCurrent;
   else
     tcbId = pTcb;
 
@@ -446,13 +442,13 @@ STATUS taskDestroy(TCB_ID pTcb,
           )
     {
       /* Enter kernel mode */
-      kernState = TRUE;
+      kernelState = TRUE;
 
       /* Unlock interrupts */
       INT_UNLOCK(level);
 
       /* Check if force deletion, or suicide */
-      if (forceDestroy || (tcbId == kernCurrTaskId))
+      if (forceDestroy || (tcbId == taskIdCurrent))
       {
 
         /* Remove protections */
@@ -525,10 +521,10 @@ STATUS taskDestroy(TCB_ID pTcb,
     tcbId->safeCount++;
 
      /* Check if not suicide */
-     if (tcbId != kernCurrTaskId)
+     if (tcbId != taskIdCurrent)
      {
        /* Enter kernel mode */
-       kernState = TRUE;
+       kernelState = TRUE;
 
        /* Unlock interrupts */
        INT_UNLOCK(level);
@@ -565,7 +561,7 @@ STATUS taskDestroy(TCB_ID pTcb,
     objCoreTerminate(&tcbId->objCore);
 
     /* Enter kernel mode */
-    kernState = TRUE;
+    kernelState = TRUE;
 
     /* Unlock interrupts */
     INT_UNLOCK(level);
@@ -646,7 +642,7 @@ STATUS taskSuspend(TCB_ID pTcb)
   }
 
   /* Check if in kernel mode */
-  if (kernState == TRUE)
+  if (kernelState == TRUE)
   {
     /* Add to kernel queue */
     kernQAdd1 ((FUNCPTR) vmxSuspend, (ARG) pTcb);
@@ -655,7 +651,7 @@ STATUS taskSuspend(TCB_ID pTcb)
   }
 
   /* Enter kernel mode */
-  kernState = TRUE;
+  kernelState = TRUE;
 
   /* Suspend task */
   vmxSuspend(pTcb);
@@ -706,7 +702,7 @@ STATUS taskResume(TCB_ID pTcb)
   }
 
   /* Put on queue if in kernel mode */
-  if (kernState == TRUE)
+  if (kernelState == TRUE)
   {
     /* Put on kernel queue */
     kernQAdd1((FUNCPTR) vmxResume, (ARG) pTcb);
@@ -715,7 +711,7 @@ STATUS taskResume(TCB_ID pTcb)
   }
 
   /* Enter kernel mode */
-  kernState = TRUE;
+  kernelState = TRUE;
 
   /* Resume task */
   vmxResume(pTcb);
@@ -741,7 +737,7 @@ STATUS taskDelay(unsigned timeout)
 	    LOG_LEVEL_CALLS);
 
   /* Check if not NULL */
-  if (kernCurrTaskId == NULL)
+  if (taskIdCurrent == NULL)
   {
     logString("ERROR - Null task",
 	      LOG_TASK_LIB,
@@ -759,7 +755,7 @@ STATUS taskDelay(unsigned timeout)
   }
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,
@@ -768,13 +764,13 @@ STATUS taskDelay(unsigned timeout)
   }
 
   /* Enter kernel mode */
-  kernState = TRUE;
+  kernelState = TRUE;
 
   /* If no wait, then just reinsert it */
   if (timeout == WAIT_NONE)
   {
-    Q_REMOVE(&kernReadyQ, kernCurrTaskId);
-    Q_PUT(&kernReadyQ, kernCurrTaskId, kernCurrTaskId->priority);
+    Q_REMOVE(&kernReadyQ, taskIdCurrent);
+    Q_PUT(&kernReadyQ, taskIdCurrent, taskIdCurrent->priority);
   }
   /* Put to sleep */
   else
@@ -831,7 +827,7 @@ STATUS taskUndelay(TCB_ID pTcb)
   }
 
   /* Put on queue if in kernel mode */
-  if (kernState == TRUE)
+  if (kernelState == TRUE)
   {
     /* Put on kernel queue */
     kernQAdd1((FUNCPTR) vmxUndelay, (ARG) pTcb);
@@ -840,7 +836,7 @@ STATUS taskUndelay(TCB_ID pTcb)
   }
 
   /* Enter kernel mode */
-  kernState = TRUE;
+  kernelState = TRUE;
 
   /* Resume task */
   vmxUndelay(pTcb);
@@ -891,7 +887,7 @@ STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority)
   }
 
   /* Check if in kernel mode */
-  if (kernState == TRUE)
+  if (kernelState == TRUE)
   {
     /* Add work to kernel */
     kernQAdd2 ((FUNCPTR) vmxPriorityNormalSet, (ARG) pTcb, (ARG) priority);
@@ -900,7 +896,7 @@ STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority)
   }
 
   /* Enter kernel mode */
-  kernState = TRUE;
+  kernelState = TRUE;
 
   /* Set priority */
   vmxPriorityNormalSet(pTcb, priority);
@@ -1006,7 +1002,7 @@ STATUS taskRestart(TCB_ID pTcb)
   }
 
   /* Discard self restart */
-  if (pTcb == kernCurrTaskId)
+  if (pTcb == taskIdCurrent)
   {
     logString("ERROR - Self restart not supported",
 	      LOG_TASK_LIB,
@@ -1079,7 +1075,7 @@ void taskExit(int code)
 	    LOG_LEVEL_CALLS);
 
   /* Check if not NULL */
-  if (kernCurrTaskId == NULL)
+  if (taskIdCurrent == NULL)
   {
     logString("ERROR - Null task",
 	      LOG_TASK_LIB,
@@ -1097,7 +1093,7 @@ void taskExit(int code)
   }
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,
@@ -1106,7 +1102,7 @@ void taskExit(int code)
   }
 
   /* Store return code */
-  kernCurrTaskId->exitCode = code;
+  taskIdCurrent->exitCode = code;
 
   /* Lock task */
   taskLock();
@@ -1131,7 +1127,7 @@ STATUS taskLock(void)
 	    LOG_LEVEL_CALLS);
 
   /* Check if not NULL */
-  if (kernCurrTaskId == NULL)
+  if (taskIdCurrent == NULL)
   {
     logString("ERROR - Null task",
 	      LOG_TASK_LIB,
@@ -1149,7 +1145,7 @@ STATUS taskLock(void)
   }
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,
@@ -1157,7 +1153,7 @@ STATUS taskLock(void)
     return(ERROR);
   }
 
-  kernCurrTaskId->lockCount++;
+  taskIdCurrent->lockCount++;
 
   return(OK);
 }
@@ -1175,7 +1171,7 @@ STATUS taskUnlock(void)
 	    LOG_LEVEL_CALLS);
 
   /* Check if not NULL */
-  if (kernCurrTaskId == NULL)
+  if (taskIdCurrent == NULL)
   {
     logString("ERROR - Null task",
 	      LOG_TASK_LIB,
@@ -1193,7 +1189,7 @@ STATUS taskUnlock(void)
   }
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,
@@ -1202,13 +1198,13 @@ STATUS taskUnlock(void)
   }
 
   /* Check if state is chaged */
-  if ( (kernCurrTaskId->lockCount > 0) && (--kernCurrTaskId->lockCount == 0) )
+  if ( (taskIdCurrent->lockCount > 0) && (--taskIdCurrent->lockCount == 0) )
   {
     /* Enter kernel mode */
-    kernState = TRUE;
+    kernelState = TRUE;
 
-    if (Q_FIRST(&kernCurrTaskId->safetyQ) != NULL)
-      vmxPendQFlush(&kernCurrTaskId->safetyQ);
+    if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
+      vmxPendQFlush(&taskIdCurrent->safetyQ);
 
     /* Exit trough kernel */
     kernExit();
@@ -1229,7 +1225,7 @@ STATUS taskSafe(void)
 	    LOG_LEVEL_CALLS);
 
   /* Check if not NULL */
-  if (kernCurrTaskId == NULL)
+  if (taskIdCurrent == NULL)
   {
     logString("ERROR - Null task",
 	      LOG_TASK_LIB,
@@ -1247,7 +1243,7 @@ STATUS taskSafe(void)
   }
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,
@@ -1255,7 +1251,7 @@ STATUS taskSafe(void)
     return(ERROR);
   }
 
-  kernCurrTaskId->safeCount++;
+  taskIdCurrent->safeCount++;
 
   return(OK);
 }
@@ -1273,7 +1269,7 @@ STATUS taskUnsafe(void)
 	    LOG_LEVEL_CALLS);
 
   /* Check if not NULL */
-  if (kernCurrTaskId == NULL)
+  if (taskIdCurrent == NULL)
   {
     logString("ERROR - Null task",
 	      LOG_TASK_LIB,
@@ -1291,7 +1287,7 @@ STATUS taskUnsafe(void)
   }
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,
@@ -1300,13 +1296,13 @@ STATUS taskUnsafe(void)
   }
 
   /* Check if state is chaged */
-  if ( (kernCurrTaskId->safeCount > 0) && (--kernCurrTaskId->safeCount == 0) )
+  if ( (taskIdCurrent->safeCount > 0) && (--taskIdCurrent->safeCount == 0) )
   {
     /* Enter kernel mode */
-    kernState = TRUE;
+    kernelState = TRUE;
 
-    if (Q_FIRST(&kernCurrTaskId->safetyQ) != NULL)
-      vmxPendQFlush(&kernCurrTaskId->safetyQ);
+    if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
+      vmxPendQFlush(&taskIdCurrent->safetyQ);
 
     /* Exit trough kernel */
     kernExit();
@@ -1327,7 +1323,7 @@ TCB_ID taskIdSelf(void)
 	    LOG_TASK_LIB,
 	    LOG_LEVEL_CALLS);
 
-  return(kernCurrTaskId);
+  return(taskIdCurrent);
 }
 
 /**************************************************************
@@ -1343,10 +1339,10 @@ TCB_ID taskTcb(TCB_ID pTcb)
 	    LOG_LEVEL_CALLS);
 
   /* If NULL, return current task id */
-  if (pTcb == NULL) return(kernCurrTaskId);
+  if (pTcb == NULL) return(taskIdCurrent);
 
   /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(kernCurrTaskId))
+  if (TASK_ID_VERIFY(taskIdCurrent))
   {
     logString("ERROR - Non task object",
 	      LOG_TASK_LIB,

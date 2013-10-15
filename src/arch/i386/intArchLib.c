@@ -30,13 +30,11 @@
 #include <vmx/memPartLib.h>
 #include <vmx/logLib.h>
 #include <arch/sysArchLib.h>
+#include <arch/kernArchLib.h>
 #include <arch/excArchLib.h>
 #include <arch/intArchLib.h>
 
 /* Imports */
-IMPORT void		intVBRSet (FUNCPTR *baseAddr);
-IMPORT void		kernIntEnt(void);
-IMPORT void		kernIntExit(void);
 IMPORT u_int32_t	sysIntIdtType;
 IMPORT u_int32_t	sysCsInt;
 

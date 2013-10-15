@@ -26,11 +26,10 @@
 #include <util/qFifoLib.h>
 #include <util/qPrioLib.h>
 #include <vmx/logLib.h>
+#include <vmx/errnoLib.h>
 #include <vmx/memPartLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/semLib.h>
-
-/* Imports */
-IMPORT BOOL kernState;
 
 /* Locals */
 LOCAL BOOL semLibInstalled = FALSE;
@@ -120,7 +119,7 @@ STATUS semGive(SEM_ID semId)
   }
 
   /* SHOULD IMPLEMENT SEM GIVE IN KERNEL MODE */
-  if (kernState)
+  if (kernelState)
   {
     logString("ERROR - Not implemented",
               LOG_SEM_LIB,

@@ -32,14 +32,11 @@
 #include <vmx/logLib.h>
 #include <vmx/memPartLib.h>
 #include <vmx/kernLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
 
 #define DELAY_TIME	(18 * 1)
-
-/* Imports */
-IMPORT PART_ID memSysPartitionId;
-IMPORT unsigned kernTicks;
 
 /* Globals */
 SEM_ID sem;
@@ -357,7 +354,7 @@ void usrInit(void)
   sysHwInit();
 
   kernelInit((char *) 0x00400000, 0x00400000);
-  kernTimeSlice(1);
+  kernelTimeSlice(1);
 
 #ifdef DEBUG
   puts("Multitasking not enabled:\n");

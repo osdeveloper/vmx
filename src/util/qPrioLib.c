@@ -22,12 +22,10 @@
 
 #include <stdlib.h>
 #include <vmx.h>
+#include <vmx/private/kernLibP.h>
 #include <util/dllLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
-
-/* Imports */
-IMPORT volatile unsigned kernTicks;
 
 /* Forward declarations */
 LOCAL Q_PRIO_HEAD* qPrioCreate(

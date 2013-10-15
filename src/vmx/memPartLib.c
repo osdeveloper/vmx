@@ -35,11 +35,9 @@
 #define NO_TASKLIB
 #ifndef NO_TASKLIB
 #include <vmx/semLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
-
-/* Imports */
-IMPORT TCB_ID taskIdCurrent;
 #endif
 
 /* Locals */

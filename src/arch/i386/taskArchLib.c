@@ -21,11 +21,9 @@
 /* taskArchLib.c - Task switching functions */
 
 #include <vmx.h>
+#include <arch/kernArchLib.h>
 #include <vmx/taskLib.h>
 #include <arch/taskArchLib.h>
-
-/* Imports */
-IMPORT void kernTaskEntry(void);
 
 /******************************************************************************
  * taskRegsInit - Initialize architecture depedant tcb data

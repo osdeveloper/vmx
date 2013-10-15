@@ -23,10 +23,8 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/kernQLib.h>
-
-/* Imports */
-IMPORT int 		errno;
 
 /* Globals */
 volatile unsigned	kernQReadIndex;

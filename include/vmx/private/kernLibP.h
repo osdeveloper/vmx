@@ -18,39 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* limitsI386.h - Limits header */
+/* kernLibP.h - Private header for kernel library */
 
-#ifndef _limitsI386Lib_h
-#define _limitsI386Lib_h
-
-#define CHAR_BIT        8
-
-#define SCHAR_MAX       127
-#define SCHAR_MIN       (-128)
-
-#define UCHAR_MAX       255
-#define UCHAR_MIN       0
-
-#define CHAR_MAX        UCHAR_MAX
-#define CHAR_MIN        0
-
-#define SHRT_MAX        32767
-#define SHRT_MIN        (-32768)
-
-#define USHRT_MAX       65536
-#define USHRT_MIN       0
-
-#define INT_MAX         2147483647
-#define INT_MIN         (-INT_MAX - 1)
-
-#define UINT_MAX        4294967295U
-#define UINT_MIN        0
-
-#define LONG_MAX        2147483647L
-#define LONG_MIN        (-LONG_MAX - 1L)
-
-#define ULONG_MAX       4294967295UL
-#define ULONG_MIN       0
+#ifndef _kernLibP_h
+#define _kernLibP_h
 
 #ifndef _ASMLANGUAGE
 
@@ -58,11 +29,25 @@
 extern "C" {
 #endif
 
+#include <vmx.h>
+#include <vmx/taskLib.h>
+
+IMPORT BOOL kernelInitialized;
+IMPORT BOOL kernelState;
+IMPORT BOOL kernRoundRobin;
+IMPORT unsigned kernRoundRobinTimeSlice;
+IMPORT TCB_ID taskIdCurrent;
+IMPORT Q_HEAD kernActiveQ;
+IMPORT Q_HEAD kernTickQ;
+IMPORT Q_HEAD kernReadyQ;
+IMPORT volatile unsigned kernTicks;
+IMPORT volatile unsigned kernAbsTicks;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _limitsI386Lib_h */
+#endif /* _kernLibP_h */
 

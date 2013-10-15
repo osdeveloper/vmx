@@ -22,26 +22,16 @@
 
 #include <stdlib.h>
 #include <vmx.h>
+#include <arch/kernArchLib.h>
+#include <arch/taskArchLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
 #include <util/qFifoLib.h>
 #include <vmx/logLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/kernLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
-
-/* Imports */
-IMPORT void taskRetValueSet(TCB_ID pTcb, int val);
-IMPORT BOOL kernState;
-IMPORT BOOL kernRoundRobin;
-IMPORT unsigned kernRoundRobinTimeSlice;
-IMPORT TCB_ID kernCurrTaskId;		/* Running task */
-IMPORT Q_HEAD kernActiveQ;		/* Active tasks: TCB.activeNode */
-IMPORT Q_HEAD kernTickQ;		/* Delayed tasks: TCB.tickNode */
-IMPORT Q_HEAD kernReadyQ;		/* Ready tasks: TCB.qNode */
-IMPORT volatile unsigned kernTicks;
-IMPORT volatile unsigned kernAbsTicks;
-IMPORT TCB_ID kernCurrTaskId;
 
 /******************************************************************************
 * vmxSpawn - Add a new task, initiallly in suspended state
@@ -227,13 +217,13 @@ void vmxTickAnnounce(void)
 
   /* Perform periodic task switching in round robin mode */
   if ((kernRoundRobin) &&
-      (kernCurrTaskId->lockCount == 0) &&
-      (kernCurrTaskId->status == TASK_READY) &&
-      (++kernCurrTaskId->timeSlice >= kernRoundRobinTimeSlice))
+      (taskIdCurrent->lockCount == 0) &&
+      (taskIdCurrent->status == TASK_READY) &&
+      (++taskIdCurrent->timeSlice >= kernRoundRobinTimeSlice))
   {
-    kernCurrTaskId->timeSlice = 0;
-    Q_REMOVE(&kernReadyQ, kernCurrTaskId);
-    Q_PUT(&kernReadyQ, kernCurrTaskId, kernCurrTaskId->priority);
+    taskIdCurrent->timeSlice = 0;
+    Q_REMOVE(&kernReadyQ, taskIdCurrent);
+    Q_PUT(&kernReadyQ, taskIdCurrent, taskIdCurrent->priority);
   }
 }
 
@@ -250,7 +240,7 @@ STATUS vmxDelay(unsigned timeout)
             LOG_LEVEL_CALLS);
 
   /* Remove from running tasks queue */
-  Q_REMOVE(&kernReadyQ, kernCurrTaskId);
+  Q_REMOVE(&kernReadyQ, taskIdCurrent);
 
   /* Will kernel timer overflow ? */
   if ((unsigned) (kernTicks + timeout) < kernTicks)
@@ -260,10 +250,10 @@ STATUS vmxDelay(unsigned timeout)
   }
 
   /* Put task on delay queue */
-  Q_PUT(&kernTickQ, &kernCurrTaskId->tickNode, timeout + kernTicks);
+  Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + kernTicks);
 
   /* Update status to delayed */
-  kernCurrTaskId->status |= TASK_DELAY;
+  taskIdCurrent->status |= TASK_DELAY;
 
   return(OK);
 }
@@ -444,13 +434,13 @@ void vmxReadyQRemove(Q_HEAD *pQHead, unsigned timeout)
             LOG_LEVEL_CALLS);
 
   /* Remove from ready queue */
-  Q_REMOVE(&kernReadyQ, kernCurrTaskId);
+  Q_REMOVE(&kernReadyQ, taskIdCurrent);
 
   /* Update status */
-  kernCurrTaskId->status |= TASK_PEND;
+  taskIdCurrent->status |= TASK_PEND;
 
   /* Set task pendig queue */
-  kernCurrTaskId->pPendQ = pQHead;
+  taskIdCurrent->pPendQ = pQHead;
 
   if (timeout != WAIT_FOREVER)
   {
@@ -462,8 +452,8 @@ void vmxReadyQRemove(Q_HEAD *pQHead, unsigned timeout)
     }
 
     /* Put on tick queue */
-    Q_PUT(&kernTickQ, &kernCurrTaskId->tickNode, timeout + kernTicks);
-    kernCurrTaskId->status |= TASK_DELAY;
+    Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + kernTicks);
+    taskIdCurrent->status |= TASK_DELAY;
   }
 }
 
@@ -512,23 +502,23 @@ STATUS vmxPendQPut(Q_HEAD *pQHead, unsigned timeout)
             LOG_LEVEL_CALLS);
 
   logStringAndInteger("Removing task from ready queue",
-                      kernCurrTaskId->id,
+                      taskIdCurrent->id,
                       LOG_VMX_LIB,
                       LOG_LEVEL_INFO);
 
   /* Remove from ready queue */
-  Q_REMOVE(&kernReadyQ, kernCurrTaskId);
+  Q_REMOVE(&kernReadyQ, taskIdCurrent);
 
   /* Update status */
-  kernCurrTaskId->pPendQ = pQHead;
+  taskIdCurrent->pPendQ = pQHead;
 
   logStringAndInteger("Put task on semaphore pending queue",
-                      kernCurrTaskId->id,
+                      taskIdCurrent->id,
                       LOG_VMX_LIB,
                       LOG_LEVEL_INFO);
 
   /* Put on task pendig queue */
-  Q_PUT(pQHead, kernCurrTaskId, kernCurrTaskId->priority);
+  Q_PUT(pQHead, taskIdCurrent, taskIdCurrent->priority);
 
   if (timeout != WAIT_FOREVER)
   {
@@ -540,13 +530,13 @@ STATUS vmxPendQPut(Q_HEAD *pQHead, unsigned timeout)
     }
 
     logStringAndInteger("Put task on time queue",
-                        kernCurrTaskId->id,
+                        taskIdCurrent->id,
                         LOG_VMX_LIB,
                         LOG_LEVEL_INFO);
 
     /* Put on tick queue */
-    Q_PUT(&kernTickQ, &kernCurrTaskId->tickNode, timeout + kernTicks);
-    kernCurrTaskId->status |= TASK_DELAY;
+    Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + kernTicks);
+    taskIdCurrent->status |= TASK_DELAY;
   }
 
   return(OK);

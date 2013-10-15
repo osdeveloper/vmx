@@ -23,18 +23,14 @@
 #include <stdlib.h>
 #include <vmx.h>
 #include <vmx/logLib.h>
-#include <vmx/semLib.h>
 #include <arch/intArchLib.h>
 #include <vmx/classLib.h>
 #include <vmx/memPartLib.h>
-#include <vmx/taskLib.h>
+#include <vmx/private/kernLibP.h>
 #include <vmx/vmxLib.h>
+#include <vmx/taskLib.h>
 #include <vmx/sigLib.h>
-
-/* Imports */
-IMPORT BOOL kernState;
-IMPORT STATUS kernExit(void);
-IMPORT TCB_ID kernCurrTaskId;
+#include <vmx/semLib.h>
 
 /* Locals */
 LOCAL BOOL semBLibInstalled = FALSE;
@@ -174,7 +170,7 @@ STATUS semBCoreInit(SEM_ID semId, int options, SEM_B_STATE state)
   switch(state)
   {
     case SEM_EMPTY:
-      SEM_OWNER_SET(semId, kernCurrTaskId);
+      SEM_OWNER_SET(semId, taskIdCurrent);
       break;
 
     case SEM_FULL:
@@ -262,7 +258,7 @@ STATUS semBGive(SEM_ID semId)
                 	LOG_LEVEL_INFO);
 
     /* Enter kernel mode */
-    kernState = TRUE;
+    kernelState = TRUE;
     INT_UNLOCK(level);
 
     /* Unblock next task waiting */
@@ -307,7 +303,7 @@ STATUS semBTake(SEM_ID semId, unsigned timeout)
   }
 
   logStringAndInteger("Semaphore take request from",
-                      kernCurrTaskId->id,
+                      taskIdCurrent->id,
                       LOG_SEM_LIB,
                       LOG_LEVEL_INFO);
 
@@ -330,13 +326,13 @@ STATUS semBTake(SEM_ID semId, unsigned timeout)
     if (SEM_OWNER_GET(semId) == NULL)
     {
       /* Then take it */
-      SEM_OWNER_SET(semId, kernCurrTaskId);
+      SEM_OWNER_SET(semId, taskIdCurrent);
 
       /* Unlock interrupts */
       INT_UNLOCK(level);
 
       logStringAndInteger("Semaphore taken for",
-			  kernCurrTaskId->id,
+			  taskIdCurrent->id,
                 	  LOG_SEM_LIB,
                 	  LOG_LEVEL_INFO);
 
@@ -344,7 +340,7 @@ STATUS semBTake(SEM_ID semId, unsigned timeout)
     }
   
     /* Enter kernel mode */
-    kernState = TRUE;
+    kernelState = TRUE;
     INT_UNLOCK(level);
 
     logStringAndInteger("Waiting for semaphore give from",
