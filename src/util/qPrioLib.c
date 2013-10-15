@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <vmx.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/tickLibP.h>
 #include <util/dllLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
@@ -297,10 +297,11 @@ LOCAL Q_PRIO_NODE* qPrioExpired(
     Q_PRIO_HEAD *pQPriHead
     )
 {
-    Q_PRIO_NODE *pQPriNode = (Q_PRIO_NODE *) DLL_HEAD((DL_LIST *) pQPriHead);
     Q_PRIO_NODE *pQNode;
+    Q_PRIO_NODE *pQPriNode = (Q_PRIO_NODE *) DLL_HEAD((DL_LIST *) pQPriHead);
+    unsigned ticks = tickGet();
 
-    if ((pQPriNode != NULL) && (pQPriNode->qPrio.key <= kernTicks))
+    if ((pQPriNode != NULL) && (pQPriNode->qPrio.key <= ticks))
     {
         pQNode = (Q_PRIO_NODE *) dllGet(&pQPriHead->qPrio.head);
     }
@@ -352,7 +353,7 @@ LOCAL int qPrioKey(
     }
     else
     {
-        key = pQPriNode->qPrio.key - kernTicks;
+        key = pQPriNode->qPrio.key - (unsigned) tickGet();
     }
 
     return key;

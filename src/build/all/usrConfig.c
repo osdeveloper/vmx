@@ -32,7 +32,7 @@
 #include <vmx/logLib.h>
 #include <vmx/memPartLib.h>
 #include <vmx/kernLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/tickLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
 
@@ -177,7 +177,7 @@ int printSysTime(ARG arg0, ARG arg1)
   for (i = 0;;i++) {
     semTake(sem, WAIT_FOREVER);
     puts("System time is: ");
-    puts(itoa2(kernTicks/18));
+    puts(itoa2(tickGet()/18));
     puts("...");
 #ifdef RESTART_TASK
     if (i == 3)
@@ -336,6 +336,7 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   puts("Initializing task library:\n");
 #endif
 
+  tickLibInit();
   taskLibInit();
 
 #ifdef DEBUG

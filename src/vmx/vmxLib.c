@@ -33,6 +33,7 @@
 #include <util/qPrioLib.h>
 #include <util/qFifoLib.h>
 #include <vmx/private/kernLibP.h>
+#include <vmx/private/tickLibP.h>
 #include <vmx/kernLib.h>
 #include <vmx/kernQLib.h>
 #include <vmx/taskLib.h>
@@ -176,8 +177,8 @@ void vmxTickAnnounce(
     STATUS status;
 
     /* Increase time counters */
-    kernTicks++;
-    kernAbsTicks++;
+    sysTicks++;
+    sysAbsTicks++;
 
     /* Advance time queue */
     Q_ADVANCE(&kernTickQ);
@@ -274,14 +275,14 @@ STATUS vmxDelay(
     Q_REMOVE(&kernReadyQ, taskIdCurrent);
 
     /* Will kernel timer overflow ? */
-    if ((unsigned) (kernTicks + timeout) < kernTicks)
+    if ((unsigned) (sysTicks + timeout) < sysTicks)
     {
-        Q_OFFSET(&kernTickQ, ~kernTicks + 1);
-        kernTicks = 0;
+        Q_OFFSET(&kernTickQ, ~sysTicks + 1);
+        sysTicks = 0;
     }
 
     /* Put task on delay queue */
-    Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + kernTicks);
+    Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + sysTicks);
 
     /* Update status to delayed */
     taskIdCurrent->status |= TASK_DELAY;
@@ -471,14 +472,14 @@ void vmxReadyQRemove(
     if (timeout != WAIT_FOREVER)
     {
         /* Check timer overflow */
-        if ((unsigned)(kernTicks + timeout) < kernTicks)
+        if ((unsigned)(sysTicks + timeout) < sysTicks)
         {
-            Q_OFFSET(&kernTickQ, ~kernTicks + 1);
-            kernTicks = 0;
+            Q_OFFSET(&kernTickQ, ~sysTicks + 1);
+            sysTicks = 0;
         }
 
         /* Put on tick queue */
-        Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + kernTicks);
+        Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + sysTicks);
         taskIdCurrent->status |= TASK_DELAY;
     }
 }
@@ -553,14 +554,14 @@ void vmxPendQWithHandlerPut(
     if (timeout != WAIT_FOREVER)
     {
         /* Check timer overflow */
-        if ((unsigned) (kernTicks + timeout) < kernTicks)
+        if ((unsigned) (sysTicks + timeout) < sysTicks)
         {
-            Q_OFFSET (&kernTickQ, ~kernTicks + 1);
-            kernTicks = 0;
+            Q_OFFSET (&kernTickQ, ~sysTicks + 1);
+            sysTicks = 0;
         }
 
         /* Put on tick queue */
-        Q_PUT (&kernTickQ, &taskIdCurrent->tickNode, timeout + kernTicks);
+        Q_PUT (&kernTickQ, &taskIdCurrent->tickNode, timeout + sysTicks);
         taskIdCurrent->status |= TASK_DELAY;
     }
 }
@@ -670,19 +671,19 @@ STATUS vmxWdStart(
 
     if (dfrStartCount == 0) {
         /* If overflow */
-        if ((unsigned) (kernTicks + timeout) < kernTicks)
+        if ((unsigned) (sysTicks + timeout) < sysTicks)
         {
-            Q_OFFSET(&kernTickQ, ~kernTicks + 1);
-            kernTicks = 0;
+            Q_OFFSET(&kernTickQ, ~sysTicks + 1);
+            sysTicks = 0;
         }
 
         if (wdId->status == WDOG_IN_Q)
         {
-            Q_MOVE(&kernTickQ, &wdId->tickNode, timeout + kernTicks);
+            Q_MOVE(&kernTickQ, &wdId->tickNode, timeout + sysTicks);
         }
         else
         {
-            Q_PUT(&kernTickQ, &wdId->tickNode, timeout + kernTicks);
+            Q_PUT(&kernTickQ, &wdId->tickNode, timeout + sysTicks);
         }
 
         /* Mark as in queue */

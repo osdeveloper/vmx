@@ -42,8 +42,6 @@ TCB_ID taskIdCurrent             = NULL;
 Q_HEAD kernActiveQ = {NULL, 0, 0 ,NULL};
 Q_HEAD kernTickQ;
 Q_HEAD kernReadyQ;
-volatile unsigned kernTicks = 0;
-volatile unsigned kernAbsTicks = 0;
 
 /******************************************************************************
  * kernelInit - Initialize kernel
@@ -70,8 +68,6 @@ void kernInit(
     kernelState             = FALSE;
     kernRoundRobin          = FALSE;
     kernRoundRobinTimeSlice = 0;
-    kernTicks               = 0;
-    kernAbsTicks            = 0;
 
     /* Create and start root task */
     rootTcb = taskCreate(

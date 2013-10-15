@@ -18,10 +18,13 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernLibP.h - Private header for kernel library */
+/* tickLibP.h - Private tick library header */
 
-#ifndef _kernLibP_h
-#define _kernLibP_h
+#ifndef _tickLibP_h
+#define _tickLibP_h
+
+#include <sys/types.h>
+#include <vmx.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -29,17 +32,8 @@
 extern "C" {
 #endif
 
-#include <vmx.h>
-#include <vmx/taskLib.h>
-
-IMPORT BOOL kernelInitialized;
-IMPORT BOOL kernelState;
-IMPORT BOOL kernRoundRobin;
-IMPORT unsigned kernRoundRobinTimeSlice;
-IMPORT TCB_ID taskIdCurrent;
-IMPORT Q_HEAD kernActiveQ;
-IMPORT Q_HEAD kernTickQ;
-IMPORT Q_HEAD kernReadyQ;
+IMPORT volatile unsigned long sysTicks;
+IMPORT volatile u_int64_t     sysAbsTicks;
 
 #ifdef __cplusplus
 }
@@ -47,5 +41,5 @@ IMPORT Q_HEAD kernReadyQ;
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _kernLibP_h */
+#endif /* _tickLibP_h */
 
