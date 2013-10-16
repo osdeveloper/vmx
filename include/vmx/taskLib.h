@@ -23,9 +23,6 @@
 #ifndef _taskLib_h
 #define _taskLib_h
 
-#define WAIT_NONE			0x0
-#define WAIT_FOREVER			0xffffffff
-
 #define TASK_READY      		0x00
 #define TASK_SUSPEND    		0x01
 #define TASK_PEND       		0x02

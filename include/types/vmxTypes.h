@@ -32,9 +32,18 @@
 #define TRUE 1
 #endif
 
+/* Define I/O type */
+#define NONE                   (-1)
+#define EOS                    '\0'
+#define EOF                    EOS
+
 /* Define return types */
-#define OK                    ( 0)
-#define ERROR                 (-1)
+#define OK                     ( 0)
+#define ERROR                  (-1)
+
+/* Define wait type */
+#define WAIT_NONE              0x00000000
+#define WAIT_FOREVER           0xffffffff
 
 #ifndef _ASMLANGUAGE
 
@@ -52,6 +61,12 @@
 #define ROUND_UP(x, align)     (((int)(x) + (align - 1)) & ~(align - 1))
 #define ROUND_DOWN(x, align)   ((int)(x) & ~(align - 1))
 #define ALIGNED(x, align)      (((int)(x) & (align - 1)) == 0)
+
+#define MEM_ROUND_UP(x)        ROUND_UP(x, _ALLOC_ALIGN_SIZE)
+#define MEM_ROUND_DOWN(x)      ROUND_DOWN(x, _ALLOC_ALIGN_SIZE)
+#define STACK_ROUND_UP(x)      ROUND_UP(x, _STACK_ALIGN_SIZE)
+#define STACK_ROUND_DOWN(x)    ROUND_DOWN(x, _ALLOC_ALIGN_SIZE)
+#define MEM_ALIGNED(x)         ALIGNED(x, ALLOC_ALIGNED_SIZE)
 
 #ifdef __cplusplus
 extern "C" {
