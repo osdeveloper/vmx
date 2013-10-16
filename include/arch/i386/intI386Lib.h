@@ -54,6 +54,8 @@ extern "C" {
 #include <arch/regs.h>
 #include <arch/esf.h>
 
+IMPORT u_int32_t intCnt;
+
 /******************************************************************************
  * INT_ENABLE - Unable interrupts
  *

@@ -23,11 +23,30 @@
 #ifndef _intArchLib_h
 #define _intArchLib_h
 
+#include <vmx/moduleNumber.h>
 #include <types/vmxCpu.h>
 
 #if      CPU_FAMILY==I386
 #include <arch/i386/intI386Lib.h>
 #endif
+
+#define S_intLib_NOT_ISR_CALLABLE      (M_intLib | 0x001)
+
+/******************************************************************************
+ * INT_CONTEXT - Check if in interrupt context
+ *
+ * RETURNS: Non-zero if in interrupt context
+ */
+
+#define INT_CONTEXT()           (intCnt > 0)
+
+/******************************************************************************
+ * INT_RESTRICT - Restrict usage from interrupt context
+ *
+ * RETURNS: ERROR if in interrupt contexte, otherwise OK
+ */
+
+#define INT_RESTRICT()          ((intCnt > 0) ? ERROR : OK)
 
 #endif /* _intArchLib_h */
 

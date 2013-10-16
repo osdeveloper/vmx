@@ -252,6 +252,6 @@ void workQPanic(
     void
     )
 {
-    sysReboot ();
+    sysReboot();
 }
 
