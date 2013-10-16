@@ -134,9 +134,10 @@ int init(ARG arg0,
 int printBigString(void)
 {
   int i;
+  int taskId;
   TCB_ID pTcb;
   for (i = 0;;i++) {
-    pTcb = taskSpawn("runMe", 1, TASK_OPTIONS_DEALLOC_STACK,
+    taskId = taskSpawn("runMe", 1, TASK_OPTIONS_DEALLOC_STACK,
 	       	     DEFAULT_STACK_SIZE, (FUNCPTR) runMe,
 	       	     (ARG) i,
 	       	     (ARG) 0,
@@ -148,6 +149,7 @@ int printBigString(void)
 	       	     (ARG) 0,
 	       	     (ARG) 0,
 	       	     (ARG) 0);
+    pTcb = (TCB_ID) taskId;
     semTake(sem, WAIT_FOREVER);
     puts(bigString);
     semGive(sem);
@@ -218,9 +220,8 @@ int slowFill(void)
 
 int initTasks(void)
 {
-  TCB_ID slowFillTcbId, printBigStringTcbId, printSysTimeTcbId;
 #ifdef RESTART_TASK
-  TCB_ID restartTcbId;
+  int restartTaskId;
 #endif
 
   puts("Welcome to Real VMX...\n");
@@ -240,7 +241,7 @@ int initTasks(void)
 	     (ARG) 19);
 
 #ifdef RESTART_TASK
-  restartTcbId =
+  restartTaskId =
   taskSpawn("restartMe", 100, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) restartMe,
 	     (ARG) &num,
@@ -255,7 +256,6 @@ int initTasks(void)
 	     (ARG) 0);
 #endif
 
-  printBigStringTcbId =
   taskSpawn("printBigString", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) printBigString,
 	     (ARG) 20,
@@ -269,11 +269,10 @@ int initTasks(void)
 	     (ARG) 28,
 	     (ARG) 29);
 
-  printSysTimeTcbId =
   taskSpawn("printSysTime", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) printSysTime,
 #ifdef RESTART_TASK
-	     (ARG) restartTcbId,
+	     (ARG) restartTaskId,
 	     (ARG) &num,
 #else
 	     (ARG) NULL,
@@ -288,7 +287,6 @@ int initTasks(void)
 	     (ARG) 38,
 	     (ARG) 39);
 
-  slowFillTcbId =
   taskSpawn("slowFill", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) slowFill,
 	     (ARG) 30,

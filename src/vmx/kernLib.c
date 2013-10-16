@@ -54,7 +54,7 @@ void kernInit(
     )
 {
     int level;
-    TCB_ID rootTcb, idleTcb;
+    int rootTaskId, idleTaskId;
 
     /* Initialize kernel work queue */
     workQLibInit();
@@ -70,7 +70,7 @@ void kernInit(
     kernRoundRobinTimeSlice = 0;
 
     /* Create and start root task */
-    rootTcb = taskCreate(
+    rootTaskId = taskCreat(
         "rootTask",
         0,
         0,
@@ -78,9 +78,9 @@ void kernInit(
         rootTask,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         );
-    vmxResume(rootTcb);
+    vmxResume((TCB_ID) rootTaskId);
 
-    idleTcb = taskCreate(
+    idleTaskId = taskCreat(
         "idleTask",
         255,
         0,
@@ -88,9 +88,9 @@ void kernInit(
         (FUNCPTR) taskIdle,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         );
-    vmxResume(idleTcb);
+    vmxResume((TCB_ID) idleTaskId);
 
-    taskIdCurrent = rootTcb;
+    taskIdCurrent = (TCB_ID) rootTaskId;
     INT_LOCK(level);
     intConnectFunction(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
     kernTaskLoadContext();
