@@ -111,7 +111,7 @@ HASH_ID hashTableCreate(
                 keyArg
                 ) != OK)
         {
-            objFree(hashId);
+            objFree(hashClassId, hashId);
             hashId = NULL;
         }
     }
@@ -137,7 +137,7 @@ STATUS hashTableInit(
     STATUS status;
     int i;
 
-    if (hasId == NULL)
+    if (hashId == NULL)
     {
         status = ERROR;
     }
@@ -389,19 +389,19 @@ BOOL hashKeyCmp(
     int keyCmpArg
     )
 {
-    STATUS status;
+    BOOL result;
 
     /* If match */
     if (pHashNode->key == pMatchNode->key)
     {
-        status = TRUE;
+        result = TRUE;
     }
     else
     {
-        status = FALSE;
+        result = FALSE;
     }
 
-    return status;
+    return result;
 }
 
 /******************************************************************************
@@ -416,18 +416,18 @@ BOOL hashStringCmp(
     int keyCmpArg
     )
 {
-    STATUS status;
+    BOOL result;
 
     /* If match */
     if (strcmp(pHashNode->str, pMatchNode->str) == 0)
     {
-        status = TRUE;
+        result = TRUE;
     }
     else
     {
-        status = FALSE;
+        result = FALSE;
     }
 
-    return status;
+    return result;
 }
 
