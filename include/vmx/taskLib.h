@@ -210,17 +210,81 @@ STATUS taskInit(
     ARG arg9
     );
 
-extern STATUS taskDelete(TCB_ID pTcb);
-extern STATUS taskDeleteForce(TCB_ID pTcb);
-extern STATUS taskTerminate(TCB_ID pTcb);
+/******************************************************************************
+ * taskDelete - Remove task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskDelete(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskDeleteForce - Remove task forced
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskDeleteForce(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskTerminate - Terminate task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskTerminate(
+    int taskId
+    );
+
 extern STATUS taskDestroy(TCB_ID pTcb,
                           BOOL freeStack,
                           unsigned timeout,
                           BOOL forceDestroy);
-extern STATUS taskActivate(TCB_ID pTcb);
-extern STATUS taskSuspend(TCB_ID pTcb);
-extern STATUS taskResume(TCB_ID pTcb);
-extern STATUS taskDelay(unsigned timeout);
+
+/******************************************************************************
+ * taskActivate - Activate task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskActivate(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskSuspend - Suspend a task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskSuspend(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskResume - Resume task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskResume(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskDelay - Put a task to sleep
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskDelay(
+    unsigned timeout
+    );
+
 extern STATUS taskUndelay(TCB_ID pTcb);
 extern STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority);
 extern STATUS taskPriorityGet(TCB_ID pTcb, unsigned *priority);
@@ -231,7 +295,17 @@ extern STATUS taskUnlock(void);
 extern STATUS taskSafe(void);
 extern STATUS taskUnsafe(void);
 extern TCB_ID taskIdSelf(void);
-extern TCB_ID taskTcb(TCB_ID pTcb);
+
+/******************************************************************************
+ * taskTcb - Get TCB
+ *
+ * RETURNS: Task control block id or NULL
+ */
+
+TCB_ID taskTcb(
+    int taskId
+    );
+
 extern void *taskStackAllot(TCB_ID pTcb, unsigned size);
 extern STATUS taskIdVerify(TCB_ID pTcb);
 extern int taskIdle(void);
