@@ -285,16 +285,99 @@ STATUS taskDelay(
     unsigned timeout
     );
 
-extern STATUS taskUndelay(TCB_ID pTcb);
-extern STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority);
-extern STATUS taskPriorityGet(TCB_ID pTcb, unsigned *priority);
+/******************************************************************************
+ * taskUndelay - Wake up a sleeping task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskUndelay(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskPrioritySet - Change task priority
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskPrioritySet(
+    int taskId,
+    unsigned priority
+    );
+
+/******************************************************************************
+ * taskPriorityGet - Get task priority
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskPriorityGet(
+    int taskId,
+    unsigned *priority
+    );
+
 extern STATUS taskRestart(TCB_ID pTcb);
-extern void taskExit(int code);
-extern STATUS taskLock(void);
-extern STATUS taskUnlock(void);
-extern STATUS taskSafe(void);
-extern STATUS taskUnsafe(void);
-extern TCB_ID taskIdSelf(void);
+
+/******************************************************************************
+ * taskExit - Exit from task
+ *
+ * RETURNS: N/A
+ */
+
+void taskExit(
+    int exitCode
+    );
+
+/******************************************************************************
+ * taskLock - Prevent task from beeing switched out
+ *
+ * RETURNS: OK
+ */
+
+STATUS taskLock(
+    void
+    );
+
+/******************************************************************************
+ * taskUnlock - Allow task to be switched out
+ *
+ * RETURNS: OK
+ */
+
+STATUS taskUnlock(
+    void
+    );
+
+/******************************************************************************
+ * taskSafe - Make safe from deletion
+ *
+ * RETURNS: OK
+ */
+
+STATUS taskSafe(
+    void
+    );
+
+/******************************************************************************
+ * taskUnsafe - Make unsafe from deletion
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskUnsafe(
+    void
+    );
+
+/******************************************************************************
+ * taskIdSelf - Get current task id
+ *
+ * RETURNS: Task id 
+ */
+
+int taskIdSelf(
+    void
+    );
 
 /******************************************************************************
  * taskTcb - Get TCB
@@ -306,9 +389,36 @@ TCB_ID taskTcb(
     int taskId
     );
 
-extern void *taskStackAllot(TCB_ID pTcb, unsigned size);
-extern STATUS taskIdVerify(TCB_ID pTcb);
-extern int taskIdle(void);
+/******************************************************************************
+ * taskStackAllot - Allot memory from callers stack
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* taskStackAllot(
+    int taskId,
+    unsigned size
+    );
+
+/******************************************************************************
+ * taskIdVerify - Verify that this is actually a task
+ * 
+ * RETURNS: OK or ERROR
+ */
+ 
+STATUS taskIdVerify(
+    int taskId
+    );
+
+/******************************************************************************
+ * taskIdle - An idle task
+ *
+ * RETURNS: return value
+ */
+
+int taskIdle(
+    void
+    );
 
 #ifdef __cplusplus
 }

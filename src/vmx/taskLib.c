@@ -450,7 +450,7 @@ STATUS taskDestroy(TCB_ID pTcb,
     INT_LOCK(level);
 
     /* Check id */
-    if (taskIdVerify(tcbId) != OK)
+    if (taskIdVerify((int) tcbId) != OK)
     {
       logString("ERROR - Trying to destroy a non task object",
                 LOG_TASK_LIB,
@@ -524,7 +524,7 @@ STATUS taskDestroy(TCB_ID pTcb,
       INT_LOCK(level);
 
       /* Now verify class id again */
-      if (taskIdVerify(tcbId) != OK)
+      if (taskIdVerify((int) tcbId) != OK)
       {
         logString("ERROR - Destroy got a non task object",
                   LOG_TASK_LIB,
@@ -769,169 +769,124 @@ STATUS taskDelay(
     return status;
 }
 
-/**************************************************************
-* taskUndelay - Wake up a sleeping task
-*
-* RETURNS: OK or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskUndelay - Wake up a sleeping task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskUndelay(TCB_ID pTcb)
+STATUS taskUndelay(
+    int taskId
+    )
 {
-  logString("taskUndelay() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Check if not NULL */
-  if (pTcb == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+    tcbId = (TCB_ID) taskId;
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+    /* Verify that it is actually a task */
+    if (TASK_ID_VERIFY(tcbId) != OK)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* Put on queue if in kernel mode */
+        if (kernelState == TRUE)
+        {
+            /* Put on kernel queue */
+            workQAdd1((FUNCPTR) vmxUndelay, (ARG) tcbId);
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel mode */
+            kernelState = TRUE;
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(pTcb))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+            /* Resume task */
+            vmxUndelay(tcbId);
 
-  /* Put on queue if in kernel mode */
-  if (kernelState == TRUE)
-  {
-    /* Put on kernel queue */
-    workQAdd1((FUNCPTR) vmxUndelay, (ARG) pTcb);
+            /* Exit kernel mode */
+            kernExit();
+            status = OK;
+        }
+    }
 
-    return(OK);
-  }
-
-  /* Enter kernel mode */
-  kernelState = TRUE;
-
-  /* Resume task */
-  vmxUndelay(pTcb);
-
-  /* Exit kernel mode */
-  kernExit();
-
-  return(OK);
+    return status;
 }
 
-/**************************************************************
-* taskPrioritySet - Change task priority
-*
-* RETURNS: OK or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskPrioritySet - Change task priority
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskPrioritySet(TCB_ID pTcb, unsigned priority)
+STATUS taskPrioritySet(
+    int taskId,
+    unsigned priority
+    )
 {
-  logString("taskPrioritySet() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Check if not NULL */
-  if (pTcb == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* Check if in kernel mode */
+        if (kernelState == TRUE)
+        {
+            /* Add work to kernel */
+            workQAdd2((FUNCPTR) vmxPrioritySet, (ARG) tcbId, (ARG) priority);
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel mode */
+            kernelState = TRUE;
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+            /* Set priority */
+            vmxPrioritySet(tcbId, priority);
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(pTcb))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+            /* Exit trough kernel */
+            kernExit();
+            status = OK;
+        }
+    }
 
-  /* Check if in kernel mode */
-  if (kernelState == TRUE)
-  {
-    /* Add work to kernel */
-    workQAdd2 ((FUNCPTR) vmxPrioritySet, (ARG) pTcb, (ARG) priority);
-
-    return(OK);
-  }
-
-  /* Enter kernel mode */
-  kernelState = TRUE;
-
-  /* Set priority */
-  vmxPrioritySet(pTcb, priority);
-
-  /* Exit trough kernel */
-  kernExit();
-
-  return(OK);
+    return status;
 }
 
-/**************************************************************
-* taskPriorityGet - Get task priority
-*
-* RETURNS: OK or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskPriorityGet - Get task priority
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskPriorityGet(TCB_ID pTcb, unsigned *priority)
+STATUS taskPriorityGet(
+    int taskId,
+    unsigned *priority
+    )
 {
-  logString("taskPriorityGet() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Check if not NULL */
-  if (pTcb == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* Store priority */
+        *priority = tcbId->priority;
+        status = OK;
+    }
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(pTcb))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Store priority */
-  *priority = pTcb->priority;
-
-  return(OK);
+    return status;
 }
 
 /**************************************************************
@@ -1044,268 +999,128 @@ STATUS taskRestart(TCB_ID pTcb)
   return(OK);
 }
 
-/**************************************************************
-* taskExit - Exit from task
-*
-* RETURNS: N/A
-**************************************************************/
+/******************************************************************************
+ * taskExit - Exit from task
+ *
+ * RETURNS: N/A
+ */
 
-void taskExit(int code)
+void taskExit(
+    int exitCode
+    )
 {
-  logString("taskExit() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    /* Store exit code to current task */
+    taskIdCurrent->exitCode = exitCode;
 
-  /* Check if not NULL */
-  if (taskIdCurrent == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return;
-  }
+    /* Lock task */
+    taskLock();
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return;
-  }
+    /* Destroy task */
+    taskDestroy(NULL, TRUE, WAIT_FOREVER, FALSE);
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(taskIdCurrent))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return;
-  }
-
-  /* Store return code */
-  taskIdCurrent->exitCode = code;
-
-  /* Lock task */
-  taskLock();
-
-  /* Destroy task */
-  taskDestroy(NULL, TRUE, WAIT_FOREVER, FALSE);
-
-  /* Unlock task */
-  taskUnlock();
+    /* Unlock task */
+    taskUnlock();
 }
 
-/**************************************************************
-* taskLock - Prevent task from beeing switched out
-*
-* RETURNS: N/A
-**************************************************************/
+/******************************************************************************
+ * taskLock - Prevent task from beeing switched out
+ *
+ * RETURNS: OK
+ */
 
-STATUS taskLock(void)
+STATUS taskLock(
+    void
+    )
 {
-  logString("taskLock() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    /* Increase task lock count */
+    taskIdCurrent->lockCount++;
 
-  /* Check if not NULL */
-  if (taskIdCurrent == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(taskIdCurrent))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  taskIdCurrent->lockCount++;
-
-  return(OK);
+    return OK;
 }
 
-/**************************************************************
-* taskUnlock - Allow task to be switched out
-*
-* RETURNS: N/A
-**************************************************************/
+/******************************************************************************
+ * taskUnlock - Allow task to be switched out
+ *
+ * RETURNS: OK
+ */
 
-STATUS taskUnlock(void)
+STATUS taskUnlock(
+    void
+    )
 {
-  logString("taskUnlock() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    /* Check if state is chaged and decrease task lock count */
+    if ((taskIdCurrent->lockCount > 0) && (--taskIdCurrent->lockCount == 0))
+    {
+        /* Enter kernel mode */
+        kernelState = TRUE;
 
-  /* Check if not NULL */
-  if (taskIdCurrent == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+        if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
+        {
+            vmxPendQFlush(&taskIdCurrent->safetyQ);
+        }
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+        /* Exit trough kernel */
+        kernExit();
+    }
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(taskIdCurrent))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Check if state is chaged */
-  if ( (taskIdCurrent->lockCount > 0) && (--taskIdCurrent->lockCount == 0) )
-  {
-    /* Enter kernel mode */
-    kernelState = TRUE;
-
-    if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
-      vmxPendQFlush(&taskIdCurrent->safetyQ);
-
-    /* Exit trough kernel */
-    kernExit();
-  }
-  return(OK);
+    return OK;
 }
 
-/**************************************************************
-* taskSafe - Make safe from deletion
-*
-* RETURNS: Ok or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskSafe - Make safe from deletion
+ *
+ * RETURNS: OK
+ */
 
-STATUS taskSafe(void)
+STATUS taskSafe(
+    void
+    )
 {
-  logString("taskSafe() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    /* Increase task safe counter */
+    taskIdCurrent->safeCount++;
 
-  /* Check if not NULL */
-  if (taskIdCurrent == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(taskIdCurrent))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  taskIdCurrent->safeCount++;
-
-  return(OK);
+    return OK;
 }
 
-/**************************************************************
-* taskUnsafe - Make unsafe from deletion
-*
-* RETURNS: Ok or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskUnsafe - Make unsafe from deletion
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskUnsafe(void)
+STATUS taskUnsafe(
+    void
+    )
 {
-  logString("taskUnsafe() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    /* Check if state is chaged and decrease task safe counter */
+    if ((taskIdCurrent->safeCount > 0) && (--taskIdCurrent->safeCount == 0))
+    {
+        /* Enter kernel mode */
+        kernelState = TRUE;
 
-  /* Check if not NULL */
-  if (taskIdCurrent == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+        if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
+        {
+            vmxPendQFlush(&taskIdCurrent->safetyQ);
+        }
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+        /* Exit trough kernel */
+        kernExit();
+    }
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(taskIdCurrent))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Check if state is chaged */
-  if ( (taskIdCurrent->safeCount > 0) && (--taskIdCurrent->safeCount == 0) )
-  {
-    /* Enter kernel mode */
-    kernelState = TRUE;
-
-    if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
-      vmxPendQFlush(&taskIdCurrent->safetyQ);
-
-    /* Exit trough kernel */
-    kernExit();
-  }
-
-  return(OK);
+    return OK;
 }
 
-/**************************************************************
-* taskIdSelf - Get my own TCB
-*
-* RETURNS: TCB_ID
-**************************************************************/
+/******************************************************************************
+ * taskIdSelf - Get current task id
+ *
+ * RETURNS: Task id
+ */
 
-TCB_ID taskIdSelf(void)
+int taskIdSelf(
+    void
+    )
 {
-  logString("taskIdSelf() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
-
-  return(taskIdCurrent);
+    return (int) taskIdCurrent;
 }
 
 /******************************************************************************
@@ -1339,82 +1154,94 @@ TCB_ID taskTcb(
     return(tcbId);
 }
 
-/**************************************************************
-* taskStackAllot - Allot memory from callers stack
-*
-* RETURNS: Pointer to memory, or NULL
-**************************************************************/
+/******************************************************************************
+ * taskStackAllot - Allot memory from callers stack
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
 
-void *taskStackAllot(TCB_ID pTcb, unsigned size)
+void* taskStackAllot(
+    int taskId,
+    unsigned size
+    )
 {
-  char *pStackPrev;
+    TCB_ID tcbId;
+    char *pStackPrev;
+    char *pData;
 
-  logString("taskStackAllot() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        pData = NULL;
+    }
+    else
+    {
+        /* Round up */
+        STACK_ROUND_UP(size);
 
-  /* Check if not NULL */
-  if (pTcb == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(NULL);
-  }
-
-  /* Round up */
-  ROUND_UP(size, _STACK_ALIGN_SIZE);
-
-  /* Check if size is ok */
-  if (size > (pTcb->pStackLimit - pTcb->pStackBase) * _STACK_DIR)
-  {
-    logString("ERROR - Stack allot request to big",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(NULL);
-  }
-
-  /* Store old stack end */
-  pStackPrev = pTcb->pStackLimit;
+        /* Check if size is ok */
+        if (size > (tcbId->pStackLimit - tcbId->pStackBase) * _STACK_DIR)
+        {
+            errnoSet(S_taskLib_STACK_OVERFLOW);
+            pData = NULL;
+        }
+        else
+        {
+            /* Store old stack end */
+            pStackPrev = tcbId->pStackLimit;
 
 #if     (_STACK_DIR == _STACK_GROWS_DOWN)
-  pTcb->pStackLimit += size;
-  return( (void *) pStackPrev);
+            tcbId->pStackLimit += size;
+            pData = pStackPrev;
 #else
-  pTcb->pStackLimit -+ size;
-  return( (void *) pTcb->pStackLimit);
+            tcbId->pStackLimit -= size;
+            pData = tcbId->pStackLimit;
 #endif
+        }
+    }
+
+    return pData;
 }
 
-/**************************************************************
-* taskIdVerify - Verify that this is actually a task
-*
-* RETURNS: OK or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskIdVerify - Verify that this is actually a task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskIdVerify(TCB_ID pTcb)
+STATUS taskIdVerify(
+    int taskId
+    )
 {
-  logString("taskIdVerify() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    STATUS status;
+    TCB_ID tcbId;
 
-  return(TASK_ID_VERIFY(pTcb));
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        status = OK;
+    }
+
+    return status;
 }
 
-/**************************************************************
-* taskIdle - An idle task
-*
-* RETURNS: return value
-**************************************************************/
+/******************************************************************************
+ * taskIdle - An idle task
+ *
+ * RETURNS: return value
+ */
 
-int taskIdle(void)
+int taskIdle(
+    void
+    )
 {
-  logString("taskIdle() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    for (;;);
 
-  for (;;);
-
-  return(0);
+    /* Should never get here */
+    return 0;
 }
 

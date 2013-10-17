@@ -63,7 +63,7 @@ int runMe(ARG arg0)
 {
   TCB_ID pTcb;
 
-  pTcb = taskIdSelf();
+  pTcb = taskTcb(taskIdSelf());
 
   semTake(sem, WAIT_FOREVER);
   puts("----------------------------------------------------------------\n");
@@ -113,7 +113,7 @@ int init(ARG arg0,
 {
   TCB_ID pTcb;
 
-  pTcb = taskIdSelf();
+  pTcb = taskTcb(taskIdSelf());
 
   semBInit(sem, SEM_Q_PRIORITY, SEM_FULL);
   puts(pTcb->name);
