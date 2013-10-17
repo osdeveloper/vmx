@@ -46,7 +46,10 @@
 #define TASK_UNDELAYED                  2
 #define TASK_DELETED                    3
 
-#define TASK_OPTIONS_DEALLOC_STACK      0x01
+#define TASK_OPTIONS_SUPERVISOR_MODE    0x0001
+#define TASK_OPTIONS_UNBREAKABLE        0x0002
+#define TASK_OPTIONS_DEALLOC_STACK      0x0004
+#define TASK_OPTIONS_NO_STACK_FILL      0x0100
 
 #ifndef _ASMLANGUAGE
 
@@ -317,7 +320,15 @@ STATUS taskPriorityGet(
     unsigned *priority
     );
 
-extern STATUS taskRestart(TCB_ID pTcb);
+/******************************************************************************
+ * taskRestart - Restart a task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskRestart(
+    int taskId
+    );
 
 /******************************************************************************
  * taskExit - Exit from task

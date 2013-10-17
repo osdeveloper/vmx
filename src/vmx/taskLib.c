@@ -42,7 +42,12 @@
 
 /* Locals */
 LOCAL OBJ_CLASS taskClass;
-LOCAL BOOL taskLibInstalled = FALSE;
+LOCAL BOOL taskLibInstalled  = FALSE;
+LOCAL char restartTaskName[] = "tRestart";
+int restartTaskPriority      = 0;
+int restartTaskStackSize     = 6000;
+int restartTaskOptions       = TASK_OPTIONS_UNBREAKABLE |
+                               TASK_OPTIONS_NO_STACK_FILL;
 
 /* Globals */
 CLASS_ID taskClassId = &taskClass;
@@ -889,114 +894,154 @@ STATUS taskPriorityGet(
     return status;
 }
 
-/**************************************************************
-* taskRestart - Restart a task
-*
-* RETURNS: OK or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskRestart - Restart a task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskRestart(TCB_ID pTcb)
+STATUS taskRestart(
+    int taskId
+    )
 {
-  char name[MAX_TASK_NAME_LEN];
-  unsigned priority;
-  int options;
-  char *pStackBase;
-  unsigned stackDepth;
-  FUNCPTR entry;
-  ARG args[MAX_TASK_ARGS];
-  STATUS status;
-  int len;
+    STATUS status;
+    TCB_ID tcbId;
+    char *name;
+    int len;
+    unsigned priority;
+    int options;
+    char *pStackBase;
+    unsigned stackSize;
+    FUNCPTR entry;
+    ARG args[MAX_TASK_ARGS];
+    char *rename = NULL;
 
-  logString("taskRestart() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
+    if (INT_RESTRICT() != OK)
+    {
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
+        status = ERROR;
+    }
+    else
+    {
+        /* If self restart */
+        if ((taskId == 0) || (taskId == (int) taskIdCurrent))
+        {
+            /* Task must be safe */
+            while (taskIdCurrent->safeCount > 0)
+            {
+                taskSafe();
+            }
 
-  /* Check if not NULL */
-  if (pTcb == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+            /* Spawn a task that will restart this task */
+            taskSpawn(
+                restartTaskName,
+                restartTaskPriority,
+                restartTaskOptions,
+                restartTaskStackSize,
+                taskRestart,
+                (ARG) taskIdCurrent,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0
+                );
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+            /* Block until task restarts */
+            while (1)
+            {
+                taskSuspend(0);
+            }
+            status = OK;
+        }
+        else
+        {
+            tcbId = taskTcb(taskId);
+            if (tcbId == NULL)
+            {
+                status = ERROR;
+            }
+            else
+            {
+                /* Copy task data */
+                priority = tcbId->priority;
+                options = tcbId->options;
+                entry = tcbId->entry;
+                pStackBase = tcbId->pStackBase;
+                stackSize = (tcbId->pStackLimit - tcbId->pStackBase) *
+                               _STACK_DIR;
+                taskArgGet(tcbId, pStackBase, args);
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(pTcb))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+                /* Copy name if needed */
+                name = tcbId->name;
+                rename = NULL;
+                if (name != NULL)
+                {
+                    len = strlen(name) + 1;
+                    rename = (char *) malloc(len);
+                    if (rename != NULL)
+                    {
+                        strcpy(rename, name);
+                    }
+                    name = rename;
+                }
 
-  /* Discard self restart */
-  if (pTcb == taskIdCurrent)
-  {
-    logString("ERROR - Self restart not supported",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+                /* Prevent deletion */
+                taskSafe();
 
-  /* Copy task data */
-  priority = pTcb->priority;
-  options = pTcb->options;
-  entry = pTcb->entry;
-  pStackBase = pTcb->pStackBase;
-  stackDepth = (pTcb->pStackLimit - pTcb->pStackBase) * _STACK_DIR;
-  taskArgGet(pTcb, pStackBase, args);
+                if (taskTerminate((int) tcbId) != OK)
+                {
+                    taskUnsafe();
+                    status = ERROR;
+                }
+                else
+                {
+                    /* Initialize task with same data */
+                    status = taskInit(
+                        tcbId,
+                        name,
+                        priority,
+                        options,
+                        pStackBase,
+                        stackSize,
+                        entry,
+                        args[0],
+                        args[1],
+                        args[2],
+                        args[3],
+                        args[4],
+                        args[5],
+                        args[6],
+                        args[7],
+                        args[8],
+                        args[9]
+                        );
+                }
+                if (status == OK)
+                {
+                    /* Start the new task */
+                    status = taskActivate((int) tcbId);
+                    if (status == OK)
+                    {
+                        /* Make me mortal */
+                        taskUnsafe();
+                    }
+                }
 
-  /* Copy name */
-  memcpy(name, pTcb->name, strlen(pTcb->name));
+                /* Free rename memory if was allocated for it */
+                if (rename != NULL)
+                {
+                    free(rename);
+                }
+            }
+        }
+    }
 
-  /* Prevent deletion */
-  taskSafe();
-
-  if (taskTerminate((int) pTcb) != OK)
-  {
-    taskUnsafe();
-    logString("ERROR - Task restart failed, becase task won't terminate",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Initialize task with same data */
-  status = taskInit(pTcb, name, priority, options, pStackBase,
-                    stackDepth, entry, args[0], args[1], args[2],
-                    args[3], args[4], args[5], args[6], args[7],
-                    args[8], args[9]);
-  if (status != OK)
-  {
-    logString("ERROR - Unable to initialize task again",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* And start it */
-  status = taskActivate((int) pTcb);
-  if (status != OK)
-  {
-    logString("ERROR - Unable to start task again",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Make me mortal */
-  taskUnsafe();
-
-  return(OK);
+    return status;
 }
 
 /******************************************************************************

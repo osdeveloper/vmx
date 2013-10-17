@@ -36,6 +36,7 @@
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
 
+#define RESTART_TASK
 #define DELAY_TIME	(18 * 1)
 
 /* Globals */
@@ -84,7 +85,7 @@ int restartMe(ARG arg0)
   TCB_ID pTcb;
   volatile int *pInt = (volatile int *) arg0;
 
-  pTcb = taskIdSelf();
+  pTcb = taskTcb(taskIdSelf());
 
   semTake(sem, WAIT_FOREVER);
   puts(pTcb->name);
@@ -191,7 +192,7 @@ int printSysTime(ARG arg0, ARG arg1)
       puts(" for the ");
       puts(itoa2(*pInt));
       puts(" time");
-      taskRestart(pTcb);
+      taskRestart((int) pTcb);
     }
 #endif
     puts("\n");
@@ -272,7 +273,7 @@ int initTasks(void)
   taskSpawn("printSysTime", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) printSysTime,
 #ifdef RESTART_TASK
-	     (ARG) restartTaskId,
+	     (ARG) taskTcb(restartTaskId),
 	     (ARG) &num,
 #else
 	     (ARG) NULL,
