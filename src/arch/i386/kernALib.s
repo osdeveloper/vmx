@@ -210,7 +210,7 @@ FUNC_LABEL(workQWorkPreSave)
 /******************************************************************************
  * kernExit - Exit kernel mode
  *
- * RETURNS: OK or ERROR
+ * RETURNS: OK, ERROR or SIG_RESTART
  */
 
         .balign 16,0x90

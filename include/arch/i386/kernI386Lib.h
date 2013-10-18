@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernI386.h - Limits header */
+/* kernI386.h - Kernel header */
 
 #ifndef _kernI386_h
 #define _kernI386_h
@@ -52,10 +52,10 @@ void kernIntExit(
 /******************************************************************************
  * kernExit - Exit kernel mode
  *
- * RETURNS: OK or ERROR
+ * RETURNS: OK, ERROR or SIG_RESTART
  */
 
-STATUS kernExit(
+int kernExit(
     void
     );
 

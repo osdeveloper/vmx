@@ -243,10 +243,18 @@ STATUS taskTerminate(
     int taskId
     );
 
-extern STATUS taskDestroy(TCB_ID pTcb,
-                          BOOL freeStack,
-                          unsigned timeout,
-                          BOOL forceDestroy);
+/******************************************************************************
+ * taskDestroy - Kill task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS taskDestroy(
+    int taskId,
+    BOOL freeStack,
+    unsigned timeout,
+    BOOL forceDestroy
+    );
 
 /******************************************************************************
  * taskActivate - Activate task

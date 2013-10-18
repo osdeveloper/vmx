@@ -367,7 +367,7 @@ STATUS taskDelete(
     int taskId
     )
 {
-    return taskDestroy((TCB_ID) taskId, TRUE, WAIT_FOREVER, FALSE);
+    return taskDestroy(taskId, TRUE, WAIT_FOREVER, FALSE);
 }
 
 /******************************************************************************
@@ -380,7 +380,7 @@ STATUS taskDeleteForce(
     int taskId
     )
 {
-    return taskDestroy((TCB_ID) taskId, TRUE, WAIT_FOREVER, TRUE);
+    return taskDestroy(taskId, TRUE, WAIT_FOREVER, TRUE);
 }
 
 /******************************************************************************
@@ -393,229 +393,204 @@ STATUS taskTerminate(
     int taskId
     )
 {
-    return taskDestroy((TCB_ID) taskId, FALSE, WAIT_FOREVER, FALSE);
+    return taskDestroy(taskId, FALSE, WAIT_FOREVER, FALSE);
 }
 
-/**************************************************************
-* taskDestroy - Kill task
-*
-* RETURNS: OK or ERROR
-**************************************************************/
+/******************************************************************************
+ * taskDestroy - Kill task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskDestroy(TCB_ID pTcb,
-                   BOOL freeStack,
-                   unsigned timeout,
-                   BOOL forceDestroy)
+STATUS taskDestroy(
+    int taskId,
+    BOOL freeStack,
+    unsigned timeout,
+    BOOL forceDestroy
+    )
 {
-  STATUS status;
-  int level;
-  TCB_ID tcbId;
+    STATUS status;
+    int level;
+    TCB_ID tcbId;
 
-  logString("taskDestroy() called:",
-            LOG_TASK_LIB,
-            LOG_LEVEL_CALLS);
-
-  /* Null will commit suicide */
-  if (pTcb == NULL)
-    tcbId = taskIdCurrent;
-  else
-    tcbId = pTcb;
-
-  /* Check if not NULL */
-  if (tcbId == NULL)
-  {
-    logString("ERROR - Null task",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    logString("ERROR - Task lib not installed",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(tcbId))
-  {
-    logString("ERROR - Non task object",
-              LOG_TASK_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  /* Loop here if kernel restarts */
-  do {
-
-    /* Lock interrupts */
-    INT_LOCK(level);
-
-    /* Check id */
-    if (taskIdVerify((int) tcbId) != OK)
+    if (INT_RESTRICT() != OK)
     {
-      logString("ERROR - Trying to destroy a non task object",
-                LOG_TASK_LIB,
-                LOG_LEVEL_ERROR);
-
-      /* Unlock interrupts */
-      INT_UNLOCK(level);
-
-      return(ERROR);
-    }
-
-    /* Block here for safe and running locked tasks */
-    while   ( (tcbId->safeCount > 0) ||
-            ( (tcbId->status == TASK_READY) && (tcbId->lockCount > 0) )
-          )
-    {
-      /* Enter kernel mode */
-      kernelState = TRUE;
-
-      /* Unlock interrupts */
-      INT_UNLOCK(level);
-
-      /* Check if force deletion, or suicide */
-      if (forceDestroy || (tcbId == taskIdCurrent))
-      {
-
-        /* Remove protections */
-        tcbId->safeCount = 0;
-        tcbId->lockCount = 0;
-
-        /* Check if flush of safety queue is needed */
-        if (Q_FIRST(&tcbId->safetyQ) != NULL)
-          vmxPendQFlush(&tcbId->safetyQ);
-
-        /* Exit trough kernel */
-        kernExit();
-      }
-      else
-      {
-        /* Not forced deletion or suicide */
-
-        /* Put task on safe queue */
-        if (vmxPendQPut(&tcbId->safetyQ, timeout) != OK)
-        {
-          /* Exit trough kernel */
-          kernExit();
-
-          logString("ERROR - Trying to destroy a non task object",
-                    LOG_TASK_LIB,
-                    LOG_LEVEL_ERROR);
-
-          return(ERROR);
-        }
-
-      } /* End else forced or suicide */
-
-      /* Exit troug kernel */
-      status = kernExit();
-
-      /* Check if unsuccessfull */
-      if (status == ERROR)
-      {
-          logString("ERROR - Kernel error",
-                    LOG_TASK_LIB,
-                    LOG_LEVEL_ERROR);
-
-          return(ERROR);
-      }
-
-      /* Lock interrupts */
-      INT_LOCK(level);
-
-      /* Now verify class id again */
-      if (taskIdVerify((int) tcbId) != OK)
-      {
-        logString("ERROR - Destroy got a non task object",
-                  LOG_TASK_LIB,
-                  LOG_LEVEL_ERROR);
-
-        /* Unlock interrupts */
-        INT_UNLOCK(level);
-
-        return(ERROR);
-      }
-
-    } /* End while blocked by safety */
-
-    /* Now only one cadidate is selected for deletion */
-
-    /* Make myself safe */
-    taskSafe();
-
-    /* Protet deletion cadidate */
-    tcbId->safeCount++;
-
-     /* Check if not suicide */
-     if (tcbId != taskIdCurrent)
-     {
-       /* Enter kernel mode */
-       kernelState = TRUE;
-
-       /* Unlock interrupts */
-       INT_UNLOCK(level);
-
-       /* Suspend victim */
-       vmxSuspend(tcbId);
-
-       /* Exit trough kernel */
-       kernExit();
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
+        status = ERROR;
     }
     else
     {
-       /* Unlock interrupts */
-       INT_UNLOCK(level);
-    }
+        tcbId = taskTcb(taskId);
+        if (tcbId == NULL)
+        {
+            status = ERROR;
+        }
+        else
+        {
+            /* Loop here if status is SIG_RESTART */
+            do
+            {
+                /* Lock interrupts */
+                INT_LOCK(level);
 
-    /* Lock task */
-    taskLock();
+                /* Verify that it is a task */
+                if (TASK_ID_VERIFY(tcbId) != OK)
+                {
+                    /* Unlock interrupts */
+                    INT_UNLOCK(level);
 
-    /* If dealloc and options dealloc stack */
-    if ( freeStack && (tcbId->options & TASK_OPTIONS_DEALLOC_STACK) )
-    {
-#if     (_STACK_DIR == _STACK_GROWS_DOWN)
-      objFree(taskClassId, tcbId->pStackLimit);
+                    status = ERROR;
+                }
+                else
+                {
+                    /* Block here for safe and running locked tasks */
+                    while ((tcbId->safeCount > 0) ||
+                           ((tcbId->status == TASK_READY) &&
+                            (tcbId->lockCount > 0)))
+                    {
+                        /* Enter kernel mode */
+                        kernelState = TRUE;
+
+                        /* Unlock interrupts */
+                        INT_UNLOCK(level);
+
+                        /* Check if force deletion, or suicide */
+                        if ((forceDestroy == TRUE) || (tcbId == taskIdCurrent))
+                        {
+                            /* Remove protections */
+                            tcbId->safeCount = 0;
+                            tcbId->lockCount = 0;
+
+                            /* Check if flush of safety queue is needed */
+                            if (Q_FIRST(&tcbId->safetyQ) != NULL)
+                            {
+                                vmxPendQFlush(&tcbId->safetyQ);
+                            }
+
+                            /* Exit trough kernel */
+                            kernExit();
+                            status = OK;
+                        }
+                        else
+                        {
+                            /* Not forced deletion or suicide */
+
+                            /* Put task on safe queue */
+                            if (vmxPendQPut(&tcbId->safetyQ, timeout) != OK)
+                            {
+                                /* Exit trough kernel */
+                                kernExit();
+
+                                /* Invalid timeout */
+                                errnoSet(S_taskLib_INVALID_TIMEOUT);
+                                status = ERROR;
+                            }
+                            else
+                            {
+                                /* Exit trough kernel */
+                                status = kernExit();
+                                if (status == ERROR)
+                                {
+                                    /* timer set errno to S_objLib_TIMEOUT */
+                                    status = ERROR;
+                                }
+                                else
+                                {
+                                    /* Lock interrupts */
+                                    INT_LOCK(level);
+
+                                    /* Verify that it still is a valid task */
+                                    if (TASK_ID_VERIFY(tcbId) != OK)
+                                    {
+                                        /* Unlock interrupts */
+                                        INT_UNLOCK(level);
+
+                                        status = ERROR;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } while (status == SIG_RESTART);
+
+            if (status == OK)
+            {
+                /* Now only one cadidate is selected for deletion */
+
+                /* Make myself safe */
+                taskSafe();
+
+                /* Protet deletion cadidate */
+                tcbId->safeCount++;
+
+                /* Check if not suicide */
+                if (tcbId != taskIdCurrent)
+                {
+                    /* Enter kernel mode */
+                    kernelState = TRUE;
+
+                    /* Unlock interrupts */
+                    INT_UNLOCK(level);
+
+                    /* Suspend victim */
+                    vmxSuspend(tcbId);
+
+                    /* Exit trough kernel */
+                    kernExit();
+                }
+                else
+                {
+                    /* Unlock interrupts */
+                    INT_UNLOCK(level);
+                }
+
+                /* Lock task */
+                taskLock();
+
+                /* If dealloc and options dealloc stack */
+                if ((freeStack == TRUE) &&
+                    (tcbId->options & TASK_OPTIONS_DEALLOC_STACK))
+                {
+#if (_STACK_DIR == _STACK_GROWS_DOWN)
+                    objFree(taskClassId, tcbId->pStackLimit);
 #else
-      objFree(taskClassId, tbcId - 16);
+                    objFree(taskClassId, tbcId - 16);
 #endif
+                }
+
+                /* Lock interrupts */
+                INT_LOCK(level);
+
+                /* Invalidate id */
+                objCoreTerminate(&tcbId->objCore);
+
+                /* Enter kernel mode */
+                kernelState = TRUE;
+
+                /* Unlock interrupts */
+                INT_UNLOCK(level);
+
+                /* Delete task */
+                status = vmxDelete(tcbId);
+
+                /* Check if safe quque needs to be flushed */
+                if (Q_FIRST(&tcbId->safetyQ) != NULL)
+                {
+                    vmxPendQFlush(&tcbId->safetyQ);
+                }
+
+                /* Exit trough kernel */
+                kernExit();
+
+                /* Unprotect */
+                taskUnlock();
+                taskUnsafe();
+            }
+        }
     }
 
-    /* Lock interrupts */
-    INT_LOCK(level);
-
-    /* Invalidate id */
-    objCoreTerminate(&tcbId->objCore);
-
-    /* Enter kernel mode */
-    kernelState = TRUE;
-
-    /* Unlock interrupts */
-    INT_UNLOCK(level);
-
-    /* Delete task */
-    status = vmxDelete(tcbId);
-
-    /* Check if safe quque needs to be flushed */
-    if (Q_FIRST(&tcbId->safetyQ) != NULL)
-      vmxPendQFlush(&tcbId->safetyQ);
-
-    /* Exit trough kernel */
-    kernExit();
-
-    /* Unprotect */
-    taskUnlock();
-    taskUnsafe();
-
-  /* Try again, kernel restart */
-  } while (0);
-
-
-  return(OK);
+    return status;
 }
 
 /******************************************************************************
@@ -906,7 +881,7 @@ STATUS taskRestart(
 {
     STATUS status;
     TCB_ID tcbId;
-    char *name;
+    char *name, *rename;
     int len;
     unsigned priority;
     int options;
@@ -914,7 +889,6 @@ STATUS taskRestart(
     unsigned stackSize;
     FUNCPTR entry;
     ARG args[MAX_TASK_ARGS];
-    char *rename = NULL;
 
     if (INT_RESTRICT() != OK)
     {
@@ -1032,7 +1006,7 @@ STATUS taskRestart(
                     }
                 }
 
-                /* Free rename memory if was allocated for it */
+                /* Free rename memory if allocated */
                 if (rename != NULL)
                 {
                     free(rename);
