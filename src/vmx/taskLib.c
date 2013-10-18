@@ -263,6 +263,8 @@ STATUS taskInit(
 {
     static unsigned new_id;
     STATUS status;
+    int len;
+    char *taskName;
     ARG args[MAX_TASK_ARGS];
 
     if (INT_RESTRICT() != OK)
@@ -294,9 +296,6 @@ STATUS taskInit(
 
             /* Set unique id */
             tcbId->id = new_id++;
-
-            /* Copy name */
-            strcpy(tcbId->name, name);
 
             /* Set initial status */
             tcbId->status = TASK_SUSPEND;
@@ -348,9 +347,23 @@ STATUS taskInit(
             /* Object core */
             objCoreInit(&tcbId->objCore, taskClassId);
 
-            /* Start task */
-            vmxSpawn(tcbId);
-            status = OK;
+            /* Get stack space for task name */
+            len = strlen(name) + 1;
+            taskName = (char *) taskStackAllot((int) tcbId, len);
+            if (taskName == NULL)
+            {
+                status = ERROR;
+            }
+            else
+            {
+                /* Set task name */
+                strcpy(taskName, name);
+                tcbId->name = taskName;
+
+                /* Start task */
+                vmxSpawn(tcbId);
+                status = OK;
+            }
         }
     }
 

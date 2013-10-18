@@ -37,7 +37,6 @@
 #define TASK_DEAD                       0x08
 
 #define NUM_TASK_PRIORITIES             256
-#define MAX_TASK_NAME_LEN               256
 #define MAX_TASK_DELAY                  0xffffffff
 #define DEFAULT_STACK_SIZE              0x1000
 
@@ -89,7 +88,7 @@ typedef struct taskTCB
     unsigned status;                      /* 0x6c */
     unsigned lockCount;                   /* 0x70 */
 
-    char name[MAX_TASK_NAME_LEN];
+    char *name;
     unsigned stackDepth;
     unsigned priority;
     int options;
