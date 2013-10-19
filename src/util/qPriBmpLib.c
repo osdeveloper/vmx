@@ -123,8 +123,8 @@ LOCAL int qHeadFirstFind(
     Q_PRI_BMP_HEAD *pQHead
     )
 {
-    int  i;
-    int  bit;
+    int i, bit;
+    int result = ERROR;
 
     for (i = 0; i < 8; i++)
     {
@@ -132,11 +132,12 @@ LOCAL int qHeadFirstFind(
 
         if (bit != 0)
         {
-            return ((i << 5) + bit - 1);
+            result = (i << 5) + bit - 1;
+            break;
         }
     }
 
-    return ERROR;
+    return result;
 }
 
 /***************************************************************************
