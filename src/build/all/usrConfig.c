@@ -372,6 +372,8 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
 
   semLibInit();
   semBLibInit();
+  semMLibInit();
+  semCLibInit();
 
 #ifdef DEBUG
   puts("Initializing task library:\n");

@@ -50,42 +50,6 @@ typedef struct semaphore
     } state;
 } SEMAPHORE;
 
-/*
- * New structures for multiple reader single writer semaphore.
- * 
- * Note that there are two extra structures instead of one.  The 'basic'
- * structure identifies the minimum information that is required.  The 'extra'
- * structure is used as an array to track information specific to each reader,
- * if required.  It is used if a non-zero number of [maxReaders] is needed.
- * A non-zero number of [maxReaders] is needed if one desires any of the
- * following multiple reader single writer semaphore options:
- *     - priority inheritance                   (not yet supported)
- *     - recursive takes for the reader(s)
- *     - upgrade reader-lock to a writer lock
- */
-
-typedef struct sem_rw_basic
-{
-    Q_HEAD       qHead;      /* Reader Q_HEAD */
-    unsigned     maxReaders; /* Max # of simultaneous readers: 0 = no limit */
-    unsigned     nReaders;   /* Current number of readers */
-} SEM_RW_BASIC;
-
-typedef struct sem_rw_extra
-{
-    unsigned short   recurse;  /* Reader recursion count */
-    unsigned char    flags;    /* Flags such as 'requested lock upgrade' */
-    unsigned char    pad;      /* Padding */
-    void          *owner;      /* Reader task owning semaphore */
-} SEM_RW_EXTRA;
-
-typedef struct rw_semaphore
-{
-    SEMAPHORE     semaphore;   /* Original semaphore type */
-    SEM_RW_BASIC  basic;       /* Basic reader fields */
-    SEM_RW_EXTRA  extra[];     /* Extra reader fields */
-} RW_SEMAPHORE;
-
 /* Imports */
 IMPORT FUNCPTR semGiveTable[];
 IMPORT FUNCPTR semTakeTable[];

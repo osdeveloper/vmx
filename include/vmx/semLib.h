@@ -26,16 +26,11 @@
 #include <vmx/moduleNumber.h>
 #include <vmx/private/semLibP.h>
 
-#define NO_MUTEX
-#define NO_COUNTING
-#define NO_SEMRW
-
-#define MAX_SEM_TYPE                        4
+#define MAX_SEM_TYPE                        3
 #define SEM_TYPE_MASK                    0x03
 #define SEM_TYPE_BINARY                  0x00
 #define SEM_TYPE_MUTEX                   0x01
 #define SEM_TYPE_COUNTING                0x02
-#define SEM_TYPE_RW                      0x03
 
 #define SEM_Q_MASK                       0x03
 #define SEM_Q_FIFO                       0x00
@@ -64,9 +59,7 @@ typedef enum
     SEM_FULL
 } SEM_B_STATE;
 
-typedef struct semaphore SEMAHPORE;
-typedef struct semaphore *SEM_ID;
-typedef struct rw_semaphore *RW_SEM_ID;
+typedef SEMAPHORE *SEM_ID;
 
 IMPORT CLASS_ID semClassId;
 
@@ -248,6 +241,83 @@ STATUS semBInit(
     SEM_ID semId,
     int options,
     SEM_B_STATE state
+    );
+
+/******************************************************************************
+ * semMLibInit - Initialize mutex semaphore library
+ *
+ * RETURNS: OK
+ */
+
+STATUS semMLibInit(
+    void
+    );
+
+/******************************************************************************
+ * semMCreate - Allocate and init mutex semaphore
+ *
+ * RETURNS: SEM_ID or NULL
+ */
+
+SEM_ID semMCreate(
+    int options
+    );
+
+/******************************************************************************
+ * semMInit - Init mutex semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semMInit(
+    SEM_ID semId,
+    int options
+    );
+
+/***************************************************************************
+ * semMGiveForce - forcibly give a mutex (for debugging only)
+ *
+ * This routine forcibly releases a mutex semaphore.  It passes ownership to
+ * the next in the queue (if any).
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semMGiveForce(
+    SEM_ID  semId      /* mutex semaphore to forcibly give */
+    );
+
+/******************************************************************************
+ * semCLibInit - Initialize counting semaphore library
+ *
+ * RETURNS: OK
+ */
+
+STATUS semCLibInit(
+    void
+    );
+
+/******************************************************************************
+ * semCCreate - Allocate and init counting semaphore
+ *
+ * RETURNS: SEM_ID or NULL
+ */
+
+SEM_ID semCCreate(
+    int options,
+    int initialCount
+    );
+
+/******************************************************************************
+ * semCInit - Init counting semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semCInit(
+    SEM_ID semId,
+    int options,
+    int initialCount
     );
 
 #ifdef __cplusplus

@@ -18,12 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* semBLib.c - Binary sempahore library */
+/* semCLib.c - Counting sempahore library */
 
-#include <vmx.h>
-#include <arch/intArchLib.h>
 #include <stdlib.h>
-
+#include <vmx.h>
 #include <vmx/errnoLib.h>
 #include <vmx/classLib.h>
 #include <vmx/private/kernLibP.h>
@@ -34,60 +32,54 @@
 #include <vmx/semLib.h>
 
 /* Locals */
-LOCAL BOOL semBLibInstalled = FALSE;
+LOCAL BOOL semCLibInstalled = FALSE;
 
-LOCAL STATUS semBCoreInit(
+LOCAL STATUS semCCoreInit(
     SEM_ID semId,
     int options,
-    SEM_B_STATE state
+    int initialCount
     );
 
-LOCAL STATUS semBGive(
+LOCAL STATUS semCGive(
     SEM_ID semId
     );
 
-LOCAL void semBGiveDefer(
-    SEM_ID semId
-    );
-
-/******************************************************************************
- * semBTake - Take hold of semaphore
- *
- * RETURNS: OK or ERROR
- */
-
-LOCAL STATUS semBTake(
+LOCAL STATUS semCTake(
     SEM_ID semId,
     unsigned timeout
     );
 
+LOCAL void semCGiveDefer(
+    SEM_ID semId
+    );
+
 /******************************************************************************
- * semBLibInit - Initialize binary semaphore library
+ * semCLibInit - Initialize counting semaphore library
  *
  * RETURNS: OK
  */
 
-STATUS semBLibInit(
+STATUS semCLibInit(
     void
     )
 {
     STATUS status;
 
-    if (semBLibInstalled == TRUE)
+    if (semCLibInstalled == TRUE)
     {
         status = OK;
     }
     else
     {
         /* Install call methods */
-        semGiveTable[SEM_TYPE_BINARY]       = (FUNCPTR) semBGive;
-        semTakeTable[SEM_TYPE_BINARY]       = (FUNCPTR) semBTake;
-        semFlushTable[SEM_TYPE_BINARY]      = (FUNCPTR) semQFlush;
-        semGiveDeferTable[SEM_TYPE_BINARY]  = (FUNCPTR) semBGiveDefer;
-        semFlushDeferTable[SEM_TYPE_BINARY] = (FUNCPTR) semQFlushDefer;
+        semGiveTable[SEM_TYPE_COUNTING]       = (FUNCPTR) semCGive;
+        semTakeTable[SEM_TYPE_COUNTING]       = (FUNCPTR) semCTake;
+        semFlushTable[SEM_TYPE_COUNTING]      = (FUNCPTR) semQFlush;
+        semGiveDeferTable[SEM_TYPE_COUNTING]  = (FUNCPTR) semCGiveDefer;
+        semFlushDeferTable[SEM_TYPE_COUNTING] = (FUNCPTR) semQFlushDefer;
 
         /* Mark library as installed */
-        semBLibInstalled = TRUE;
+        semCLibInstalled = TRUE;
         status = OK;
     }
 
@@ -95,20 +87,20 @@ STATUS semBLibInit(
 }
 
 /******************************************************************************
- * semBCreate - Allocate and init semaphore
+ * semCCreate - Allocate and init counting semaphore
  *
  * RETURNS: SEM_ID or NULL
  */
 
-SEM_ID semBCreate(
+SEM_ID semCCreate(
     int options,
-    SEM_B_STATE state
+    int initialCount
     )
 {
     SEM_ID semId;
 
     /* Check if lib is installed */
-    if (semBLibInstalled != TRUE)
+    if (semCLibInstalled != TRUE)
     {
         errnoSet(S_semLib_NOT_INSTALLED);
         semId = NULL;
@@ -120,7 +112,7 @@ SEM_ID semBCreate(
         if (semId != NULL)
         {
             /* Initialze structure */
-            if (semBInit(semId, options, state) != OK)
+            if (semCInit(semId, options, initialCount) != OK)
             {
                 objFree(semClassId, semId);
                 semId = NULL;
@@ -132,71 +124,62 @@ SEM_ID semBCreate(
 }
   
 /******************************************************************************
- * semBInit - Init semaphore
+ * semCInit - Init counting semaphore
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS semBInit(
+STATUS semCInit(
     SEM_ID semId,
     int options,
-    SEM_B_STATE state
+    int initialCount
     )
 {
     STATUS status;
 
     /* Check if lib is installed */
-    if (semBLibInstalled != TRUE)
+    if (semCLibInstalled != TRUE)
     {
         errnoSet(S_semLib_NOT_INSTALLED);
         status = ERROR;
     }
     else
     {
-        if (options & SEM_DELETE_SAFE)
+        /* Initialize semaphore queue */
+        if (semQInit(&semId->qHead, options) != OK)
         {
-            errnoSet(S_semLib_INVALID_OPTION);
             status = ERROR;
         }
         else
         {
             /* Initialize semaphore queue */
-            if (semQInit(&semId->qHead, options) != OK)
+            if (semCCoreInit(semId, options, initialCount) != OK)
             {
                 status = ERROR;
             }
             else
             {
-                /* Initialize semaphore queue */
-                if (semBCoreInit(semId, options, state) != OK)
-                {
-                    status = ERROR;
-                }
-                else
-                {
-                    status = OK;
-                }
+                status = OK;
             }
         }
     }
 
-    return status;
+   return OK;
 }
 
 /******************************************************************************
- * semBCoreInit - Init semaphore object core
+ * semCCoreInit - Init semaphore object core
  *
  * RETURNS: OK or ERROR
  */
 
-LOCAL STATUS semBCoreInit(
+LOCAL STATUS semCCoreInit(
     SEM_ID semId,
     int options,
-    SEM_B_STATE state
+    int initialCount
     )
 {
     STATUS status;
-
     if (options & SEM_DELETE_SAFE)
     {
         errnoSet(S_semLib_INVALID_OPTION);
@@ -204,46 +187,27 @@ LOCAL STATUS semBCoreInit(
     }
     else
     {
-        /* Setup state */
-        switch(state)
-        {
-            case SEM_EMPTY:
-                SEM_OWNER_SET(semId, taskIdCurrent);
-                status = OK;
-                break;
+        /* Initialize variables */
+        SEM_COUNT(semId) = initialCount;
+        semId->recurse = 0;
+        semId->options = options;
+        semId->semType = SEM_TYPE_COUNTING;
 
-            case SEM_FULL:
-                SEM_OWNER_SET(semId, NULL);
-                status = OK;
-                break;
-
-            default: 
-                errnoSet(S_semLib_INVALID_OPTION);
-                status = ERROR;
-        }
-
-        if (status == OK)
-        {
-            /* Initialize variables */
-            semId->recurse = 0;
-            semId->options = options;
-            semId->semType = SEM_TYPE_BINARY;
-
-            /* Initialize object core */
-            objCoreInit(&semId->objCore, semClassId);
-        }
+        /* Initialize object core */
+        objCoreInit(&semId->objCore, semClassId);
+        status = OK;
     }
 
     return status;
 }
 
 /******************************************************************************
- * semBGive - Give up semaphore
+ * semCGive - Give up semaphore
  *
  * RETURNS: OK or ERROR
  */
 
-LOCAL STATUS semBGive(
+LOCAL STATUS semCGive(
     SEM_ID semId
     )
 {
@@ -261,12 +225,10 @@ LOCAL STATUS semBGive(
     }
     else
     {
-        /* Get next listening task from queue */
-        SEM_OWNER_SET(semId, Q_FIRST(&semId->qHead));
-
         /* Check if no more tasks are waiting for this semaphore */
-        if (SEM_OWNER_GET(semId) == NULL)
+        if (Q_FIRST(&semId->qHead) == NULL)
         {
+            SEM_COUNT(semId)++;
             INT_UNLOCK(level);
             status = OK;
         }
@@ -289,12 +251,12 @@ LOCAL STATUS semBGive(
 }
 
 /******************************************************************************
- * semBTake - Take hold of semaphore
+ * semCTake - Take hold of semaphore
  *
  * RETURNS: OK or ERROR
  */
 
-LOCAL STATUS semBTake(
+LOCAL STATUS semCTake(
     SEM_ID semId,
     unsigned timeout
     )
@@ -304,8 +266,8 @@ LOCAL STATUS semBTake(
 
     if (INT_RESTRICT() != OK)
     {
-        errnoSet (S_intLib_NOT_ISR_CALLABLE);
-        status = ERROR;
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
+        status = OK;
     }
     else
     {
@@ -323,13 +285,10 @@ LOCAL STATUS semBTake(
             }
             else
             {
-                /* Check if it is already given back */
-                if (SEM_OWNER_GET(semId) == NULL)
+                /* Check if taken recursively */
+                if (SEM_COUNT(semId) > 0)
                 {
-                    /* Then take it */
-                    SEM_OWNER_SET(semId, taskIdCurrent);
-
-                    /* Unlock interrupts */
+                    SEM_COUNT(semId)--;
                     INT_UNLOCK(level);
                     status = OK;
                 }
@@ -340,7 +299,7 @@ LOCAL STATUS semBTake(
                         INT_UNLOCK(level);
                         errnoSet(S_objLib_UNAVAILABLE);
                         status = ERROR;
-                    }
+                    } 
                     else
                     {
                         /* Enter kernel mode */
@@ -355,19 +314,19 @@ LOCAL STATUS semBTake(
                     }
                 }
             }
-        } while(status == SIG_RESTART);
+        } while (status == SIG_RESTART);
     }
 
     return status;
 }
 
 /******************************************************************************
- * semBGiveDefer - Give semaphore as defered work
+ * semCGiveDefer - Give semaphore as defered work
  *
  * RETURNS: N/A
  */
 
-LOCAL void semBGiveDefer(
+LOCAL void semCGiveDefer(
     SEM_ID semId
     )
 {
@@ -376,14 +335,13 @@ LOCAL void semBGiveDefer(
     /* Verify class */
     if (OBJ_VERIFY(semId, semClassId) == OK)
     {
-        /* Get task id */
-        pOwner = SEM_OWNER_GET(semId);
-
-        /* Set to next owner */
-        SEM_OWNER_SET(semId, Q_FIRST(&semId->qHead));
-
         /* Check if it exists */
-        if (SEM_OWNER_GET(semId) != NULL)
+        if (Q_FIRST(&semId->qHead) == NULL)
+        {
+            /* Increase counter */
+            SEM_COUNT(semId)++;
+        }
+        else
         {
             vmxPendQGet(&semId->qHead);
         }

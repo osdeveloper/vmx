@@ -54,13 +54,11 @@ FUNCPTR semGiveTable[MAX_SEM_TYPE] =
 {
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
-    (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid
 };
 
 FUNCPTR semTakeTable[MAX_SEM_TYPE] =
 {
-    (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid
@@ -70,7 +68,6 @@ FUNCPTR semFlushTable[MAX_SEM_TYPE] =
 {
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
-    (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid
 };
 
@@ -78,13 +75,11 @@ FUNCPTR semGiveDeferTable[MAX_SEM_TYPE] =
 {
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
-    (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid
 };
 
 FUNCPTR semFlushDeferTable[MAX_SEM_TYPE] =
 {
-    (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid,
     (FUNCPTR) semInvalid
@@ -161,23 +156,13 @@ SEM_ID semCreate(
                 semId = semBCreate(options, SEM_FULL);
                 break;
 
-#ifndef NO_MUTEX
             case SEM_TYPE_MUTEX:
                 semId = semMCreate(options);
                 break;
-#endif
 
-#ifndef NO_COUNTING
             case SEM_TYPE_COUNTING:
                 semId = semCCreate(options, 1);
                 break;
-#endif
-
-#ifndef NO_SEMRW
-            case SEM_TYPE_RW:
-                semId = semRWCreate(options, 1);
-                break;
-#endif
 
             default:
                 semId = NULL;
@@ -217,23 +202,13 @@ STATUS semInit(
                 status = semBInit(semId, options, SEM_FULL);
                 break;
 
-#ifndef NO_MUTEX
             case SEM_TYPE_MUTEX:
                 status = semMInit(semId, options);
                 break;
-#endif
 
-#ifndef NO_COUNTING
             case SEM_TYPE_COUNTING:
                 status = semCInit(semId, options, 1);
                 break;
-#endif
-
-#ifndef NO_SEMRW
-            case SEM_TYPE_RW:
-                status = semRWInit(semId, options, 1);
-                break;
-#endif
 
             default:
                 status = ERROR;
