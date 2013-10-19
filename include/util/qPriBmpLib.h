@@ -18,54 +18,33 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* qFifoLib.h - Fifo queue */
+/* qPriBmpLib.h - Priority bitmapped queue */
 
-#ifndef _qFifoLib_h
-#define _qFifoLib_h
+#ifndef _qPriBmp_h
+#define _qPriBmp_h
 
 #include <vmx.h>
 #include <util/qLib.h>
+#include <util/dllLib.h>
+#include <util/qPrioLib.h>
 
 #ifndef _ASMLANGUAGE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <vmx.h>
-#include <util/dllLib.h>
-#include <util/qLib.h>
-
-#define FIFO_KEY_HEAD          -1
-#define FIFO_KEY_TAIL           0
-
-/* typedefs */
-
-typedef union              /* Explicitly show that Q_FIFO_NODE */
+typedef union                   /* Explicitly show that */
 {
-    Q_NODE  qNode;         /* overlays Q_NODE. */
-    struct
+    Q_HEAD qNode;               /* Q_PRI_BMP_HEAD overlays */
+    struct                      /* Q_HEAD. */
     {
-        DL_NODE  node;
-    } qFifo;
-} Q_FIFO_NODE;
+        Q_PRIO_NODE *pFirst;
+        unsigned *bmp;
+        DL_LIST *head;
+        Q_CLASS *pQClass;
+    } qPriBmp;
+} Q_PRI_BMP_HEAD;
 
-typedef union              /* Explicitly show that Q_FIFO_HEAD */
-{
-    Q_HEAD qHead;          /* overlays Q_HEAD. */
-    struct
-    {
-        DL_LIST head;
-    } qFifo;
-} Q_FIFO_HEAD;
+extern Q_CLASS_ID qPriBmpClassId;
 
-IMPORT Q_CLASS_ID qFifoClassId;
+#endif  /* _ASMLANGUAGE */
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _qFifoLib_h */
+#endif  /* _qPriBmp_h */
 

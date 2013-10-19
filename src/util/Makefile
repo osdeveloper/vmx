@@ -20,7 +20,8 @@
 
 # Makefile - Utilities library for Real VMX
 
-OBJS = dllLib.o sllLib.o rngLib.o qLib.o qPrioLib.o qFifoLib.o hashLib.o
+OBJS = dllLib.o sllLib.o rngLib.o qLib.o qPrioLib.o qPriBmpLib.o qFifoLib.o \
+       hashLib.o
 SUBDIRS =
 LIB_TGT = util
 

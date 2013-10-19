@@ -50,10 +50,10 @@ typedef union             /* Explicitly show that Q_PRIO_NODE */
 
 typedef union             /* Explicitly show that Q_PRIO_HEAD */
 {
-    Q_HEAD  qHead;        /* overlays Q_HEAD. */
+    Q_HEAD qHead;         /* overlays Q_HEAD. */
     struct
     {
-        DL_LIST  head;
+        DL_LIST head;
     } qPrio;
 } Q_PRIO_HEAD;
 

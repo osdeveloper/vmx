@@ -18,54 +18,35 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* qFifoLib.h - Fifo queue */
+/* ffsLib.h - find first set bit library */
 
-#ifndef _qFifoLib_h
-#define _qFifoLib_h
 
-#include <vmx.h>
-#include <util/qLib.h>
+#ifndef __FFS_LIB_H
+#define __FFS_LIB_H
 
-#ifndef _ASMLANGUAGE
+/***************************************************************************
+ * ffsMsb - find first set most significant bit
+ *
+ * 1 indicates the least significant bit, 32 the most.
+ *
+ * RETURNS: position of most-significant bit, 0 if no bits set
+ */
 
-#ifdef __cplusplus
-extern "C" {
+int ffsMsb(
+    unsigned  value
+    );
+
+/***************************************************************************
+ * ffsLsb - find first set least significant bit
+ *
+ * 1 indicates the least significant bit, 32 the most.
+ *
+ * RETURNS: position of least-significant bit, 0 if no bits set
+ */
+
+int ffsLsb(
+    unsigned value
+    );
+
 #endif
-
-#include <vmx.h>
-#include <util/dllLib.h>
-#include <util/qLib.h>
-
-#define FIFO_KEY_HEAD          -1
-#define FIFO_KEY_TAIL           0
-
-/* typedefs */
-
-typedef union              /* Explicitly show that Q_FIFO_NODE */
-{
-    Q_NODE  qNode;         /* overlays Q_NODE. */
-    struct
-    {
-        DL_NODE  node;
-    } qFifo;
-} Q_FIFO_NODE;
-
-typedef union              /* Explicitly show that Q_FIFO_HEAD */
-{
-    Q_HEAD qHead;          /* overlays Q_HEAD. */
-    struct
-    {
-        DL_LIST head;
-    } qFifo;
-} Q_FIFO_HEAD;
-
-IMPORT Q_CLASS_ID qFifoClassId;
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _qFifoLib_h */
 

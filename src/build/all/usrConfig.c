@@ -375,6 +375,9 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   semMLibInit();
   semCLibInit();
 
+  /* For some reason in need this in order to include ffsLib */
+  ffsLsb(0);
+
 #ifdef DEBUG
   puts("Initializing task library:\n");
 #endif

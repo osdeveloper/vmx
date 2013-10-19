@@ -27,11 +27,14 @@
 #include <arch/taskArchLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
+#include <util/qPriBmpLib.h>
 #include <util/qFifoLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/kernLib.h>
+
+#define INCLUDE_CONSTANT_RDY_Q
 
 /* Globals */
 BOOL kernelInitialized           = FALSE;
@@ -39,9 +42,15 @@ BOOL kernelState                 = FALSE;
 BOOL kernRoundRobin              = FALSE;
 unsigned kernRoundRobinTimeSlice = 0;
 TCB_ID taskIdCurrent             = NULL;
-Q_HEAD kernActiveQ = {NULL, 0, 0 ,NULL};
+Q_HEAD kernActiveQ               = {NULL, 0, 0 ,NULL};
 Q_HEAD kernTickQ;
 Q_HEAD kernReadyQ;
+
+/* Locals */
+#ifdef INCLUDE_CONSTANT_RDY_Q
+LOCAL DL_LIST kernReadyLst[256];
+LOCAL unsigned kernReadyBmp[8];
+#endif
 
 /******************************************************************************
  * kernelInit - Initialize kernel
@@ -62,7 +71,11 @@ void kernInit(
     /* Initialize queues */
     qInit(&kernActiveQ, qFifoClassId);
     qInit(&kernTickQ, qPrioClassId);
+#ifdef INCLUDE_CONSTANT_RDY_Q
+    qInit(&kernReadyQ, qPriBmpClassId, 256, kernReadyLst, kernReadyBmp);
+#else
     qInit(&kernReadyQ, qPrioClassId);
+#endif
 
     /* Initialize variables */
     kernelState             = FALSE;
