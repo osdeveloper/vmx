@@ -110,7 +110,7 @@ LOCAL Q_CLASS qPriBmpClass =
 
 Q_CLASS_ID qPriBmpClassId = &qPriBmpClass;
 
-/***************************************************************************
+/******************************************************************************
  * qHeadFirstFind - determine which priority qHead has the first node in list
  *
  * This routine determines the which priority queue head in the bitmapped
@@ -140,7 +140,7 @@ LOCAL int qHeadFirstFind(
     return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpCreate - create a priority bitmapped queue
  *
  * This routine creates a priority bitmapped queue.  The size of the
@@ -183,7 +183,7 @@ LOCAL Q_PRI_BMP_HEAD* qPriBmpCreate(
     return pQHead;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpInit - initialize a priority bitmapped queue
  *
  * This routine initializes the priority bitmapped queue.
@@ -229,7 +229,7 @@ LOCAL STATUS qPriBmpInit(
     return status;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpDestroy - destroy the priority bitmapped queue
  *
  * RETURNS: OK
@@ -244,7 +244,7 @@ LOCAL STATUS qPriBmpDestroy(
     return OK;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpTerminate - invalidate a priority bitmapped queue
  *
  * RETURNS: OK
@@ -257,7 +257,7 @@ LOCAL STATUS qPriBmpTerminate(
     return OK;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpPut - put a node on the priority bitmapped queue
  *
  * RETURNS: N/A
@@ -285,7 +285,7 @@ LOCAL void qPriBmpPut(
                              DLL_HEAD(&pQHead->qPriBmp.head[first]);
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpGet - get and remove a node from the bitmapped queue
  *
  * This routine gets and removes a node from the bitmapped queue.  In the
@@ -336,7 +336,7 @@ LOCAL Q_PRIO_NODE* qPriBmpGet(
     return pQNode;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpRemove - remove a node
  *
  * RETURNS: OK
@@ -373,7 +373,7 @@ LOCAL STATUS qPriBmpRemove(
     return OK;
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpMove - move node to a new place based on the key
  *
  * RETURNS: N/A
@@ -389,7 +389,7 @@ LOCAL void qPriBmpMove (
     qPriBmpPut(pQHead, pQNode, newKey);
 }
 
-/***************************************************************************
+/******************************************************************************
  * qPriBmpNull - null method
  *
  * RETURNS: N/A

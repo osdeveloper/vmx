@@ -18,35 +18,47 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ffsLib.h - find first set bit library */
+/* qMsgLib.h - Used with message queues */
 
+#ifndef _qMsgLib_h
+#define _qMsgLib_h
 
-#ifndef __FFS_LIB_H
-#define __FFS_LIB_H
+#define Q_MSG_PRI_TAIL          0
+#define Q_MSG_PRI_HEAD          1
+#define Q_MSG_PRI_ANY           1
 
-/******************************************************************************
- * ffsMsb - find first set most significant bit
- *
- * 1 indicates the least significant bit, 32 the most.
- *
- * RETURNS: position of most-significant bit, 0 if no bits set
- */
+#include <vmx.h>
+#include <util/qLib.h>
 
-int ffsMsb(
-    unsigned  value
-    );
+#ifndef _ASMLANGUAGE
 
-/******************************************************************************
- * ffsLsb - find first set least significant bit
- *
- * 1 indicates the least significant bit, 32 the most.
- *
- * RETURNS: position of least-significant bit, 0 if no bits set
- */
-
-int ffsLsb(
-    unsigned value
-    );
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+typedef struct qMsgNode
+{
+    struct qMsgNode *next;
+} Q_MSG_NODE;
+
+#include <util/qClass.h>
+
+typedef struct
+{
+    Q_MSG_NODE *first;
+    Q_MSG_NODE *last;
+    int count;
+    Q_CLASS pQClass;
+    Q_HEAD pendQ;
+} Q_MSG_HEAD;
+
+IMPORT Q_CLASS_ID qMsgClassId;
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _qMsgLib_h */
 

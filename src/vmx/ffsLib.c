@@ -43,7 +43,7 @@ LOCAL unsigned char msbTable[256] =
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8    /* 0xf0 - 0xff */
 };
 
-/***************************************************************************
+/******************************************************************************
  * ffsMsb - find first set most significant bit
  *
  * 1 indicates the least significant bit, 32 the most.
@@ -87,7 +87,7 @@ int ffsMsb(
     return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * ffsLsb - find first set least significant bit
  *
  * 1 indicates the least significant bit, 32 the most.

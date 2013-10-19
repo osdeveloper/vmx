@@ -18,35 +18,53 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ffsLib.h - find first set bit library */
+/* msgQLibP.h - Private header for message queues */
 
+#ifndef _msgQLibP_h
+#define _msgQLibP_h
 
-#ifndef __FFS_LIB_H
-#define __FFS_LIB_H
+#ifndef _ASMLANGUAGE
 
-/******************************************************************************
- * ffsMsb - find first set most significant bit
- *
- * 1 indicates the least significant bit, 32 the most.
- *
- * RETURNS: position of most-significant bit, 0 if no bits set
- */
-
-int ffsMsb(
-    unsigned  value
-    );
-
-/******************************************************************************
- * ffsLsb - find first set least significant bit
- *
- * 1 indicates the least significant bit, 32 the most.
- *
- * RETURNS: position of least-significant bit, 0 if no bits set
- */
-
-int ffsLsb(
-    unsigned value
-    );
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+#include <vmx/objLib.h>
+#include <vmx/classLib.h>
+#include <util/qMsgLib.h>
+
+typedef struct msg_q
+{
+    OBJ_CORE objCore;
+    Q_MSG_HEAD msgQ;
+    Q_MSG_HEAD freeQ;
+    int options;
+    int maxMsg;
+    int maxMsgLength;
+    int sendTimeouts;
+    int reciveTimeouts;
+} MSG_Q;
+
+typedef struct
+{
+    Q_MSG_NODE node;
+    int msgLength;
+} MSG_NODE;
+
+/******************************************************************************
+ * MSG_NODE_DATA - Get message node data
+ *
+ * RETURNS: Pointer to data
+ */
+
+#define MSG_NODE_DATA(pNode) \
+    (((char *)pNode) + sizeof(MSG_NODE))
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _msgQLibP_h */
 

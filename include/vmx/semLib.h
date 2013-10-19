@@ -274,7 +274,7 @@ STATUS semMInit(
     int options
     );
 
-/***************************************************************************
+/******************************************************************************
  * semMGiveForce - forcibly give a mutex (for debugging only)
  *
  * This routine forcibly releases a mutex semaphore.  It passes ownership to

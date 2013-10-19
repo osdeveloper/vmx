@@ -35,13 +35,14 @@
 #include <vmx/tickLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
+#include <vmx/semLib.h>
+#include <vmx/msgQLib.h>
 
 #define RESTART_TASK
-#define DELAY_TIME	(18 * 1)
+#define DELAY_TIME	        (18 * 1)
+#define MAX_MESSAGES            10
 
 /* Globals */
-SEM_ID sem;
-SEM_ID evtSem;
 char bigString[] = "\n"
 		   "******************************************************\n"
   		   "Suddenly I awoke. I must have falled asleep under the \n"
@@ -51,6 +52,11 @@ char bigString[] = "\n"
 		   "life. The world was waiting, I was reborn...\n"
   		   "******************************************************"
 		   "\n";
+SEM_ID sem;
+SEM_ID evtSem;
+MSG_Q_ID msgQId;
+int numMsg = 0;
+char buf[1024];
 
 char* itoa2(int a)
 {
@@ -233,6 +239,80 @@ int evtHandler(void)
   return 0;
 }
 
+int sendMessage(void)
+{
+  if ((numMsg + 1) >= MAX_MESSAGES) {
+    semTake(sem, WAIT_FOREVER);
+    puts("Message queue full.\n");
+    semGive(sem);
+
+    return 1;
+  }
+
+  numMsg++;
+  semTake(sem, WAIT_FOREVER);
+  puts("Sending message to message queue...");
+  semGive(sem);
+
+  msgQSend(msgQId, bigString, strlen(bigString), 600, MSG_PRI_NORMAL);
+
+  semTake(sem, WAIT_FOREVER);
+  puts("Message sent.\n");
+
+  puts(itoa2(numMsg));
+  puts(" message(s) sent to message queue.\n");
+
+  semGive(sem);
+
+  return 0;
+}
+
+int receiveMessage(void)
+{
+  char buf[512];
+
+  semTake(sem, WAIT_FOREVER);
+  puts("Receiving message from message queue...\n");
+  semGive(sem);
+
+  msgQReceive(msgQId, buf, sizeof(bigString), WAIT_FOREVER);
+  numMsg--;
+
+  semTake(sem, WAIT_FOREVER);
+  puts("Received message: ");
+  semGive(sem);
+
+  buf[strlen(bigString)]='\0';
+  puts(buf);
+
+  puts(itoa2(numMsg));
+  puts(" message(s) left in message queue.\n");
+
+  return 0;
+}
+
+int messageSender(void)
+{
+  int rnd;
+
+  for (;;) {
+    sendMessage();
+    rnd = rand() % 10;
+    taskDelay(rnd * DELAY_TIME);
+  }
+}
+
+int messageReceiver(void)
+{
+  int rnd;
+
+  for (;;) {
+    receiveMessage();
+    rnd = rand() % 10;
+    taskDelay(rnd * DELAY_TIME);
+  }
+}
+
 int initTasks(void)
 {
 #ifdef RESTART_TASK
@@ -253,6 +333,13 @@ int initTasks(void)
   if (evtSem == NULL)
   {
     puts("Unable to create event semaphore\n");
+    for (;;);
+  }
+
+  msgQId = msgQCreate(MAX_MESSAGES + 1, strlen(bigString) + 1, MSG_Q_PRIORITY);
+  if (msgQId == NULL)
+  {
+    puts("Unable to create message queue\n");
     for (;;);
   }
 
@@ -342,6 +429,32 @@ int initTasks(void)
 	     (ARG) 58,
 	     (ARG) 59);
 
+  taskSpawn("messageReceiver", 2, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) messageReceiver,
+	     (ARG) 60,
+	     (ARG) 61,
+	     (ARG) 62,
+	     (ARG) 63,
+	     (ARG) 64,
+	     (ARG) 65,
+	     (ARG) 66,
+	     (ARG) 67,
+	     (ARG) 68,
+	     (ARG) 69);
+
+  taskSpawn("messageSender", 2, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) messageSender,
+	     (ARG) 60,
+	     (ARG) 61,
+	     (ARG) 62,
+	     (ARG) 63,
+	     (ARG) 64,
+	     (ARG) 65,
+	     (ARG) 66,
+	     (ARG) 67,
+	     (ARG) 68,
+	     (ARG) 69);
+
   return 0;
 }
 
@@ -375,6 +488,7 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   semMLibInit();
   semCLibInit();
 
+  msgQLibInit();
   /* For some reason in need this in order to include ffsLib */
   ffsLsb(0);
 
