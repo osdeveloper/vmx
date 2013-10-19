@@ -1,213 +1,549 @@
 /******************************************************************************
-*   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-*
-*   This file is part of Real VMX.
-*   Copyright (C) 2008 Surplus Users Ham Society
-*
-*   Real VMX is free software: you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation, either version 3 of the License, or
-*   (at your option) any later version.
-*
-*   Real VMX is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
-******************************************************************************/
+ *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ *   This file is part of Real VMX.
+ *   Copyright (C) 2013 Surplus Users Ham Society
+ *
+ *   Real VMX is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Real VMX is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* semLib.c - Sempahore library */
 
 #include <stdlib.h>
 #include <vmx.h>
+#include <arch/intArchLib.h>
 #include <util/qLib.h>
 #include <util/qFifoLib.h>
 #include <util/qPrioLib.h>
-#include <vmx/logLib.h>
-#include <vmx/errnoLib.h>
-#include <vmx/memPartLib.h>
+#include <vmx/objLib.h>
+#include <vmx/classLib.h>
 #include <vmx/private/kernLibP.h>
+#include <vmx/workQLib.h>
+#include <vmx/vmxLib.h>
+#include <vmx/taskLib.h>
+#include <vmx/memPartLib.h>
 #include <vmx/semLib.h>
 
 /* Locals */
 LOCAL BOOL semLibInstalled = FALSE;
 
 /* Internals */
-OBJ_CLASS	semClass;
+OBJ_CLASS semClass;
 
-FUNCPTR semGiveTable [MAX_SEM_TYPE] =
+/* Forward declarations */
+LOCAL STATUS semGiveDefer(
+    SEM_ID semId
+    );
+
+LOCAL STATUS semFlushDefer(
+    SEM_ID semId
+    );
+
+FUNCPTR semGiveTable[MAX_SEM_TYPE] =
 {
-  (FUNCPTR) semInvalid
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid
 };
 
-FUNCPTR semTakeTable [MAX_SEM_TYPE] =
+FUNCPTR semTakeTable[MAX_SEM_TYPE] =
 {
-  (FUNCPTR) semInvalid
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid
+};
+
+FUNCPTR semFlushTable[MAX_SEM_TYPE] =
+{
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid
+};
+
+FUNCPTR semGiveDeferTable[MAX_SEM_TYPE] =
+{
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid
+};
+
+FUNCPTR semFlushDeferTable[MAX_SEM_TYPE] =
+{
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid,
+    (FUNCPTR) semInvalid
 };
 
 /* Externals */
-CLASS_ID	semClassId = &semClass;
+CLASS_ID semClassId = &semClass;
 
 /******************************************************************************
-* semLibInit - Initialize semaphore library
-*
-* RETURNS: OK or ERROR
-******************************************************************************/
+ * semLibInit - Initialize semaphore library
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS semLibInit(void)
+STATUS semLibInit(
+    void
+    )
 {
-  logString("semLibInit() called:",
-            LOG_SEM_LIB,
-            LOG_LEVEL_CALLS);
+    STATUS status;
 
-  /* Instatiate class */
-  if (semLibInstalled == TRUE)
-  {
-      logString("WARNING - Semaphore library already installed",
-            	LOG_SEM_LIB,
-            	LOG_LEVEL_WARNING);
-    return(OK);
-  }
-
-  if (classInit(semClassId,
-		sizeof(SEMAPHORE), OFFSET(SEMAPHORE, objCore),
+    /* Install library */
+    if (semLibInstalled == TRUE)
+    {
+        status = OK;
+    }
+    else
+    {
+        if (classInit(
+                semClassId,
+                sizeof(SEMAPHORE),
+                OFFSET(SEMAPHORE, objCore),
                 memSysPartId,
-		(FUNCPTR) NULL,
-		(FUNCPTR) NULL,
-		(FUNCPTR) NULL) != OK)
-  {
-      logString("ERROR - Semaphore class initialization failed",
-            	LOG_SEM_LIB,
-            	LOG_LEVEL_ERROR);
-      return(ERROR);
-  }
+                (FUNCPTR) NULL,
+                (FUNCPTR) NULL,
+                (FUNCPTR) NULL
+                ) != OK)
+        {
+            status = ERROR;
+        }
+        else
+        {
+            semLibInstalled = TRUE;
+            status = OK;
+        }
+    }
 
-  if (semBLibInit() != OK)
-  {
-    logString("ERROR - Binary semaphore library initialization failed",
-              LOG_SEM_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
-
-  semLibInstalled = TRUE;
-
-  return(OK);
+    return status;
 }
 
 /******************************************************************************
-* semGive - Give up semaphore
-*
-* RETURNS: OK or ERROR
-******************************************************************************/
+ * semCreate - Create a semaphore
+ *
+ * RETURNS: Semaphore Id or NULL
+ */
 
-STATUS semGive(SEM_ID semId)
+SEM_ID semCreate(
+    int type,
+    int options
+    )
 {
-  logString("semGive() called:",
-            LOG_SEM_LIB,
-            LOG_LEVEL_CALLS);
+    SEM_ID semId;
 
-  /* Check if library is installed */
-  if (semLibInstalled == FALSE)
-  {
-    logString("ERROR - semLib not installed",
-              LOG_SEM_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+    if (semLibInstalled != TRUE)
+    {
+        errnoSet(S_semLib_NOT_INSTALLED);
+        semId = NULL;
+    }
+    else
+    {
+        /* Create semaphore of correct type */
+        switch(type & SEM_TYPE_MASK)
+        {
+            case SEM_TYPE_BINARY:
+                semId = semBCreate(options, SEM_FULL);
+                break;
 
-  /* SHOULD IMPLEMENT SEM GIVE IN KERNEL MODE */
-  if (kernelState)
-  {
-    logString("ERROR - Not implemented",
-              LOG_SEM_LIB,
-              LOG_LEVEL_CALLS);
-    return(ERROR);
-  }
+#ifndef NO_MUTEX
+            case SEM_TYPE_MUTEX:
+                semId = semMCreate(options);
+                break;
+#endif
 
-  return( (*semGiveTable[semId->semType & SEM_TYPE_MASK]) (semId) );
+#ifndef NO_COUNTING
+            case SEM_TYPE_COUNTING:
+                semId = semCCreate(options, 1);
+                break;
+#endif
+
+#ifndef NO_SEMRW
+            case SEM_TYPE_RW:
+                semId = semRWCreate(options, 1);
+                break;
+#endif
+
+            default:
+                semId = NULL;
+                errnoSet(S_semLib_INVALID_OPTION);
+                break;
+        }
+    }
+
+    return semId;
 }
 
 /******************************************************************************
-* semTake - Take hold of semaphore
-*
-* RETURNS: OK or ERROR
-******************************************************************************/
+ * semInit - Initialize a semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS semTake(SEM_ID semId, unsigned timeout)
+STATUS semInit(
+    SEM_ID semId,
+    int type,
+    int options
+    )
 {
-  logString("semTake() called:",
-            LOG_SEM_LIB,
-            LOG_LEVEL_CALLS);
+    STATUS status;
 
-  /* Check if library is installed */
-  if (semLibInstalled == FALSE)
-  {
-    logString("ERROR - semLib not installed",
-              LOG_SEM_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+    if (semLibInstalled != TRUE)
+    {
+        errnoSet(S_semLib_NOT_INSTALLED);
+        status = ERROR;
+    }
+    else
+    {
+        /* Create semaphore of correct type */
+        switch(type & SEM_TYPE_MASK)
+        {
+            case SEM_TYPE_BINARY:
+                status = semBInit(semId, options, SEM_FULL);
+                break;
 
-  return( (*semTakeTable[semId->semType & SEM_TYPE_MASK]) (semId, timeout) );
+#ifndef NO_MUTEX
+            case SEM_TYPE_MUTEX:
+                status = semMInit(semId, options);
+                break;
+#endif
+
+#ifndef NO_COUNTING
+            case SEM_TYPE_COUNTING:
+                status = semCInit(semId, options, 1);
+                break;
+#endif
+
+#ifndef NO_SEMRW
+            case SEM_TYPE_RW:
+                status = semRWInit(semId, options, 1);
+                break;
+#endif
+
+            default:
+                status = ERROR;
+                errnoSet(S_semLib_INVALID_OPTION);
+                break;
+        }
+    }
+
+    return status;
 }
 
 /******************************************************************************
-* semInvalid - Invalid semaphore function
-*
-* RETURNS: ERROR
-******************************************************************************/
+ * semDelete - Delete semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS semInvalid(SEM_ID semId)
+STATUS semDelete(
+    SEM_ID semId
+    )
 {
-  logString("semInvalid() called:",
-            LOG_SEM_LIB,
-            LOG_LEVEL_CALLS);
-
-  return(ERROR);
+    return semDestroy(semId, TRUE);
 }
 
 /******************************************************************************
-* semQInit - Initialize semaphore queue
-*
-* RETURNS: OK or ERROR
-******************************************************************************/
+ * semTerminate - Terminate semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS semQInit(SEM_ID semId, int options)
+STATUS semTerminate(
+    SEM_ID semId
+    )
 {
-  logString("semQInit() called:",
-            LOG_SEM_LIB,
-            LOG_LEVEL_CALLS);
+    return semDestroy(semId, FALSE);
+}
 
-  /* Check if library is installed */
-  if (semLibInstalled == FALSE)
-  {
-    logString("ERROR - semLib not installed",
-              LOG_SEM_LIB,
-              LOG_LEVEL_ERROR);
-    return(ERROR);
-  }
+/******************************************************************************
+ * semDestroy - Destroy semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
 
-  /* Initilaize queue according to options */
-  switch(options & SEM_Q_MASK)
-  {
-    case SEM_Q_FIFO:
-      qInit(&semId->qHead, qFifoClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      break;
+STATUS semDestroy(
+    SEM_ID semId,
+    BOOL deallocate
+    )
+{
+    STATUS status;
+    int level;
 
-    case SEM_Q_PRIORITY:
-      qInit(&semId->qHead, qPrioClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      break;
+    if (INT_RESTRICT() != OK)
+    {
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
+        status = ERROR;
+    }
+    else
+    {
+        INT_LOCK(level);
 
-    default:
-      logString("ERROR - Invalid semaphore quque type",
-            	LOG_SEM_LIB,
-            	LOG_LEVEL_ERROR);
-      return(ERROR);
-  }
+        if (OBJ_VERIFY(semId, semClassId) != OK)
+        {
+            INT_UNLOCK(level);
+            status = ERROR;
+        }
+        else
+        {
+            objCoreTerminate(&semId->objCore);
 
-  return(OK);
+            /* Delete it */
+            kernelState = TRUE;
+            INT_UNLOCK(level);
+            vmxSemDelete(semId);
+
+            taskSafe();
+            kernExit();
+
+            if (deallocate == TRUE)
+            {
+                objFree(semClassId, semId);
+            }
+
+            taskUnsafe();
+            status = OK;
+        }
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semGive - Give up semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semGive(
+    SEM_ID semId
+    )
+{
+    STATUS status;
+
+    if (kernelState == TRUE)
+    {
+        status = semGiveDefer(semId);
+    }
+    else
+    {
+        status = (*semGiveTable[semId->semType & SEM_TYPE_MASK])(semId);
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semTake - Take hold of semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semTake(
+    SEM_ID semId,
+    unsigned timeout
+    )
+{
+    STATUS status;
+
+    status = (*semTakeTable[semId->semType & SEM_TYPE_MASK])(semId, timeout);
+
+    return status;
+}
+
+/******************************************************************************
+ * semFlush - Flush all tasks depending on semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semFlush(
+    SEM_ID semId
+    )
+{
+    STATUS status;
+
+    if (kernelState == TRUE)
+    {
+        status = semFlushDefer(semId);
+    }
+    else
+    {
+        status = (*semFlushTable[semId->semType & SEM_TYPE_MASK])(semId);
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semGiveDefer - Give sempahore defered
+ *
+ * RETURNS: OK or ERROR
+ */
+
+LOCAL STATUS semGiveDefer(
+    SEM_ID semId
+    )
+{
+    STATUS status;
+
+    /* Verify object */
+    if (OBJ_VERIFY(semId, semClassId) != OK)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* A method is guaranteed to exist. */
+        workQAdd1(semGiveDeferTable[semId->semType & SEM_TYPE_MASK], semId);
+        status = OK;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semFlushDefer - Flush all tasks depending on semaphore
+ *
+ * RETURNS: OK or ERROR
+ */
+
+LOCAL STATUS semFlushDefer(
+    SEM_ID semId
+    )
+{
+    STATUS status;
+
+    /* Verify object */
+    if (OBJ_VERIFY(semId, semClassId) != OK)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* A method is guaranteed to exist */
+        workQAdd1(semFlushDeferTable[semId->semType & SEM_TYPE_MASK], semId);
+        status = OK;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semQInit - Initialize semaphore queue
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semQInit(
+    Q_HEAD *pQHead,
+    int options
+    )
+{
+    STATUS status;
+
+    /* Initilaize queue according to options */
+    switch (options & SEM_Q_MASK)
+    {
+        case SEM_Q_FIFO:
+            qInit(pQHead, qFifoClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            status = OK;
+            break;
+
+        case SEM_Q_PRIORITY:
+            qInit(pQHead, qPrioClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            status = OK;
+            break;
+
+        default:
+            errnoSet(S_semLib_INVALID_Q_TYPE);
+            status = ERROR;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semQFlush - Flush semaphore queue
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS semQFlush(
+    SEM_ID semId
+    )
+{
+    STATUS status;
+    int level;
+
+    INT_LOCK(level);
+
+    if (OBJ_VERIFY (semId, semClassId) != OK)
+    {
+        INT_UNLOCK (level);
+        status = ERROR;
+    }
+
+    /* Check next object */
+    if (Q_FIRST(&semId->qHead) == NULL)
+    {
+        INT_UNLOCK(level);
+    }
+    else
+    {
+        /* Enter kernel and flush pending queue */
+        kernelState = TRUE;
+        INT_UNLOCK(level);
+        vmxPendQFlush(&semId->qHead);
+        kernExit();
+        status = OK;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * semQFlushDefer - Flush semaphore queue in defered mode
+ *
+ * RETURNS: N/A
+ */
+
+void semQFlushDefer(
+    SEM_ID semId
+    )
+{
+    /* Check if flush needed */
+    if (Q_FIRST(&semId->qHead) != NULL)
+    {
+        vmxPendQFlush(&semId->qHead);
+    }
+}
+
+/******************************************************************************
+ * semInvalid - Invalid semaphore function
+ *
+ * RETURNS: ERROR
+ */
+
+STATUS semInvalid(
+    SEM_ID semId
+    )
+{
+    return ERROR;
 }
 

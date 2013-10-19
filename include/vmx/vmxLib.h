@@ -23,6 +23,11 @@
 #ifndef _vmxLib_h
 #define _vmxLib_h
 
+#define NO_SWAPLIB
+#define NO_MUTEX
+#define NO_WDLIB
+#define NO_UNPENDHDL
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
@@ -30,8 +35,6 @@ extern "C" {
 #endif
 
 /* includes */
-
-#define NO_WDLIB
 
 #include <util/qLib.h>
 #include <vmx/taskLib.h>

@@ -60,7 +60,7 @@ void tickAnnounce(
     void
     )
 {
-    if (kernelState)
+    if (kernelState == TRUE)
     {
         workQAdd0((FUNCPTR) vmxTickAnnounce);
     }

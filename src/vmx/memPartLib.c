@@ -20,8 +20,6 @@
 
 /* memPartLib.c - Memory partitions */
 
-#define NO_TASKLIB
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -41,6 +41,7 @@
 
 /* Globals */
 SEM_ID sem;
+SEM_ID evtSem;
 char bigString[] = "\n"
 		   "******************************************************\n"
   		   "Suddenly I awoke. I must have falled asleep under the \n"
@@ -116,7 +117,6 @@ int init(ARG arg0,
 
   pTcb = taskTcb(taskIdSelf());
 
-  semBInit(sem, SEM_Q_PRIORITY, SEM_FULL);
   puts(pTcb->name);
   puts(" called with arguments: ");
   puts(itoa2((int)arg0)); puts(", ");
@@ -193,6 +193,7 @@ int printSysTime(ARG arg0, ARG arg1)
       puts(itoa2(*pInt));
       puts(" time");
       taskRestart((int) pTcb);
+      semGive(evtSem);
     }
 #endif
     puts("\n");
@@ -219,6 +220,19 @@ int slowFill(void)
   return 3;
 }
 
+int evtHandler(void)
+{
+  for (;;)
+  {
+    semTake(evtSem, WAIT_FOREVER);
+    puts("?????????????????????????????????????????????????????????????????\n");
+    puts("Event triggered\n");
+    puts("?????????????????????????????????????????????????????????????????\n");
+  }
+
+  return 0;
+}
+
 int initTasks(void)
 {
 #ifdef RESTART_TASK
@@ -227,6 +241,20 @@ int initTasks(void)
 
   puts("Welcome to Real VMX...\n");
   puts("This system is released under GNU public license.\n\n");
+
+  sem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
+  if (sem == NULL)
+  {
+    puts("Unable to create semaphore\n");
+    for (;;);
+  }
+
+  evtSem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
+  if (evtSem == NULL)
+  {
+    puts("Unable to create event semaphore\n");
+    for (;;);
+  }
 
   taskSpawn("init", 1, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) init,
@@ -290,16 +318,29 @@ int initTasks(void)
 
   taskSpawn("slowFill", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) slowFill,
-	     (ARG) 30,
-	     (ARG) 31,
-	     (ARG) 32,
-	     (ARG) 33,
-	     (ARG) 34,
-	     (ARG) 35,
-	     (ARG) 36,
-	     (ARG) 37,
-	     (ARG) 38,
-	     (ARG) 39);
+	     (ARG) 40,
+	     (ARG) 41,
+	     (ARG) 42,
+	     (ARG) 43,
+	     (ARG) 44,
+	     (ARG) 45,
+	     (ARG) 46,
+	     (ARG) 47,
+	     (ARG) 48,
+	     (ARG) 49);
+
+  taskSpawn("evtHandler", 2, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) evtHandler,
+	     (ARG) 50,
+	     (ARG) 51,
+	     (ARG) 52,
+	     (ARG) 53,
+	     (ARG) 54,
+	     (ARG) 55,
+	     (ARG) 56,
+	     (ARG) 57,
+	     (ARG) 58,
+	     (ARG) 59);
 
   return 0;
 }
@@ -330,6 +371,7 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
 #endif
 
   semLibInit();
+  semBLibInit();
 
 #ifdef DEBUG
   puts("Initializing task library:\n");
