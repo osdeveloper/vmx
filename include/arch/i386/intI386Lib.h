@@ -55,6 +55,7 @@ extern "C" {
 #include <arch/esf.h>
 
 IMPORT u_int32_t intCnt;
+IMPORT VOIDFUNCPTR intEoi;
 
 /******************************************************************************
  * INT_ENABLE - Unable interrupts

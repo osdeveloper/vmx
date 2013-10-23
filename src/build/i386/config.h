@@ -31,6 +31,18 @@
 #define VEC_BASE_ADRS		LOCAL_MEM_LOCAL_ADRS
 #define GDT_BASE_OFFSET		(1 * VM_PAGE_SIZE)
 
+/* PC interrupt controller related */
+#define PIC_REG_ADDR_INTERVAL   1
+
+/* PC timer related */
+#define PIT0_INT_LVL            0x00
+#define PIT_BASE_ADR            0x40
+#define PIT_REG_ADDR_INTERVAL   1
+#define PIT_CLOCK               1193180
+
+#define SYS_CLOCK_RATE_MIN      19
+#define SYS_CLOCK_RATE_MAX      8192
+
 #define INCLUDE_VGA
 #define INCLUDE_ATKBD
 #define INCLUDE_PIC

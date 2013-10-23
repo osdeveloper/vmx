@@ -27,6 +27,7 @@
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
 #include <vmx/memPartLib.h>
+#include <drv/timer/i8253.h>
 
 #ifdef	DEBUG
 #undef  INCLUDE_VGA
@@ -69,6 +70,7 @@ void sysHwInit(void)
 
 #ifdef INCLUDE_PIC
   sysIntInitPIC();
+  sysIntEnablePIC(PIT0_INT_LVL);
 #endif
 }
 

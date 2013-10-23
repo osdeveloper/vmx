@@ -167,16 +167,15 @@ void intIntHandle(int vecNum,
 
     /* Call function with assosiated parameter */
     parameter = intParamTbl[vecNum];
-    (* irq)(parameter);
-
-    /* Send interrupt completed signal */
-    if (vecNum >= 0x28 && vecNum <= 0x2f) sysOutByte(0xa0, 0x20);
-    if (vecNum >= 0x20 && vecNum <= 0x2f) sysOutByte(0x20, 0x20);
-
+    (*irq)(parameter);
   } else {
 
     /* If not installed called function in exception part */
     excIntHandle(vecNum, pEsf, pRegs, error);
+  }
+
+  if (intEoi != NULL) {
+    (*intEoi)();
   }
 }
 

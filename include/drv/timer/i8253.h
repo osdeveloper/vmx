@@ -18,87 +18,83 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* i8259a.h - Programable interrupt controller */
+/* i8253.h - Intel 8253 Programmable Interrupt Timer (PIT) */
 
-#ifndef _i8259a_h
-#define _i8259a_h
+#ifndef _i8253_h
+#define _i8253_h
 
-#include <vmx.h>
+#ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Defines */
-#define PIC1_BASE_ADR           0x20
-#define PIC2_BASE_ADR           0xa0
-#define PIC_ADRS(base,reg)      (base + reg * PIC_REG_ADDR_INTERVAL)
-
 /* Macros */
-#define PIC_Port1(base)         PIC_ADRS(base,0x00)     /* Port 1 */
-#define PIC_Port2(base)         PIC_ADRS(base,0x01)     /* Port 2 */
-#define PIC_IMASK(base)         PIC_Port2(base)         /* Interrupt msk */
-#define PIC_IACK(base)          PIC_Port1(base)         /* Intrrupt ack */
-#define PIC_ISR_MASK(base)      PIC_Port1(base)         /* In service reg msk */
-#define PIC_IRR_MASK(base)      PIC_Port1(base)         /* Interrupt req reg */
+#define PIT_ADRS(base, reg)             (base + reg * PIT_REG_ADDR_INTERVAL)
+#define PIT_CNT0(base)                  PIT_ADRS(base, 0x00)
+#define PIT_CNT1(base)                  PIT_ADRS(base, 0x01)
+#define PIT_CNT2(base)                  PIT_ADRS(base, 0x02)
+#define PIT_CMD(base)                   PIT_ADRS(base, 0x03)
 
+/* Functions */
 /******************************************************************************
- * sysIntInitPIC - Initialize PIC
- *
- * RETURNS: N/A
- */
-
-void sysIntInitPIC(
-    void
-    );
-
-/******************************************************************************
- * sysIntEnablePIC - Enable interrupt level
+ * sysClockConnect - Connect an interrupt handler routine to clock
  *
  * RETURNS: OK
  */
 
-STATUS sysIntEnablePIC(
-    int level
+STATUS sysClockConnect(
+    FUNCPTR func,
+    int arg
     );
 
 /******************************************************************************
- * sysIntDisablePIC - Disable interrupt level
- *
- * RETURNS: OK
- */
-
-STATUS sysIntDisablePIC(
-    int level
-    );
-
-/******************************************************************************
- * sysIntLock - Disable interrupts and store level
+ * sysClockInt - System interrupt clock handler routine
  *
  * RETURNS: N/A
  */
 
-void sysIntLock(
+void sysClockInt(
     void
     );
 
 /******************************************************************************
- * sysIntUnlock - Restore interrupt level
+ * sysClockEnable - Start interrupt clock
  *
  * RETURNS: N/A
  */
 
-void sysIntUnlock(
+void sysClockEnable(
     void
     );
 
 /******************************************************************************
- * sysIntLevel - Get interrupt level
+ * sysClockDisable - Disable interrput clock
  *
- * RETURNS: Interrupt level
+ * RETURNS: N/A
  */
 
-int sysIntLevel(
+void sysClockDisable(
+    void
+    );
+
+/******************************************************************************
+ * sysClockRateSet - Set system clock rate in ticks per second
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS sysClockRateSet(
+    int ticksPerSecond
+    );
+
+/******************************************************************************
+ * sysClockRateGet - Get system clock rate in ticks per second
+ *
+ * RETURNS: Ticks per second
+ */
+
+int sysClockRateGet(
     void
     );
 
@@ -106,5 +102,7 @@ int sysIntLevel(
 }
 #endif /* __cplusplus */
 
-#endif /* _i8259a_h */
+#endif /* _ASMLANGUAGE */
+
+#endif /* _i8253_h */
 
