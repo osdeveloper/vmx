@@ -32,7 +32,7 @@
 
 /******************************************************************************
  * sysGDTSet - Routine to be called by C program to setup GDT Segment table
- * PROTOTYPE: void sysGDTSet(SEGDESC *baseAddr)
+ * PROTOTYPE: void sysGDTSet(GDT *baseAddr)
  *
  * RETURNS:   N/A
  */

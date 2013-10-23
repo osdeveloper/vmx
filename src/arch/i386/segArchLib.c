@@ -32,10 +32,10 @@ u_int32_t sysCsExc;
 u_int32_t sysCsInt;
 
 /* Extern sysGdt flush funtion in segALib.s */
-IMPORT sysGDTSet(SEGDESC *baseAddr);
+IMPORT sysGDTSet(GDT *baseAddr);
 
 /* Local segment base holder */
-LOCAL SEGDESC *segBase = 0;
+LOCAL GDT *segBase = 0;
 
 /******************************************************************************
  * segEntryInit - Setup a GDT entry
@@ -72,7 +72,7 @@ void segEntryInit(
  */
 
 STATUS segBaseSet(
-    SEGDESC *baseAddr
+    GDT *baseAddr
     )
 {
     u_int8_t gdt[6];
@@ -82,7 +82,7 @@ STATUS segBaseSet(
     segBase = baseAddr;
 
     /* Setup GDT pointer */
-    *(u_int16_t *) p = (sizeof(SEGDESC) * GDT_ENTRIES) - 1;
+    *(u_int16_t *) p = (sizeof(GDT) * GDT_ENTRIES) - 1;
     *(u_int32_t *) (p + 2) = (u_int32_t) baseAddr;
 
     /* NULL descriptor */
@@ -109,7 +109,7 @@ STATUS segBaseSet(
     sysCsInt = 0x00000020;
 
     /* Now flush the GDT */
-    sysGDTSet((SEGDESC *) gdt);
+    sysGDTSet((GDT *) gdt);
 
     return OK;
 }

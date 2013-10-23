@@ -49,7 +49,7 @@
 
 u_int32_t sysIntIdtType	= SYS_INT_TRAPGATE;
 u_int32_t sysVectorIRQ0	= INT_NUM_IRQ0;
-SEGDESC   *sysGdt	= (SEGDESC *) (LOCAL_MEM_LOCAL_ADRS + GDT_BASE_OFFSET);
+GDT	  *sysGdt	= (GDT *) (LOCAL_MEM_LOCAL_ADRS + GDT_BASE_OFFSET);
 CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 
 void sysHwInit(void)

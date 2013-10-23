@@ -54,7 +54,7 @@ typedef struct
     u_int8_t      type;
     u_int8_t      limitUB;
     u_int8_t      baseUB;
-} __attribute__((packed)) SEGDESC;
+} __attribute__((packed)) GDT;
 
 /* IDT table entry struct */
 typedef struct
