@@ -39,6 +39,8 @@
 #define REGS_EFLAGS                  0x20
 #define REGS_PC                      0x24
 
+#define spReg                        esp
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

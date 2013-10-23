@@ -34,6 +34,7 @@
 #include <vmx/kernLib.h>
 #include <vmx/tickLib.h>
 #include <vmx/taskLib.h>
+#include <vmx/taskInfo.h>
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
@@ -69,13 +70,9 @@ char* itoa2(int a)
 
 int runMe(ARG arg0)
 {
-  TCB_ID pTcb;
-
-  pTcb = taskTcb(taskIdSelf());
-
   semTake(sem, WAIT_FOREVER);
   puts("----------------------------------------------------------------\n");
-  puts(pTcb->name);
+  puts(taskName(0));
   puts(" with args: ");
   puts(itoa2((int)arg0));
   puts("\n");
@@ -89,13 +86,10 @@ int runMe(ARG arg0)
 volatile int num = 0;
 int restartMe(ARG arg0)
 {
-  TCB_ID pTcb;
   volatile int *pInt = (volatile int *) arg0;
 
-  pTcb = taskTcb(taskIdSelf());
-
   semTake(sem, WAIT_FOREVER);
-  puts(pTcb->name);
+  puts(taskName(0));
   puts(" restarted ");
   puts(itoa2(*pInt));
   puts(" times.");
@@ -119,11 +113,7 @@ int init(ARG arg0,
 	 ARG arg8,
 	 ARG arg9)
 {
-  TCB_ID pTcb;
-
-  pTcb = taskTcb(taskIdSelf());
-
-  puts(pTcb->name);
+  puts(taskName(0));
   puts(" called with arguments: ");
   puts(itoa2((int)arg0)); puts(", ");
   puts(itoa2((int)arg1)); puts(", ");
@@ -179,7 +169,7 @@ int printSysTime(ARG arg0, ARG arg1)
 {
   int i;
 #ifdef RESTART_TASK
-  TCB_ID pTcb = (TCB_ID) arg0;
+  int taskId = (int) arg0;
   volatile int *pInt = (volatile int *) arg1;
 #endif
 
@@ -194,11 +184,11 @@ int printSysTime(ARG arg0, ARG arg1)
       i=0;
       pInt[0]++;
       puts("I will try to restart: ");
-      puts(pTcb->name);
+      puts(taskName(taskId));
       puts(" for the ");
       puts(itoa2(*pInt));
       puts(" time");
-      taskRestart((int) pTcb);
+      taskRestart(taskId);
       semGive(evtSem);
     }
 #endif
@@ -388,7 +378,7 @@ int initTasks(void)
   taskSpawn("printSysTime", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) printSysTime,
 #ifdef RESTART_TASK
-	     (ARG) taskTcb(restartTaskId),
+	     (ARG) restartTaskId,
 	     (ARG) &num,
 #else
 	     (ARG) NULL,

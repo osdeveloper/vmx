@@ -57,6 +57,7 @@ extern "C" {
 #endif
 
 #include <arch/regs.h>
+#include <arch/excArchLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
 #include <vmx/semLib.h>
@@ -106,6 +107,10 @@ typedef struct taskTCB
     /* Error codes */
     int errorStatus;
     int exitCode;
+
+    /* Exception info */
+    REG_SET *pExcRegSet;
+    EXC_INFO excInfo;
 
     /* Class */
     OBJ_CORE objCore;

@@ -23,10 +23,18 @@
 #ifndef _excI386Lib_h
 #define _excI386Lib_h
 
+#include <arch/regs.h>
+
 /* Define bottom and top of interrupt vector */
 
-#define LOW_VEC                0x00
-#define HIGH_VEC               0xff
+#define LOW_VEC                 0x00
+#define HIGH_VEC                0xff
+
+/* Exception info validation bits */
+#define EXC_VEC_NUM             0x01            /* Vector number valid */
+#define EXC_ERROR_CODE          0x02            /* Error code valid */
+#define EXC_ESP_SS              0x04            /* ESP and SS valid */
+#define EXC_CR2                 0x08            /* CR2 valid */
 
 #ifndef _ASMLANGUAGE
 
@@ -36,6 +44,8 @@ extern "C" {
 
 #include <sys/types.h>
 #include <vmx.h>
+#include <arch/regs.h>
+#include <arch/esf.h>
 
 typedef struct
 {
@@ -64,9 +74,6 @@ typedef struct
     u_int32_t  reserved2;
     u_int32_t  reserved3;
 } __attribute__((packed)) EXC_INFO;
-
-#include <arch/regs.h>
-#include <arch/esf.h>
 
 /******************************************************************************
  * excVecInit - Setup exception interrupt vector
