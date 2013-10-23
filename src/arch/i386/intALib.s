@@ -23,22 +23,90 @@
 #define _ASMLANGUAGE
 #include <vmx.h>
 #include <arch/asm.h>
+#include <arch/regs.h>
 
         /* Internals */
+        .globl  GTEXT(intLevelSet)
+        .globl  GTEXT(intLock)
+        .globl  GTEXT(intUnlock)
         .globl  GTEXT(intVBRSet)
 
         .text
         .balign 16
 
 /******************************************************************************
- * intVBRSet - Setup interrupt table descriptor
+ * intLevelSet - Setup interrupt lockout level
  *
- * RETURNS N/A
+ * RETURNS: Zero
  */
 
-        .balign 16,0x90
+        .balign 16, 0x90
+
+FUNC_LABEL(intLevelSet)
+
+        /* Zero return value */
+        xorl    %eax, %eax
+        ret
+
+/******************************************************************************
+ * intLock - Lock interrupts
+ *
+ * RETURNS: Interrupt lock level
+ */
+
+        .balign 16, 0x90
+
+FUNC_LABEL(intLock)
+
+        /* Push EFLAGS on stack */
+        pushf
+
+        /* EFLAGS & EFLAGS_IF (interrupt enable flag), return value */
+        popl    %eax
+        andl    $EFLAGS_IF, %eax
+
+        /* Lock interrupts and return */
+        cli
+        ret
+
+/******************************************************************************
+ * intUnlock - Unlock interrupts
+ *
+ * RETURNS: N/A
+ */
+
+        .balign 16, 0x90
+
+FUNC_LABEL(intUnlock)
+
+        /* Get argument */
+        movl    SP_ARG1(%esp), %eax
+
+        /* level & EFLAGS_IF (interrupt enable flag)
+        andl    $EFLAGS_IF ,%eax
+
+        /* If EFLAGS_IF (interrupt enable flag) is set goto intUnlock0 */
+        jz      intUnlock0
+
+        /* Else enable interrupts */
+        sti
+
+intUnlock0:
+
+        /* Return */
+        ret
+
+/******************************************************************************
+ * intVBRSet - Setup interrupt table descriptor
+ *
+ * RETURNS: N/A
+ */
+
+        .balign 16, 0x90
+
 FUNC_LABEL(intVBRSet)
-        movl    SP_ARG1(%esp),%eax
+
+        movl    SP_ARG1(%esp), %eax
         lidt    (%eax)
         ret
 

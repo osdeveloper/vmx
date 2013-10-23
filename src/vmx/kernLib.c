@@ -105,7 +105,7 @@ void kernInit(
 
     taskIdCurrent = (TCB_ID) rootTaskId;
     INT_LOCK(level);
-    intConnectFunction(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
+    intConnectDefault(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
     kernTaskLoadContext();
     INT_UNLOCK(level);
 }

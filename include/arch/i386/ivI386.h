@@ -65,9 +65,23 @@ extern "C" {
 #include <sys/types.h>
 #include <vmx.h>
 
-/* Macros to convert between interrupt vectors and interrupt numbers */
-#define IVEC_TO_INUM(intVec)    ((int) (intVec) >> 3)
-#define INUM_TO_IVEC(intNum)    ((VOIDFUNCPTR *) ((intNum) << 3))
+/******************************************************************************
+ * IVEC_TO_INUM - Convert interrupt vector address to interrupt number
+ *
+ * RETURNS: Interrupt number
+ */
+
+#define IVEC_TO_INUM(intVec) \
+    ((int) (intVec) >> 3)
+
+/******************************************************************************
+ * INUM_TO_IVEC - Convert interrupt number to interrupt vector address
+ *
+ * RETURNS: Interrupt vector address
+ */
+
+#define INUM_TO_IVEC(intNum) \
+    ((VOIDFUNCPTR *) ((intNum) << 3))
 
 #ifdef __cplusplus
 }

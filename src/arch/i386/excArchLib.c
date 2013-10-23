@@ -66,7 +66,7 @@ STATUS excVecInit(
 
     for (vecNum = LOW_VEC; vecNum <= HIGH_VEC; ++vecNum)
     {
-        intVecSet(
+        intVecSet2(
             (FUNCPTR *) INUM_TO_IVEC(vecNum),
             (FUNCPTR)   &excCallTbl[vecNum * 5],
             programError(vecNum) ? IDT_TRAP_GATE : sysIntIdtType,

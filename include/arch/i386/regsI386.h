@@ -23,6 +23,9 @@
 #ifndef _regsI386_h
 #define _regsI386_h
 
+#define EFLAGS_BRANDNEW        0x00000200
+#define EFLAGS_TF              0x00000100          /* Trap flag */
+#define EFLAGS_IF              0x00000200          /* Interrupt enable flag */
 #define IDT_TRAP_GATE          0x0000ef00
 
 #define REGS_EDI                     0x00

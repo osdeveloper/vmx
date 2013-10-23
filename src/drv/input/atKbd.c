@@ -86,6 +86,6 @@ void atKbdInit(
     }
 
     /* Install interrupt handler */
-    intConnectFunction(0x21, atKbdHandler, (void *) 0);
+    intConnectDefault(0x21, atKbdHandler, (void *) 0);
 }
 
