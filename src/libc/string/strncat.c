@@ -18,36 +18,40 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* memLib.h - Memory library header */
+/* strncat.c - String concat */
 
-#ifndef _memLib_h
-#define _memLib_h
-
-#include <tools/moduleNumber.h>
+#include <sys/types.h>
 #include <vmx.h>
-#include <vmx/memPartLib.h>
 
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
+/******************************************************************************
+ * strncat - Safe string concatenation
+ *
+ * RETURNS: Pointer to destination
+ */
 
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
-#define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
+char* strncat(
+    char *s1,
+    const char *s2,
+    size_t n
+    )
+{
+    char *s = s1;
 
-#ifndef _ASMLANGUAGE
+    if (n != 0)
+    {
+        /* Find end of <s1> */
+        while (*s++ != EOS);
+        --s;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+        /* Append at most <n> characters to s1. */
+        while (((*s++ = *s2++) != EOS) && (--n > 0));
 
-/* Functions */
+        if (n == 0)     /* Broke out due to <n> reaching 0. */
+        {
+            *s = EOS;   /* Ensure EOS is there */
+        }
+    }
 
-#ifdef __cplusplus
+    return s1;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _memLib_h */
 

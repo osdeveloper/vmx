@@ -31,8 +31,8 @@ extern "C" {
 
 /* includes */
 
+#include <tools/moduleNumber.h>
 #include <vmx.h>
-#include <vmx/moduleNumber.h>
 #include <vmx/classLib.h>
 #include <vmx/private/objLibP.h>
 #include <vmx/errnoLib.h>

@@ -18,36 +18,41 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* memLib.h - Memory library header */
+/* strncpy.c - Copy string up to a maximum size */
 
-#ifndef _memLib_h
-#define _memLib_h
-
-#include <tools/moduleNumber.h>
+#include <sys/types.h>
 #include <vmx.h>
-#include <vmx/memPartLib.h>
 
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
+/******************************************************************************
+ * strncpy - Safe string copy
+ *
+ * RETURNS: Pointer to destination
+ */
 
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
-#define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
+char* strncpy(
+    char *s1,
+    const char *s2,
+    size_t size
+    )
+{
+    char *dest = s1;
 
-#ifndef _ASMLANGUAGE
+    if (size != 0)
+    {
+        while ((*dest++ = *s2++) != EOS)
+        {
+            if (--size == 0)
+            {
+                return s1;
+            }
+        }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+        while (--size > 0)
+        {
+            *dest++ = EOS;
+        }
+    }
 
-/* Functions */
-
-#ifdef __cplusplus
+    return s1;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _memLib_h */
 

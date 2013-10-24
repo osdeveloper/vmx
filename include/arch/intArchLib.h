@@ -23,7 +23,7 @@
 #ifndef _intArchLib_h
 #define _intArchLib_h
 
-#include <vmx/moduleNumber.h>
+#include <tools/moduleNumber.h>
 #include <types/vmxCpu.h>
 
 #if      CPU_FAMILY==I386

@@ -29,9 +29,9 @@ extern "C" {
 
 typedef struct mem_part *PART_ID;
 
+#include <tools/moduleNumber.h>
 #include <vmx.h>
 #include <util/dllLib.h>
-#include <vmx/moduleNumber.h>
 #include <vmx/private/memPartLibP.h>
 
 #define S_memPartLib_NOT_INSTALLED       (M_memPartLib | 0x0001)

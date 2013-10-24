@@ -18,36 +18,34 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* memLib.h - Memory library header */
+/* strrchr.c - Find character in string revesed */
 
-#ifndef _memLib_h
-#define _memLib_h
-
-#include <tools/moduleNumber.h>
+#include <stdlib.h>
+#include <sys/types.h>
 #include <vmx.h>
-#include <vmx/memPartLib.h>
 
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
+/******************************************************************************
+ * strrchr.c - Find character in string revesed
+ *
+ * RETURNS: Pointer to character or NULL
+ */
 
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
-#define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
+char* strrchr(
+    const  char *s,
+    int c
+    )
+{
+    const char *p;
 
-#ifndef _ASMLANGUAGE
+    p = NULL;
+    do
+    {
+        if (*s == (char) c)
+        {
+            p = s;
+        }
+    } while (*s++);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Functions */
-
-#ifdef __cplusplus
+    return (char *) p;                     /* silence the warning */
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _memLib_h */
 

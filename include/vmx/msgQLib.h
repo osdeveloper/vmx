@@ -23,8 +23,8 @@
 #ifndef _msgQLib_h
 #define _msgQLib_h
 
+#include <tools/moduleNumber.h>
 #include <vmx.h>
-#include <vmx/moduleNumber.h>
 #include <util/qLib.h>
 #include <vmx/private/msgQLibP.h>
 

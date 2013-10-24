@@ -20,8 +20,8 @@
 
 /* sys/types.h - Posix types */
 
-#ifndef _types_h_
-#define _types_h_
+#ifndef _SYS_TYPES_H
+#define _SYS_TYPES_H
 
 #ifndef _ASMLANGUAGE
 
@@ -29,23 +29,46 @@
 extern "C" {
 #endif
 
-/* Signed types */
-typedef char                    int8_t;
-typedef short                   int16_t;
-typedef int                     int32_t;
-typedef long long               int64_t;
+#include <types/vmxCpu.h>
 
-/* Unsigned types */
-typedef unsigned char           u_int8_t;
-typedef unsigned short          u_int16_t;
-typedef unsigned int            u_int32_t;
-typedef unsigned long long      u_int64_t;
+#if     CPU_FAMILY==I386
+#include <arch/i386/typesI386.h>
+#endif /* I386 */
 
-/* Pointer types */
-typedef char                   *addr_t;
+/* Filesystem size */
+typedef long fsize_t;
 
-/* Misc types */
-typedef unsigned int            size_t;
+/* BSD types */
+typedef unsigned char           u_char;
+typedef unsigned short          u_short;
+typedef unsigned int            u_int;
+typedef unsigned long           u_long;
+typedef long long int           quad_t;
+typedef unsigned long long int  u_quad_t;
+typedef int                     fsid_t;
+typedef long long int           off_t;      /* for file sizes */
+typedef char                    *caddr_t;
+typedef unsigned long           n_time;
+typedef unsigned long           n_long;
+
+typedef unsigned                dev_t;      /* for device IDs */
+typedef unsigned long long      ino_t;      /* for inode numbers */
+typedef unsigned short          mode_t;     /* for file attributes */
+typedef unsigned short          nlink_t;    /* for counting hardlinks */
+typedef unsigned short          uid_t;      /* for user IDs */
+typedef unsigned short          gid_t;      /* for group IDs */
+typedef unsigned                blksize_t;  /* for block sizes */
+typedef unsigned                blkcnt_t;   /* for file block counts */
+typedef unsigned long long      time_t;     /* for time in seconds */
+typedef unsigned long long      fsblkcnt_t; /* for # of blocks in file system */
+typedef unsigned long long      fsfilcnt_t; /* for # of inodes in file system */
+
+typedef unsigned long long      lblkno_t;    /* logical block number */
+typedef long                    clock_t;
+typedef int                     clockid_t;
+
+/* ANSI types */
+typedef unsigned long           fpos_t;
 
 #ifdef __cplusplus
 }

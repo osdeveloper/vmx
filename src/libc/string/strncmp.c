@@ -18,36 +18,32 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* memLib.h - Memory library header */
+/* strncmp.c - Compare strings with n bytes */
 
-#ifndef _memLib_h
-#define _memLib_h
-
-#include <tools/moduleNumber.h>
+#include <sys/types.h>
 #include <vmx.h>
-#include <vmx/memPartLib.h>
 
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
+/******************************************************************************
+ * strncmp - Safe string compare
+ *
+ * RETURNS: Zero if equal
+ */
 
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
-#define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
+int strncmp(
+    const char *s1,
+    const char *s2,
+    size_t n
+    )
+{
+    int r = 0;
 
-#ifndef _ASMLANGUAGE
+    while (
+        n-- &&
+        ((r = ((int)(*((unsigned char *)s1))) - *((unsigned char *)s2++))
+               == 0) &&
+        *s1++
+        );
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Functions */
-
-#ifdef __cplusplus
+    return r;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _memLib_h */
 

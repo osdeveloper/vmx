@@ -18,36 +18,28 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* memLib.h - Memory library header */
+/* strcat.c - String concat */
 
-#ifndef _memLib_h
-#define _memLib_h
-
-#include <tools/moduleNumber.h>
+#include <sys/types.h>
 #include <vmx.h>
-#include <vmx/memPartLib.h>
 
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
+/******************************************************************************
+ * strcat - Contatenate to string
+ *
+ * RETURNS: Destination string
+ */
 
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
-#define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
+char* strcat(
+    char *s1,
+    const char *s2
+    )
+{
+    char *s = s1;
 
-#ifndef _ASMLANGUAGE
+    while (*s++);
+    --s;
+    while ((*s++ = *s2++) != EOS);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Functions */
-
-#ifdef __cplusplus
+    return s1;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _memLib_h */
 

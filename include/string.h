@@ -68,13 +68,71 @@ void* memsetw(
     );
 
 /******************************************************************************
- * strlen - Get string lenth
+ * strcat - Contatenate to string
  * 
- * RETURNS: Number of characters in string
+ * RETURNS: Destination string
  */
 
-size_t strlen(
-    const char *str
+char* strcat(
+    char *s1,
+    const char *s2
+    );
+
+/******************************************************************************
+ * strncat - Safe string concatenation
+ *
+ * RETURNS: Pointer to destination
+ */
+
+char* strncat(
+    char *s1,
+    const char *s2,
+    size_t n
+    );
+
+/******************************************************************************
+ * strchr - Find character within string 
+ *
+ * RETURNS: Pointer to character or NULL
+ */
+
+char* strchr(
+    const char *s,
+    int c
+    );
+
+/******************************************************************************
+ * strrchr.c - Find character in string revesed 
+ * 
+ * RETURNS: Pointer to character or NULL
+ */
+
+char* strrchr(
+    const  char *s,
+    int c
+    );
+
+/******************************************************************************
+ * strcmp - Comapre two strings
+ *
+ * RETURNS: Zero if equal
+ */
+
+int strcmp(
+    const char *s1,
+    const char *s2
+    );
+
+/******************************************************************************
+ * strncmp - Safe string compare
+ *
+ * RETURNS: Zero if equal
+ */
+
+int strncmp(
+    const char *s1,
+    const char *s2,
+    size_t n
     );
 
 /******************************************************************************
@@ -86,6 +144,28 @@ size_t strlen(
 char* strcpy(
     char *s1,
     const char *s2
+    );
+
+/******************************************************************************
+ * strncpy - Safe string copy
+ *
+ * RETURNS: Pointer to destination
+ */
+
+char* strncpy(
+    char *s1,
+    const char *s2,
+    size_t size
+    );
+
+/******************************************************************************
+ * strlen - Get string lenth
+ * 
+ * RETURNS: Number of characters in string
+ */
+
+size_t strlen(
+    const char *str
     );
 
 #endif

@@ -18,22 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* memLib.h - Memory library header */
+/* ioctl.h - Ioctl header */
 
-#ifndef _memLib_h
-#define _memLib_h
-
-#include <tools/moduleNumber.h>
-#include <vmx.h>
-#include <vmx/memPartLib.h>
-
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
-
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
-#define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
+#ifndef _SYS_IOCTL_H
+#define _SYS_IOCTL_H
 
 #ifndef _ASMLANGUAGE
 
@@ -41,7 +29,17 @@
 extern "C" {
 #endif
 
-/* Functions */
+/******************************************************************************
+ * ioctl - I/O control function
+ *
+ * RETURNS: Driver specific or ERROR
+ */
+
+int ioctl(
+    int fd,
+    int func,
+    int arg
+    );
 
 #ifdef __cplusplus
 }
@@ -49,5 +47,5 @@ extern "C" {
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _memLib_h */
+#endif /* _SYS_IOCTL_H */
 

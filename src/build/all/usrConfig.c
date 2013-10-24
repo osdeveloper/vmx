@@ -38,6 +38,8 @@
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
+#include <io/iosLib.h>
+#include <io/pathLib.h>
 
 #define RESTART_TASK
 #define DELAY_TIME	        (18 * 1)
@@ -488,6 +490,9 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
 
   tickLibInit();
   taskLibInit();
+
+  iosLibInit(20, 50, "/null");
+  pathLibInit();
 
 #ifdef DEBUG
   puts("Initializing kernel:\n");

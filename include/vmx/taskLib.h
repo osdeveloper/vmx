@@ -23,7 +23,7 @@
 #ifndef _taskLib_h
 #define _taskLib_h
 
-#include <vmx/moduleNumber.h>
+#include <tools/moduleNumber.h>
 
 #define S_taskLib_NOT_INSTALLED                 (M_taskLib | 0x0001)
 #define S_taskLib_NULL_TASK_ID                  (M_taskLib | 0x0002)
@@ -111,6 +111,9 @@ typedef struct taskTCB
     /* Exception info */
     REG_SET *pExcRegSet;
     EXC_INFO excInfo;
+
+    /* I/O related */
+    int taskStd[3];
 
     /* Class */
     OBJ_CORE objCore;

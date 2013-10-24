@@ -23,13 +23,23 @@
 #include <sys/types.h>
 #include <vmx.h>
 
-int strcmp(const char *s1, const char *s2)
+/******************************************************************************
+ * strcmp - Comapre two strings
+ *
+ * RETURNS: Zero if equal
+ */
+
+int strcmp(
+    const char *s1,
+    const char *s2
+    )
 {
     int r;
 
     while (
-       ((r = ((int)(*((unsigned char *)s1))) - *((unsigned char *)s2++)) == 0) &&
-                    *s1++
+       ((r = ((int)(*((unsigned char *)s1))) - *((unsigned char *)s2++))
+            == 0) &&
+       *s1++
        );
 
     return r;
