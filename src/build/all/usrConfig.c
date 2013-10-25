@@ -40,6 +40,7 @@
 #include <vmx/msgQLib.h>
 #include <io/iosLib.h>
 #include <io/pathLib.h>
+#include <io/ttyLib.h>
 
 #define RESTART_TASK
 #define DELAY_TIME	        (18 * 1)
@@ -59,6 +60,7 @@ SEM_ID sem;
 SEM_ID evtSem;
 MSG_Q_ID msgQId;
 int numMsg = 0;
+TTY_DEV ttyDev;
 char buf[1024];
 
 char* itoa2(int a)
@@ -70,6 +72,7 @@ char* itoa2(int a)
   return str;
 }
 
+#ifdef TASK_POST
 int runMe(ARG arg0)
 {
   semTake(sem, WAIT_FOREVER);
@@ -83,6 +86,7 @@ int runMe(ARG arg0)
 
   return (int)arg0;
 }
+#endif
 
 #ifdef RESTART_TASK
 volatile int num = 0;
@@ -130,6 +134,7 @@ int init(ARG arg0,
   return 0;
 }
 
+#ifdef TASK_POST
 int printBigString(void)
 {
   int i;
@@ -166,6 +171,19 @@ int printBigString(void)
 
   return 1;
 }
+#else
+int printBigString(void)
+{
+  while (1) {
+    semTake(sem, WAIT_FOREVER);
+    puts(bigString);
+    semGive(sem);
+    taskDelay(DELAY_TIME * 5);
+  }
+
+  return 1;
+}
+#endif
 
 int printSysTime(ARG arg0, ARG arg1)
 {
@@ -305,6 +323,10 @@ int messageReceiver(void)
   }
 }
 
+int ttyStartup(void)
+{
+}
+
 int initTasks(void)
 {
 #ifdef RESTART_TASK
@@ -332,6 +354,12 @@ int initTasks(void)
   if (msgQId == NULL)
   {
     puts("Unable to create message queue\n");
+    for (;;);
+  }
+
+  if (ttyDevInit(&ttyDev, 255, 255, ttyStartup) != OK)
+  {
+    puts("Unable to initialize tty device\n");
     for (;;);
   }
 
