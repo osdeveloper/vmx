@@ -20,7 +20,7 @@
 
 /* stdio.c - Standard input/output */
 
-#include <drv/video/vga.h>
+#include <unistd.h>
 
 /******************************************************************************
  * puts - Print string on screen
@@ -32,6 +32,6 @@ void puts(
     const char *str
     )
 {
-    vgaPuts(str);
+    write(STDOUT_FILENO, (char *) str, strlen(str));
 }
 

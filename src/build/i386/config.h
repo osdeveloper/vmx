@@ -43,10 +43,41 @@
 #define SYS_CLOCK_RATE_MIN      19
 #define SYS_CLOCK_RATE_MAX      8192
 
-#define INCLUDE_VGA
-#define INCLUDE_ATKBD
-#define INCLUDE_PIC
-#define INCLUDE_LIBC
+/* PC vga related */
+#define DIAG_CTRL               0x61
+
+#define BEEP_PITCH_L            1280
+#define BEEP_TIME_L             18
+#define BEEP_PITCH_S            1280
+#define BEEP_TIME_S             9
+
+#define COLOR                   1
+#define VGA_MEM_BASE            (u_int8_t *) 0xb8000
+#define VGA_SEL_REG             (u_int8_t *) 0x3d4
+#define VGA_VAL_REG             (u_int8_t *) 0x3d5
+
+#define DEFAULT_FG              ATRB_FG_BRIGHTWHITE
+#define DEFAULT_BG              ATRB_BG_BLUE
+#define DEFAULT_ATR             DEFAULT_FG | DEFAULT_BG
+#define COLOR_MODE              COLOR
+#define CTRL_MEM_BASE           VGA_MEM_BASE
+#define CTRL_SEL_REG            VGA_SEL_REG
+#define CTRL_VAL_REG            VGA_VAL_REG
+#define CHR                     2
+
+/* PC keyboard related */
+#define KBD_INT_LVL             0x01
+#define COMMAND_8042            0x64
+#define DATA_8042               0x60
+#define STATUS_8042             COMMAND_8042
+#define COMMAND_8048            0x61
+#define DATA_8048               0x60
+#define STATUS_8048             COMMAND_8048
+
+#define PC_CONSOLE              0
+#define N_VIRTUAL_CONSOLES      2
+
+#define INCLUDE_PC_CONSOLE
 
 #endif
 

@@ -263,7 +263,7 @@ STATUS taskInit(
 {
     static unsigned new_id;
     STATUS status;
-    int len;
+    int i, len;
     char *taskName;
     ARG args[MAX_TASK_ARGS];
 
@@ -343,6 +343,12 @@ STATUS taskInit(
 
             /* Push args on task stack */
             taskArgSet(tcbId, pStackBase, args);
+
+            /* Initialize standard file desriptors */
+            for (i = 0; i < 3; i++)
+            {
+               tcbId->taskStd[i] = i;
+            }
 
             /* Object core */
             objCoreInit(&tcbId->objCore, taskClassId);

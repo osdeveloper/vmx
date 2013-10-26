@@ -18,22 +18,66 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* atKbd.h - Keyboard driver */
+/* pcConsole.h - PC console header */
 
-#ifndef _atKbd_h
-#define _atKbd_h
+#ifndef _pcConsole_h
+#define _pcConsole_h
+
+#include <io/ttyLib.h>
+#include <drv/input/i8042Kbd.h>
+#include <drv/video/m6845Vga.h>
+
+#define INSERT_MODE_OFF         0
+#define INSERT_MODE_ON          1
+#define FORWARD                 1
+#define BACKWARD                0
+
+#define ESC_NORMAL              0x0001
+
+#ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct pcConDev
+{
+    TTY_DEV      ttyDev;
+    BOOL         created;
+    KBD_CON_DEV *ks;
+    VGA_CON_DEV *vs;
+} PC_CON_DEV;
+
 /******************************************************************************
- * atKbdInit - Initialize keyboard
+ * pcConDrvInit - Initialize console
  *
- * RETURNS: N/A
+ * RETURNS: OK or ERROR
  */
 
-void atKbdInit(
+STATUS pcConDrvInit(
+    void
+    );
+
+/******************************************************************************
+ * pcConDevCreate - Create device
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS pcConDevCreate(
+    char *name,
+    int channel,
+    int readBufferSize,
+    int writeBufferSize
+    );
+
+/******************************************************************************
+ * pcConDrvNumber - Get console number
+ *
+ * RETURNS: Console number
+ */
+
+int pcConDrvNumber(
     void
     );
 
@@ -41,5 +85,7 @@ void atKbdInit(
 }
 #endif /* __cplusplus */
 
-#endif /* _atKbd_h */
+#endif /* _ASMLANGUAGE */
+
+#endif /* _pcConsole_h */
 

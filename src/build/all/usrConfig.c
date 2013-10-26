@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <vmx.h>
 #include <arch/iv.h>
@@ -41,8 +43,9 @@
 #include <io/iosLib.h>
 #include <io/pathLib.h>
 #include <io/ttyLib.h>
+#include "configAll.h"
+#include "config.h"
 
-#define RESTART_TASK
 #define DELAY_TIME	        (18 * 1)
 #define MAX_MESSAGES            10
 
@@ -62,6 +65,8 @@ MSG_Q_ID msgQId;
 int numMsg = 0;
 TTY_DEV ttyDev;
 char buf[1024];
+int consoleFd;
+char consoleName[20];
 
 char* itoa2(int a)
 {
@@ -323,10 +328,6 @@ int messageReceiver(void)
   }
 }
 
-int ttyStartup(void)
-{
-}
-
 int initTasks(void)
 {
 #ifdef RESTART_TASK
@@ -354,12 +355,6 @@ int initTasks(void)
   if (msgQId == NULL)
   {
     puts("Unable to create message queue\n");
-    for (;;);
-  }
-
-  if (ttyDevInit(&ttyDev, 255, 255, ttyStartup) != OK)
-  {
-    puts("Unable to initialize tty device\n");
     for (;;);
   }
 
@@ -480,6 +475,9 @@ int initTasks(void)
 
 void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
 {
+  char ttyName[20];
+  int i, len;
+
 #ifdef DEBUG
   puts("Initializing kernel logger library:\n");
 #endif
@@ -521,6 +519,38 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
 
   iosLibInit(20, 50, "/null");
   pathLibInit();
+  pcConDrvInit();
+
+  /* For all virtual consoles */
+  for (i = 0; i < N_VIRTUAL_CONSOLES; i++) {
+
+    /* Create name for device */
+    strcpy(ttyName, "/pcConsole/");
+    len = strlen(ttyName);
+    ttyName[len] = i + '0';
+    ttyName[len + 1] = EOS;
+
+    /* Create device */
+    pcConDevCreate(ttyName, i, 512, 512);
+
+    /* If pc console number */
+    if (i == PC_CONSOLE) {
+
+      /* Copy to global console name */
+      strcpy(consoleName, ttyName);
+
+      /* Open file and set console options */
+      consoleFd = open(consoleName, O_RDWR, 0);
+      ioctl(consoleFd, FIOSETOPTIONS, OPT_TERMINAL);
+
+    } /* End if pc console number */
+
+  } /* End for all virtual consoles */
+
+  /* Set standard file descriptors */
+  ioGlobalStdSet(STDIN_FILENO, consoleFd);
+  ioGlobalStdSet(STDOUT_FILENO, consoleFd);
+  ioGlobalStdSet(STDERR_FILENO, consoleFd);
 
 #ifdef DEBUG
   puts("Initializing kernel:\n");

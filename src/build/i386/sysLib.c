@@ -29,48 +29,35 @@
 #include <vmx/memPartLib.h>
 #include <drv/timer/i8253.h>
 
-#ifdef	DEBUG
-#undef  INCLUDE_VGA
-#define INCLUDE_VGA
-#undef  INCLUDE_LIBC
-#define INCLUDE_LIBC
-#endif
-
-#ifdef   INCLUDE_VGA
-#include <drv/video/vga.c> 
-#endif
-
-#ifdef 	 INCLUDE_ATKBD
-#include <drv/input/atKbd.c>
-#endif
-
-#ifdef 	 INCLUDE_PIC
-#include <drv/intrCtl/i8259Pic.c>
-#endif
-
 u_int32_t sysIntIdtType	= SYS_INT_TRAPGATE;
 u_int32_t sysVectorIRQ0	= INT_NUM_IRQ0;
 GDT	  *sysGdt	= (GDT *) (LOCAL_MEM_LOCAL_ADRS + GDT_BASE_OFFSET);
 CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 
+#include <drv/intrCtl/i8259Pic.c>
+
+/* Console */
+#ifdef   INCLUDE_PC_CONSOLE
+#include <drv/input/englishKeymap.c>
+#include <drv/input/i8042Kbd.c>
+#include <drv/video/latin1CharMap.c>
+#include <drv/video/m6845Vga.c>
+#include <drv/serial/pcConsole.c>
+PC_CON_DEV pcConDev[N_VIRTUAL_CONSOLES];
+#endif   /* INCLUDE_PC_CONSOLE */
+
 void sysHwInit(void)
 {
-
-#ifdef INCLUDE_VGA
-  vgaInit();
-#endif
-
-#ifdef INCLUDE_ATKBD
-  atKbdInit();
-#endif
 
   segBaseSet(sysGdt);
   intVecBaseSet((FUNCPTR *) sysIdt);
   excVecInit();
 
-#ifdef INCLUDE_PIC
   sysIntInitPIC();
   sysIntEnablePIC(PIT0_INT_LVL);
-#endif
+
+#ifdef INCLUDE_PC_CONSOLE
+  intConnectDefault(0x21, kbdIntr, (void *) 0);
+#endif /* INCLUDE_PC_CONSOLE */
 }
 
