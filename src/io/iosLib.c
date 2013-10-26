@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* iosLib.c - I/O Serial library */
+/* iosLib.c - I/O system driver library */
 
 #include <stdlib.h>
 #include <string.h>

@@ -110,15 +110,84 @@ char* getcwd(
     size_t size
     );
 
-#ifdef NOT_YET
-extern off_t lseek(int fd, off_t offset, int whence);
-extern int rmdir(const char *path);
-extern long fpathconf(int fd, int name);
-extern long pathconf(const char *path, int name);
-extern int ftruncate(int fd, off_t length);
-extern int symlink(const char *path, const char *target, mode_t mode);
-extern ssize_t readlink(const char *path, char *buf, size_t bufSize);
-#endif
+/******************************************************************************
+ * rmdir - remove a directory
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS rmdir(
+    const char *path      /* path to directory to remove */
+    );
+
+/******************************************************************************
+ * symlink - create a symlink
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS symlink(
+    const char *path,     /* path to symlink to create */
+    const char *target,   /* path against which to link */
+    mode_t mode           /* file permission bits */
+    );
+
+/******************************************************************************
+ * readlink - read a symlink
+ *
+ * RETURNS: # of bytes in buffer on success, or ERROR otherwise
+ */
+
+ssize_t readlink(
+    const char *path,
+    char *buf,
+    size_t bufsize
+    );
+
+/******************************************************************************
+ * fpathconf - get configurable path variables
+ *
+ * RETURNS: current configurable value or limit on success, ERROR otherwise
+ */
+
+long fpathconf(
+    int fd,
+    int name
+    );
+
+/******************************************************************************
+ * pathconf - get configurable path variables
+ *
+ * RETURNS: current configurable value or limit on success, ERROR otherwise
+ */
+
+long pathconf(
+    const char *path,
+    int name
+    );
+
+/******************************************************************************
+ * ftruncate - truncate a file
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+int ftruncate(
+    int fd,
+    off_t length
+    );
+
+/***************************************************************************
+ * lseek - seek to within a position in the file
+ *
+ * RETURNS: new position on success, ERROR otherwise
+ */
+
+off_t lseek(
+    int fd,
+    off_t offset,
+    int whence
+    );
 
 #ifdef __cplusplus
 }

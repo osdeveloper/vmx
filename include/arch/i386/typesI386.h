@@ -46,6 +46,7 @@ typedef char                   *addr_t;
 
 /* Misc types */
 typedef unsigned int            size_t;
+typedef int                     ssize_t;
 
 #ifdef __cplusplus
 }

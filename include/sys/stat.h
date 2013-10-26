@@ -89,18 +89,51 @@ struct stat
     blkcnt_t   st_blocks;     /* # of blocks assigned to this object */
 };
 
-/* externs */
+/* functions */
 
-#ifdef NOT_YET
-extern int  chmod (const char *path, mode_t mode);
-extern int  fchmod (int fd, mode_t mode);
-extern int  fstat (int fd, struct stat *st);
-extern int  lstat (const char * path, struct stat *st);
-extern int  mkdir (const char *path, mode_t mode);
-extern int  mkfifo (const char *path, mode_t);
-extern int  stat (const char *path, struct stat *st);
-extern int  umask (mode_t mode);
-#endif
+/******************************************************************************
+ * mkdir - create a directory
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS mkdir(
+    const char *path,     /* path to directory to create */
+    mode_t mode           /* permissions for directory */
+    );
+
+/******************************************************************************
+ * fstat - retrieve file status information
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS fstat(
+    int fd,
+    struct stat *buf
+    );
+
+/******************************************************************************
+ * stat - retrieve file status information
+ * 
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS stat(
+    const char *path,
+    struct stat *buf
+    );
+
+/******************************************************************************
+ * lstat - retrieve file status information
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS lstat(
+    const char *path,
+    struct stat *buf
+    );
 
 #endif /* _SYS_STAT_H */
 
