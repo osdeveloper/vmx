@@ -30,6 +30,7 @@
 #define S_ioLib_DISK_NOT_PRESENT                (M_ioLib | 0x0003)
 #define S_ioLib_WRITE_PROTECTED                 (M_ioLib | 0x0004)
 #define S_ioLib_UNFORMATED                      (M_ioLib | 0x0005)
+#define S_ioLib_CANCELLED                       (M_ioLib | 0x0006)
 
 /* ioctl function codes */
 #define FIONREAD                1

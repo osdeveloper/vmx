@@ -29,6 +29,9 @@
 #include <io/ioLib.h>
 #include <io/ttyLib.h>
 
+#define XON                     0x11
+#define XOFF                    0x13
+
 /* Imports */
 #ifndef NO_EXCHOOKS
 IMPORT FUNCPTR _func_excJobAdd;
@@ -328,10 +331,11 @@ int ttyIoctl(
 
         case FIOGETOPTIONS:
             rv = ttyId->options;
+            break;
 
         case FIOSETOPTIONS:
             /* Store old */
-            old_opts = arg;
+            old_opts = ttyId->options;
 
             /* Set new */
             ttyId->options = arg;
@@ -368,6 +372,7 @@ int ttyIoctl(
 
         case FIORBUFSET:
             semTake(&ttyId->mutex, WAIT_FOREVER);
+
             ttyId->readState.flushingReadBuffer = TRUE;
 
             /* Delete old read buffer */
@@ -388,11 +393,13 @@ int ttyIoctl(
             }
 
             ttyId->readState.flushingReadBuffer = FALSE;
+
             semGive(&ttyId->mutex);
             break;
 
         case FIOWBUFSET:
             semTake(&ttyId->mutex, WAIT_FOREVER);
+
             ttyId->writeState.flushingWriteBuffer = TRUE;
 
             /* Delete old write buffer */
@@ -413,6 +420,7 @@ int ttyIoctl(
             }
 
             ttyId->writeState.flushingWriteBuffer = FALSE;
+
             semGive(&ttyId->mutex);
             break;
 
@@ -450,10 +458,9 @@ int ttyWrite(
     )
 {
     int bwrote;
-    int nStart;
+    int nStart = nBytes;
     int result = 0;
 
-    nStart = nBytes;
     ttyId->writeState.canceled = FALSE;
 
     while (nBytes > 0)
@@ -465,6 +472,7 @@ int ttyWrite(
         if (ttyId->writeState.canceled == TRUE)
         {
             semGive(&ttyId->mutex);
+            errnoSet(S_ioLib_CANCELLED);
             result = nStart - nBytes;
             break;
         }
@@ -512,20 +520,20 @@ int ttyRead(
     ttyId->readState.canceled = FALSE;
     canceled = FALSE;
 
-    semTake(&ttyId->readSync, WAIT_FOREVER);
-
     /* Loop until read ring is not empty */
     while (1)
     {
         /* Don't know why sleep is needed here */
-        taskDelay(1);
+        /* taskDelay(1); */
 
+        semTake(&ttyId->readSync, WAIT_FOREVER);
         semTake(&ttyId->mutex, WAIT_FOREVER);
 
         /* Check if write was canceled */
         if (ttyId->readState.canceled == TRUE)
         {
             semGive(&ttyId->mutex);
+            errnoSet(S_ioLib_CANCELLED);
             n = 0;
             canceled = TRUE;
             break;
@@ -637,6 +645,7 @@ STATUS ttyIntTx(
     else
     {
         ttyId->writeState.busy = TRUE;
+
         if ((ttyId->options & OPT_CRMOD) && (*pc == '\n'))
         {
             *pc = '\r';
@@ -681,9 +690,9 @@ STATUS ttyIntRd(
     RING_ID ringId;
     int nn, freeBytes;
     BOOL hookRv;
-    BOOL echoed;
     BOOL releaseTaskLevel;
     int options = ttyId->options;
+    BOOL echoed = FALSE;
     STATUS status = OK;
 
     if (ttyId->readState.flushingReadBuffer == TRUE)
@@ -740,7 +749,7 @@ STATUS ttyIntRd(
             }
             else if (((c == XOFF) || (c == XOFF)) && (options & OPT_TANDEM))
             {
-                ttyWriteXoff (ttyId, (c == XOFF));
+                ttyWriteXoff(ttyId, (c == XOFF) ? TRUE : FALSE);
             }
             else
             {
@@ -762,7 +771,6 @@ STATUS ttyIntRd(
                     (ttyId->writeState.flushingWriteBuffer == FALSE))
                 {
                     ringId = ttyId->writeBuffer;
-                    echoed = FALSE;
 
                     /* Check for line options */
                     if (options & OPT_LINE)
@@ -947,14 +955,27 @@ LOCAL void ttyFlushRead(
     TTY_DEV_ID ttyId
     )
 {
+    int oldErrno;
+
     semTake(&ttyId->mutex, WAIT_FOREVER);
+
     ttyId->readState.flushingReadBuffer = TRUE;
     rngFlush(ttyId->readBuffer);
 
+    oldErrno = errnoGet();
+    semTake(&ttyId->readSync, WAIT_NONE);
+    if (errnoGet() == S_objLib_UNAVAILABLE)
+    {
+        errnoSet(oldErrno);
+    }
+
     ttyId->lnNBytes = 0;
     ttyId->lnBytesLeft = 0;
+
     ttyReadXoff(ttyId, FALSE);
+
     ttyId->readState.flushingReadBuffer = FALSE;
+
     semGive(&ttyId->mutex);
 }
 
@@ -969,11 +990,13 @@ LOCAL void ttyFlushWrite(
     )
 {
     semTake(&ttyId->mutex, WAIT_FOREVER);
+
     ttyId->writeState.flushingWriteBuffer = TRUE;
     rngFlush(ttyId->writeBuffer);
     semGive(&ttyId->writeSync);
 
     ttyId->writeState.flushingWriteBuffer = FALSE;
+
     semGive(&ttyId->mutex);
 
 #ifndef NO_SELECT

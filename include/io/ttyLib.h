@@ -23,9 +23,6 @@
 #ifndef _ttyLib_h
 #define _ttyLib_h
 
-#define XON                     0x11
-#define XOFF                    0x13
-
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

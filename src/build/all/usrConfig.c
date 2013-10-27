@@ -328,6 +328,25 @@ int messageReceiver(void)
   }
 }
 
+int inputTask(void)
+{
+  size_t bread;
+
+  for (;;) {
+    bread = 0;
+    puts("-> ");
+    bread = read(STDIN_FILENO, buf, 1);
+    puts("Read ");
+    puts(itoa2(bread));
+    puts(" byte(s): ");
+    write(STDOUT_FILENO, buf, bread);
+    puts("\n");
+    taskDelay(3 * DELAY_TIME);
+  }
+
+  return 0;
+}
+
 int initTasks(void)
 {
 #ifdef RESTART_TASK
@@ -358,6 +377,7 @@ int initTasks(void)
     for (;;);
   }
 
+#if 0
   taskSpawn("init", 1, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) init,
 	     (ARG) 10,
@@ -469,6 +489,22 @@ int initTasks(void)
 	     (ARG) 67,
 	     (ARG) 68,
 	     (ARG) 69);
+
+#else
+
+  taskSpawn("inputTask", 2, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) inputTask,
+	     (ARG) 60,
+	     (ARG) 61,
+	     (ARG) 62,
+	     (ARG) 63,
+	     (ARG) 64,
+	     (ARG) 65,
+	     (ARG) 66,
+	     (ARG) 67,
+	     (ARG) 68,
+	     (ARG) 69);
+#endif
 
   return 0;
 }
