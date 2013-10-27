@@ -128,7 +128,7 @@ LOCAL void kbdStatInit(
     kbdConDev.convertChar = TRUE;
 
     /* Init default mode */
-    kbdConDev.flags       = KBD_NORMAL|KBD_NUM;
+    kbdConDev.flags       = KBD_NORMAL | KBD_NUM;
     kbdConDev.state       = 0;
     kbdConDev.consoleHook = (FUNCPTR) kbdHook;
     kbdConDev.currConsole = PC_CONSOLE;
@@ -160,7 +160,7 @@ void kbdIntr(
             }
             else
             {
-                ttyIntRd(&(pcConDev[kbdConDev.currConsole].ttyDev), scancode);
+                ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, scancode);
             }
         }
     }
@@ -177,7 +177,7 @@ LOCAL void kbdConvChar(
     )
 {
     int i;
-    BOOL callHdl;
+    STATUS status;
 
     /* Extended flag */
     if (scancode == 0xe0)
@@ -186,8 +186,6 @@ LOCAL void kbdConvChar(
     }
     else
     {
-        callHdl = TRUE;
-
         /* High bit -> set break flag */
         if (((scancode & 0x80) << 2) == KBD_BRK)
         {
@@ -205,8 +203,6 @@ LOCAL void kbdConvChar(
                 kbdConDev.flags ^= KBD_BRK;
                 kbdConDev.flags ^= KBD_E1;
             }
-
-            callHdl = FALSE;
         }
         else
         {
@@ -215,28 +211,31 @@ LOCAL void kbdConvChar(
 
             if ((kbdConDev.flags & KBD_EXT) == KBD_EXT)
             {
+                status = ERROR;
                 for (i = 0; i < KBD_EXT_SIZE; i++)
                 {
                     if (scancode == kbdEnhanced[i])
                     {
                         scancode = KBD_E0_BASE + i;
-                        i        = -1;
+                        status   = OK;
                         break;
                     }
                 }
 
                 kbdConDev.flags ^=KBD_EXT;
-                if (i != -1)
-                {
-                    callHdl = FALSE;
-                }
+            }
+            else
+            {
+                status = OK;
+            }
+
+            /* Invoke handler */
+            if (status == OK)
+            {
+                (*kbdHandler[kbdAction[scancode]])(scancode);
             }
         }
-        /* Invoke handler */
-        if (callHdl == TRUE)
-        {
-            (*kbdHandler[kbdAction[scancode]])(scancode);
-        }
+
     }
 }
 
@@ -251,10 +250,6 @@ LOCAL void kbdNormal(
     )
 {
     u_int8_t c;
-    int i;
-
-    /* Get current console */
-    i = kbdConDev.currConsole;
 
     if ((kbdConDev.flags & KBD_BRK) == KBD_NORMAL)
     {
@@ -271,7 +266,7 @@ LOCAL void kbdNormal(
             }
 
             /* Put on buffer */
-            ttyIntRd(&pcConDev[i].ttyDev, c);
+            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, c);
         }
     }
 }
@@ -363,21 +358,17 @@ LOCAL void kbdStp(
     u_int8_t scancode
     )
 {
-    int i;
-
-    i = kbdConDev.currConsole;
-
     if ((kbdConDev.flags & KBD_BRK) == KBD_NORMAL)
     {
         kbdConDev.flags ^= KBD_STP;
 
         if (kbdConDev.flags & KBD_STP)
         {
-            ttyIntRd(&pcConDev[i].ttyDev, 0x13);
+            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x13);
         }
         else
         {
-            ttyIntRd(&pcConDev[i].ttyDev, 0x11);
+            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x11);
         }
     }
 }
@@ -393,9 +384,6 @@ LOCAL void kbdExt(
     )
 {
     u_int8_t c;
-    int i;
-
-    i = kbdConDev.currConsole;
 
     if ((kbdConDev.flags & KBD_BRK) == KBD_NORMAL)
     {
@@ -403,12 +391,12 @@ LOCAL void kbdExt(
         c = kbdMap[kbdConDev.state][scancode];
 
         /* Send escape char */
-        ttyIntRd(&pcConDev[i].ttyDev, 0x1b);
+        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x1b);
 
-        ttyIntRd(&pcConDev[i].ttyDev, '[');
+        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, '[');
 
         /* Send char */
-        ttyIntRd(&pcConDev[i].ttyDev, c);
+        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, c);
     }
 }
 
@@ -423,25 +411,22 @@ LOCAL void kbdEsc(
     )
 {
     u_int8_t c;
-    int i;
-
-    i = kbdConDev.currConsole;
 
     if ((kbdConDev.flags & KBD_BRK) == KBD_NORMAL)
     {
         /* Get char */
         c = kbdMap[kbdConDev.state][scancode];
 
-        if ((kbdConDev.flags & KBD_BRK) == KBD_NORMAL)
+        if ((kbdConDev.flags & KBD_NUM) == KBD_NORMAL)
         {
             /* Send escape char */
-            ttyIntRd(&pcConDev[i].ttyDev, 0x1b);
+            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x1b);
 
-            ttyIntRd(&pcConDev[i].ttyDev, 'O');
+            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 'O');
         }
 
         /* Send char */
-        ttyIntRd(&pcConDev[i].ttyDev, c);
+        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, c);
     }
 }
 

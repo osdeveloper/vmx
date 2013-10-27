@@ -33,7 +33,7 @@
 #define KBD_CTRL        0x0010
 #define KBD_EXT         0x0020
 #define KBD_ESC         0x0040
-#define KBD_EW          KBD_EXT|KBD_ESC
+#define KBD_EW          KBD_EXT | KBD_ESC
 #define KBD_E1          0x0080
 #define KBD_PRTSC       0x0100
 #define KBD_BRK         0x0200

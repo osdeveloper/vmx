@@ -60,7 +60,7 @@ u_int8_t kbdAction[] =
           0,       0,       0,       0,       0,       0,       0,       0,
     KBA_NOR,       0,       0, KBA_NOR,       0,       0, KBA_NOR,       0,
           0, KBA_NOR,       0,       0,       0, KBA_NOR,      0,        0,
-   KBA_NOR, KBA_CTL, KBA_NOR, KBA_NOR, KBA_NOR, KBA_STP, KBA_EXT, KBA_EXT,
+    KBA_NOR, KBA_CTL, KBA_NOR, KBA_NOR, KBA_NOR, KBA_STP, KBA_EXT, KBA_EXT,
     KBA_NOR, KBA_EXT, KBA_EXT, KBA_NOR, KBA_EXT, KBA_NOR, KBA_EXT, KBA_EXT
 };
 
