@@ -48,18 +48,7 @@ typedef RING *RING_ID;
  */
 
 #define RNG_ELEM_GET(ringId, pc, fp)                                          \
-(                                                                             \
-  fp = (ringId)->offsetFromBuffer,                                            \
-  ((ringId)->offsetToBuffer == fp) ?                                          \
-        FALSE                                                                 \
-  :                                                                           \
-        (                                                                     \
-        *pc = (ringId)->buffer[fp],                                           \
-        (ringId)->offsetFromBuffer =                                          \
-                ((++fp == (ringId)->bufferSize) ? 0 : fp),                    \
-        TRUE                                                                  \
-        )                                                                     \
-)
+    rngElemGet((ringId), (pc), (&fp))
 
 /******************************************************************************
  * RNG_ELEM_PUT - Put character on ring buffer
@@ -68,31 +57,7 @@ typedef RING *RING_ID;
  */
 
 #define RNG_ELEM_PUT(ringId, c, tp)                                           \
-(                                                                             \
-  tp = (ringId)->offsetToBuffer,                                              \
-  (tp == (ringId)->offsetFromBuffer - 1) ?                                    \
-        FALSE                                                                 \
-  :                                                                           \
-        (                                                                     \
-        (tp == (ringId)->bufferSize - 1) ?                                    \
-          (                                                                   \
-          ((ringId)->offsetFromBuffer == 0) ?                                 \
-                FALSE                                                         \
-        :                                                                     \
-                (                                                             \
-                (ringId)->buffer[tp] = c,                                     \
-                (ringId)->offsetToBuffer = 0,                                 \
-                TRUE                                                          \
-                )                                                             \
-          )                                                                   \
-  :                                                                           \
-        (                                                                     \
-        (ringId)->buffer[tp] = c,                                             \
-        (ringId)->offsetToBuffer++,                                           \
-        TRUE                                                                  \
-        )                                                                     \
-  )                                                                           \
-)
+    rngElemPut((ringId), (c), (&tp))
 
 /******************************************************************************
  * rngCreate - Create a ring buffer
@@ -122,6 +87,30 @@ STATUS rngDelete(
 
 STATUS rngFlush(
     RING_ID ringId
+    );
+
+/******************************************************************************
+ * rngElemGet - Get element from ring buffer
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+BOOL rngElemGet(
+    RING_ID ringId,
+    char *pChar,
+    int *pOffsetFrom
+    );
+
+/******************************************************************************
+ * rngElemPut - Put element on ring buffer
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+BOOL rngElemPut(
+    RING_ID ringId,
+    char c,
+    int *pOffsetTo
     );
 
 /******************************************************************************

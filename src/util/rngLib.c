@@ -50,8 +50,9 @@ RING_ID rngCreate(
         else
         {
             ringId->bufferSize = size;
-            ringId->buffer = buffer;
-            (void) rngFlush(ringId);
+            ringId->buffer     = buffer;
+
+            rngFlush(ringId);
         }
     }
 
@@ -102,12 +103,95 @@ STATUS rngFlush(
     }
     else
     {
-        ringId->offsetToBuffer = 0;
+        ringId->offsetToBuffer   = 0;
         ringId->offsetFromBuffer = 0;
         status = OK;
     }
 
     return status;
+}
+
+/******************************************************************************
+ * rngElemGet - Get element from ring buffer
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+BOOL rngElemGet(
+    RING_ID ringId,
+    char *pChar,
+    int *pOffsetFrom
+    )
+{
+    BOOL ret;
+    int offset = ringId->offsetFromBuffer;
+
+    if (ringId->offsetToBuffer == offset)
+    {
+        ret = FALSE;
+    }
+    else
+    {
+        *pChar = ringId->buffer[offset];
+        if (++offset == ringId->bufferSize)
+        {
+            ringId->offsetFromBuffer = 0;
+        }
+        else
+        {
+            ringId->offsetFromBuffer = offset;
+        }
+        ret = TRUE;
+    }
+
+    *pOffsetFrom = offset;
+    return ret;
+}
+
+/******************************************************************************
+ * rngElemPut - Put element on ring buffer
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+BOOL rngElemPut(
+    RING_ID ringId,
+    char c,
+    int *pOffsetTo
+    )
+{
+    BOOL ret;
+    int offset = ringId->offsetToBuffer;
+
+    if (offset == ringId->offsetFromBuffer - 1)
+    {
+        ret = FALSE;
+    }
+    else
+    {
+        if (offset == (ringId)->bufferSize - 1)
+        {
+            if (ringId->offsetFromBuffer == 0)
+            {
+                ret = FALSE;
+            }
+            else
+            {
+                ringId->buffer[offset] = c;
+                ringId->offsetToBuffer = 0;
+                ret = TRUE;
+            }
+        }
+        else
+        {
+            ringId->buffer[offset] = c;
+            ringId->offsetToBuffer++;
+            ret = TRUE;
+        }
+    }
+
+    *pOffsetTo = offset;
+    return ret;
 }
 
 /******************************************************************************

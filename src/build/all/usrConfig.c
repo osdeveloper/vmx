@@ -328,6 +328,7 @@ int messageReceiver(void)
   }
 }
 
+#ifdef INPUT_TEST
 int inputTask(void)
 {
   size_t bread;
@@ -346,6 +347,7 @@ int inputTask(void)
 
   return 0;
 }
+#endif
 
 int initTasks(void)
 {
@@ -377,7 +379,7 @@ int initTasks(void)
     for (;;);
   }
 
-#if 0
+#ifndef INPUT_TEST
   taskSpawn("init", 1, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) init,
 	     (ARG) 10,
