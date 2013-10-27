@@ -328,23 +328,25 @@ BOOL rngIsEmpty(
     RING_ID ringId
     )
 {
-    BOOL empty;
+    BOOL ret;
 
     if (ringId == NULL)
     {
-        empty = TRUE;
+        ret = TRUE;
     }
     else
     {
         if (ringId->offsetToBuffer == ringId->offsetFromBuffer)
         {
-            empty = TRUE;
+            ret = TRUE;
         }
         else
         {
-            empty = FALSE;
+            ret = FALSE;
         }
     }
+
+    return ret;
 }
 
 /******************************************************************************

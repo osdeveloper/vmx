@@ -46,6 +46,7 @@
 #include "configAll.h"
 #include "config.h"
 
+//#define INPUT_TEST
 #define DELAY_TIME	        (18 * 1)
 #define MAX_MESSAGES            10
 

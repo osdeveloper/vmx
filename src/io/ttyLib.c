@@ -524,7 +524,7 @@ int ttyRead(
     while (1)
     {
         /* Don't know why sleep is needed here */
-        /* taskDelay(1); */
+        taskDelay(1);
 
         semTake(&ttyId->readSync, WAIT_FOREVER);
         semTake(&ttyId->mutex, WAIT_FOREVER);
