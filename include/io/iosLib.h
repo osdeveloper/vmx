@@ -37,13 +37,13 @@
 extern "C" {
 #endif
 
-#include <util/sllLib.h>
+#include <util/dllLib.h>
 
 typedef struct
 {
-    SL_NODE   node;             /* node in linked list */
-    u_int16_t drvNumber;        /* installed driver number index */
-    char *    name;             /* ptr to device name */
+    DL_NODE  node;              /* node in linked list */
+    int      drvNumber;         /* installed driver number index */
+    char    *name;              /* ptr to device name */
 } DEV_HEADER;
 
 #include <io/private/iosLibP.h>

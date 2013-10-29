@@ -275,7 +275,7 @@ int ioConnect(
     DEV_HEADER *pDevHeader;
     va_list args;
 
-    if ((filename == NULL) || (*filename == '\0'))
+    if ((filename == NULL) || (filename[0] == '\0'))
     {
         errnoSet(ENOENT);
         rv = ERROR;
@@ -320,7 +320,7 @@ int ioConnect(
                      */
                     pathCondense(path);
 
-                    pDevHeader = iosDevFind (path, &tail);
+                    pDevHeader = iosDevFind(path, &tail);
                     if (pDevHeader == NULL)
                     {
                         errnoSet(ENODEV);
@@ -328,7 +328,7 @@ int ioConnect(
                         break;
                     }
 
-                    rv = funcInternal(pDevHeader, tail, args);
+                    rv = (*funcInternal)(pDevHeader, tail, args);
                     if ((rv != FOLLOW_LINK) && (rv != FOLLOW_DOTDOT))
                     {
                         break;
@@ -424,7 +424,7 @@ int open(
 
     if (fd == OK)
     {
-        fd = ioConnect (openConnect, filename, oflags, mode);
+        fd = ioConnect(openConnect, filename, oflags, mode);
     }
 
     return fd;

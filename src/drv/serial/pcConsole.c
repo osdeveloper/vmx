@@ -40,6 +40,7 @@ LOCAL void pcConDrvHrdInit(
 LOCAL int pcConDrvOpen(
     PC_CON_DEV *pc,
     char *name,
+    int flags,
     int mode
     );
 
@@ -192,6 +193,7 @@ LOCAL void pcConDrvHrdInit(
 LOCAL int pcConDrvOpen(
     PC_CON_DEV *pc,
     char *name,
+    int flags,
     int mode
     )
 {

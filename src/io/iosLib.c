@@ -34,7 +34,7 @@ int              iosMaxDrv;
 int              iosMaxFd;
 DRV_ENTRY       *iosDrvTable;
 FD_ENTRY        *iosFdTable;
-SL_LIST          iosDevList;
+DL_LIST          iosDevList;
 VOIDFUNCPTR      iosFdNewHook = NULL;
 VOIDFUNCPTR      iosFdFreeHook = NULL;
 
@@ -132,7 +132,7 @@ STATUS iosLibInit(
                 else
                 {
                     /* Initialize linked list */
-                    if (sllInit(&iosDevList) != OK)
+                    if (dllInit(&iosDevList) != OK)
                     {
                         free(iosFdTable);
                         free(iosDrvTable);
@@ -264,14 +264,14 @@ STATUS iosDrvRemove(
     if (status == OK)
     {
         /* Remove devices for driver */
-        for (pDevHeader = (DEV_HEADER *) SLL_HEAD(&iosDevList);
+        for (pDevHeader = (DEV_HEADER *) DLL_HEAD(&iosDevList);
              pDevHeader != NULL;
-             pDevHeader = (DEV_HEADER *) SLL_NEXT(&pDevHeader->node))
+             pDevHeader = (DEV_HEADER *) DLL_NEXT(&pDevHeader->node))
         {
             if (pDevHeader->drvNumber == drvNumber)
             {
                 free(pDevHeader->name);
-                sllRemove(&iosDevList, NULL, &pDevHeader->node);
+                dllRemove(&iosDevList, &pDevHeader->node);
             }
         }
 
@@ -332,21 +332,22 @@ STATUS iosDevAdd(
     {
         /* Store name */
         pDevHeader->name = (char *) malloc(strlen(name) + 1);
-        if (pDevHeader == NULL)
+        if (pDevHeader->name == NULL)
         {
             status = ERROR;
         }
         else
         {
-            strcpy(pDevHeader->name, name);
-
             /* Store driver number */
             pDevHeader->drvNumber = drvNumber;
+
+            /* Copy device name */
+            strcpy(pDevHeader->name, name);
 
             iosLock();
 
             /* Add to list */
-            sllAdd(&iosDevList, &pDevHeader->node);
+            dllAdd(&iosDevList, &pDevHeader->node);
 
             iosUnlock();
             status = OK;
@@ -369,7 +370,7 @@ void iosDevDelete(
     iosLock();
 
     free(pDevHeader->name);
-    sllRemove(&iosDevList, NULL, &pDevHeader->node);
+    dllRemove(&iosDevList, &pDevHeader->node);
 
     iosUnlock();
 }
@@ -424,9 +425,9 @@ LOCAL DEV_HEADER* iosDevMatch(
 
     iosLock();
 
-    for (pDevHeader = (DEV_HEADER *) SLL_HEAD(&iosDevList);
+    for (pDevHeader = (DEV_HEADER *) DLL_HEAD(&iosDevList);
          pDevHeader != NULL;
-         pDevHeader = (DEV_HEADER *) SLL_NEXT(&pDevHeader->node))
+         pDevHeader = (DEV_HEADER *) DLL_NEXT(&pDevHeader->node))
     {
         /* Get length */
         len = strlen(pDevHeader->name);
@@ -461,11 +462,11 @@ DEV_HEADER* iosNextDevGet(
 
     if (pDevHeader == NULL)
     {
-        pNext = (DEV_HEADER *) SLL_HEAD(&iosDevList);
+        pNext = (DEV_HEADER *) DLL_HEAD(&iosDevList);
     }
     else
     {
-        pNext = (DEV_HEADER *) SLL_NEXT(&pDevHeader->node);
+        pNext = (DEV_HEADER *) DLL_NEXT(&pDevHeader->node);
     }
 
     return pNext;

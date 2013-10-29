@@ -42,7 +42,7 @@
 #include <vmx/msgQLib.h>
 #include <io/iosLib.h>
 #include <io/pathLib.h>
-#include <io/ttyLib.h>
+#include <io/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
 
@@ -64,7 +64,6 @@ SEM_ID sem;
 SEM_ID evtSem;
 MSG_Q_ID msgQId;
 int numMsg = 0;
-TTY_DEV ttyDev;
 char buf[1024];
 int consoleFd;
 char consoleName[20];
@@ -335,8 +334,8 @@ int inputTask(void)
   size_t bread;
 
   for (;;) {
-    bread = 0;
     puts("-> ");
+    memset(buf, 0, 1024);
     bread = read(STDIN_FILENO, buf, 1);
     puts("Read ");
     puts(itoa2(bread));
@@ -345,6 +344,85 @@ int inputTask(void)
     puts("\n");
     taskDelay(3 * DELAY_TIME);
   }
+
+  return 0;
+}
+
+void print_fds(void)
+{
+  int i;
+  int fd = 0;
+  static char *fns[3] = { "/pcConsole/0", "/pcConsole/1", "/pcConsole/2" };
+
+  puts("stdin: ");
+  puts(itoa2(ioGlobalStdGet(STDIN_FILENO)));
+  puts("\n");
+
+  puts("stdout: ");
+  puts(itoa2(ioGlobalStdGet(STDOUT_FILENO)));
+  puts("\n");
+
+  puts("stderr: ");
+  puts(itoa2(ioGlobalStdGet(STDERR_FILENO)));
+  puts("\n");
+
+  for (i = 0; i < 3; i++) {
+    fd = open(fns[i], O_RDWR, 0);
+    puts("Found fd: ");
+    puts(itoa2(fd));
+    puts("\n");
+    close(fd);
+  }
+
+  puts("console drv: ");
+  puts(itoa2(pcConDrvNumber()));
+  puts("\n");
+
+  puts("echo drv: ");
+  puts(itoa2(echoDrvNumber()));
+  puts("\n");
+}
+
+int inputTask2(void)
+{
+  int bwrote, bread;
+  int fd;
+
+  fd = open("/echo", O_RDWR, 0);
+  if (fd == ERROR)
+  {
+    puts("Unable to open echo device\n");
+    return 1;
+  }
+
+  puts("Opened fd: ");
+  puts(itoa2(fd));
+  puts("\n");
+
+  bwrote = write(fd, bigString, strlen(bigString));
+  if (bwrote <= 0)
+  {
+    puts("Unable to write to echo device\n");
+    return 2;
+  }
+
+  puts("Wrote ");
+  puts(itoa2(bwrote));
+  puts(" byte(s)\n");
+
+  for (;;) {
+    puts("Test echo device.\n");
+    memset(buf, 0, 1024);
+    bread = read(fd, buf, strlen(bigString));
+    puts("Read ");
+    puts(itoa2(bread));
+    puts(" byte(s)\n");
+    write(STDOUT_FILENO, buf, bread);
+    puts("\n");
+    taskDelay(3 * DELAY_TIME);
+  }
+
+  puts("Echo test ended.\n");
 
   return 0;
 }
@@ -495,8 +573,8 @@ int initTasks(void)
 
 #else
 
-  taskSpawn("inputTask", 2, 0,
-	     DEFAULT_STACK_SIZE, (FUNCPTR) inputTask,
+  taskSpawn("inputTask2", 2, 0,
+	     10 * DEFAULT_STACK_SIZE, (FUNCPTR) inputTask2,
 	     (ARG) 60,
 	     (ARG) 61,
 	     (ARG) 62,
@@ -590,6 +668,9 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   ioGlobalStdSet(STDIN_FILENO, consoleFd);
   ioGlobalStdSet(STDOUT_FILENO, consoleFd);
   ioGlobalStdSet(STDERR_FILENO, consoleFd);
+
+  echoDrvInit();
+  echoDevCreate("/echo", 1024, 1024);
 
 #ifdef DEBUG
   puts("Initializing kernel:\n");
