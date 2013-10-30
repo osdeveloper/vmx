@@ -57,7 +57,7 @@ void sysHwInit(void)
   sysIntEnablePIC(PIT0_INT_LVL);
 
 #ifdef INCLUDE_PC_CONSOLE
-  //intConnectDefault(0x21, kbdIntr, (void *) 0);
+  intConnectDefault(0x21, kbdIntr, (void *) 0);
 #endif /* INCLUDE_PC_CONSOLE */
 }
 

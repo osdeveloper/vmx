@@ -30,6 +30,7 @@
 #include <arch/iv.h>
 #include <arch/sysArchLib.h>
 #include <arch/intArchLib.h>
+#include <arch/kernArchLib.h>
 #include <arch/taskArchLib.h>
 #include <vmx/logLib.h>
 #include <vmx/memPartLib.h>
@@ -47,10 +48,15 @@
 #include "config.h"
 
 #define INPUT_TEST
+#define INT_STACK_ENABLE
 #define DELAY_TIME	        (18 * 1)
 #define MAX_MESSAGES            10
 
 /* Globals */
+#ifdef INT_STACK_ENABLE
+#define INT_STACK_SIZE          (8192 * 2048)
+char intStack[INT_STACK_SIZE];
+#endif
 char smallString[] = "Hello World!\n";
 
 char bigString[] = "\n"
@@ -340,13 +346,12 @@ int inputTask(void)
   for (;;) {
     puts("-> ");
     memset(buf, 0, 1024);
-    bread = read(STDIN_FILENO, buf, 1);
+    bread = read(STDIN_FILENO, buf, 1024);
     puts("Read ");
     puts(itoa2(bread));
     puts(" byte(s): ");
     write(STDOUT_FILENO, buf, bread);
     puts("\n");
-    taskDelay(3 * DELAY_TIME);
   }
 
   return 0;
@@ -440,6 +445,11 @@ int initTasks(void)
   puts("Welcome to Real VMX...\n");
   puts("This system is released under GNU public license.\n\n");
 
+#ifdef INT_STACK_ENABLE
+  kernIntStackSet(&intStack[INT_STACK_SIZE/2]);
+  kernIntStackEnable(TRUE);
+#endif
+
   sem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
   if (sem == NULL)
   {
@@ -477,7 +487,7 @@ int initTasks(void)
     for (;;);
   }
   ioctl(nullFd, FIOSETOPTIONS, OPT_TERMINAL);
-  intConnectDefault(0x21, echoWriteInt, (void *) 0);
+  //intConnectDefault(0x21, echoWriteInt, (void *) 0);
 
 #ifndef INPUT_TEST
   taskSpawn("init", 1, 0,
@@ -594,6 +604,7 @@ int initTasks(void)
 
 #else
 
+#if 0
   taskSpawn("readTask", 2, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) echoRead,
 	     (ARG) 60,
@@ -609,6 +620,19 @@ int initTasks(void)
 
   taskSpawn("writeTask", 3, 0,
 	     DEFAULT_STACK_SIZE, (FUNCPTR) echoWrite,
+	     (ARG) 60,
+	     (ARG) 61,
+	     (ARG) 62,
+	     (ARG) 63,
+	     (ARG) 64,
+	     (ARG) 65,
+	     (ARG) 66,
+	     (ARG) 67,
+	     (ARG) 68,
+	     (ARG) 69);
+#endif
+  taskSpawn("inputTask", 3, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) inputTask,
 	     (ARG) 60,
 	     (ARG) 61,
 	     (ARG) 62,

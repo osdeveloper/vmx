@@ -79,6 +79,26 @@ void kernTaskEntry(
     void
     );
 
+/******************************************************************************
+ * kernIntStackSet - Set interrupt stack pointer
+ *
+ * RETURNS: N/A
+ */
+
+void kernIntStackSet(
+    void *pStack
+    );
+
+/******************************************************************************
+ * kernIntStackEnable - Enable/disable interrupt stack
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS kernIntStackEnable(
+    BOOL enable
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
