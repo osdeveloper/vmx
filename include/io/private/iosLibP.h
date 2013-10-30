@@ -73,14 +73,15 @@ typedef struct
         : (fd)))
 
 /******************************************************************************
- * FD_CHECK - Validate file descriptor
+ * FD_CHECK - Get file descritor entry
  *
- * RETURNS: Pointer to file handle or NULL
+ * RETURNS: Pointer to file descriptor entry or NULL
  */
 
 #define FD_CHECK(fd)                                                          \
     (((fd) >= 0 && (fd) < iosMaxFd &&                                         \
-       iosFdTable[(fd)].used && !iosFdTable[(fd)].obsolete)                   \
+       (iosFdTable[(fd)].used == TRUE) &&                                     \
+       (iosFdTable[(fd)].obsolete == FALSE))                                  \
         ? &iosFdTable[(fd)]                                                   \
         : NULL)
 

@@ -879,7 +879,6 @@ int iosWrite(
     int maxBytes
     )
 {
-static char str[10];
     int status;
     FD_ENTRY *pFdEntry;
     FUNCPTR func;

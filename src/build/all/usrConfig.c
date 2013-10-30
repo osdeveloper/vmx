@@ -46,11 +46,13 @@
 #include "configAll.h"
 #include "config.h"
 
-//#define INPUT_TEST
+#define INPUT_TEST
 #define DELAY_TIME	        (18 * 1)
 #define MAX_MESSAGES            10
 
 /* Globals */
+char smallString[] = "Hello World!\n";
+
 char bigString[] = "\n"
 		   "******************************************************\n"
   		   "Suddenly I awoke. I must have falled asleep under the \n"
@@ -66,6 +68,8 @@ MSG_Q_ID msgQId;
 int numMsg = 0;
 char buf[1024];
 int consoleFd;
+int echoFd;
+int nullFd;
 char consoleName[20];
 
 char* itoa2(int a)
@@ -383,46 +387,45 @@ void print_fds(void)
   puts("\n");
 }
 
-int inputTask2(void)
+void echoWriteInt(void)
 {
-  int bwrote, bread;
-  int fd;
+  write(echoFd, smallString, strlen(smallString));
+}
 
-  fd = open("/echo", O_RDWR, 0);
-  if (fd == ERROR)
-  {
-    puts("Unable to open echo device\n");
-    return 1;
-  }
-
-  puts("Opened fd: ");
-  puts(itoa2(fd));
-  puts("\n");
-
-  bwrote = write(fd, bigString, strlen(bigString));
-  if (bwrote <= 0)
-  {
-    puts("Unable to write to echo device\n");
-    return 2;
-  }
-
-  puts("Wrote ");
-  puts(itoa2(bwrote));
-  puts(" byte(s)\n");
+int echoWrite(void)
+{
+  int bwrote;
 
   for (;;) {
-    puts("Test echo device.\n");
+    taskDelay(3 * DELAY_TIME);
+    bwrote = write(echoFd, smallString, strlen(smallString));
+    if (bwrote <= 0)
+    {
+      puts("Unable to write to echo device\n");
+      break;
+    }
+    {
+      puts("Wrote ");
+      puts(itoa2(bwrote));
+      puts(" byte(s)\n");
+    }
+  }
+}
+
+int echoRead(void)
+{
+  int bread;
+
+  for (;;) {
     memset(buf, 0, 1024);
-    bread = read(fd, buf, strlen(bigString));
+    puts("Waiting for data...\n");
+    bread = read(echoFd, buf, 1024);
     puts("Read ");
     puts(itoa2(bread));
-    puts(" byte(s)\n");
+    puts(" byte(s): ");
     write(STDOUT_FILENO, buf, bread);
     puts("\n");
-    taskDelay(3 * DELAY_TIME);
   }
-
-  puts("Echo test ended.\n");
 
   return 0;
 }
@@ -457,6 +460,24 @@ int initTasks(void)
     puts("Unable to create message queue\n");
     for (;;);
   }
+
+  echoFd = open("/echo", O_RDWR, 0);
+  if (echoFd == ERROR)
+  {
+    puts("Unable to open echo device\n");
+    for (;;);
+  }
+  ioctl(echoFd, FIOSETOPTIONS, OPT_TERMINAL);
+  //intConnectDefault(0x21, echoWriteInt, (void *) 0);
+
+  nullFd = open("/null", O_RDWR, 0);
+  if (nullFd == ERROR)
+  {
+    puts("Unable to open null device\n");
+    for (;;);
+  }
+  ioctl(nullFd, FIOSETOPTIONS, OPT_TERMINAL);
+  intConnectDefault(0x21, echoWriteInt, (void *) 0);
 
 #ifndef INPUT_TEST
   taskSpawn("init", 1, 0,
@@ -573,8 +594,21 @@ int initTasks(void)
 
 #else
 
-  taskSpawn("inputTask2", 2, 0,
-	     10 * DEFAULT_STACK_SIZE, (FUNCPTR) inputTask2,
+  taskSpawn("readTask", 2, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) echoRead,
+	     (ARG) 60,
+	     (ARG) 61,
+	     (ARG) 62,
+	     (ARG) 63,
+	     (ARG) 64,
+	     (ARG) 65,
+	     (ARG) 66,
+	     (ARG) 67,
+	     (ARG) 68,
+	     (ARG) 69);
+
+  taskSpawn("writeTask", 3, 0,
+	     DEFAULT_STACK_SIZE, (FUNCPTR) echoWrite,
 	     (ARG) 60,
 	     (ARG) 61,
 	     (ARG) 62,
