@@ -102,7 +102,6 @@ typedef struct mem_part
 #endif
     unsigned  totalWords;
     unsigned  minBlockWords;
-    unsigned  alignment;
     unsigned  options;
     unsigned  currBlocksAlloced;
     unsigned  currWordsAlloced;

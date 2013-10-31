@@ -159,7 +159,6 @@ STATUS memPartInit(
 
         /* Setup options */
         partId->options = memPartOptionsDefault;
-        partId->alignment = memDefaultAlignment;
         partId->minBlockWords = sizeof(FREE_BLOCK) >> 1;
 
 #ifndef NO_TASKLIB
@@ -222,7 +221,7 @@ STATUS memPartAddToPool(
     }
 
     /* Round address to start of memory allocation block */
-    tmp = (char *) ROUND_UP(pPool, partId->alignment);
+    tmp = (char *) MEM_ROUND_UP(pPool);
     reducePool = tmp - pPool;
     if (poolSize >= reducePool)
     {
@@ -235,7 +234,7 @@ STATUS memPartAddToPool(
     pPool = tmp;
 
     /* Round down size to memory allocation block */
-    poolSize = ROUND_DOWN(poolSize, partId->alignment);
+    poolSize = MEM_ROUND_DOWN(poolSize);
 
     /* Check size */
     if ( poolSize <
@@ -406,13 +405,13 @@ BOOL memPartBlockValidate(
 #endif
 
     /* Check if block header is aligned */
-    if (!ALIGNED(pHeader, partId->alignment))
+    if (MEM_ALIGNED(pHeader) == FALSE)
     {
         valid = FALSE;
     }
 
     /* Check if block size is aligned */
-    if (!ALIGNED(2 * pHeader->nWords, partId->alignment))
+    if (MEM_ALIGNED(2 * pHeader->nWords) == FALSE)
     {
         valid = FALSE;
     }
@@ -482,7 +481,7 @@ void* memPartAlignedAlloc(
     else
     {
         /* Calculate word size including header and round up */
-        nWords = (ROUND_UP(nBytes + sizeof(BLOCK_HEADER), alignment)) >> 1;
+        nWords = (MEM_ROUND_UP(nBytes + sizeof(BLOCK_HEADER))) >> 1;
 
         /* If overflow */
         if ((nWords << 1) < nBytes)
@@ -541,10 +540,10 @@ void* memPartAlignedAlloc(
                      * - block size is greater than size + pad for alignment
                      * - block is aligned and has the correct size
                      */
-                    if ( (NODE_TO_HEADER(pNode)->nWords > nWordsPad) ||
-                         ( (NODE_TO_HEADER(pNode)->nWords == nWords) &&
-                            (ALIGNED(HEADER_TO_BLOCK(NODE_TO_HEADER(pNode)),
-                                                     alignment)) ) )
+                    if ((NODE_TO_HEADER(pNode)->nWords > nWordsPad) ||
+                         ((NODE_TO_HEADER(pNode)->nWords == nWords) &&
+                           (ALIGNED(HEADER_TO_BLOCK(NODE_TO_HEADER(pNode)),
+                                                     alignment))))
                     {
                         break;
                     }
@@ -673,8 +672,154 @@ void* memPartAlloc(
     return memPartAlignedAlloc(
                partId,
                nBytes,
-               partId->alignment
+               memDefaultAlignment
                );
+}
+
+/******************************************************************************
+ * memPartRealloc - Allocate buffer of different size
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* memPartRealloc(
+    PART_ID partId,
+    void *ptr,
+    unsigned nBytes
+    )
+{
+    unsigned nWords;
+    void *pNewBlock;
+    BOOL giveBackFree;
+    BLOCK_HEADER *pNextHeader;
+    BLOCK_HEADER *pHeader = BLOCK_TO_HEADER(ptr);
+
+    /* Verify object class */
+    if (OBJ_VERIFY(partId, memPartClassId) != OK)
+    {
+        pNewBlock = NULL;
+    }
+    else
+    {
+        /* If block is not allocated, then allocate new */
+        if (ptr == NULL)
+        {
+            pNewBlock = memPartAlloc(partId, nBytes);
+        }
+        else
+        {
+            /* If zero bytes, then just free and return */
+            if (nBytes == 0)
+            {
+                memPartFree(partId, ptr);
+                pNewBlock = NULL;
+            }
+            else
+            {
+#ifndef NO_TASKLIB
+                semTake(&partId->sem, WAIT_FOREVER);
+#endif /* NO_TASKLIB */
+
+                /* Calculate size including header and aligned */
+                nWords = MEM_ROUND_UP(nBytes + sizeof(BLOCK_HEADER)) >> 1;
+                if (nWords < partId->minBlockWords)
+                {
+                    nWords = partId->minBlockWords;
+                }
+
+                /* Optional block validity check */
+                if ((partId->options & MEM_BLOCK_CHECK) &&
+                    (memPartBlockValidate(partId, pHeader, FALSE) == FALSE))
+                {
+#ifndef NO_TASKLIB
+                    semGive(&partId->sem);
+#endif /* NO_TASKLIB */
+                    if (memPartBlockErrorFunc != NULL)
+                    {
+                        (*memPartBlockErrorFunc)(partId, ptr, "memPartRealloc");
+                    }
+
+                    pNewBlock = NULL;
+                }
+                else
+                {
+                    giveBackFree = TRUE;
+
+                    /* Test of this an increase of size */
+                    if (nWords > pHeader->nWords)
+                    {
+                        pNextHeader = NEXT_HEADER(pHeader);
+
+                        /* If not possible to extend */
+                        if ((pNextHeader->free == FALSE) ||
+                            ((pHeader->nWords + pNextHeader->nWords) < nWords))
+                        {
+#ifndef NO_TASKLIB
+                            semGive(&partId->sem);
+#endif /* NO_TASKLIB */
+
+                            giveBackFree = FALSE;
+
+                            /* Allocate a completely new block and copy */
+                            pNewBlock = memPartAlloc(partId, nBytes);
+                            if (pNewBlock != NULL)
+                            {
+                                /* Copy data */
+                                memcpy(
+                                    pNewBlock,
+                                    ptr,
+                                    (size_t) (2 * pHeader->nWords -
+                                              sizeof(BLOCK_HEADER))
+                                    );
+
+                                    /* Free old block */
+                                    memPartFree(partId, ptr);
+                            }
+                        }
+                        else
+                        {
+                            /* Take next block */
+                            dllRemove(
+                                &partId->freeList,
+                                HEADER_TO_NODE(pNextHeader)
+                                );
+
+                            pHeader->nWords          += pNextHeader->nWords;
+                            partId->currWordsAlloced += pNextHeader->nWords;
+                            partId->cumWordsAlloced  += pNextHeader->nWords;
+
+                            NEXT_HEADER(pHeader)->pPrevHeader = pHeader;
+                        }
+                    }
+
+                    if (giveBackFree == TRUE)
+                    {
+                        /* Split of overhead and give it back */
+                        pNextHeader = memAlignedBlockSplit(
+                                          partId,
+                                          pHeader,
+                                          pHeader->nWords - nWords,
+                                          partId->minBlockWords,
+                                          memDefaultAlignment
+                                          );
+
+#ifndef NO_TASKLIB
+                        semGive(&partId->sem);
+#endif /* NO_TASKLIB */
+
+                        /* Free leftover block */
+                        if (pNextHeader != NULL)
+                        {
+                            memPartFree(partId, HEADER_TO_BLOCK(pNextHeader));
+                            partId->currBlocksAlloced++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return pNewBlock;
 }
 
 /******************************************************************************

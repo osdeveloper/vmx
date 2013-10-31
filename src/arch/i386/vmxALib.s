@@ -114,7 +114,7 @@ FUNC_LABEL(intEnt)
 
         /* Switch to the new stack if needed */
 
-        cmpl    $0, FUNC(excStackEnabled)
+        cmpl    $FALSE, FUNC(excStackEnabled)
         je      intEntDone
 
         cmpl    $1, FUNC(excStackCnt)
@@ -188,7 +188,7 @@ FUNC_LABEL(intExit)
         decl    FUNC(intNest)
         decl    FUNC(intCnt)
 
-        cmpl    $0, FUNC(excStackEnabled)
+        cmpl    $FALSE, FUNC(excStackEnabled)
         je      intExitStackDone
 
         decl    FUNC(excStackCnt)

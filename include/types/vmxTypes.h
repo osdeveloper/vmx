@@ -66,7 +66,7 @@
 #define MEM_ROUND_DOWN(x)      ROUND_DOWN(x, _ALLOC_ALIGN_SIZE)
 #define STACK_ROUND_UP(x)      ROUND_UP(x, _STACK_ALIGN_SIZE)
 #define STACK_ROUND_DOWN(x)    ROUND_DOWN(x, _ALLOC_ALIGN_SIZE)
-#define MEM_ALIGNED(x)         ALIGNED(x, ALLOC_ALIGNED_SIZE)
+#define MEM_ALIGNED(x)         ALIGNED(x, _ALLOC_ALIGN_SIZE)
 
 #ifdef __cplusplus
 extern "C" {

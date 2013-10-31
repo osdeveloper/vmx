@@ -123,6 +123,18 @@ void* memPartAlloc(
     );
 
 /******************************************************************************
+ * memPartRealloc - Allocate buffer of different size
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* memPartRealloc(
+    PART_ID partId,
+    void *ptr,
+    unsigned nBytes
+    );
+
+/******************************************************************************
  * memPartFree - Free memory block
  *
  * RETURNS: OK or ERROR

@@ -182,6 +182,17 @@ void* malloc(
     );
 
 /******************************************************************************
+ * realloc - Reallocated memory from heap, keep existing data
+ *
+ * RETURNS: Pointer to allocated memory or NULL
+ */
+
+void* realloc(
+    void *ptr,
+    size_t size
+    );
+
+/******************************************************************************
  * free - Free allocate memory to heap
  *
  * RETURNS: N/A

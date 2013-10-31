@@ -432,6 +432,29 @@ int echoRead(void)
 }
 #endif
 
+int test_realloc(void)
+{
+  int slen = strlen(smallString);
+  int blen = strlen(bigString);
+  char *pData = malloc(slen + 1);
+  if (pData == NULL)
+  {
+    puts("Error allocating small string.\n");
+    return 1;
+  }
+  strcpy(pData, smallString);
+  puts(pData);
+
+  pData = realloc(pData, slen + blen + 10);
+  if (pData == NULL)
+  {
+    puts("Error re-allocating plus big string.\n");
+    return 1;
+  }
+  strcpy(&pData[slen], bigString);
+  puts(pData);
+}
+
 int initTasks(void)
 {
 #ifdef RESTART_TASK
@@ -472,6 +495,8 @@ int initTasks(void)
     for (;;);
   }
   ioctl(echoFd, FIOSETOPTIONS, OPT_TERMINAL);
+
+  //test_realloc();
 
 #ifndef INPUT_TEST
   taskSpawn("init", 1, 0,
