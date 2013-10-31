@@ -107,8 +107,8 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  */
 
-#define STD_VALID(fd)\
-    (((fd) >= 0) && ((fd) < 3))
+#define STD_VALID(fd) \
+    (((fd) >= 0) && ((fd) < 3) ? TRUE : FALSE)
 
 /******************************************************************************
  * ioGlobalStdSet - Set global standard file descriptor
@@ -152,18 +152,6 @@ void ioTaskStdSet(
 int ioTaskStdGet(
     int taskId,
     int stdFd
-    );
-
-/******************************************************************************
- * openInternal - open a file bypassing mode check
- *
- * RETURNS: Status from openConnect
- */
-
-int openInternal(
-    const char *filename,
-    int oflags,
-    ...
     );
 
 #ifdef __cplusplus
