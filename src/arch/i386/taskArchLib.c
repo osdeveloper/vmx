@@ -21,7 +21,7 @@
 /* taskArchLib.c - Task switching functions */
 
 #include <vmx.h>
-#include <arch/kernArchLib.h>
+#include <arch/vmxArchLib.h>
 #include <vmx/taskLib.h>
 #include <arch/taskArchLib.h>
 
@@ -44,7 +44,7 @@ void taskRegsInit(
     }
 
     tcbId->regs.eflags = TASK_INITIAL_FLAGS;
-    tcbId->regs.pc = (INSTR *) kernTaskEntry;
+    tcbId->regs.pc = (INSTR *) vmxTaskEntry;
 
     tcbId->regs.edi = 0;
     tcbId->regs.esi = 0;

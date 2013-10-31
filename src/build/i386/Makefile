@@ -49,7 +49,8 @@ LD_LIBRARY_PATH = -L$(VMX_BASE)/lib/$(CPU)/
  #
 
 OBJECTS = sysALib.o sysLib.o \
-	  ../all/usrConfig.o
+	  ../all/usrConfig.o \
+          ../../arch/i386/vmxALib.o
 
  ##############################################################################
  # BUILD PART

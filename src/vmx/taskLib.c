@@ -24,7 +24,7 @@
 #include <string.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
-#include <arch/kernArchLib.h>
+#include <arch/vmxArchLib.h>
 #include <vmx/logLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
@@ -487,7 +487,7 @@ STATUS taskDestroy(
                             }
 
                             /* Exit trough kernel */
-                            kernExit();
+                            vmxExit();
                             status = OK;
                         }
                         else
@@ -498,7 +498,7 @@ STATUS taskDestroy(
                             if (vmxPendQPut(&tcbId->safetyQ, timeout) != OK)
                             {
                                 /* Exit trough kernel */
-                                kernExit();
+                                vmxExit();
 
                                 /* Invalid timeout */
                                 errnoSet(S_taskLib_INVALID_TIMEOUT);
@@ -507,7 +507,7 @@ STATUS taskDestroy(
                             else
                             {
                                 /* Exit trough kernel */
-                                status = kernExit();
+                                status = vmxExit();
                                 if (status == ERROR)
                                 {
                                     /* timer set errno to S_objLib_TIMEOUT */
@@ -556,7 +556,7 @@ STATUS taskDestroy(
                     vmxSuspend(tcbId);
 
                     /* Exit trough kernel */
-                    kernExit();
+                    vmxExit();
                 }
                 else
                 {
@@ -600,7 +600,7 @@ STATUS taskDestroy(
                 }
 
                 /* Exit trough kernel */
-                kernExit();
+                vmxExit();
 
                 /* Unprotect */
                 taskUnlock();
@@ -661,7 +661,7 @@ STATUS taskSuspend(
             vmxSuspend(tcbId);
 
             /* Exit trough kernel */
-            kernExit();
+            vmxExit();
             status = OK;
         }
     }
@@ -712,7 +712,7 @@ STATUS taskResume(
                 vmxResume(tcbId);
 
                 /* Exit kernel mode */
-                kernExit();
+                vmxExit();
                 status = OK;
             }
         }
@@ -746,8 +746,8 @@ STATUS taskDelay(
         /* If no wait, then just re-insert it */
         if (timeout == WAIT_NONE)
         {
-            Q_REMOVE(&kernReadyQ, taskIdCurrent);
-            Q_PUT(&kernReadyQ, taskIdCurrent, taskIdCurrent->priority);
+            Q_REMOVE(&readyQHead, taskIdCurrent);
+            Q_PUT(&readyQHead, taskIdCurrent, taskIdCurrent->priority);
         }
         else
         {
@@ -755,7 +755,7 @@ STATUS taskDelay(
         }
 
         /* Exit trough kernel, and check for error */
-        if ((status = kernExit()) == SIG_RESTART)
+        if ((status = vmxExit()) == SIG_RESTART)
         {
             status = ERROR;
         }
@@ -806,7 +806,7 @@ STATUS taskUndelay(
             vmxUndelay(tcbId);
 
             /* Exit kernel mode */
-            kernExit();
+            vmxExit();
             status = OK;
         }
     }
@@ -851,7 +851,7 @@ STATUS taskPrioritySet(
             vmxPrioritySet(tcbId, priority);
 
             /* Exit trough kernel */
-            kernExit();
+            vmxExit();
             status = OK;
         }
     }
@@ -1098,7 +1098,7 @@ STATUS taskUnlock(
         }
 
         /* Exit trough kernel */
-        kernExit();
+        vmxExit();
     }
 
     return OK;
@@ -1142,7 +1142,7 @@ STATUS taskUnsafe(
         }
 
         /* Exit trough kernel */
-        kernExit();
+        vmxExit();
     }
 
     return OK;

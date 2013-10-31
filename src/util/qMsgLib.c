@@ -267,7 +267,7 @@ STATUS qMsgPut(
             kernelState = TRUE;
             INT_UNLOCK(level);
             vmxPendQGet(&pQHead->pendQ);
-            kernExit();
+            vmxExit();
             status = OK;
         }
     }
@@ -329,7 +329,7 @@ Q_MSG_NODE* qMsgGet(
             vmxPendQPut(&pQHead->pendQ, timeout);
 
             /* Exit trough kernel */
-            status = kernExit();
+            status = vmxExit();
             if (status == SIG_RESTART)
             {
                 pNode = (Q_MSG_NODE *) NONE;

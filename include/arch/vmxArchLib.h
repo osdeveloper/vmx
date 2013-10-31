@@ -18,16 +18,16 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernArchLib.h - Kernel architecture dependet header */
+/* vmxArchLib.h - Kernel architecture dependet header */
 
-#ifndef _kernArchLib_h
-#define _kernArchLib_h
+#ifndef _vmxArchLib_h
+#define _vmxArchLib_h
 
 #include <types/vmxCpu.h>
 
 #if      CPU_FAMILY==I386
-#include <arch/i386/kernI386Lib.h>
+#include <arch/i386/vmxI386Lib.h>
 #endif
 
-#endif /* _kernArchLib_h */
+#endif /* _vmxArchLib_h */
 

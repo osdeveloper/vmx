@@ -30,7 +30,7 @@
 #include <arch/iv.h>
 #include <arch/sysArchLib.h>
 #include <arch/intArchLib.h>
-#include <arch/kernArchLib.h>
+#include <arch/vmxArchLib.h>
 #include <arch/taskArchLib.h>
 #include <vmx/logLib.h>
 #include <vmx/memPartLib.h>
@@ -48,15 +48,12 @@
 #include "config.h"
 
 #define INPUT_TEST
-#define INT_STACK_ENABLE
+#define INT_STACK_SIZE          (8192 * 2048)
 #define DELAY_TIME	        (18 * 1)
 #define MAX_MESSAGES            10
 
 /* Globals */
-#ifdef INT_STACK_ENABLE
-#define INT_STACK_SIZE          (8192 * 2048)
 char intStack[INT_STACK_SIZE];
-#endif
 char smallString[] = "Hello World!\n";
 
 char bigString[] = "\n"
@@ -75,7 +72,6 @@ int numMsg = 0;
 char buf[1024];
 int consoleFd;
 int echoFd;
-int nullFd;
 char consoleName[20];
 
 char* itoa2(int a)
@@ -213,10 +209,10 @@ int printSysTime(ARG arg0, ARG arg1)
     puts("System time is: ");
     puts(itoa2(tickGet()/18));
     puts("...");
-#ifdef RESTART_TASK
     if (i == 3)
     {
       i=0;
+#ifdef RESTART_TASK
       pInt[0]++;
       puts("I will try to restart: ");
       puts(taskName(taskId));
@@ -224,9 +220,9 @@ int printSysTime(ARG arg0, ARG arg1)
       puts(itoa2(*pInt));
       puts(" time");
       taskRestart(taskId);
+#endif
       semGive(evtSem);
     }
-#endif
     puts("\n");
     semGive(sem);
     taskDelay(DELAY_TIME);
@@ -442,13 +438,11 @@ int initTasks(void)
   int restartTaskId;
 #endif
 
+  intStackSet(&intStack[INT_STACK_SIZE/2]);
+  intStackEnable(TRUE);
+
   puts("Welcome to Real VMX...\n");
   puts("This system is released under GNU public license.\n\n");
-
-#ifdef INT_STACK_ENABLE
-  kernIntStackSet(&intStack[INT_STACK_SIZE/2]);
-  kernIntStackEnable(TRUE);
-#endif
 
   sem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
   if (sem == NULL)
@@ -478,16 +472,6 @@ int initTasks(void)
     for (;;);
   }
   ioctl(echoFd, FIOSETOPTIONS, OPT_TERMINAL);
-  //intConnectDefault(0x21, echoWriteInt, (void *) 0);
-
-  nullFd = open("/null", O_RDWR, 0);
-  if (nullFd == ERROR)
-  {
-    puts("Unable to open null device\n");
-    for (;;);
-  }
-  ioctl(nullFd, FIOSETOPTIONS, OPT_TERMINAL);
-  //intConnectDefault(0x21, echoWriteInt, (void *) 0);
 
 #ifndef INPUT_TEST
   taskSpawn("init", 1, 0,

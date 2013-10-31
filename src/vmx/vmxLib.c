@@ -74,7 +74,7 @@ STATUS vmxDelete(
     /* If task is ready, remove it from ready queue */
     if (tcbId->status == TASK_READY)
     {
-        Q_REMOVE(&kernReadyQ, tcbId);
+        Q_REMOVE(&readyQHead, tcbId);
     }
     else
     {
@@ -130,7 +130,7 @@ void vmxSuspend(
     /* If task is ready, remove it from ready queue */
     if (tcbId->status == TASK_READY)
     {
-        Q_REMOVE(&kernReadyQ, tcbId);
+        Q_REMOVE(&readyQHead, tcbId);
     }
 
     /* Set suspended flag */
@@ -150,7 +150,7 @@ void vmxResume(
     /* If task is suspended, put it on ready queue */
     if (tcbId->status == TASK_SUSPEND)
     {
-        Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+        Q_PUT(&readyQHead, tcbId, tcbId->priority);
     }
 
     /* Reset suspended flag */
@@ -222,7 +222,7 @@ void vmxTickAnnounce(
             /* If task is ready now, add it to ready queue */
             if (tcbId->status == TASK_READY)
             {
-                Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+                Q_PUT(&readyQHead, tcbId, tcbId->priority);
             }
         }
 #ifndef NO_WDLIB
@@ -256,8 +256,8 @@ void vmxTickAnnounce(
         (++taskIdCurrent->timeSlice >= kernRoundRobinTimeSlice))
     {
         taskIdCurrent->timeSlice = 0;
-        Q_REMOVE(&kernReadyQ, taskIdCurrent);
-        Q_PUT(&kernReadyQ, taskIdCurrent, taskIdCurrent->priority);
+        Q_REMOVE(&readyQHead, taskIdCurrent);
+        Q_PUT(&readyQHead, taskIdCurrent, taskIdCurrent->priority);
     }
 }
 
@@ -272,7 +272,7 @@ STATUS vmxDelay(
     )
 {
     /* Remove from running tasks queue */
-    Q_REMOVE(&kernReadyQ, taskIdCurrent);
+    Q_REMOVE(&readyQHead, taskIdCurrent);
 
     /* Will kernel timer overflow ? */
     if ((unsigned) (sysTicks + timeout) < sysTicks)
@@ -319,7 +319,7 @@ STATUS vmxUndelay(
         /* Put on ready queue */
         if (tcbId->status == TASK_READY)
         {
-            Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+            Q_PUT(&readyQHead, tcbId, tcbId->priority);
         }
 
         status = OK;
@@ -345,7 +345,7 @@ void vmxPrioritySet(
     /* Update correct in queue */
     if (tcbId->status == TASK_READY)
     {
-        Q_MOVE(&kernReadyQ, tcbId, priority);
+        Q_MOVE(&readyQHead, tcbId, priority);
     }
     else if (tcbId->status & TASK_PEND)
     {
@@ -419,7 +419,7 @@ void vmxPendQGet(
     /* Check if task is ready */
     if (tcbId->status == TASK_READY)
     {
-        Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+        Q_PUT(&readyQHead, tcbId, tcbId->priority);
     }
 }
 
@@ -445,7 +445,7 @@ void vmxReadyQPut(
     /* Check if task is ready */
     if (tcbId->status == TASK_READY)
     {
-        Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+        Q_PUT(&readyQHead, tcbId, tcbId->priority);
     }
 }
 
@@ -461,7 +461,7 @@ void vmxReadyQRemove(
     )
 {
     /* Remove from ready queue */
-    Q_REMOVE(&kernReadyQ, taskIdCurrent);
+    Q_REMOVE(&readyQHead, taskIdCurrent);
 
     /* Update status */
     taskIdCurrent->status |= TASK_PEND;
@@ -511,7 +511,7 @@ void vmxPendQFlush(
         /* Check if task is ready */
         if (tcbId->status == TASK_READY)
         {
-            Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+            Q_PUT(&readyQHead, tcbId, tcbId->priority);
         }
     }
 }
@@ -536,7 +536,7 @@ void vmxPendQWithHandlerPut(
     int info                     /* custom info to pass to handler */
     )
 {
-    Q_REMOVE (&kernReadyQ, taskIdCurrent);   /* Remove from ready queue */
+    Q_REMOVE (&readyQHead, taskIdCurrent);   /* Remove from ready queue */
 
     taskIdCurrent->status |= TASK_PEND;      /* Update status */
 
@@ -644,7 +644,7 @@ void vmxPendQTerminate(
         /* Check if task is ready */
         if (tcbId->status == TASK_READY)
         {
-            Q_PUT(&kernReadyQ, tcbId, tcbId->priority);
+            Q_PUT(&readyQHead, tcbId, tcbId->priority);
         }
     }
 }

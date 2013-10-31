@@ -374,7 +374,7 @@ STATUS msgQDestroy(
             qMsgTerminate(&msgQId->msgQ);
             qMsgTerminate(&msgQId->freeQ);
 
-            kernExit();
+            vmxExit();
 
             if (deallocate == TRUE)
             {

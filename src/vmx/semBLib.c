@@ -280,7 +280,7 @@ LOCAL STATUS semBGive(
             vmxPendQGet(&semId->qHead);
 
             /* Exit kernel mode */
-            kernExit();
+            vmxExit();
             status = OK;
         }
     }
@@ -351,7 +351,7 @@ LOCAL STATUS semBTake(
                         vmxPendQPut(&semId->qHead, timeout);
 
                         /* Exit through kernel */
-                        status = kernExit();
+                        status = vmxExit();
                     }
                 }
             }

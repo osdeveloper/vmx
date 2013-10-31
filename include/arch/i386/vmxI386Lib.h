@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernI386.h - Kernel header */
+/* vmxI386.h - Kernel header */
 
-#ifndef _kernI386_h
-#define _kernI386_h
+#ifndef _vmxI386_h
+#define _vmxI386_h
 
 #ifndef _ASMLANGUAGE
 
@@ -30,72 +30,72 @@ extern "C" {
 #endif
 
 /******************************************************************************
- * kernIntEnt - Called when an interrupt occurs
+ * intEnt - Called when an interrupt occurs
  *
  * RETURNS: N/A
  */
 
-void kernIntEnt(
+void intEnt(
     void
     );
 
 /******************************************************************************
- * kernIntExit - Routine only brached to when interrupt ends
+ * intExit - Routine only brached to when interrupt ends
  *
  * RETURNS: N/A
  */
 
-void kernIntExit(
+void intExit(
     void
     );
 
 /******************************************************************************
- * kernExit - Exit kernel mode
+ * vmxExit - Exit kernel mode
  *
  * RETURNS: OK, ERROR or SIG_RESTART
  */
 
-int kernExit(
+int vmxExit(
     void
     );
 
 /******************************************************************************
- * kernTaskLoadContext - Load task context
+ * vmxTaskContextLoad - Load task context
  *
  * RETURNS: N/A
  */
 
-void kernTaskLoadContext(
+void vmxTaskContextLoad(
     void
     );
 
 /******************************************************************************
- * kernTaskEntry - Task entry point
+ * vmxTaskEntry - Task entry point
  *
  * RETURNS: N/A
  */
 
-void kernTaskEntry(
+void vmxTaskEntry(
     void
     );
 
 /******************************************************************************
- * kernIntStackSet - Set interrupt stack pointer
+ * intStackSet - Set interrupt stack pointer
  *
  * RETURNS: N/A
  */
 
-void kernIntStackSet(
+void intStackSet(
     void *pStack
     );
 
 /******************************************************************************
- * kernIntStackEnable - Enable/disable interrupt stack
+ * intStackEnable - Enable/disable interrupt stack
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS kernIntStackEnable(
+STATUS intStackEnable(
     BOOL enable
     );
 
@@ -105,5 +105,5 @@ STATUS kernIntStackEnable(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _kernI386_h */
+#endif /* _vmxI386_h */
 

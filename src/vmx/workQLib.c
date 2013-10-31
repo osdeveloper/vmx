@@ -47,7 +47,7 @@ typedef struct
 } WORK_Q_JOB;
 
 /* globals */
-volatile BOOL workQEmpty;
+volatile BOOL workQIsEmpty;
 
 /* locals */
 LOCAL volatile unsigned workQReadIndex;
@@ -66,7 +66,7 @@ STATUS workQLibInit(
 {
     workQReadIndex = 0;
     workQWriteIndex = 0;
-    workQEmpty = TRUE;
+    workQIsEmpty = TRUE;
 
     return OK;
 }
@@ -100,7 +100,7 @@ void workQAdd0(
     INT_UNLOCK(oldLevel);                /* UNLOCK INTERRUPTS */
 
     /* Queue not empty */
-    workQEmpty = FALSE;
+    workQIsEmpty = FALSE;
 
     /* Store data */
     pJob->func = func;
@@ -137,7 +137,7 @@ void workQAdd1(
     INT_UNLOCK(oldLevel);                /* UNLOCK INTERRUPTS */
 
     /* Queue not empty */
-    workQEmpty = FALSE;
+    workQIsEmpty = FALSE;
 
     /* Store data */
     pJob->func = func;
@@ -176,7 +176,7 @@ void workQAdd2(
     INT_UNLOCK(oldLevel);                /* UNLOCK INTERRUPTS */
 
     /* Queue not empty */
-    workQEmpty = FALSE;
+    workQIsEmpty = FALSE;
 
     /* Store data */
     pJob->func = func;
@@ -236,7 +236,7 @@ void workQDoWork(
         INT_LOCK(level);   /* Lock interrupts again. */
     }
 
-    workQEmpty = TRUE;     /* Queue must be empty */
+    workQIsEmpty = TRUE;   /* Queue must be empty */
     INT_UNLOCK(level);     /* Restore interrupts */
 
     errno = keepErrno;     /* Restore errno */

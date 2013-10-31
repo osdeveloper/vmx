@@ -68,5 +68,3 @@ FUNC_LABEL(sysInit)
 	call	FUNC(usrInit)		/* Call usrInit */
 	iret
 
-#include <arch/i386/kernALib.s>
-

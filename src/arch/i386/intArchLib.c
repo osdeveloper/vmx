@@ -28,12 +28,11 @@
 #include <arch/iv.h>
 #include <arch/esf.h>
 #include <arch/excArchLib.h>
-#include <arch/i386/sysI386Lib.h>
+#include <arch/sysArchLib.h>
+#include <arch/vmxArchLib.h>
 #include <arch/intArchLib.h>
 
 /* Imports */
-IMPORT void             kernIntEnt(void);
-IMPORT void             kernIntExit(void);
 IMPORT u_int32_t        sysIntIdtType;
 IMPORT u_int32_t        sysCsInt;
 
@@ -50,7 +49,7 @@ void                    *intParamTbl[IDT_ENTRIES];
 LOCAL FUNCPTR           *intVecBase = 0;
 LOCAL u_int8_t          intConnectCode[] =
 {
-/* 00   e8 kk kk kk kk  call    kernIntEnt      * Kernel enter hook
+/* 00   e8 kk kk kk kk  call    intEnt          * Kernel enter hook
  * 05   50              pushl   %eax            * Save regs
  * 06   52              pushl   %edx
  * 07   51              pushl   %ecx
@@ -64,10 +63,10 @@ LOCAL u_int8_t          intConnectCode[] =
  * 41   59              popl    %ecx            * Restore regs
  * 42   5a              popl    %edx
  * 43   58              popl    %eax
- * 44   e9 kk kk kk kk  jmp     kernIntExit     * Kernel exit hook
+ * 44   e9 kk kk kk kk  jmp     intExit         * Kernel exit hook
  */
 
-        0xe8, 0x00, 0x00, 0x00, 0x00,           /* kernIntEnt fill in later */
+        0xe8, 0x00, 0x00, 0x00, 0x00,           /* intEnt fill in later */
         0x50,                                   /* Save regs */
         0x52,
         0x51,
@@ -81,7 +80,7 @@ LOCAL u_int8_t          intConnectCode[] =
         0x59,                                   /* Restore regs */
         0x5a,
         0x58,
-        0xe9, 0x00, 0x00, 0x00, 0x00            /* kernIntExit fill in later */
+        0xe9, 0x00, 0x00, 0x00, 0x00            /* intExit fill in later */
 };
 
 /******************************************************************************
@@ -260,7 +259,7 @@ FUNCPTR intHandlerCreate(
         /* Setup parameters and function calls */
 
         /* Kernel entry hook */
-        *(int *) &pCode[INT_KERNEL_ENTRY] = (int) kernIntEnt -
+        *(int *) &pCode[INT_KERNEL_ENTRY] = (int) intEnt -
             (int) &pCode[INT_KERNEL_ENTRY + 4];
 
         /* Replace BOI stuff with NOP */
@@ -294,7 +293,7 @@ FUNCPTR intHandlerCreate(
         }
 
         /* Store kernel exit hook */
-        *(int *) &pCode[INT_KERNEL_EXIT] = (int) kernIntExit -
+        *(int *) &pCode[INT_KERNEL_EXIT] = (int) intExit -
             (int) &pCode[INT_KERNEL_EXIT + 4];
     }
 

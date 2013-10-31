@@ -39,7 +39,7 @@ IMPORT unsigned kernRoundRobinTimeSlice;
 IMPORT TCB_ID taskIdCurrent;
 IMPORT Q_HEAD kernActiveQ;
 IMPORT Q_HEAD kernTickQ;
-IMPORT Q_HEAD kernReadyQ;
+IMPORT Q_HEAD readyQHead;
 
 #ifdef __cplusplus
 }

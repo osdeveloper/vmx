@@ -345,7 +345,7 @@ LOCAL STATUS semMTake(
                             kernelState = TRUE;
                             INT_UNLOCK(level);
                             vmxPendQPut(&semId->qHead, timeout);
-                            status = kernExit();
+                            status = vmxExit();
                         }
                     }
                 }
@@ -440,7 +440,7 @@ STATUS semMGiveForce(
                     }
                 }
 
-                kernExit();
+                vmxExit();
                 status = OK;
             }
         }
@@ -483,7 +483,7 @@ LOCAL STATUS semMKernGive(
         vmxPendQFlush(&taskIdCurrent->safetyQ);
     }
 
-    status = kernExit();
+    status = vmxExit();
 
     return(status);
 }

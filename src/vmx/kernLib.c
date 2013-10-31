@@ -44,7 +44,7 @@ unsigned kernRoundRobinTimeSlice = 0;
 TCB_ID taskIdCurrent             = NULL;
 Q_HEAD kernActiveQ               = {NULL, 0, 0 ,NULL};
 Q_HEAD kernTickQ;
-Q_HEAD kernReadyQ;
+Q_HEAD readyQHead;
 
 /* Locals */
 #ifdef INCLUDE_CONSTANT_RDY_Q
@@ -72,9 +72,9 @@ void kernInit(
     qInit(&kernActiveQ, qFifoClassId);
     qInit(&kernTickQ, qPrioClassId);
 #ifdef INCLUDE_CONSTANT_RDY_Q
-    qInit(&kernReadyQ, qPriBmpClassId, 256, kernReadyLst, kernReadyBmp);
+    qInit(&readyQHead, qPriBmpClassId, 256, kernReadyLst, kernReadyBmp);
 #else
-    qInit(&kernReadyQ, qPrioClassId);
+    qInit(&readyQHead, qPrioClassId);
 #endif
 
     /* Initialize variables */
@@ -106,7 +106,7 @@ void kernInit(
     taskIdCurrent = (TCB_ID) rootTaskId;
     INT_LOCK(level);
     intConnectDefault(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
-    kernTaskLoadContext();
+    vmxTaskContextLoad();
     INT_UNLOCK(level);
 }
 

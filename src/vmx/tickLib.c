@@ -68,7 +68,7 @@ void tickAnnounce(
     {
         kernelState = TRUE;
         vmxTickAnnounce();
-        kernExit();
+        vmxExit();
     }
 }
 

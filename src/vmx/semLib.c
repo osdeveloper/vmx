@@ -284,7 +284,7 @@ STATUS semDestroy(
             vmxSemDelete(semId);
 
             taskSafe();
-            kernExit();
+            vmxExit();
 
             if (deallocate == TRUE)
             {
@@ -485,7 +485,7 @@ STATUS semQFlush(
         kernelState = TRUE;
         INT_UNLOCK(level);
         vmxPendQFlush(&semId->qHead);
-        kernExit();
+        vmxExit();
         status = OK;
     }
 
