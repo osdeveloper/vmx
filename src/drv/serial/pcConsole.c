@@ -44,10 +44,39 @@ LOCAL int pcConDrvOpen(
     int mode
     );
 
+LOCAL int pcConDrvCreat(
+    PC_CON_DEV *pc,
+    char *name,
+    int mode,
+    const char *symlink
+    );
+
+LOCAL int pcConDrvRead(
+    PC_CON_DEV *pc,
+    void *buffer,
+    int maxBytes
+    );
+
+LOCAL int pcConDrvWrite(
+    PC_CON_DEV *pc,
+    void *buffer,
+    int maxBytes
+    );
+
 LOCAL STATUS pcConDrvIoctl(
     PC_CON_DEV *pc,
     int req,
     int arg
+    );
+
+LOCAL int pcConDrvDelete(
+    PC_CON_DEV *pc,
+    const char *filename,
+    mode_t mode
+    );
+
+LOCAL int pcConDrvClose(
+    PC_CON_DEV *pc
     );
 
 /******************************************************************************
@@ -72,13 +101,13 @@ STATUS pcConDrvInit(
 
         /* Install driver */
         pcNumber = iosDrvInstall(
-                       pcConDrvOpen,
-                       (FUNCPTR) NULL,
-                       pcConDrvOpen,
-                       (FUNCPTR) NULL,
-                       tyRead,
-                       tyWrite,
-                       pcConDrvIoctl
+                       (FUNCPTR) pcConDrvOpen,
+                       (FUNCPTR) pcConDrvDelete,
+                       (FUNCPTR) pcConDrvOpen,
+                       (FUNCPTR) pcConDrvClose,
+                       (FUNCPTR) pcConDrvRead,
+                       (FUNCPTR) pcConDrvWrite,
+                       (FUNCPTR) pcConDrvIoctl
                        );
         if (pcNumber == ERROR)
         {
@@ -201,6 +230,52 @@ LOCAL int pcConDrvOpen(
 }
 
 /******************************************************************************
+ * pcConDrvCreat - Creat a file to console
+ *
+ * RETURNS: ERROR
+ */
+
+LOCAL int pcConDrvCreat(
+    PC_CON_DEV *pc,
+    char *name,
+    int mode,
+    const char *symlink
+    )
+{
+    return ERROR;
+}
+
+/******************************************************************************
+ * pcConDrvRead - Read from console
+ *
+ * RETURNS: number of bytes read
+ */
+
+LOCAL int pcConDrvRead(
+    PC_CON_DEV *pc,
+    void *buffer,
+    int maxBytes
+    )
+{
+    return tyRead(&pc->tyDev, buffer, maxBytes);
+}
+
+/******************************************************************************
+ * pcConDrvWrite - Write to console
+ *
+ * RETURNS: number of bytes written
+ */
+
+LOCAL int pcConDrvWrite(
+    PC_CON_DEV *pc,
+    void *buffer,
+    int maxBytes
+    )
+{
+    return tyWrite(&pc->tyDev, buffer, maxBytes);
+}
+
+/******************************************************************************
  * pcConDrvIoctl - I/O control
  *
  * RETURNS: OR or ERROR
@@ -212,7 +287,7 @@ LOCAL STATUS pcConDrvIoctl(
     int arg
     )
 {
-  STATUS status;
+    STATUS status;
 
     switch(req)
     {
@@ -222,5 +297,33 @@ LOCAL STATUS pcConDrvIoctl(
     }
 
     return status;
+}
+
+/******************************************************************************
+ * pcConDrvDelete - Delete console
+ *
+ * RETURNS: ERROR
+ */
+
+LOCAL int pcConDrvDelete(
+    PC_CON_DEV *pc,
+    const char *filename,
+    mode_t mode
+    )
+{
+    return ERROR;
+}
+
+/******************************************************************************
+ * pcConDrvClose - Close console
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int pcConDrvClose(
+    PC_CON_DEV *pc
+    )
+{
+    return OK;
 }
 

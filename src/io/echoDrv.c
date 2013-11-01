@@ -57,7 +57,6 @@ LOCAL int echoOpen(
 
 LOCAL int echoCreate(
     ECHO_DEV *pEchoDev,         /* device pointer */
-    DEV_HEADER *pDevHeader,     /* not used */
     const char *filename,       /* not used */
     int mode,                   /* not used */
     const char *symlink         /* not used */
@@ -82,7 +81,7 @@ LOCAL int echoRead(
 }
  
 /******************************************************************************
- * echoWrite - write to am echo file
+ * echoWrite - write to an echo file
  *
  * RETURNS: number of bytes written
  */
@@ -93,18 +92,7 @@ LOCAL int echoWrite(
     int maxBytes                /* number of bytes to write */
     )
 {
-    int i;
-    char *pBuf = (char *) buffer;
-
-    for (i = 0; i < maxBytes; i++)
-    {
-        if (tyIntRd(&pEchoDev->tyDev, pBuf[i]) != OK)
-        {
-            break;
-        }
-    }
-
-    return i;
+    return tyWrite(&pEchoDev->tyDev, buffer, maxBytes);
 }
 
 /******************************************************************************
@@ -123,7 +111,7 @@ LOCAL int echoIoctl(
 }
 
 /******************************************************************************
- * echoDelete - Delete and echo file
+ * echoDelete - Delete an echo file
  *
  * RETURNS: ERROR
  */

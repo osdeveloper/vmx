@@ -25,6 +25,7 @@
 #include <vmx.h>
 #include <vmx/semLib.h>
 #include <vmx/errnoLib.h>
+#include <io/private/nullDrvP.h>
 #include <io/ioLib.h>
 #include <io/iosLib.h>
 
@@ -53,12 +54,6 @@ LOCAL void iosUnlock(
 
 LOCAL DEV_HEADER* iosDevMatch(
     char *name
-    );
-
-LOCAL int iosNullWrite(
-    int dummy,
-    void *buf,
-    int n
     );
 
 /******************************************************************************
@@ -142,7 +137,13 @@ STATUS iosLibInit(
                     else
                     {
                         /* Add null device */
-                        iosDrvTable[0].dev_write = iosNullWrite;
+                        iosDrvTable[0].dev_create = (FUNCPTR) nullCreate;
+                        iosDrvTable[0].dev_delete = (FUNCPTR) nullDelete;
+                        iosDrvTable[0].dev_open   = (FUNCPTR) nullOpen;
+                        iosDrvTable[0].dev_close  = (FUNCPTR) nullClose;
+                        iosDrvTable[0].dev_read   = (FUNCPTR) nullRead;
+                        iosDrvTable[0].dev_write  = (FUNCPTR) nullWrite;
+                        iosDrvTable[0].dev_ioctl  = (FUNCPTR) nullIoctl;
                         iosDevAdd(&iosNullDevHeader, nullDevName, 0);
 
                         iosLibInstalled = TRUE;
@@ -717,15 +718,7 @@ int iosCreate(
     FUNCPTR func;
 
     func = iosDrvTable[pDevHeader->drvNumber].dev_create;
-
-    if (func != NULL)
-    {
-        status = (*func)(pDevHeader, filename, mode, symlink);
-    }
-    else
-    {
-        status = OK;
-    }
+    status = (*func)(pDevHeader, filename, mode, symlink);
 
     return status;
 }
@@ -746,14 +739,7 @@ int iosDelete(
     FUNCPTR func;
 
     func = iosDrvTable[pDevHeader->drvNumber].dev_delete;
-    if (func != NULL)
-    {
-        status = (*func)(pDevHeader, filename, mode);
-    }
-    else
-    {
-        status = OK;
-    }
+    status = (*func)(pDevHeader, filename, mode);
 
     return status;
 }
@@ -775,14 +761,7 @@ int iosOpen(
     FUNCPTR func;
 
     func = iosDrvTable[pDevHeader->drvNumber].dev_open;
-    if (func != NULL)
-    {
-        status = (*func)(pDevHeader, filename, flags, mode);
-    }
-    else
-    {
-        status = OK;
-    }
+    status = (*func)(pDevHeader, filename, flags, mode);
 
     return status;
 }
@@ -811,20 +790,13 @@ int iosClose(
     else
     {
         func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_close;
-        if (func != NULL)
-        {
-            status = (*func)(pFdEntry->value);
-        }
-        else
-        {
-            status = OK;
-        }
+        status = (*func)(pFdEntry->value);
 
         /* Remove fd */
         iosFdFree(STD_FIX(fDesc));
     }
 
-  return status;
+    return status;
 }
 
 /******************************************************************************
@@ -853,15 +825,7 @@ int iosRead(
     else
     {
         func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_read;
-        if (func != NULL)
-        {
-            status = (*func)(pFdEntry->value, buffer, maxBytes);
-        }
-        else
-        {
-            errnoSet(EOPNOTSUPP);
-            status = ERROR;
-        }
+        status = (*func)(pFdEntry->value, buffer, maxBytes);
     }
 
     return status;
@@ -893,15 +857,7 @@ int iosWrite(
     else
     {
         func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_write;
-        if (func != NULL)
-        {
-            status = (*func)(pFdEntry->value, buffer, maxBytes);
-        }
-        else
-        {
-            errnoSet(EOPNOTSUPP);
-            status = ERROR;
-        }
+        status = (*func)(pFdEntry->value, buffer, maxBytes);
     }
 
     return status;
@@ -941,23 +897,7 @@ int iosIoctl(
         else
         {
             func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_ioctl;
-            if (func != NULL)
-            {
-                status = (*func)(pFdEntry->value, function, arg);
-            }
-            else
-            {
-                if (function == FIONREAD)
-                {
-                    *(char *) arg = 0;
-                    status = OK;
-                }
-                else
-                {
-                    errnoSet(S_ioLib_UNKNOWN_REQUEST);
-                    status = ERROR;
-                }
-            }
+            status = (*func)(pFdEntry->value, function, arg);
         }
     }
 
