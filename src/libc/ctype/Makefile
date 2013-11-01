@@ -20,8 +20,8 @@
 
 # Makefile - Standard library for C
 
-OBJS = abs.o itoa.o itox.o strtol.o rand.o div.o ldiv.o malloc.o realloc.o \
-       free.o exit.o
+OBJS = ctypeLib.o isalnum.o isalpha.o iscntrl.o isdigit.o isgraph.o islower.o \
+       isprint.o ispunct.o isspace.o isupper.o isxdigit.o tolower.o toupper.o
 SUBDIRS =
 LIB_TGT = stdc
 

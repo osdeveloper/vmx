@@ -202,6 +202,16 @@ void* free(
     void *ptr
     );
 
+/******************************************************************************
+ * exit - Exit from task
+ *
+ * RETURNS: N/A
+ */
+
+void exit(
+    int status
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

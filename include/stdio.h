@@ -264,6 +264,16 @@ int getchar(
     );
 
 /******************************************************************************
+ * gets - Get string from stdin
+ *
+ * RETURNS: Pointer to string
+ */
+
+char* gets(
+    char *buf
+    );
+
+/******************************************************************************
  * putc - Put character on stream
  *
  * RETURNS: Character or EOF
@@ -294,29 +304,48 @@ int puts(
     const char *str
     );
 
-int setvbuf(FILE *fp, char *buf, int mode, size_t size);
-size_t fread(void *buf, size_t size, size_t count, FILE *fp);
-size_t fwrite(const void *buf, size_t size, size_t count, FILE *fp);
-int ungetc(int c, FILE *fp);
+/******************************************************************************
+ * setvbuf - Set stdio buffer mode and options
+ *
+ * RETURNS: 0 or EOF
+ */
 
-extern int printf(const char *fmt, ...);
-extern int asprintf(char **app, const char *fmt, ...);
-extern int sprintf(char *sp, const char *fmt, ...);
-extern int snprintf(char *sp, size_t size, const char *fmt, ...);
-extern int fprintf(FILE * fp, const char *fmt, ...);
-extern int fnprintf(FILE * fp, size_t size, const char *fmt, ...);
-extern int vprintf(const char *fmt, va_list ap);
-extern int vfprintf(FILE * op, const char *fmt, va_list ap);
-extern int vsprintf(char *sp, const char *fmt, va_list ap);
-extern int vsnprintf(char *sp, size_t size, const char *fmt, va_list ap);
-extern int fdprintf(int fd, const char *fmt, ...);
-extern int vdprintf(int fd, const char *fmt, va_list ap);
-extern int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap);
+int setvbuf(
+    FILE *fp,
+    char *buf,
+    int mode,
+    size_t size
+    );
 
-extern int scanf(const char *fmt, ...);
-extern int sscanf(const char *s, const char *fmt, ...);
-extern int fscanf(FILE *fp, const char *fmt, ...);
-extern int vfscanf(FILE *fp, const char *format, va_list ap);
+/******************************************************************************
+ * ungetc - Unget character in stream
+ *
+ * RETURNS: 0 or EOF
+ */
+
+int ungetc(
+    int c,
+    FILE *fp
+    );
+
+int printf(const char *fmt, ...);
+int asprintf(char **app, const char *fmt, ...);
+int sprintf(char *sp, const char *fmt, ...);
+int snprintf(char *sp, size_t size, const char *fmt, ...);
+int fprintf(FILE * fp, const char *fmt, ...);
+int fnprintf(FILE * fp, size_t size, const char *fmt, ...);
+int vprintf(const char *fmt, va_list ap);
+int vfprintf(FILE * op, const char *fmt, va_list ap);
+int vsprintf(char *sp, const char *fmt, va_list ap);
+int vsnprintf(char *sp, size_t size, const char *fmt, va_list ap);
+int fdprintf(int fd, const char *fmt, ...);
+int vdprintf(int fd, const char *fmt, va_list ap);
+int vfnprintf(FILE * op, size_t max_size, const char *fmt, va_list ap);
+
+int scanf(const char *fmt, ...);
+int sscanf(const char *s, const char *fmt, ...);
+int fscanf(FILE *fp, const char *fmt, ...);
+int vfscanf(FILE *fp, const char *format, va_list ap);
 
 #ifdef __cplusplus
 }
