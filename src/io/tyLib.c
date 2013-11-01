@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ttyLib.c - tty support library */
+/* tyLib.c - Typewriter support library */
 
 #include <stdlib.h>
 #include <stdlib.h>
@@ -28,7 +28,7 @@
 #include <arch/sysArchLib.h>
 #include <vmx/errnoLib.h>
 #include <io/ioLib.h>
-#include <io/ttyLib.h>
+#include <io/tyLib.h>
 
 #define XON                     0x11
 #define XOFF                    0x13
@@ -43,65 +43,65 @@ IMPORT FUNCPTR _func_selWakeupAll;
 #endif
 
 /* Locals */
-LOCAL int       ttyMutexOptions         = SEM_Q_FIFO | SEM_DELETE_SAFE;
-LOCAL FUNCPTR   ttyAbortFunc            = NULL;
-LOCAL char      ttyAbortChar            = 0x03;
-LOCAL char      ttyBackSpaceChar        = 0x08;
-LOCAL char      ttyDeleteLineChar       = 0x15;
-LOCAL char      ttyEofChar              = 0x04;
-LOCAL char      ttyMonitorTrapChar      = 0x18;
-LOCAL int       ttyXoffTreshold         = 80;
-LOCAL int       ttyXonTreshold          = 100;
-LOCAL int       ttyWriteTreshold        = 20;
-LOCAL int       ttyXoffChars            = 0;
-LOCAL int       ttyXoffMaxChars         = 0;
+LOCAL int       tyMutexOptions          = SEM_Q_FIFO | SEM_DELETE_SAFE;
+LOCAL FUNCPTR   tyAbortFunc             = NULL;
+LOCAL char      tyAbortChar             = 0x03;
+LOCAL char      tyBackSpaceChar         = 0x08;
+LOCAL char      tyDeleteLineChar        = 0x15;
+LOCAL char      tyEofChar               = 0x04;
+LOCAL char      tyMonitorTrapChar       = 0x18;
+LOCAL int       tyXoffTreshold          = 80;
+LOCAL int       tyXonTreshold           = 100;
+LOCAL int       tyWriteTreshold         = 20;
+LOCAL int       tyXoffChars             = 0;
+LOCAL int       tyXoffMaxChars          = 0;
 
-LOCAL void ttyFlush(
-    TTY_DEV_ID ttyId
+LOCAL void tyFlush(
+    TY_DEV_ID tyId
     );
 
-LOCAL void ttyFlushRead(
-    TTY_DEV_ID ttyId
+LOCAL void tyFlushRead(
+    TY_DEV_ID tyId
     );
 
-LOCAL void ttyFlushWrite(
-    TTY_DEV_ID ttyId
+LOCAL void tyFlushWrite(
+    TY_DEV_ID tyId
     );
 
-LOCAL void ttyReadXoff(
-    TTY_DEV_ID ttyId,
+LOCAL void tyReadXoff(
+    TY_DEV_ID tyId,
     BOOL xoff
     );
 
-LOCAL void ttyWriteXoff(
-    TTY_DEV_ID ttyId,
+LOCAL void tyWriteXoff(
+    TY_DEV_ID tyId,
     BOOL xoff
     );
 
-LOCAL void ttyTxStartup(
-    TTY_DEV_ID ttyId
+LOCAL void tyTxStartup(
+    TY_DEV_ID tyId
     );
 
 #ifndef NO_SELECT
-LOCAL void ttySelAdd(
-    TTY_DEV_ID ttyId,
+LOCAL void tySelAdd(
+    TY_DEV_ID tyId,
     int arg
     );
 
-LOCAL void ttySelDelete(
-    TTY_DEV_ID ttyId,
+LOCAL void tySelDelete(
+    TY_DEV_ID tyId,
     int arg
     );
 #endif
 
 /******************************************************************************
- * ttyDevInit - Intialize a tty device
+ * tyDevInit - Intialize a typewriter device
  *
  * RETURNS: OR or ERROR
  */
 
-STATUS ttyDevInit(
-    TTY_DEV_ID ttyId,
+STATUS tyDevInit(
+    TY_DEV_ID tyId,
     int readBufferSize,
     int writeBufferSize,
     FUNCPTR txStartup
@@ -110,41 +110,41 @@ STATUS ttyDevInit(
     STATUS status;
 
     /* Clear struct */
-    memset(ttyId, 0, sizeof(TTY_DEV));
+    memset(tyId, 0, sizeof(TY_DEV));
 
     /* Allocate ring buffers */
-    ttyId->readBuffer = rngCreate(readBufferSize);
-    if (ttyId->readBuffer == NULL)
+    tyId->readBuffer = rngCreate(readBufferSize);
+    if (tyId->readBuffer == NULL)
     {
         status = ERROR;
     }
     else
     {
-        ttyId->writeBuffer = rngCreate(writeBufferSize);
-        if (ttyId->writeBuffer == NULL)
+        tyId->writeBuffer = rngCreate(writeBufferSize);
+        if (tyId->writeBuffer == NULL)
         {
-            rngDelete(ttyId->readBuffer);
+            rngDelete(tyId->readBuffer);
             status = ERROR;
         }
         else
         {
             /* Initialize struct */
-            ttyId->txStartup = txStartup;
+            tyId->txStartup = txStartup;
 
             /* Initialize semaphores */
-            semBInit(&ttyId->readSync, SEM_Q_PRIORITY, SEM_EMPTY);
-            semBInit(&ttyId->writeSync, SEM_Q_PRIORITY, SEM_EMPTY);
-            semMInit(&ttyId->mutex, ttyMutexOptions);
+            semBInit(&tyId->readSync, SEM_Q_PRIORITY, SEM_EMPTY);
+            semBInit(&tyId->writeSync, SEM_Q_PRIORITY, SEM_EMPTY);
+            semMInit(&tyId->mutex, tyMutexOptions);
 
 #ifndef NO_SELECT
             /* Initialize select list if installed */
             if (_func_selWakeupListInit != NULL)
             {
-                (*_func_selWakeupListInit)(&ttyId->selWakeupList);
+                (*_func_selWakeupListInit)(&tyId->selWakeupList);
             }
 #endif
 
-            ttyFlush(ttyId);
+            tyFlush(tyId);
             status = OK;
         }
     }
@@ -153,40 +153,40 @@ STATUS ttyDevInit(
 }
 
 /******************************************************************************
- * ttyDevRemove - Remove a tty device
+ * tyDevRemove - Remove a typewriter device
  *
  * RETURNS: OR or ERROR
  */
 
-STATUS ttyDevRemove(
-    TTY_DEV_ID ttyId
+STATUS tyDevRemove(
+    TY_DEV_ID tyId
     )
 {
     STATUS status;
 
     /* Remove buffers */
-    semTake(&ttyId->mutex, WAIT_FOREVER);
+    semTake(&tyId->mutex, WAIT_FOREVER);
 
-    if (ttyId->readBuffer == NULL)
+    if (tyId->readBuffer == NULL)
     {
-        semGive(&ttyId->mutex);
+        semGive(&tyId->mutex);
         status = ERROR;
     }
     else
     {
-        ttyId->readState.flushingReadBuffer = TRUE;
-        rngDelete(ttyId->readBuffer);
+        tyId->readState.flushingReadBuffer = TRUE;
+        rngDelete(tyId->readBuffer);
 
-        if (ttyId->writeBuffer == NULL)
+        if (tyId->writeBuffer == NULL)
         {
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
             status = ERROR;
         }
         else
         {
-            rngDelete(ttyId->writeBuffer);
-            ttyId->writeState.flushingWriteBuffer = TRUE;
-            semGive(&ttyId->mutex);
+            rngDelete(tyId->writeBuffer);
+            tyId->writeState.flushingWriteBuffer = TRUE;
+            semGive(&tyId->mutex);
             status = OK;
         }
     }
@@ -195,91 +195,91 @@ STATUS ttyDevRemove(
 }
 
 /******************************************************************************
- * ttyAbortFuncSet - Set abort function
+ * tyAbortFuncSet - Set abort function
  *
  * RETURNS: N/A
  */
 
-void ttyAbortFuncSet(
+void tyAbortFuncSet(
     FUNCPTR func
     )
 {
-    ttyAbortFunc = func;
+    tyAbortFunc = func;
 }
 
 /******************************************************************************
- * ttyAbortSet - Set abort char
+ * tyAbortSet - Set abort char
  *
  * RETURNS: N/A
  */
 
-void ttyAbortSet(
+void tyAbortSet(
     char c
     )
 {
-    ttyAbortChar = c;
+    tyAbortChar = c;
 }
 
 /******************************************************************************
- * ttyBackSpaceSet - Set backspace char
+ * tyBackSpaceSet - Set backspace char
  *
  * RETURNS: N/A
  */
 
-void ttyBackSpaceSet(
+void tyBackSpaceSet(
     char c
     )
 {
-    ttyBackSpaceChar = c;
+    tyBackSpaceChar = c;
 }
 
 /******************************************************************************
- * ttyDeleteLineSet - Set line delete char
+ * tyDeleteLineSet - Set line delete char
  *
  * RETURNS: N/A
  */
 
-void ttyDeleteLineSet(
+void tyDeleteLineSet(
     char c
     )
 {
-    ttyDeleteLineChar = c;
+    tyDeleteLineChar = c;
 }
 
 /******************************************************************************
- * ttyEOFSet - Set end of file char
+ * tyEOFSet - Set end of file char
  *
  * RETURNS: N/A
  */
 
-void ttyEOFSet(
+void tyEOFSet(
     char c
     )
 {
-    ttyEofChar = c;
+    tyEofChar = c;
 }
 
 /******************************************************************************
- * ttyMonitorTrapSet - Set monitor trap char
+ * tyMonitorTrapSet - Set monitor trap char
  *
  * RETURNS: N/A
  */
 
-void ttyMonitorTrapSet(
+void tyMonitorTrapSet(
     char c
     )
 {
-    ttyMonitorTrapChar = c;
+    tyMonitorTrapChar = c;
 }
 
 /******************************************************************************
- * ttyIoctl - Control request
+ * tyIoctl - Control request
  *
  * RETURNS: OK or ERROR
  */
 
-int ttyIoctl(
-    TTY_DEV_ID ttyId,
+int tyIoctl(
+    TY_DEV_ID tyId,
     int req,
     int arg
     )
@@ -291,67 +291,67 @@ int ttyIoctl(
     switch(req)
     {
         case FIONREAD:
-            *((int *) arg) = rngNBytes(ttyId->readBuffer);
+            *((int *) arg) = rngNBytes(tyId->readBuffer);
             rv = OK;
             break;
 
         case FIONWRITE:
-            *((int *) arg) = rngNBytes(ttyId->writeBuffer);
+            *((int *) arg) = rngNBytes(tyId->writeBuffer);
             rv = OK;
             break;
 
         case FIOFLUSH:
-            ttyFlush(ttyId);
+            tyFlush(tyId);
             rv = OK;
             break;
 
         case FIOCANCEL:
-            semTake(&ttyId->mutex, WAIT_FOREVER);
+            semTake(&tyId->mutex, WAIT_FOREVER);
 
             /* Cancel read transaction */
-            ttyId->readState.canceled = TRUE;
-            semGive(&ttyId->readSync);
+            tyId->readState.canceled = TRUE;
+            semGive(&tyId->readSync);
 
             /* Cancel write transaction */
-            ttyId->writeState.canceled = TRUE;
-            semGive(&ttyId->writeSync);
+            tyId->writeState.canceled = TRUE;
+            semGive(&tyId->writeSync);
 
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
             rv = OK;
             break;
 
         case FIORFLUSH:
-            ttyFlushRead(ttyId);
+            tyFlushRead(tyId);
             rv = OK;
             break;
 
         case FIOWFLUSH:
-            ttyFlushWrite(ttyId);
+            tyFlushWrite(tyId);
             rv = OK;
             break;
 
         case FIOGETOPTIONS:
-            rv = ttyId->options;
+            rv = tyId->options;
             break;
 
         case FIOSETOPTIONS:
             /* Store old */
-            old_opts = ttyId->options;
+            old_opts = tyId->options;
 
             /* Set new */
-            ttyId->options = arg;
+            tyId->options = arg;
 
             /* Check if read flushing is needed */
-            if ((old_opts & OPT_LINE) != (ttyId->options & OPT_LINE))
+            if ((old_opts & OPT_LINE) != (tyId->options & OPT_LINE))
             {
-                ttyFlushRead(ttyId);
+                tyFlushRead(tyId);
             }
 
             /* Check xoff options */
-            if ((old_opts & OPT_TANDEM) && !(ttyId->options & OPT_TANDEM))
+            if ((old_opts & OPT_TANDEM) && !(tyId->options & OPT_TANDEM))
             {
-                ttyReadXoff(ttyId, FALSE);
-                ttyWriteXoff(ttyId, FALSE);
+                tyReadXoff(tyId, FALSE);
+                tyWriteXoff(tyId, FALSE);
             }
 
             rv = OK;
@@ -362,29 +362,29 @@ int ttyIoctl(
             break;
 
         case FIOPROTOHOOK:
-            ttyId->protoHook = (FUNCPTR) arg;
+            tyId->protoHook = (FUNCPTR) arg;
             rv = OK;
             break;
 
         case FIOPROTOARG:
-            ttyId->protoArg = (ARG) arg;
+            tyId->protoArg = (ARG) arg;
             rv = OK;
             break;
 
         case FIORBUFSET:
-            semTake(&ttyId->mutex, WAIT_FOREVER);
+            semTake(&tyId->mutex, WAIT_FOREVER);
 
-            ttyId->readState.flushingReadBuffer = TRUE;
+            tyId->readState.flushingReadBuffer = TRUE;
 
             /* Delete old read buffer */
-            if (ttyId->readBuffer != NULL)
+            if (tyId->readBuffer != NULL)
             {
-                rngDelete(ttyId->readBuffer);
+                rngDelete(tyId->readBuffer);
             }
 
             /* Create new read buffer with arumented size */
-            ttyId->readBuffer = rngCreate(arg);
-            if (ttyId->readBuffer == NULL)
+            tyId->readBuffer = rngCreate(arg);
+            if (tyId->readBuffer == NULL)
             {
                 rv = ERROR;
             }
@@ -393,25 +393,25 @@ int ttyIoctl(
                 rv = OK;
             }
 
-            ttyId->readState.flushingReadBuffer = FALSE;
+            tyId->readState.flushingReadBuffer = FALSE;
 
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
             break;
 
         case FIOWBUFSET:
-            semTake(&ttyId->mutex, WAIT_FOREVER);
+            semTake(&tyId->mutex, WAIT_FOREVER);
 
-            ttyId->writeState.flushingWriteBuffer = TRUE;
+            tyId->writeState.flushingWriteBuffer = TRUE;
 
             /* Delete old write buffer */
-            if (ttyId->writeBuffer != NULL)
+            if (tyId->writeBuffer != NULL)
             {
-                rngDelete(ttyId->writeBuffer);
+                rngDelete(tyId->writeBuffer);
             }
 
             /* Create new write buffer with arumented size */
-            ttyId->writeBuffer = rngCreate(arg);
-            if (ttyId->writeBuffer == NULL)
+            tyId->writeBuffer = rngCreate(arg);
+            if (tyId->writeBuffer == NULL)
             {
                 rv = ERROR;
             }
@@ -420,19 +420,19 @@ int ttyIoctl(
                 rv = OK;
             }
 
-            ttyId->writeState.flushingWriteBuffer = FALSE;
+            tyId->writeState.flushingWriteBuffer = FALSE;
 
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
             break;
 
 #ifndef NO_SELECT
         case FIOSELECT:
-            ttySelAdd(ttyId, arg);
+            tySelAdd(tyId, arg);
             rv = OK;
             break;
 
         case FIOUNSELECT:
-            ttySelDelete(ttyId, arg);
+            tySelDelete(tyId, arg);
             rv = OK;
             break;
 #endif
@@ -447,13 +447,13 @@ int ttyIoctl(
 }
 
 /******************************************************************************
- * ttyWrite - Write to tty
+ * tyWrite - Write to typewriter
  *
  * RETURNS: Number of bytes written
  */
 
-int ttyWrite(
-    TTY_DEV_ID ttyId,
+int tyWrite(
+    TY_DEV_ID tyId,
     char *buffer,
     int nBytes
     )
@@ -462,40 +462,40 @@ int ttyWrite(
     int nStart = nBytes;
     int result = 0;
 
-    ttyId->writeState.canceled = FALSE;
+    tyId->writeState.canceled = FALSE;
 
     while (nBytes > 0)
     {
-        semTake(&ttyId->writeSync, WAIT_FOREVER);
-        semTake(&ttyId->mutex, WAIT_FOREVER);
+        semTake(&tyId->writeSync, WAIT_FOREVER);
+        semTake(&tyId->mutex, WAIT_FOREVER);
 
         /* Check if write was canceled */
-        if (ttyId->writeState.canceled == TRUE)
+        if (tyId->writeState.canceled == TRUE)
         {
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
             errnoSet(S_ioLib_CANCELLED);
             result = nStart - nBytes;
             break;
         }
         else
         {
-            ttyId->writeState.writeBufferBusy = TRUE;
-            bwrote = rngBufPut(ttyId->writeBuffer, buffer, nBytes);
-            ttyId->writeState.writeBufferBusy = FALSE;
+            tyId->writeState.writeBufferBusy = TRUE;
+            bwrote = rngBufPut(tyId->writeBuffer, buffer, nBytes);
+            tyId->writeState.writeBufferBusy = FALSE;
 
-            ttyTxStartup(ttyId);
+            tyTxStartup(tyId);
 
             nBytes -= bwrote;
             result += bwrote;
             buffer += bwrote;
 
             /* Check if more room is avilable */
-            if (rngFreeBytes(ttyId->writeBuffer) > 0)
+            if (rngFreeBytes(tyId->writeBuffer) > 0)
             {
-                semGive(&ttyId->writeSync);
+                semGive(&tyId->writeSync);
             }
 
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
         }
     }
 
@@ -503,13 +503,13 @@ int ttyWrite(
 }
 
 /******************************************************************************
- * ttyRead - Read from tty
+ * tyRead - Read from typewriter
  *
  * RETURNS: Number of bytes read
  */
 
-int ttyRead(
-    TTY_DEV_ID ttyId,
+int tyRead(
+    TY_DEV_ID tyId,
     char *buffer,
     int nBytes
     )
@@ -518,7 +518,7 @@ int ttyRead(
     BOOL canceled;
     RING_ID ringId;
 
-    ttyId->readState.canceled = FALSE;
+    tyId->readState.canceled = FALSE;
     canceled = FALSE;
 
     /* Loop until read ring is not empty */
@@ -527,13 +527,13 @@ int ttyRead(
         /* Don't know why sleep is needed here */
         /* taskDelay(1); */
 
-        semTake(&ttyId->readSync, WAIT_FOREVER);
-        semTake(&ttyId->mutex, WAIT_FOREVER);
+        semTake(&tyId->readSync, WAIT_FOREVER);
+        semTake(&tyId->mutex, WAIT_FOREVER);
 
         /* Check if write was canceled */
-        if (ttyId->readState.canceled == TRUE)
+        if (tyId->readState.canceled == TRUE)
         {
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
             errnoSet(S_ioLib_CANCELLED);
             n = 0;
             canceled = TRUE;
@@ -541,29 +541,29 @@ int ttyRead(
         }
         else
         {
-            ringId = ttyId->readBuffer;
+            ringId = tyId->readBuffer;
             if (rngIsEmpty(ringId) == FALSE)
             {
                 break;
             }
 
-            semGive(&ttyId->mutex);
+            semGive(&tyId->mutex);
         }
     }
 
     if (canceled == FALSE)
     {
         /* Get characters from ring buffer */
-        if (ttyId->options & OPT_LINE)
+        if (tyId->options & OPT_LINE)
         {
-            if (ttyId->lnBytesLeft == 0)
+            if (tyId->lnBytesLeft == 0)
             {
-                RNG_ELEM_GET(ringId, &ttyId->lnBytesLeft, nn);
+                RNG_ELEM_GET(ringId, &tyId->lnBytesLeft, nn);
             }
 
-            n = min((int) ttyId->lnBytesLeft, nBytes);
+            n = min((int) tyId->lnBytesLeft, nBytes);
             rngBufGet(ringId, buffer, n);
-            ttyId->lnBytesLeft -= n;
+            tyId->lnBytesLeft -= n;
         }
         else
         {
@@ -571,40 +571,40 @@ int ttyRead(
         }
 
         /* Check xon */
-        if ((ttyId->options & OPT_TANDEM) && (ttyId->readState.xoff == TRUE))
+        if ((tyId->options & OPT_TANDEM) && (tyId->readState.xoff == TRUE))
         {
             freeBytes = rngFreeBytes(ringId);
-            if (ttyId->options & OPT_LINE)
+            if (tyId->options & OPT_LINE)
             {
-                freeBytes -= ttyId->lnNBytes + 1;
+                freeBytes -= tyId->lnNBytes + 1;
             }
 
-            if (freeBytes > ttyXonTreshold)
+            if (freeBytes > tyXonTreshold)
             {
-                ttyReadXoff(ttyId, FALSE);
+                tyReadXoff(tyId, FALSE);
             }
         }
 
         /* Check if there is more to read */
         if (rngIsEmpty(ringId) == FALSE)
         {
-            semGive(&ttyId->readSync);
+            semGive(&tyId->readSync);
         }
 
-        semGive(&ttyId->mutex);
+        semGive(&tyId->mutex);
     }
 
     return n;
 }
 
 /******************************************************************************
- * ttyTx - tty transmit from interrupt
+ * tyTx - Typewriter transmit from interrupt
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS ttyIntTx(
-    TTY_DEV_ID ttyId,
+STATUS tyIntTx(
+    TY_DEV_ID tyId,
     char *pc
     )
 {
@@ -612,60 +612,60 @@ STATUS ttyIntTx(
     RING_ID ringId;
     int nn;
 
-    ringId = ttyId->writeBuffer;
+    ringId = tyId->writeBuffer;
 
     /* Check xon/xoff */
-    if (ttyId->readState.pending == TRUE)
+    if (tyId->readState.pending == TRUE)
     {
-        ttyId->readState.pending = FALSE;
-        *pc = (ttyId->readState.xoff == TRUE) ? XOFF : XON;
+        tyId->readState.pending = FALSE;
+        *pc = (tyId->readState.xoff == TRUE) ? XOFF : XON;
 
-        if (ttyId->readState.xoff == TRUE)
+        if (tyId->readState.xoff == TRUE)
         {
-            if (ttyXoffChars > ttyXoffMaxChars)
+            if (tyXoffChars > tyXoffMaxChars)
             {
-                ttyXoffMaxChars = ttyXoffChars;
+                tyXoffMaxChars = tyXoffChars;
             }
-            ttyXoffChars = 0;
+            tyXoffChars = 0;
         }
     }
-    else if ((ttyId->writeState.xoff == TRUE) ||
-             (ttyId->writeState.flushingWriteBuffer == TRUE))
+    else if ((tyId->writeState.xoff == TRUE) ||
+             (tyId->writeState.flushingWriteBuffer == TRUE))
     {
-        ttyId->writeState.busy = FALSE;
+        tyId->writeState.busy = FALSE;
     }
-    else if (ttyId->writeState.cr == TRUE)
+    else if (tyId->writeState.cr == TRUE)
     {
         *pc = '\n';
-        ttyId->writeState.cr = FALSE;
+        tyId->writeState.cr = FALSE;
     }
     else if (RNG_ELEM_GET(ringId, pc, nn) == FALSE)
     {
-        ttyId->writeState.busy = FALSE;
+        tyId->writeState.busy = FALSE;
     }
     else
     {
-        ttyId->writeState.busy = TRUE;
+        tyId->writeState.busy = TRUE;
 
-        if ((ttyId->options & OPT_CRMOD) && (*pc == '\n'))
+        if ((tyId->options & OPT_CRMOD) && (*pc == '\n'))
         {
             *pc = '\r';
-            ttyId->writeState.cr = TRUE;
+            tyId->writeState.cr = TRUE;
         }
 
-        if (rngFreeBytes(ringId) == ttyWriteTreshold)
+        if (rngFreeBytes(ringId) == tyWriteTreshold)
         {
-            semGive(&ttyId->writeSync);
+            semGive(&tyId->writeSync);
 #ifndef NO_SELECT
             if (_func_selWakeupAll != NULL)
             {
-                (*_func_selWakeupAll)(&ttyId->selWakeupList, SELWRITE);
+                (*_func_selWakeupAll)(&tyId->selWakeupList, SELWRITE);
             }
 #endif
         }
     }
 
-    if (ttyId->writeState.busy == FALSE)
+    if (tyId->writeState.busy == FALSE)
     {
         status = ERROR;
     }
@@ -678,13 +678,13 @@ STATUS ttyIntTx(
 }
 
 /******************************************************************************
- * ttyIntRd - tty read from interrupt
+ * tyIntRd - Typewriter read from interrupt
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS ttyIntRd(
-    TTY_DEV_ID ttyId,
+STATUS tyIntRd(
+    TY_DEV_ID tyId,
     char c
     )
 {
@@ -692,19 +692,19 @@ STATUS ttyIntRd(
     int nn, freeBytes;
     BOOL hookRv;
     BOOL releaseTaskLevel;
-    int options = ttyId->options;
+    int options = tyId->options;
     BOOL echoed = FALSE;
     STATUS status = OK;
 
-    if (ttyId->readState.flushingReadBuffer == TRUE)
+    if (tyId->readState.flushingReadBuffer == TRUE)
     {
         status = ERROR;
     }
     else
     {
-        if (ttyId->protoHook != NULL)
+        if (tyId->protoHook != NULL)
         {
-            hookRv = (*ttyId->protoHook)(ttyId->protoArg, c);
+            hookRv = (*tyId->protoHook)(tyId->protoArg, c);
         }
         else
         {
@@ -720,14 +720,14 @@ STATUS ttyIntRd(
             }
 
             /* Check for abort */
-            if ((c == ttyAbortChar) && (options & OPT_ABORT))
+            if ((c == tyAbortChar) && (options & OPT_ABORT))
             {
-                if (ttyAbortFunc != NULL)
+                if (tyAbortFunc != NULL)
                 {
-                    (*ttyAbortFunc)();
+                    (*tyAbortFunc)();
                 }
             }
-            else if ((c == ttyMonitorTrapChar) && (options & OPT_MON_TRAP))
+            else if ((c == tyMonitorTrapChar) && (options & OPT_MON_TRAP))
             {
 #ifndef NO_EXCHOOKS
                 if (_func_excJobAdd != NULL)
@@ -750,14 +750,14 @@ STATUS ttyIntRd(
             }
             else if (((c == XOFF) || (c == XOFF)) && (options & OPT_TANDEM))
             {
-                ttyWriteXoff(ttyId, (c == XOFF) ? TRUE : FALSE);
+                tyWriteXoff(tyId, (c == XOFF) ? TRUE : FALSE);
             }
             else
             {
                 /* Count number of chars while in xoff */
-                if (ttyId->readState.xoff == TRUE)
+                if (tyId->readState.xoff == TRUE)
                 {
-                    ttyXoffChars++;
+                    tyXoffChars++;
                 }
 
                 /* Check carriage return */
@@ -768,22 +768,22 @@ STATUS ttyIntRd(
 
                 /* Check for echo on */
                 if ((options & OPT_ECHO) &&
-                    (ttyId->writeState.writeBufferBusy == FALSE) &&
-                    (ttyId->writeState.flushingWriteBuffer == FALSE))
+                    (tyId->writeState.writeBufferBusy == FALSE) &&
+                    (tyId->writeState.flushingWriteBuffer == FALSE))
                 {
-                    ringId = ttyId->writeBuffer;
+                    ringId = tyId->writeBuffer;
 
                     /* Check for line options */
                     if (options & OPT_LINE)
                     {
-                        if (c == ttyDeleteLineChar)
+                        if (c == tyDeleteLineChar)
                         {
                             RNG_ELEM_PUT(ringId, '\n', nn);
                             echoed = TRUE;
                         }
-                        else if (c == ttyBackSpaceChar)
+                        else if (c == tyBackSpaceChar)
                         {
-                            if (ttyId->lnNBytes != 0)
+                            if (tyId->lnNBytes != 0)
                             {
                                 /* echo backspace-space-backspace */
                                 rngBufPut(ringId, "\b \b", 3);
@@ -812,12 +812,12 @@ STATUS ttyIntRd(
                     /* If echo start tx */
                     if (echoed == TRUE)
                     {
-                        ttyTxStartup(ttyId);
+                        tyTxStartup(tyId);
                     }
                 }
 
                 /* Put char in read buffer */
-                ringId = ttyId->readBuffer;
+                ringId = tyId->readBuffer;
                 releaseTaskLevel = FALSE;
 
                 /* Check for non-line options */
@@ -837,18 +837,18 @@ STATUS ttyIntRd(
                 {
                     freeBytes = rngFreeBytes(ringId);
 
-                    if (c == ttyBackSpaceChar)
+                    if (c == tyBackSpaceChar)
                     {
-                        if (ttyId->lnNBytes != 0)
+                        if (tyId->lnNBytes != 0)
                         {
-                            ttyId->lnNBytes--;
+                            tyId->lnNBytes--;
                         }
                     }
-                    else if (c == ttyDeleteLineChar)
+                    else if (c == tyDeleteLineChar)
                     {
-                        ttyId->lnNBytes = 0;
+                        tyId->lnNBytes = 0;
                     }
-                    else if (c == ttyEofChar)
+                    else if (c == tyEofChar)
                     {
                         if (freeBytes > 0)
                         {
@@ -860,18 +860,18 @@ STATUS ttyIntRd(
                         /* Check for freeBytes >= 2 */
                         if (freeBytes >= 2)
                         {
-                            if (freeBytes >= (ttyId->lnNBytes + 2))
+                            if (freeBytes >= (tyId->lnNBytes + 2))
                             {
-                                ttyId->lnNBytes++;
+                                tyId->lnNBytes++;
                             }
                             else
                             {
                                 status = ERROR;
                             }
 
-                            rngPutAhead(ringId, c, (int) ttyId->lnNBytes);
+                            rngPutAhead(ringId, c, (int) tyId->lnNBytes);
 
-                            if ((c == '\n') || (ttyId->lnNBytes == 255))
+                            if ((c == '\n') || (tyId->lnNBytes == 255))
                             {
                                 releaseTaskLevel = TRUE;
                             }
@@ -884,9 +884,9 @@ STATUS ttyIntRd(
 
                     if (releaseTaskLevel == TRUE)
                     {
-                        rngPutAhead(ringId, (char) ttyId->lnNBytes, 0);
-                        rngMoveAhead(ringId, (int) ttyId->lnNBytes + 1);
-                        ttyId->lnNBytes = 0;
+                        rngPutAhead(ringId, (char) tyId->lnNBytes, 0);
+                        rngMoveAhead(ringId, (int) tyId->lnNBytes + 1);
+                        tyId->lnNBytes = 0;
                     }
                 }
 
@@ -894,34 +894,34 @@ STATUS ttyIntRd(
                 if (options & OPT_TANDEM)
                 {
                     freeBytes = rngFreeBytes(ringId);
-                    if (ttyId->options & OPT_LINE)
+                    if (tyId->options & OPT_LINE)
                     {
-                        freeBytes -= ttyId->lnNBytes + 1;
+                        freeBytes -= tyId->lnNBytes + 1;
                     }
 
-                    if (ttyId->readState.xoff == FALSE)
+                    if (tyId->readState.xoff == FALSE)
                     {
-                        if (freeBytes < ttyXoffTreshold)
+                        if (freeBytes < tyXoffTreshold)
                         {
-                            ttyReadXoff(ttyId, TRUE);
+                            tyReadXoff(tyId, TRUE);
                         }
                     }
                     else
                     {
-                        if (freeBytes > ttyXonTreshold)
+                        if (freeBytes > tyXonTreshold)
                         {
-                            ttyReadXoff(ttyId, FALSE);
+                            tyReadXoff(tyId, FALSE);
                         }
                     }
                 }
 
                 if (releaseTaskLevel == TRUE)
                 {
-                    semGive(&ttyId->readSync);
+                    semGive(&tyId->readSync);
 #ifndef NO_SELECT
                     if (_func_selWakeupAll != NULL)
                     {
-                        (*_func_selWakeupAll)(&ttyId->selWakeupList, SELREAD);
+                        (*_func_selWakeupAll)(&tyId->selWakeupList, SELREAD);
                     }
 #endif
                 }
@@ -933,90 +933,90 @@ STATUS ttyIntRd(
 }
 
 /******************************************************************************
- * ttyFlush - Flush a tty device
+ * tyFlush - Flush a typewriter device
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttyFlush(
-    TTY_DEV_ID ttyId
+LOCAL void tyFlush(
+    TY_DEV_ID tyId
     )
 {
-    ttyFlushRead(ttyId);
-    ttyFlushWrite(ttyId);
+    tyFlushRead(tyId);
+    tyFlushWrite(tyId);
 }
 
 /******************************************************************************
- * ttyFlushRead - Flush a tty devices read buffer
+ * tyFlushRead - Flush a typewriter devices read buffer
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttyFlushRead(
-    TTY_DEV_ID ttyId
+LOCAL void tyFlushRead(
+    TY_DEV_ID tyId
     )
 {
     int oldErrno;
 
-    semTake(&ttyId->mutex, WAIT_FOREVER);
+    semTake(&tyId->mutex, WAIT_FOREVER);
 
-    ttyId->readState.flushingReadBuffer = TRUE;
-    rngFlush(ttyId->readBuffer);
+    tyId->readState.flushingReadBuffer = TRUE;
+    rngFlush(tyId->readBuffer);
 
     oldErrno = errnoGet();
-    semTake(&ttyId->readSync, WAIT_NONE);
+    semTake(&tyId->readSync, WAIT_NONE);
     if (errnoGet() == S_objLib_UNAVAILABLE)
     {
         errnoSet(oldErrno);
     }
 
-    ttyId->lnNBytes = 0;
-    ttyId->lnBytesLeft = 0;
+    tyId->lnNBytes = 0;
+    tyId->lnBytesLeft = 0;
 
-    ttyReadXoff(ttyId, FALSE);
+    tyReadXoff(tyId, FALSE);
 
-    ttyId->readState.flushingReadBuffer = FALSE;
+    tyId->readState.flushingReadBuffer = FALSE;
 
-    semGive(&ttyId->mutex);
+    semGive(&tyId->mutex);
 }
 
 /******************************************************************************
- * ttyFlushWrite - Flush a tty devices write buffer
+ * tyFlushWrite - Flush a typewriter device write buffer
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttyFlushWrite(
-    TTY_DEV_ID ttyId
+LOCAL void tyFlushWrite(
+    TY_DEV_ID tyId
     )
 {
-    semTake(&ttyId->mutex, WAIT_FOREVER);
+    semTake(&tyId->mutex, WAIT_FOREVER);
 
-    ttyId->writeState.flushingWriteBuffer = TRUE;
-    rngFlush(ttyId->writeBuffer);
-    semGive(&ttyId->writeSync);
+    tyId->writeState.flushingWriteBuffer = TRUE;
+    rngFlush(tyId->writeBuffer);
+    semGive(&tyId->writeSync);
 
-    ttyId->writeState.flushingWriteBuffer = FALSE;
+    tyId->writeState.flushingWriteBuffer = FALSE;
 
-    semGive(&ttyId->mutex);
+    semGive(&tyId->mutex);
 
 #ifndef NO_SELECT
     /* Wakeup select if installed */
     if (_func_selWakeupAll != NULL)
     {
-        (*_func_selWakeupAll) (&ttyId->selWakeupList, SELWRITE);
+        (*_func_selWakeupAll) (&tyId->selWakeupList, SELWRITE);
     }
 #endif
 }
 
 /******************************************************************************
- * ttyReadXoff - Set read xon/xoff
+ * tyReadXoff - Set read xon/xoff
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttyReadXoff(
-    TTY_DEV_ID ttyId,
+LOCAL void tyReadXoff(
+    TY_DEV_ID tyId,
     BOOL xoff
     )
 {
@@ -1024,16 +1024,16 @@ LOCAL void ttyReadXoff(
 
     INT_LOCK(level);
 
-    if (ttyId->readState.xoff != xoff)
+    if (tyId->readState.xoff != xoff)
     {
-        ttyId->readState.xoff = xoff;
-        ttyId->readState.pending = TRUE;
+        tyId->readState.xoff = xoff;
+        tyId->readState.pending = TRUE;
 
-        if (ttyId->writeState.busy == FALSE)
+        if (tyId->writeState.busy == FALSE)
         {
-            ttyId->writeState.busy = TRUE;
+            tyId->writeState.busy = TRUE;
             INT_UNLOCK(level);
-            (*ttyId->txStartup)(ttyId);
+            (*tyId->txStartup)(tyId);
         }
         else
         {
@@ -1047,13 +1047,13 @@ LOCAL void ttyReadXoff(
 }
 
 /******************************************************************************
- * ttyWriteXoff - Set write xon/xoff
+ * tyWriteXoff - Set write xon/xoff
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttyWriteXoff(
-    TTY_DEV_ID ttyId,
+LOCAL void tyWriteXoff(
+    TY_DEV_ID tyId,
     BOOL xoff
     )
 {
@@ -1061,15 +1061,15 @@ LOCAL void ttyWriteXoff(
 
     INT_LOCK(level);
 
-    if (ttyId->writeState.xoff != xoff)
+    if (tyId->writeState.xoff != xoff)
     {
-        ttyId->writeState.xoff = xoff;
+        tyId->writeState.xoff = xoff;
 
-        if ((xoff == FALSE) && (ttyId->writeState.busy == FALSE))
+        if ((xoff == FALSE) && (tyId->writeState.busy == FALSE))
         {
-            ttyId->writeState.busy = TRUE;
+            tyId->writeState.busy = TRUE;
             INT_UNLOCK(level);
-            (*ttyId->txStartup)(ttyId);
+            (*tyId->txStartup)(tyId);
         }
         else
         {
@@ -1083,26 +1083,26 @@ LOCAL void ttyWriteXoff(
 }
 
 /******************************************************************************
- * ttyTxStartup - Start transmitter if nessasary
+ * tyTxStartup - Start transmitter if nessasary
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttyTxStartup(
-    TTY_DEV_ID ttyId
+LOCAL void tyTxStartup(
+    TY_DEV_ID tyId
     )
 {
     int level;
 
-    if (ttyId->writeState.busy == FALSE)
+    if (tyId->writeState.busy == FALSE)
     {
         INT_LOCK(level);
 
-        if (ttyId->writeState.busy == FALSE)
+        if (tyId->writeState.busy == FALSE)
         {
-            ttyId->writeState.busy = TRUE;
+            tyId->writeState.busy = TRUE;
             INT_UNLOCK(level);
-            (*ttyId->txStartup)(ttyId);
+            (*tyId->txStartup)(tyId);
         }
         else
         {
@@ -1113,47 +1113,47 @@ LOCAL void ttyTxStartup(
 
 #ifndef NO_SELECT
 /*****************************************************************************
- * ttySelAdd - Ioctl add select on file descriptor
+ * tySelAdd - Ioctl add select on file descriptor
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttySelAdd(
-    TTY_DEV_ID ttyId,
+LOCAL void tySelAdd(
+    TY_DEV_ID tyId,
     int arg
     )
 {
 
-    /* Add select node to tty wakeup list */
-    selNodeAdd(&ttyId->selWakeupList, (SEL_WAKEUP_NODE *) arg);
+    /* Add select node to ty wakeup list */
+    selNodeAdd(&tyId->selWakeupList, (SEL_WAKEUP_NODE *) arg);
 
     /* If select on read */
     if ((selWakeupType((SEL_WAKEUP_NODE *) arg) == SELREAD) &&
-        (rngNBytes(ttyId->readBuffer) > 0))
+        (rngNBytes(tyId->readBuffer) > 0))
     {
         selWakeup((SEL_WAKEUP_NODE *) arg);
     }
 
     /* If select on write */
     if ((selWakeupType((SEL_WAKEUP_NODE *) arg) == SELWRITE) &&
-       (rngFreeBytes(ttyId->writeBuffer) > 0))
+       (rngFreeBytes(tyId->writeBuffer) > 0))
     {
         selWakeup((SEL_WAKEUP_NODE *) arg);
     }
 }
 
 /*****************************************************************************
- * ttySelDelete - Ioctl delete select on file descriptor
+ * tySelDelete - Ioctl delete select on file descriptor
  *
  * RETURNS: N/A
  */
 
-LOCAL void ttySelDelete(
-    TTY_DEV_ID ttyId,
+LOCAL void tySelDelete(
+    TY_DEV_ID tyId,
     int arg
     )
 {
-    selNodeDelete(&ttyId->selWakeupList, (SEL_WAKEUP_NODE *) arg);
+    selNodeDelete(&tyId->selWakeupList, (SEL_WAKEUP_NODE *) arg);
 }
 #endif
 

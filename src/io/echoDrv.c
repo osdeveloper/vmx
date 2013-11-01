@@ -78,7 +78,7 @@ LOCAL int echoRead(
     int maxBytes                /* number of bytes to zero */
     )
 {
-    return ttyRead(&pEchoDev->ttyDev, buffer, maxBytes);
+    return tyRead(&pEchoDev->tyDev, buffer, maxBytes);
 }
  
 /******************************************************************************
@@ -98,7 +98,7 @@ LOCAL int echoWrite(
 
     for (i = 0; i < maxBytes; i++)
     {
-        if (ttyIntRd(&pEchoDev->ttyDev, pBuf[i]) != OK)
+        if (tyIntRd(&pEchoDev->tyDev, pBuf[i]) != OK)
         {
             break;
         }
@@ -119,7 +119,7 @@ LOCAL int echoIoctl(
     int arg                     /* not used */
     )
 {
-    return ttyIoctl(&pEchoDev->ttyDev, command, arg);
+    return tyIoctl(&pEchoDev->tyDev, command, arg);
 }
 
 /******************************************************************************
@@ -233,7 +233,7 @@ STATUS echoDevCreate(
         }
         else
         {
-            if (ttyDevInit(&pEchoDev->ttyDev,
+            if (tyDevInit(&pEchoDev->tyDev,
                            readBufferSize,
                            writeBufferSize,
                            (FUNCPTR) echoTxStartup
@@ -245,7 +245,7 @@ STATUS echoDevCreate(
             else
             {
                 status = iosDevAdd(
-                             &pEchoDev->ttyDev.devHeader,
+                             &pEchoDev->tyDev.devHeader,
                              name,
                              echoNumber
                              );

@@ -30,11 +30,11 @@ extern "C" {
 #endif
 
 #include <vmx.h>
-#include <io/ttyLib.h>
+#include <io/tyLib.h>
 
 typedef struct
 {
-    TTY_DEV ttyDev;
+    TY_DEV tyDev;
 } ECHO_DEV;
 
 /******************************************************************************

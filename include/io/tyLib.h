@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ttyLib.h - tty support library header */
+/* tyLib.h - Typewriter support library header */
 
-#ifndef _ttyLib_h
-#define _ttyLib_h
+#ifndef _tyLib_h
+#define _tyLib_h
 
 #ifndef _ASMLANGUAGE
 
@@ -79,148 +79,148 @@ typedef struct
 #endif
     int numOpen;
 
-} TTY_DEV;
+} TY_DEV;
 
-typedef TTY_DEV *TTY_DEV_ID;
+typedef TY_DEV *TY_DEV_ID;
 
 /******************************************************************************
- * ttyDevInit - Intialize a tty device
+ * tyDevInit - Intialize a typwriter device
  *
  * RETURNS: OR or ERROR
  */
 
-STATUS ttyDevInit(
-    TTY_DEV_ID ttyId,
+STATUS tyDevInit(
+    TY_DEV_ID tyId,
     int readBufferSize,
     int writeBufferSize,
     FUNCPTR txStartup
     );
 
 /******************************************************************************
- * ttyDevRemove - Remove a tty device
+ * tyDevRemove - Remove a typewriter device
  *
  * RETURNS: OR or ERROR
  */
 
-STATUS ttyDevRemove(
-    TTY_DEV_ID ttyId
+STATUS tyDevRemove(
+    TY_DEV_ID tyId
     );
 
 /******************************************************************************
- * ttyAbortFuncSet - Set abort function
+ * tyAbortFuncSet - Set abort function
  *
  * RETURNS: N/A
  */
 
-void ttyAbortFuncSet(
+void tyAbortFuncSet(
     FUNCPTR func
     );
 
 /******************************************************************************
- * ttyAbortSet - Set abort char
+ * tyAbortSet - Set abort char
  *
  * RETURNS: N/A
  */
 
-void ttyAbortSet(
+void tyAbortSet(
     char c
     );
 
 /******************************************************************************
- * ttyBackSpaceSet - Set backspace char
+ * tyBackSpaceSet - Set backspace char
  *
  * RETURNS: N/A
  */
 
-void ttyBackSpaceSet(
+void tyBackSpaceSet(
     char c
     );
 
 /******************************************************************************
- * ttyDeleteLineSet - Set line delete char
+ * tyDeleteLineSet - Set line delete char
  *
  * RETURNS: N/A
  */
 
-void ttyDeleteLineSet(
+void tyDeleteLineSet(
     char c
     );
 
 /******************************************************************************
- * ttyEOFSet - Set end of file char
+ * tyEOFSet - Set end of file char
  *
  * RETURNS: N/A
  */
 
-void ttyEOFSet(
+void tyEOFSet(
     char c
     );
 
 /******************************************************************************
- * ttyMonitorTrapSet - Set monitor trap char
+ * tyMonitorTrapSet - Set monitor trap char
  *
  * RETURNS: N/A
  */
 
-void ttyMonitorTrapSet(
+void tyMonitorTrapSet(
     char c
     );
 
 /******************************************************************************
- * ttyIoctl - Control request
+ * tyIoctl - Control request
  *
  * RETURNS: OK or ERROR
  */
 
-int ttyIoctl(
-    TTY_DEV_ID ttyId,
+int tyIoctl(
+    TY_DEV_ID tyId,
     int req,
     int arg
     );
 
 /******************************************************************************
- * ttyWrite - Write to tty
+ * tyWrite - Write to typewriter
  *
  * RETURNS: Number of bytes written
  */
 
-int ttyWrite(
-    TTY_DEV_ID ttyId,
+int tyWrite(
+    TY_DEV_ID tyId,
     char *buffer,
     int nBytes
     );
 
 /******************************************************************************
- * ttyRead - Read from tty
+ * tyRead - Read from typewriter
  *
  * RETURNS: Number of bytes read
  */
 
-int ttyRead(
-    TTY_DEV_ID ttyId,
+int tyRead(
+    TY_DEV_ID tyId,
     char *buffer,
     int nBytes
     );
 
 /******************************************************************************
- * ttyTx - tty transmit from interrupt
+ * tyTx - Typewriter transmit from interrupt
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS ttyIntTx(
-    TTY_DEV_ID ttyId,
+STATUS tyIntTx(
+    TY_DEV_ID tyId,
     char *pc
     );
 
 /******************************************************************************
- * ttyIntRd - tty read from interrupt
+ * tyIntRd - Typwriter read from interrupt
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS ttyIntRd(
-    TTY_DEV_ID ttyId,
+STATUS tyIntRd(
+    TY_DEV_ID tyId,
     char c
     );
 
@@ -230,5 +230,5 @@ STATUS ttyIntRd(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _ttyLib_h */
+#endif /* _tyLib_h */
 

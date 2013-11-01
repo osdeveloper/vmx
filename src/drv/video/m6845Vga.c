@@ -26,7 +26,7 @@
 #include <vmx/semLib.h>
 #include <util/rngLib.h>
 #include <io/ioLib.h>
-#include <io/ttyLib.h>
+#include <io/tyLib.h>
 #include <drv/serial/pcConsole.h>
 
 /* IMPORTS */
@@ -634,17 +634,17 @@ int vgaWriteString(
     RING_ID ringId;
     VGA_CON_DEV *vs;
 
-    ringId                     = pc->ttyDev.writeBuffer;
+    ringId                     = pc->tyDev.writeBuffer;
     vs                         = pc->vs;
-    pc->ttyDev.writeState.busy = TRUE;
+    pc->tyDev.writeState.busy  = TRUE;
     attrib                     = vs->currAttrib;
     nBytes                     = 0;
 
     /* Check for xon/xoff */
-    if ((pc->ttyDev.writeState.xoff == TRUE) ||
-        (pc->ttyDev.writeState.flushingWriteBuffer == TRUE))
+    if ((pc->tyDev.writeState.xoff == TRUE) ||
+        (pc->tyDev.writeState.flushingWriteBuffer == TRUE))
     {
-        pc->ttyDev.writeState.busy = FALSE;
+        pc->tyDev.writeState.busy = FALSE;
     }
     else
     {
@@ -700,7 +700,7 @@ int vgaWriteString(
 
                     /* Newline */
                     case '\n':
-                        if ((pc->ttyDev.options & OPT_CRMOD) == OPT_CRMOD)
+                        if ((pc->tyDev.options & OPT_CRMOD) == OPT_CRMOD)
                         {
                             vgaCarriageReturn(vs);
                         }
@@ -800,12 +800,12 @@ int vgaWriteString(
         }
 
         vgaCursorPos((vs->currCharPos - vs->memBase) / CHR);
-        pc->ttyDev.writeState.busy = FALSE;
+        pc->tyDev.writeState.busy = FALSE;
 
         /* Release lock */
         if (rngFreeBytes(ringId) >= vgaWriteTreshold)
         {
-            semGive(&pc->ttyDev.writeSync);
+            semGive(&pc->tyDev.writeSync);
         }
     }
 

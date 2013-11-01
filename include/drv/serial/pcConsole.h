@@ -23,7 +23,7 @@
 #ifndef _pcConsole_h
 #define _pcConsole_h
 
-#include <io/ttyLib.h>
+#include <io/tyLib.h>
 #include <drv/input/i8042Kbd.h>
 #include <drv/video/m6845Vga.h>
 
@@ -42,7 +42,7 @@ extern "C" {
 
 typedef struct pcConDev
 {
-    TTY_DEV      ttyDev;
+    TY_DEV       tyDev;
     BOOL         created;
     KBD_CON_DEV *ks;
     VGA_CON_DEV *vs;

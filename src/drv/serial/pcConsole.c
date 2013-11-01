@@ -24,7 +24,7 @@
 #include <vmx.h>
 #include <io/iosLib.h>
 #include <io/ioLib.h>
-#include <io/ttyLib.h>
+#include <io/tyLib.h>
 #include <drv/input/i8042Kbd.h>
 #include <drv/video/m6845Vga.h>
 #include <drv/serial/pcConsole.h>
@@ -76,8 +76,8 @@ STATUS pcConDrvInit(
                        (FUNCPTR) NULL,
                        pcConDrvOpen,
                        (FUNCPTR) NULL,
-                       ttyRead,
-                       ttyWrite,
+                       tyRead,
+                       tyWrite,
                        pcConDrvIoctl
                        );
         if (pcNumber == ERROR)
@@ -128,8 +128,8 @@ STATUS pcConDevCreate(
             }
             else
             {
-                if (ttyDevInit(
-                        &pc->ttyDev,
+                if (tyDevInit(
+                        &pc->tyDev,
                         readBufferSize,
                         writeBufferSize,
                         vgaWriteString
@@ -142,7 +142,7 @@ STATUS pcConDevCreate(
                     /* Enable interrupt level for keyboard */
                     sysIntEnablePIC(KBD_INT_LVL);
                     pc->created = TRUE;
-                    status = iosDevAdd(&pc->ttyDev.devHeader, name, pcNumber);
+                    status = iosDevAdd(&pc->tyDev.devHeader, name, pcNumber);
                 }
             }
         }
@@ -217,7 +217,7 @@ LOCAL STATUS pcConDrvIoctl(
     switch(req)
     {
       default:
-          status = ttyIoctl(&pc->ttyDev, req, arg);
+          status = tyIoctl(&pc->tyDev, req, arg);
           break;
     }
 

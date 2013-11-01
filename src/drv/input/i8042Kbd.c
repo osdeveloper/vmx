@@ -21,7 +21,7 @@
 /* i8042Kbd.c - Intel 8042 keyboard driver */
 
 #include <vmx.h>
-#include <io/ttyLib.h>
+#include <io/tyLib.h>
 #include <drv/input/i8042Kbd.h>
 #include <drv/serial/pcConsole.h>
 
@@ -160,7 +160,7 @@ void kbdIntr(
             }
             else
             {
-                ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, scancode);
+                tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, scancode);
             }
         }
     }
@@ -266,7 +266,7 @@ LOCAL void kbdNormal(
             }
 
             /* Put on buffer */
-            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, c);
+            tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, c);
         }
     }
 }
@@ -364,11 +364,11 @@ LOCAL void kbdStp(
 
         if (kbdConDev.flags & KBD_STP)
         {
-            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x13);
+            tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, 0x13);
         }
         else
         {
-            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x11);
+            tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, 0x11);
         }
     }
 }
@@ -391,12 +391,12 @@ LOCAL void kbdExt(
         c = kbdMap[kbdConDev.state][scancode];
 
         /* Send escape char */
-        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x1b);
+        tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, 0x1b);
 
-        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, '[');
+        tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, '[');
 
         /* Send char */
-        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, c);
+        tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, c);
     }
 }
 
@@ -420,13 +420,13 @@ LOCAL void kbdEsc(
         if ((kbdConDev.flags & KBD_NUM) == KBD_NORMAL)
         {
             /* Send escape char */
-            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 0x1b);
+            tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, 0x1b);
 
-            ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, 'O');
+            tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, 'O');
         }
 
         /* Send char */
-        ttyIntRd(&pcConDev[kbdConDev.currConsole].ttyDev, c);
+        tyIntRd(&pcConDev[kbdConDev.currConsole].tyDev, c);
     }
 }
 
