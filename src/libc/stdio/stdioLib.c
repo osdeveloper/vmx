@@ -141,7 +141,7 @@ STATUS stdioFpInit(
     FILE *fp
     )
 {
-      STATUS status;
+    STATUS status;
 
     /* Check if installed library */
     if (stdioLibInstalled != TRUE)

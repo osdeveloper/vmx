@@ -18,36 +18,55 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* puts.c - Standard input/output */
+/* fflush.c - Flush file */
 
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 #include <vmx.h>
+#include <vmx/errnoLib.h>
 
 /******************************************************************************
- * puts - Print string on stdout
+ * fflush - Flush stdio buffers
  *
- * RETURNS: N/A
+ * RETURNS: 0 or EOF
  */
 
-int puts(
-    const char *str
+int fflush(
+    FILE *fp
     )
 {
-    struct __suio uio;
-    struct __siov iov[2];
-    size_t len = strlen(str);
+    int ret;
 
-    iov[0].iov_base = (void *) str;
-    iov[0].iov_len  = len;
+    /* Check fp */
+    if (fp == NULL)
+    {
+        errnoSet(EBADF);
+        ret = EOF;
+    }
+    else
+    {
+        /* Check class */
+        if (OBJ_VERIFY(fp, fpClassId) != OK)
+        {
+            errnoSet(EBADF);
+            ret = EOF;
+        }
+        else
+        {
+            /* Check flags */
+            if ((fp->_flags & __SWR) == 0)
+            {
+                errnoSet(EBADF);
+                ret = EOF;
+            }
+            else
+            {
+                /* Flush */
+                ret = __sflush(fp);
+            }
+        }
+    }
 
-    iov[1].iov_base = "\n";
-    iov[1].iov_len  = 1;
-
-    uio.uio_resid   = len + 1;
-    uio.uio_iov     = &iov[0];
-    uio.uio_iovcnt  = 2;
-
-    return ((__sfvwrite(stdout, &uio)) ? (EOF) : ('\n'));
+    return ret;
 }
 

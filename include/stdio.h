@@ -123,42 +123,181 @@ extern CLASS_ID         fpClassId;
 /* Functions */
 
 /******************************************************************************
- * puts - Print string on screen
+ * fclose - Close stream
+ *
+ * RETURNS: 0 or EOF
+ */
+
+int fclose(
+    FILE *fp
+    );
+
+/******************************************************************************
+ * Create stream for file descritptor
+ *
+ * RETURNS: File stream or NULL
+ */
+
+FILE* fdopen(
+    int fd,
+    const char *mode
+    );
+
+/******************************************************************************
+ * feof - Get EOF
+ *
+ * RETURNS: Zero or non-zero
+ */
+
+int feof(
+    FILE *fp
+    );
+
+/******************************************************************************
+ * ferror - Get stream error
+ *
+ * RETURNS: Zero or non-zero
+ */
+
+int ferror(
+    FILE *fp
+    );
+
+/******************************************************************************
+ * fflush - Flush stdio buffers
+ *
+ * RETURNS: 0 or EOF
+ */
+
+int fflush(
+    FILE *fp
+    );
+
+/******************************************************************************
+ * fgetc - Get charater from stream
+ *
+ * RETURNS: Character or EOF
+ */
+
+int fgetc(
+    FILE *fp
+    );
+
+/******************************************************************************
+ * fgets - Get line from stream
+ *
+ * RETURNS: Pointer to buffer of EOF
+ */
+
+char* fgets(
+    char *buf,
+    size_t num,
+    FILE *fp
+    );
+
+/******************************************************************************
+ * fopen - Open stream
+ *
+ * RETURNS: File steam or NULL
+ */
+
+FILE* fopen(
+    const char *file,
+    const char *mode
+    );
+
+/******************************************************************************
+ * putc - Put charater on stream
+ *
+ * RETURNS: Character of EOF
+ */
+
+int fputc(
+    int c,
+    FILE *fp
+    );
+
+/******************************************************************************
+ * fread - Read from stream
+ *
+ * RETURNS: Number of objects read
+ */
+
+size_t fread(
+    void *buf,
+    size_t size,
+    size_t count,
+    FILE *fp
+    );
+
+/******************************************************************************
+ * fwrite - Write data to stream
+ *
+ * RETURNS: Number of objects written
+ */
+
+size_t fwrite(
+    const void *buf,
+    size_t size,
+    size_t count,
+    FILE *fp
+    );
+
+/******************************************************************************
+ * getc - Get character from stream
+ *
+ * RETURNS: Character or EOF
+ */
+
+int getc(
+    FILE *fp
+    );
+
+/******************************************************************************
+ * getchar - Get charater from stdin
+ *
+ * RETURNS: Character or EOF
+ */
+
+int getchar(
+    void
+    );
+
+/******************************************************************************
+ * putc - Put character on stream
+ *
+ * RETURNS: Character or EOF
+ */
+
+int putc(
+    int c,
+    FILE *fp
+    );
+
+/******************************************************************************
+ * putchar - Put charater on stdout
+ *
+ * RETURNS: Character or EOF
+ */
+
+int putchar(
+    int c
+    );
+
+/******************************************************************************
+ * puts - Print string on stdout
  *
  * RETURNS: N/A
  */
 
-void puts(
+int puts(
     const char *str
     );
 
-extern int ferror(FILE *fp);
-extern int feof(FILE *fp);
-
-extern int fflush(FILE *fp);
-
-extern FILE* fopen(const char *file, const char *mode);
-extern FILE* fdopen(int fd, const char *mode);
-
-extern int fclose(FILE *fp);
-
-extern int setvbuf(FILE *fp, char *buf, int mode, size_t size);
-
-extern size_t fread(void *buf, size_t size, size_t count, FILE *fp);
-extern size_t fwrite(const void *buf, size_t size, size_t count, FILE *fp);
-
-extern int getc(FILE *fp);
-extern int fgetc(FILE *fp);
-extern int getchar(void);
-
-extern int putc(int c, FILE *fp);
-extern int fputc(int c, FILE *fp);
-extern int putchar(int c);
-
-extern int ungetc(int c, FILE *fp);
-
-extern char* gets(char *buf);
-extern char* fgets(char *buf, size_t num, FILE *fp);
+int setvbuf(FILE *fp, char *buf, int mode, size_t size);
+size_t fread(void *buf, size_t size, size_t count, FILE *fp);
+size_t fwrite(const void *buf, size_t size, size_t count, FILE *fp);
+int ungetc(int c, FILE *fp);
 
 extern int printf(const char *fmt, ...);
 extern int asprintf(char **app, const char *fmt, ...);

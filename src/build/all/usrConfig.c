@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <vmx.h>
+#include <private/stdioP.h>
 #include <arch/iv.h>
 #include <arch/sysArchLib.h>
 #include <arch/intArchLib.h>
@@ -74,25 +75,13 @@ int consoleFd;
 int echoFd;
 char consoleName[20];
 
-char* itoa2(int a)
-{
-  static char str[10];
-
-  itoa(a, str, 10);
-
-  return str;
-}
-
 #ifdef TASK_POST
 int runMe(ARG arg0)
 {
   semTake(sem, WAIT_FOREVER);
-  puts("----------------------------------------------------------------\n");
-  puts(taskName(0));
-  puts(" with args: ");
-  puts(itoa2((int)arg0));
-  puts("\n");
-  puts("----------------------------------------------------------------\n");
+  printf("----------------------------------------------------------------\n");
+  printf("%s with args: %d\n", taskName(0), (int) arg0);
+  printf("----------------------------------------------------------------\n");
   semGive(sem);
 
   return (int)arg0;
@@ -106,11 +95,7 @@ int restartMe(ARG arg0)
   volatile int *pInt = (volatile int *) arg0;
 
   semTake(sem, WAIT_FOREVER);
-  puts(taskName(0));
-  puts(" restarted ");
-  puts(itoa2(*pInt));
-  puts(" times.");
-  puts("\n");
+  printf("%s restarted %d time(s)\n", taskName(0), *pInt);
   semGive(sem);
 
   for (;;);
@@ -130,18 +115,20 @@ int init(ARG arg0,
 	 ARG arg8,
 	 ARG arg9)
 {
-  puts(taskName(0));
-  puts(" called with arguments: ");
-  puts(itoa2((int)arg0)); puts(", ");
-  puts(itoa2((int)arg1)); puts(", ");
-  puts(itoa2((int)arg2)); puts(", ");
-  puts(itoa2((int)arg3)); puts(", ");
-  puts(itoa2((int)arg4)); puts(", ");
-  puts(itoa2((int)arg5)); puts(", ");
-  puts(itoa2((int)arg6)); puts(", ");
-  puts(itoa2((int)arg7)); puts(", ");
-  puts(itoa2((int)arg8)); puts(", ");
-  puts(itoa2((int)arg9)); puts("\n");
+  printf(
+    "%s called with arguments: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
+    taskName(0),
+    (int) arg0,
+    (int) arg1,
+    (int) arg2,
+    (int) arg3,
+    (int) arg4,
+    (int) arg5,
+    (int) arg6,
+    (int) arg7,
+    (int) arg8,
+    (int) arg9
+    );
   return 0;
 }
 
@@ -166,17 +153,13 @@ int printBigString(void)
 	       	     (ARG) 0);
     pTcb = (TCB_ID) taskId;
     semTake(sem, WAIT_FOREVER);
-    puts(bigString);
+    printf(bigString);
     semGive(sem);
     taskDelay(DELAY_TIME * 5);
     semTake(sem, WAIT_FOREVER);
-    puts("----------------------------------------------------------------\n");
-    puts("Return from last ");
-    puts(pTcb->name);
-    puts(": ");
-    puts(itoa2(pTcb->exitCode));
-    puts("\n");
-    puts("----------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------\n");
+    printf("Return from last %s: %d\n", pTcb->name, pTcb->exitCode);
+    printf("---------------------------------------------------------------\n");
     semGive(sem);
   }
 
@@ -187,7 +170,7 @@ int printBigString(void)
 {
   while (1) {
     semTake(sem, WAIT_FOREVER);
-    puts(bigString);
+    printf(bigString);
     semGive(sem);
     taskDelay(DELAY_TIME * 5);
   }
@@ -206,24 +189,21 @@ int printSysTime(ARG arg0, ARG arg1)
 
   for (i = 0;;i++) {
     semTake(sem, WAIT_FOREVER);
-    puts("System time is: ");
-    puts(itoa2(tickGet()/18));
-    puts("...");
+    printf("System time is: %d...\n", tickGet() / 18);
     if (i == 3)
     {
       i=0;
 #ifdef RESTART_TASK
       pInt[0]++;
-      puts("I will try to restart: ");
-      puts(taskName(taskId));
-      puts(" for the ");
-      puts(itoa2(*pInt));
-      puts(" time");
+      printf(
+        "I will try to restart: %d for the %d time(s)\n",
+        taskName(taskId),
+        *pInt
+        );
       taskRestart(taskId);
 #endif
       semGive(evtSem);
     }
-    puts("\n");
     semGive(sem);
     taskDelay(DELAY_TIME);
   }
@@ -237,7 +217,7 @@ int slowFill(void)
   for(;;) {
     semTake(sem, WAIT_FOREVER);
     for (i = 0; i < 80; i++) {
-      puts("=");
+      printf("=");
       for(j = 0; j < 0x00ffffff; j++);
     }
     semGive(sem);
@@ -252,9 +232,9 @@ int evtHandler(void)
   for (;;)
   {
     semTake(evtSem, WAIT_FOREVER);
-    puts("?????????????????????????????????????????????????????????????????\n");
-    puts("Event triggered\n");
-    puts("?????????????????????????????????????????????????????????????????\n");
+    printf("???????????????????????????????????????????????????????????????\n");
+    printf("Event triggered\n");
+    printf("???????????????????????????????????????????????????????????????\n");
   }
 
   return 0;
@@ -264,7 +244,7 @@ int sendMessage(void)
 {
   if ((numMsg + 1) >= MAX_MESSAGES) {
     semTake(sem, WAIT_FOREVER);
-    puts("Message queue full.\n");
+    printf("Message queue full.\n");
     semGive(sem);
 
     return 1;
@@ -272,16 +252,15 @@ int sendMessage(void)
 
   numMsg++;
   semTake(sem, WAIT_FOREVER);
-  puts("Sending message to message queue...");
+  printf("Sending message to message queue...");
   semGive(sem);
 
   msgQSend(msgQId, bigString, strlen(bigString), 600, MSG_PRI_NORMAL);
 
   semTake(sem, WAIT_FOREVER);
-  puts("Message sent.\n");
+  printf("Message sent.\n");
 
-  puts(itoa2(numMsg));
-  puts(" message(s) sent to message queue.\n");
+  printf("%d message(s) sent to message queue.\n", numMsg);
 
   semGive(sem);
 
@@ -293,21 +272,18 @@ int receiveMessage(void)
   char buf[512];
 
   semTake(sem, WAIT_FOREVER);
-  puts("Receiving message from message queue...\n");
+  printf("Receiving message from message queue...\n");
   semGive(sem);
 
   msgQReceive(msgQId, buf, sizeof(bigString), WAIT_FOREVER);
   numMsg--;
 
   semTake(sem, WAIT_FOREVER);
-  puts("Received message: ");
+  buf[strlen(bigString)]='\0';
+  printf("Received message: %s", buf);
   semGive(sem);
 
-  buf[strlen(bigString)]='\0';
-  puts(buf);
-
-  puts(itoa2(numMsg));
-  puts(" message(s) left in message queue.\n");
+  printf("%d message(s) left in message queue.\n", numMsg);
 
   return 0;
 }
@@ -340,14 +316,12 @@ int inputTask(void)
   size_t bread;
 
   for (;;) {
-    puts("-> ");
+    printf("-> ");
     memset(buf, 0, 1024);
     bread = read(STDIN_FILENO, buf, 1024);
-    puts("Read ");
-    puts(itoa2(bread));
-    puts(" byte(s): ");
+    printf("Read %d byte(s): ", bread);
     write(STDOUT_FILENO, buf, bread);
-    puts("\n");
+    printf("\n");
   }
 
   return 0;
@@ -359,33 +333,21 @@ void print_fds(void)
   int fd = 0;
   static char *fns[3] = { "/pcConsole/0", "/pcConsole/1", "/pcConsole/2" };
 
-  puts("stdin: ");
-  puts(itoa2(ioGlobalStdGet(STDIN_FILENO)));
-  puts("\n");
-
-  puts("stdout: ");
-  puts(itoa2(ioGlobalStdGet(STDOUT_FILENO)));
-  puts("\n");
-
-  puts("stderr: ");
-  puts(itoa2(ioGlobalStdGet(STDERR_FILENO)));
-  puts("\n");
+  printf(
+    "stdin: %d, stdout: %d, stderr: %d\n",
+    ioGlobalStdGet(STDIN_FILENO),
+    ioGlobalStdGet(STDOUT_FILENO),
+    ioGlobalStdGet(STDERR_FILENO)
+    );
 
   for (i = 0; i < 3; i++) {
     fd = open(fns[i], O_RDWR, 0);
-    puts("Found fd: ");
-    puts(itoa2(fd));
-    puts("\n");
+    printf("Found fd: %d\n", fd);
     close(fd);
   }
 
-  puts("console drv: ");
-  puts(itoa2(pcConDrvNumber()));
-  puts("\n");
-
-  puts("echo drv: ");
-  puts(itoa2(echoDrvNumber()));
-  puts("\n");
+  printf("console drv: %d\n", pcConDrvNumber());
+  printf("echo drv: %d", echoDrvNumber());
 }
 
 void echoWriteInt(void)
@@ -402,13 +364,11 @@ int echoWrite(void)
     bwrote = write(echoFd, smallString, strlen(smallString));
     if (bwrote <= 0)
     {
-      puts("Unable to write to echo device\n");
+      printf("Unable to write to echo device\n");
       break;
     }
     {
-      puts("Wrote ");
-      puts(itoa2(bwrote));
-      puts(" byte(s)\n");
+      printf("Wrote %d byte(s)\n", bwrote);
     }
   }
 }
@@ -419,13 +379,11 @@ int echoRead(void)
 
   for (;;) {
     memset(buf, 0, 1024);
-    puts("Waiting for data...\n");
+    printf("Waiting for data...\n");
     bread = read(echoFd, buf, 1024);
-    puts("Read ");
-    puts(itoa2(bread));
-    puts(" byte(s): ");
+    printf("Read %d byte(s): ", bread);
     write(STDOUT_FILENO, buf, bread);
-    puts("\n");
+    printf("\n");
   }
 
   return 0;
@@ -439,20 +397,20 @@ int test_realloc(void)
   char *pData = malloc(slen + 1);
   if (pData == NULL)
   {
-    puts("Error allocating small string.\n");
+    printf("Error allocating small string.\n");
     return 1;
   }
   strcpy(pData, smallString);
-  puts(pData);
+  printf(pData);
 
   pData = realloc(pData, slen + blen + 10);
   if (pData == NULL)
   {
-    puts("Error re-allocating plus big string.\n");
+    printf("Error re-allocating plus big string.\n");
     return 1;
   }
   strcpy(&pData[slen], bigString);
-  puts(pData);
+  printf(pData);
 }
 
 int initTasks(void)
@@ -464,34 +422,34 @@ int initTasks(void)
   intStackSet(&intStack[INT_STACK_SIZE/2]);
   intStackEnable(TRUE);
 
-  puts("Welcome to Real VMX...\n");
-  puts("This system is released under GNU public license.\n\n");
+  printf("Welcome to Real VMX...\n");
+  printf("This system is released under GNU public license.\n\n");
 
   sem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
   if (sem == NULL)
   {
-    puts("Unable to create semaphore\n");
+    printf("Unable to create semaphore\n");
     for (;;);
   }
 
   evtSem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
   if (evtSem == NULL)
   {
-    puts("Unable to create event semaphore\n");
+    printf("Unable to create event semaphore\n");
     for (;;);
   }
 
   msgQId = msgQCreate(MAX_MESSAGES + 1, strlen(bigString) + 1, MSG_Q_PRIORITY);
   if (msgQId == NULL)
   {
-    puts("Unable to create message queue\n");
+    printf("Unable to create message queue\n");
     for (;;);
   }
 
   echoFd = open("/echo", O_RDWR, 0);
   if (echoFd == ERROR)
   {
-    puts("Unable to open echo device\n");
+    printf("Unable to open echo device\n");
     for (;;);
   }
   ioctl(echoFd, FIOSETOPTIONS, OPT_TERMINAL);
@@ -663,26 +621,26 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   int i, len;
 
 #ifdef DEBUG
-  puts("Initializing kernel logger library:\n");
+  printf("Initializing kernel logger library:\n");
 #endif
 
   setLogFlags(LOG_TASK_LIB|LOG_VMX_LIB|LOG_SEM_LIB|LOG_KERN_HOOK_LIB);
   setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING/*|LOG_LEVEL_INFO*/);
 
 #ifdef DEBUG
-  puts("Initializing class library:\n");
+  printf("Initializing class library:\n");
 #endif
 
   classLibInit();
 
 #ifdef DEBUG
-  puts("Initializing memory partition library:\n");
+  printf("Initializing memory partition library:\n");
 #endif
 
   memPartLibInit(pMemPoolStart, memPoolSize);
 
 #ifdef DEBUG
-  puts("Initializing semaphores:\n");
+  printf("Initializing semaphores:\n");
 #endif
 
   semLibInit();
@@ -695,7 +653,7 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   ffsLsb(0);
 
 #ifdef DEBUG
-  puts("Initializing task library:\n");
+  printf("Initializing task library:\n");
 #endif
 
   tickLibInit();
@@ -736,11 +694,13 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   ioGlobalStdSet(STDOUT_FILENO, consoleFd);
   ioGlobalStdSet(STDERR_FILENO, consoleFd);
 
+  stdioLibInit();
+
   echoDrvInit();
   echoDevCreate("/echo", 1024, 1024);
 
 #ifdef DEBUG
-  puts("Initializing kernel:\n");
+  printf("Initializing kernel:\n");
 #endif
 
   kernInit((FUNCPTR) initTasks);
@@ -758,7 +718,7 @@ void usrInit(void)
   kernelTimeSlice(1);
 
 #ifdef DEBUG
-  puts("Multitasking not enabled:\n");
+  printf("Multitasking not enabled:\n");
 #endif
 
   for(;;);

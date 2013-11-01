@@ -18,36 +18,61 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* puts.c - Standard input/output */
+/* fopen.c - Open stream */
 
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <vmx.h>
 
 /******************************************************************************
- * puts - Print string on stdout
+ * fopen - Open stream
  *
- * RETURNS: N/A
+ * RETURNS: File steam or NULL
  */
 
-int puts(
-    const char *str
+FILE* fopen(
+    const char *file,
+    const char *mode
     )
 {
-    struct __suio uio;
-    struct __siov iov[2];
-    size_t len = strlen(str);
+    FILE *fp;
+    int fd, flags, oflags;
 
-    iov[0].iov_base = (void *) str;
-    iov[0].iov_len  = len;
+    /* Get flags for given mode */
+    flags = __sflags(mode, &oflags);
+    if (flags == 0)
+    {
+        fp = NULL;
+    }
+    else
+    {
+        /* Create stream object */
+        fp = stdioFpCreate();
 
-    iov[1].iov_base = "\n";
-    iov[1].iov_len  = 1;
+        /* Open file */
+        fd = open(file, oflags, DEFFILEMODE);
+        if (fd < 0)
+        {
+            fp->_flags = 0;
+            stdioFpDestroy(fp);
+            fp = NULL;
+        }
+        else
+        {
+            /* Setup FILE struct */
+            fp->_file = fd;
+            fp->_flags = flags;
 
-    uio.uio_resid   = len + 1;
-    uio.uio_iov     = &iov[0];
-    uio.uio_iovcnt  = 2;
+            /* If append, goto end of file */
+            if (oflags & O_APPEND)
+            {
+                __sseek(fp, (fpos_t) 0, SEEK_END);
+            }
+        }
+    }
 
-    return ((__sfvwrite(stdout, &uio)) ? (EOF) : ('\n'));
+    return fp;
 }
 

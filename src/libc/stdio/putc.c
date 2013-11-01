@@ -18,36 +18,22 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* puts.c - Standard input/output */
+/* putc.c - Put character on stream */
 
 #include <stdio.h>
-#include <string.h>
 #include <vmx.h>
 
 /******************************************************************************
- * puts - Print string on stdout
+ * putc - Put character on stream
  *
- * RETURNS: N/A
+ * RETURNS: Character or EOF
  */
 
-int puts(
-    const char *str
+int putc(
+    int c,
+    FILE *fp
     )
 {
-    struct __suio uio;
-    struct __siov iov[2];
-    size_t len = strlen(str);
-
-    iov[0].iov_base = (void *) str;
-    iov[0].iov_len  = len;
-
-    iov[1].iov_base = "\n";
-    iov[1].iov_len  = 1;
-
-    uio.uio_resid   = len + 1;
-    uio.uio_iov     = &iov[0];
-    uio.uio_iovcnt  = 2;
-
-    return ((__sfvwrite(stdout, &uio)) ? (EOF) : ('\n'));
+    return __sputc(c, fp);
 }
 

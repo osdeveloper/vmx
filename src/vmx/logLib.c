@@ -66,8 +66,7 @@ void logString(
 {
     if ((flags & logFlags) && (level & logLevel))
     {
-        puts(str);
-        puts("\n");
+        printf("%s\n", str);
     }
 }
 
@@ -84,16 +83,9 @@ void logStringAndInteger(
     int level
     )
 {
-    static char n_str[10];
-
     if ((flags & logFlags) && (level & logLevel))
     {
-        puts(str);
-        puts(": ");
-        itoa(value, n_str, 10);
-        itoa(value, n_str, 10);
-        puts(n_str);
-        puts("\n");
+        printf("%s: %d\n", str, value);
     }
 }
 
@@ -110,15 +102,9 @@ void logStringAndAddress(
     int level
     )
 {
-    static char hexstr[10];
-
     if ((flags & logFlags) && (level & logLevel))
     {
-        puts(str);
-        puts(" @");
-        itox(value, hexstr);
-        puts(hexstr);
-        puts("\n");
+        printf("%s @%x\n", str, value);
     }
 }
 

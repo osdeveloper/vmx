@@ -18,11 +18,9 @@
  #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  #
 
-# Makefile - Standard C input/output library
+# Makefile - Standard library for C
 
-OBJS = stdioLib.o fclose.o fdopen.o feof.o ferror.o fflush.o fgetc.o fgets.o \
-       fopen.o fputc.o fread.o fwrite.o getc.o getchar.o printf.o putc.o \
-       putchar.o puts.o ltostr.o ultostr.o
+OBJS = assert.o
 SUBDIRS =
 LIB_TGT = stdc
 

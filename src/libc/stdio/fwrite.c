@@ -18,36 +18,56 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* puts.c - Standard input/output */
+/* fwrite.c - Write to stream */
 
 #include <stdio.h>
-#include <string.h>
 #include <vmx.h>
 
 /******************************************************************************
- * puts - Print string on stdout
+ * fwrite - Write data to stream
  *
- * RETURNS: N/A
+ * RETURNS: Number of objects written
  */
 
-int puts(
-    const char *str
+size_t fwrite(
+    const void *buf,
+    size_t size,
+    size_t count,
+    FILE *fp
     )
 {
+    size_t i, len, ret;
     struct __suio uio;
-    struct __siov iov[2];
-    size_t len = strlen(str);
+    struct __siov iov;
 
-    iov[0].iov_base = (void *) str;
-    iov[0].iov_len  = len;
+    /* Check object */
+    if (OBJ_VERIFY(fp, fpClassId) != OK)
+    {
+        ret = 0;
+    }
+    else
+    {
+        /* Setup locals */
+        len = count * size;
 
-    iov[1].iov_base = "\n";
-    iov[1].iov_len  = 1;
+        iov.iov_base   = (void *) buf;
+        iov.iov_len    = len;
 
-    uio.uio_resid   = len + 1;
-    uio.uio_iov     = &iov[0];
-    uio.uio_iovcnt  = 2;
+        uio.uio_resid  = len;
+        uio.uio_iov    = &iov;
+        uio.uio_iovcnt = 1;
 
-    return ((__sfvwrite(stdout, &uio)) ? (EOF) : ('\n'));
+        /* Write */
+        if (__sfvwrite(fp, &uio) == 0)
+        {
+            ret = count;
+        }
+        else
+        {
+            ret = (len - uio.uio_resid) / size;
+        }
+    }
+
+    return ret;
 }
 

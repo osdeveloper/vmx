@@ -18,36 +18,29 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* puts.c - Standard input/output */
+/* assert.h - */
 
-#include <stdio.h>
-#include <string.h>
-#include <vmx.h>
+#ifndef _ASSERT_H
+#define _ASSERT_H
 
-/******************************************************************************
- * puts - Print string on stdout
- *
- * RETURNS: N/A
- */
+#ifndef _ASMLANGUAGE
 
-int puts(
-    const char *str
-    )
-{
-    struct __suio uio;
-    struct __siov iov[2];
-    size_t len = strlen(str);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    iov[0].iov_base = (void *) str;
-    iov[0].iov_len  = len;
+/* Macros */
+#define __STRING(x)     #x
 
-    iov[1].iov_base = "\n";
-    iov[1].iov_len  = 1;
+#define assert(expr)                                                          \
+    ((void) ((expr) ? ((void) 0) :                                            \
+        __assert(__STRING(expr), __FILE__, __LINE__, __PRETTY_FUNCTION__)))
 
-    uio.uio_resid   = len + 1;
-    uio.uio_iov     = &iov[0];
-    uio.uio_iovcnt  = 2;
-
-    return ((__sfvwrite(stdout, &uio)) ? (EOF) : ('\n'));
+#ifdef __cplusplus
 }
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _ASSERT_H */
 

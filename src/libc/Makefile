@@ -21,7 +21,7 @@
 # Makefile - Standard C library
 
 OBJS =
-SUBDIRS = stdio stdlib string
+SUBDIRS = stdio stdlib string assert
 LIB_TGT =
 
 include $(VMX_BASE)/include/make/build.defaults

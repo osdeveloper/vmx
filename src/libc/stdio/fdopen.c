@@ -18,36 +18,60 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* puts.c - Standard input/output */
+/* fdopen.c - Create stream assisiated with file descriptor */
 
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <vmx.h>
+#include <io/iosLib.h>
 
 /******************************************************************************
- * puts - Print string on stdout
+ * Create stream for file descritptor
  *
- * RETURNS: N/A
+ * RETURNS: File stream or NULL
  */
 
-int puts(
-    const char *str
+FILE* fdopen(
+    int fd,
+    const char *mode
     )
 {
-    struct __suio uio;
-    struct __siov iov[2];
-    size_t len = strlen(str);
+    FILE *fp;
+    int flags, oflags;
 
-    iov[0].iov_base = (void *) str;
-    iov[0].iov_len  = len;
+    /* Check file descriptor */
+    if (iosFdValue(fd) == (ARG) 0)
+    {
+        fp = NULL;
+    }
+    else
+    {
+        /* Get flags */
+        flags = __sflags(mode, &oflags);
+        if (flags == 0)
+        {
+            fp = NULL;
+        }
+        else
+        {
+            /* Create stream object */
+            fp = stdioFpCreate();
+            if (fp != NULL)
+            {
+                /* Setup FILE struct */
+                fp->_flags = flags;
 
-    iov[1].iov_base = "\n";
-    iov[1].iov_len  = 1;
+                if (oflags & O_APPEND)
+                {
+                    fp->_flags |= __SAPP;
+                }
 
-    uio.uio_resid   = len + 1;
-    uio.uio_iov     = &iov[0];
-    uio.uio_iovcnt  = 2;
+                fp->_file = fd;
+            }
+        }
+    }
 
-    return ((__sfvwrite(stdout, &uio)) ? (EOF) : ('\n'));
+    return fp;
 }
 
