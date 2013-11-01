@@ -176,37 +176,48 @@ int iosDrvInstall(
     int drvNumber;
     DRV_ENTRY *pDrvEntry;
 
-    iosLock();
-
-    /* Find a free place in table */
-    for (drvNumber = 1; drvNumber < iosMaxDrv; drvNumber++)
+    if ((createMethod == NULL) || (deleteMethod == NULL) ||
+        (openMethod == NULL)   || (closeMethod == NULL)  ||
+        (readMethod == NULL)   || (writeMethod == NULL)  ||
+        (ioctlMethod == NULL))
     {
-        if (iosDrvTable[drvNumber].dev_used == FALSE)
-        {
-            pDrvEntry = &iosDrvTable[drvNumber];
-            break;
-        }
-    }
-
-    if (pDrvEntry == NULL)
-    {
-        errnoSet(S_iosLib_DRIVER_GLUT);
-        iosUnlock();
+        errnoSet(S_iosLib_NULL_DRIVER_METHOD);
         drvNumber = ERROR;
     }
     else
     {
-        /* Setup struct */
-        pDrvEntry->dev_used   = TRUE;
-        pDrvEntry->dev_create = createMethod;
-        pDrvEntry->dev_delete = deleteMethod;
-        pDrvEntry->dev_open   = openMethod;
-        pDrvEntry->dev_close  = closeMethod;
-        pDrvEntry->dev_read   = readMethod;
-        pDrvEntry->dev_write  = writeMethod;
-        pDrvEntry->dev_ioctl  = ioctlMethod;
+        iosLock();
 
-        iosUnlock();
+        /* Find a free place in table */
+        for (drvNumber = 1; drvNumber < iosMaxDrv; drvNumber++)
+        {
+            if (iosDrvTable[drvNumber].dev_used == FALSE)
+            {
+                pDrvEntry = &iosDrvTable[drvNumber];
+                break;
+            }
+        }
+
+        if (pDrvEntry == NULL)
+        {
+            errnoSet(S_iosLib_DRIVER_GLUT);
+            iosUnlock();
+            drvNumber = ERROR;
+        }
+        else
+        {
+            /* Setup struct */
+            pDrvEntry->dev_used   = TRUE;
+            pDrvEntry->dev_create = createMethod;
+            pDrvEntry->dev_delete = deleteMethod;
+            pDrvEntry->dev_open   = openMethod;
+            pDrvEntry->dev_close  = closeMethod;
+            pDrvEntry->dev_read   = readMethod;
+            pDrvEntry->dev_write  = writeMethod;
+            pDrvEntry->dev_ioctl  = ioctlMethod;
+
+            iosUnlock();
+        }
     }
 
     return drvNumber;

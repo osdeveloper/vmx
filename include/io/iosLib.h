@@ -30,6 +30,7 @@
 #define S_iosLib_DEVICE_NOT_FOUND               (M_iosLib | 0x0003)
 #define S_iosLib_INVALID_FILE_DESCRIPTOR        (M_iosLib | 0x0004)
 #define S_iosLib_TO_MANY_OPEN_FILES             (M_iosLib | 0x0005)
+#define S_iosLib_NULL_DRIVER_METHOD             (M_iosLib | 0x0006)
 
 #ifndef _ASMLANGUAGE
 
