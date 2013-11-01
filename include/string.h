@@ -32,6 +32,18 @@ extern "C" {
 #include <sys/types.h>
 
 /******************************************************************************
+ * memchr - Get character position in string
+ *
+ * RETURNS: Pointer to first occurance of character in string
+ */
+
+void* memchr(
+    const void *str,
+    int c,
+    size_t len
+    );
+
+/******************************************************************************
  * memcpy - Copy memory from location to another
  *
  * RETURNS: Pointer to destination

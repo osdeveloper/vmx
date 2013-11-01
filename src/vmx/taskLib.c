@@ -347,7 +347,8 @@ STATUS taskInit(
             /* Initialize standard file desriptors */
             for (i = 0; i < 3; i++)
             {
-               tcbId->taskStd[i] = i;
+               tcbId->taskStd[i]   = i;
+               tcbId->taskStdFp[i] = NULL;
             }
 
             /* Object core */

@@ -20,8 +20,8 @@
 
 # Makefile - String library for C
 
-OBJS = memcpy.o memset.o strcat.o strncat.o strchr.o strrchr.o strcmp.o \
-       strncmp.o strcpy.o strncpy.o strlen.o
+OBJS = memchr.o memcpy.o memset.o strcat.o strncat.o strchr.o strrchr.o \
+       strcmp.o strncmp.o strcpy.o strncpy.o strlen.o
 SUBDIRS =
 LIB_TGT = stdc
 

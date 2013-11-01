@@ -62,6 +62,7 @@ extern "C" {
 #include <vmx/objLib.h>
 #include <vmx/semLib.h>
 #include <util/qLib.h>
+#include <stdio.h>
 
 /* Task control block */
 typedef struct taskTCB
@@ -114,6 +115,7 @@ typedef struct taskTCB
 
     /* I/O related */
     int taskStd[3];
+    FILE *taskStdFp[3];
 
     /* Class */
     OBJ_CORE objCore;
