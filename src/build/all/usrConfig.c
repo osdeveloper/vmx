@@ -20,6 +20,9 @@
 
 /* usrConfig.c - usrInit() user code */
 
+/* Defines */
+#define MEM_POOL_START_ADRS             0x00400000
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,12 +52,15 @@
 #include "config.h"
 
 #define INPUT_TEST
-#define INT_STACK_SIZE          (8192 * 2048)
 #define DELAY_TIME              (18 * 1)
 #define MAX_MESSAGES            10
 
+LOCAL void usrRoot(
+    char *pMemPoolStart,
+    unsigned memPoolSize
+    );
+
 /* Globals */
-char intStack[INT_STACK_SIZE];
 char smallString[] = "Hello World!\n";
 
 char bigString[] = "\n"
@@ -419,9 +425,6 @@ int initTasks(void)
   int restartTaskId;
 #endif
 
-  intStackSet(&intStack[INT_STACK_SIZE/2]);
-  intStackEnable(TRUE);
-
   printf("Welcome to Real VMX...\n");
   printf("This system is released under GNU public license.\n\n");
 
@@ -615,13 +618,49 @@ int initTasks(void)
   return 0;
 }
 
-void usrRoot(
+void usrInit(
+    void
+    )
+{
+    sysHwInit0();
+
+    /* Set exception base vector */
+    intVecBaseSet((FUNCPTR *) VEC_BASE_ADRS);
+
+#ifdef INCLUDE_EXC_HANDELING
+
+    excVecInit();
+
+#endif /* INCLUDE_EXC_HANDELING */
+
+    /* Initialize hardware */
+    sysHwInit();
+
+    setLogFlags(LOG_TASK_LIB|LOG_VMX_LIB|LOG_SEM_LIB|LOG_KERN_HOOK_LIB);
+    setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING/*|LOG_LEVEL_INFO*/);
+
+    /* Initialize kernel libraries */
+    usrKernelInit();
+
+    kernelInit(
+        (FUNCPTR) usrRoot,
+        ROOT_STACK_SIZE,
+        (char *) MEM_POOL_START_ADRS,
+        (char *) MEM_POOL_START_ADRS + 0x00400000,
+        ISR_STACK_SIZE,
+        INT_LOCK_LEVEL
+        );
+}
+
+LOCAL void usrRoot(
     char *pMemPoolStart,
     unsigned memPoolSize
     )
 {
   char ttyName[20];
   int i, len;
+
+  intStackEnable(TRUE);
 
   memPartLibInit(pMemPoolStart, memPoolSize);
 
@@ -668,45 +707,8 @@ void usrRoot(
   echoDrvInit();
   echoDevCreate("/echo", 1024, 1024);
 
-  kernelInit(
-    (FUNCPTR) initTasks,
-    pMemPoolStart,
-    pMemPoolStart + memPoolSize,
-    INT_STACK_SIZE
-    );
-}
+  intConnectDefault(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
 
-void usrInit(
-    void
-    )
-{
-    sysHwInit0();
-
-    /* Set exception base vector */
-    intVecBaseSet((FUNCPTR *) VEC_BASE_ADRS);
-
-#ifdef INCLUDE_EXC_HANDELING
-
-    excVecInit();
-
-#endif /* INCLUDE_EXC_HANDELING */
-
-    /* Initialize hardware */
-    sysHwInit();
-
-    setLogFlags(LOG_TASK_LIB|LOG_VMX_LIB|LOG_SEM_LIB|LOG_KERN_HOOK_LIB);
-    setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING/*|LOG_LEVEL_INFO*/);
-
-    /* Initialize kernel libraries */
-    usrKernelInit();
-
-    usrRoot((char *) 0x00400000, 0x00400000);
-    kernelTimeSlice(1);
-
-#ifdef DEBUG
-    printf("Multitasking not enabled:\n");
-#endif
-
-    for(;;);
+  initTasks();
 }
 

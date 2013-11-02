@@ -37,9 +37,11 @@ extern "C" {
 
 void kernelInit(
     FUNCPTR rootFunc,
+    unsigned rootMemSize,
     char *pMemPoolStart,
     char *pMemPoolEnd,
-    unsigned excStackSize
+    unsigned excStackSize,
+    int lockOutLevel
     );
 
 /******************************************************************************
