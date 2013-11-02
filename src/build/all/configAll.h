@@ -23,9 +23,7 @@
 #ifndef _configAll_h
 #define _configAll_h
 
-#if	CPU_FAMILY==I80X96
-//#define VEC_BASE_ADRS		((char *) LOCAL_MEM_LOCAL_ADRS)
-#endif
+#define VEC_BASE_ADRS                   ((char *) LOCAL_MEM_LOCAL_ADRS)
 
 #ifdef __cplusplus
 extern "C" {

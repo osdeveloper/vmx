@@ -46,18 +46,23 @@ CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 PC_CON_DEV pcConDev[N_VIRTUAL_CONSOLES];
 #endif   /* INCLUDE_PC_CONSOLE */
 
-void sysHwInit(void)
+void sysHwInit0(
+    void
+    )
+{
+    segBaseSet(sysGdt);
+}
+
+void sysHwInit(
+    void
+    )
 {
 
-  segBaseSet(sysGdt);
-  intVecBaseSet((FUNCPTR *) sysIdt);
-  excVecInit();
-
-  sysIntInitPIC();
-  sysIntEnablePIC(PIT0_INT_LVL);
+    sysIntInitPIC();
+    sysIntEnablePIC(PIT0_INT_LVL);
 
 #ifdef INCLUDE_PC_CONSOLE
-  intConnectDefault(0x21, kbdIntr, (void *) 0);
+    intConnectDefault(0x21, kbdIntr, (void *) 0);
 #endif /* INCLUDE_PC_CONSOLE */
 }
 

@@ -24,11 +24,10 @@
 #define _config_h_
 
 /* Include arch independant config */
-//#include "../all/configAll.h"
+#include "../all/configAll.h"
 
 #define VM_PAGE_SIZE		4096
 #define LOCAL_MEM_LOCAL_ADRS	0x00100000
-#define VEC_BASE_ADRS		LOCAL_MEM_LOCAL_ADRS
 #define GDT_BASE_OFFSET		(1 * VM_PAGE_SIZE)
 
 /* PC interrupt controller related */
@@ -77,6 +76,7 @@
 #define PC_CONSOLE              0
 #define N_VIRTUAL_CONSOLES      2
 
+#define INCLUDE_EXC_HANDELING
 #define INCLUDE_SEM_BINARY
 #define INCLUDE_SEM_MUTEX
 #define INCLUDE_SEM_COUNTING
