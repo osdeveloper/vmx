@@ -32,9 +32,8 @@
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
 #include <util/qFifoLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/private/tickLibP.h>
-#include <vmx/kernLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/taskLib.h>
 #ifndef NO_WDLIB
@@ -54,7 +53,7 @@ void vmxSpawn(
     )
 {
     /* Activate task */
-    Q_PUT(&kernActiveQ, &tcbId->activeNode, FIFO_KEY_TAIL);
+    Q_PUT(&activeQHead, &tcbId->activeNode, FIFO_KEY_TAIL);
 }
 
 /******************************************************************************
@@ -87,7 +86,7 @@ STATUS vmxDelete(
         /* If task delay flag is set, remove it from tick queue */
         if (tcbId->status & TASK_DELAY)
         {
-            Q_REMOVE(&kernTickQ, &tcbId->tickNode);
+            Q_REMOVE(&tickQHead, &tcbId->tickNode);
         }
     }
 
@@ -111,7 +110,7 @@ STATUS vmxDelete(
 #endif
 
     /* Deactivate task */
-    Q_REMOVE(&kernActiveQ, &tcbId->activeNode);
+    Q_REMOVE(&activeQHead, &tcbId->activeNode);
     tcbId->status = TASK_DEAD;
 
     return status;
@@ -181,9 +180,9 @@ void vmxTickAnnounce(
     sysAbsTicks++;
 
     /* Advance time queue */
-    Q_ADVANCE(&kernTickQ);
+    Q_ADVANCE(&tickQHead);
 
-    while ((pNode = (Q_NODE *) Q_EXPIRED(&kernTickQ)) != NULL)
+    while ((pNode = (Q_NODE *) Q_EXPIRED(&tickQHead)) != NULL)
     {
         tcbId = (TCB_ID) ((int) pNode - OFFSET(TCB, tickNode));
 
@@ -277,12 +276,12 @@ STATUS vmxDelay(
     /* Will kernel timer overflow ? */
     if ((unsigned) (sysTicks + timeout) < sysTicks)
     {
-        Q_OFFSET(&kernTickQ, ~sysTicks + 1);
+        Q_OFFSET(&tickQHead, ~sysTicks + 1);
         sysTicks = 0;
     }
 
     /* Put task on delay queue */
-    Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + sysTicks);
+    Q_PUT(&tickQHead, &taskIdCurrent->tickNode, timeout + sysTicks);
 
     /* Update status to delayed */
     taskIdCurrent->status |= TASK_DELAY;
@@ -313,7 +312,7 @@ STATUS vmxUndelay(
         tcbId->status &= ~TASK_DELAY;
 
         /* Remove from tick queue */
-        Q_REMOVE(&kernTickQ, &tcbId->priority);
+        Q_REMOVE(&tickQHead, &tcbId->priority);
         tcbId->errorStatus = TASK_UNDELAYED;
 
         /* Put on ready queue */
@@ -413,7 +412,7 @@ void vmxPendQGet(
     if (tcbId->status & TASK_DELAY)
     {
         tcbId->status &= ~TASK_DELAY;                /* Clear delay flag */
-        Q_REMOVE(&kernTickQ, &tcbId->tickNode);      /* Remove from queue */
+        Q_REMOVE(&tickQHead, &tcbId->tickNode);      /* Remove from queue */
     }
 
     /* Check if task is ready */
@@ -439,7 +438,7 @@ void vmxReadyQPut(
     if (tcbId->status & TASK_DELAY)
     {
         tcbId->status &= ~TASK_DELAY;                /* Clear delay flag */
-        Q_REMOVE(&kernTickQ, &tcbId->tickNode);      /* Remove from queue */
+        Q_REMOVE(&tickQHead, &tcbId->tickNode);      /* Remove from queue */
     }
 
     /* Check if task is ready */
@@ -474,12 +473,12 @@ void vmxReadyQRemove(
         /* Check timer overflow */
         if ((unsigned)(sysTicks + timeout) < sysTicks)
         {
-            Q_OFFSET(&kernTickQ, ~sysTicks + 1);
+            Q_OFFSET(&tickQHead, ~sysTicks + 1);
             sysTicks = 0;
         }
 
         /* Put on tick queue */
-        Q_PUT(&kernTickQ, &taskIdCurrent->tickNode, timeout + sysTicks);
+        Q_PUT(&tickQHead, &taskIdCurrent->tickNode, timeout + sysTicks);
         taskIdCurrent->status |= TASK_DELAY;
     }
 }
@@ -505,7 +504,7 @@ void vmxPendQFlush(
         if (tcbId->status & TASK_DELAY)
         {
             tcbId->status &= ~TASK_DELAY;              /* Clear delay flag */
-            Q_REMOVE(&kernTickQ, &tcbId->tickNode);    /* Remove from queue */
+            Q_REMOVE(&tickQHead, &tcbId->tickNode);    /* Remove from queue */
         }
 
         /* Check if task is ready */
@@ -556,12 +555,12 @@ void vmxPendQWithHandlerPut(
         /* Check timer overflow */
         if ((unsigned) (sysTicks + timeout) < sysTicks)
         {
-            Q_OFFSET (&kernTickQ, ~sysTicks + 1);
+            Q_OFFSET (&tickQHead, ~sysTicks + 1);
             sysTicks = 0;
         }
 
         /* Put on tick queue */
-        Q_PUT (&kernTickQ, &taskIdCurrent->tickNode, timeout + sysTicks);
+        Q_PUT (&tickQHead, &taskIdCurrent->tickNode, timeout + sysTicks);
         taskIdCurrent->status |= TASK_DELAY;
     }
 }
@@ -608,7 +607,7 @@ STATUS vmxPendQRemove(
     if (tcbId->status & TASK_DELAY)
     {
         tcbId->status &= ~TASK_DELAY;                /* Clear delay flag */
-        Q_REMOVE(&kernTickQ, &tcbId->tickNode);      /* Remove from queue */
+        Q_REMOVE(&tickQHead, &tcbId->tickNode);      /* Remove from queue */
     }
 
     return status;
@@ -638,7 +637,7 @@ void vmxPendQTerminate(
         if (tcbId->status & TASK_DELAY)
         {
             tcbId->status &= ~TASK_DELAY;              /* Clear delay flag */
-            Q_REMOVE(&kernTickQ, &tcbId->tickNode);    /* Remove from queue */
+            Q_REMOVE(&tickQHead, &tcbId->tickNode);    /* Remove from queue */
         }
 
         /* Check if task is ready */
@@ -673,17 +672,17 @@ STATUS vmxWdStart(
         /* If overflow */
         if ((unsigned) (sysTicks + timeout) < sysTicks)
         {
-            Q_OFFSET(&kernTickQ, ~sysTicks + 1);
+            Q_OFFSET(&tickQHead, ~sysTicks + 1);
             sysTicks = 0;
         }
 
         if (wdId->status == WDOG_IN_Q)
         {
-            Q_MOVE(&kernTickQ, &wdId->tickNode, timeout + sysTicks);
+            Q_MOVE(&tickQHead, &wdId->tickNode, timeout + sysTicks);
         }
         else
         {
-            Q_PUT(&kernTickQ, &wdId->tickNode, timeout + sysTicks);
+            Q_PUT(&tickQHead, &wdId->tickNode, timeout + sysTicks);
         }
 
         /* Mark as in queue */
@@ -707,7 +706,7 @@ void vmxWdCancel(
     /* If in queue */
     if (wdId->status == WDOG_IN_Q)
     {
-        Q_REMOVE(&kernTickQ, &wdId->tickNode);
+        Q_REMOVE(&tickQHead, &wdId->tickNode);
         wdId->status = WDOG_OUT_OF_Q;
     }
 }

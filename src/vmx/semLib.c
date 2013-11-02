@@ -28,7 +28,7 @@
 #include <util/qPrioLib.h>
 #include <vmx/objLib.h>
 #include <vmx/classLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>

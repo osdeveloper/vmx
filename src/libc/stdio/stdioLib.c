@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <vmx.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/taskLib.h>
 #ifndef NO_SWAPLIB
 #include <vmx/taskHookLib.h>

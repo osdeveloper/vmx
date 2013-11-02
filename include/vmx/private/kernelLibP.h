@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernLib.h - Kernel library */
+/* kernelLibP.h - Private header for kernel library */
 
-#ifndef _kernLib_h
-#define _kernLib_h
+#ifndef _kernelLibP_h
+#define _kernelLibP_h
 
 #ifndef _ASMLANGUAGE
 
@@ -29,30 +29,25 @@
 extern "C" {
 #endif
 
-/******************************************************************************
- * kernelInit - Initialize kernel
- *
- * RETURNS: N/A
- */
+#include <vmx.h>
+#include <vmx/taskLib.h>
 
-void kernelInit(
-    FUNCPTR rootFunc,
-    unsigned rootMemSize,
-    char *pMemPoolStart,
-    char *pMemPoolEnd,
-    unsigned excStackSize,
-    int lockOutLevel
-    );
+IMPORT BOOL      kernelInitialized;
+IMPORT BOOL      kernelState;
+IMPORT BOOL      roundRobinOn;
+IMPORT unsigned  roundRobinSlice;
 
-/******************************************************************************
- * kernelTimeSlice - Enable/Disable round robin task scheduling
- *
- * RETURNS: OK
- */
+IMPORT char     *pRootMemStart;
+IMPORT unsigned  rootMemNBytes;
+IMPORT int       rootTaskId;
 
-STATUS kernelTimeSlice(
-    unsigned ticks
-    );
+IMPORT char     *pExcStackBase;
+IMPORT char     *pExcStackEnd;
+
+IMPORT TCB_ID    taskIdCurrent;
+IMPORT Q_HEAD    activeQHead;
+IMPORT Q_HEAD    tickQHead;
+IMPORT Q_HEAD    readyQHead;
 
 #ifdef __cplusplus
 }
@@ -60,5 +55,5 @@ STATUS kernelTimeSlice(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _kernLib_h */
+#endif /* _kernelLibP_h */
 

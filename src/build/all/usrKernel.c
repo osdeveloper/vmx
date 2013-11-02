@@ -38,8 +38,8 @@
 /* Defines */
 
 /* Imports */
-IMPORT Q_HEAD kernActiveQ;
-IMPORT Q_HEAD kernTickQ;
+IMPORT Q_HEAD activeQHead;
+IMPORT Q_HEAD tickQHead;
 IMPORT Q_HEAD readyQHead;
 
 /* Locals */
@@ -91,8 +91,8 @@ void usrKernelInit(void)
 #endif /* INCLUDE_MSG_Q */
 
     /* Initialize kernel queues */
-    qInit(&kernActiveQ, qFifoClassId);
-    qInit(&kernTickQ, qPrioClassId);
+    qInit(&activeQHead, qFifoClassId);
+    qInit(&tickQHead, qPrioClassId);
 
 #ifdef INCLUDE_CONSTANT_RDY_Q
     qInit(&readyQHead, qPriBmpClassId, 256, kernReadyLst, kernReadyBmp);

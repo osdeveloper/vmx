@@ -30,7 +30,7 @@
 #include <util/qMsgLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/memPartLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/msgQLib.h>
 

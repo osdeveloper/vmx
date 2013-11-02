@@ -25,7 +25,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <vmx.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
 #include <util/qLib.h>
@@ -128,7 +128,7 @@ void excExcHandle(
 #endif
 
     /* If exception in isr or pre-kernel */
-    if ((INT_CONTEXT()) || (Q_FIRST(&kernActiveQ) == NULL))
+    if ((INT_CONTEXT()) || (Q_FIRST(&activeQHead) == NULL))
     {
         sysReboot();
     }
@@ -185,7 +185,7 @@ void excIntHandle(
     }
 #endif
 
-    if (Q_FIRST(&kernActiveQ) == NULL)
+    if (Q_FIRST(&activeQHead) == NULL)
     {
         sysReboot();
     }

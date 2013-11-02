@@ -26,7 +26,7 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <vmx/workQLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/tickLib.h>
 

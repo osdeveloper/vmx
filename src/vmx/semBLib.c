@@ -26,7 +26,7 @@
 
 #include <vmx/errnoLib.h>
 #include <vmx/classLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/sigLib.h>

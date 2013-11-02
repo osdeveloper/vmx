@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/workQLib.h>

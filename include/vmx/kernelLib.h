@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernLibP.h - Private header for kernel library */
+/* kernelLib.h - Kernel library */
 
-#ifndef _kernLibP_h
-#define _kernLibP_h
+#ifndef _kernelLib_h
+#define _kernelLib_h
 
 #ifndef _ASMLANGUAGE
 
@@ -29,25 +29,30 @@
 extern "C" {
 #endif
 
-#include <vmx.h>
-#include <vmx/taskLib.h>
+/******************************************************************************
+ * kernelInit - Initialize kernel
+ *
+ * RETURNS: N/A
+ */
 
-IMPORT BOOL      kernelInitialized;
-IMPORT BOOL      kernelState;
-IMPORT BOOL      roundRobinOn;
-IMPORT unsigned  roundRobinSlice;
+void kernelInit(
+    FUNCPTR rootFunc,
+    unsigned rootMemSize,
+    char *pMemPoolStart,
+    char *pMemPoolEnd,
+    unsigned excStackSize,
+    int lockOutLevel
+    );
 
-IMPORT char     *pRootMemStart;
-IMPORT unsigned  rootMemNBytes;
-IMPORT int       rootTaskId;
+/******************************************************************************
+ * kernelTimeSlice - Enable/Disable round robin task scheduling
+ *
+ * RETURNS: OK
+ */
 
-IMPORT char     *pExcStackBase;
-IMPORT char     *pExcStackEnd;
-
-IMPORT TCB_ID    taskIdCurrent;
-IMPORT Q_HEAD    kernActiveQ;
-IMPORT Q_HEAD    kernTickQ;
-IMPORT Q_HEAD    readyQHead;
+STATUS kernelTimeSlice(
+    unsigned ticks
+    );
 
 #ifdef __cplusplus
 }
@@ -55,5 +60,5 @@ IMPORT Q_HEAD    readyQHead;
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _kernLibP_h */
+#endif /* _kernelLib_h */
 

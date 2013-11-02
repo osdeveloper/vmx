@@ -32,7 +32,7 @@
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
 #include <vmx/workQLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/sigLib.h>

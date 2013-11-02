@@ -26,7 +26,7 @@
 #include <arch/regs.h>
 #include <arch/intArchLib.h>
 #include <util/qLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
 
@@ -107,7 +107,7 @@ int taskNameToId(
     int taskId;
 
     /* Try to match each node in the active queue against name */
-    taskId = (int) Q_EACH(&kernActiveQ, taskNameNoMatch, name);
+    taskId = (int) Q_EACH(&activeQHead, taskNameNoMatch, name);
 
     /* If no match was found */
     if (taskId == 0)
@@ -204,7 +204,7 @@ int taskIdListGet(
     taskLock();
 
     /* Get number of nodes in active queue */
-    count = Q_INFO(&kernActiveQ, idList, maxTasks);
+    count = Q_INFO(&activeQHead, idList, maxTasks);
 
     /* Unlock task */
     taskUnlock();

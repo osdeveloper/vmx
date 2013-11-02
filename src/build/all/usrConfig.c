@@ -38,7 +38,7 @@
 #include <arch/taskArchLib.h>
 #include <vmx/logLib.h>
 #include <vmx/memPartLib.h>
-#include <vmx/kernLib.h>
+#include <vmx/kernelLib.h>
 #include <vmx/tickLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>

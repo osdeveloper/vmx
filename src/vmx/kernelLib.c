@@ -34,8 +34,8 @@
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/memPartLib.h>
-#include <vmx/kernLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/kernelLib.h>
+#include <vmx/private/kernelLibP.h>
 
 #define TCB_SIZE                ((unsigned)STACK_ROUND_UP(sizeof(TCB)))
 #define MEM_BLOCK_HEADER_SIZE   ((unsigned)STACK_ROUND_UP(sizeof(BLOCK_HEADER)))
@@ -58,8 +58,8 @@ char     *pExcStackBase     = NULL;
 char     *pExcStackEnd      = NULL;
 
 TCB_ID    taskIdCurrent     = NULL;
-Q_HEAD    kernActiveQ       = {NULL, 0, 0 ,NULL};
-Q_HEAD    kernTickQ;
+Q_HEAD    activeQHead       = {NULL, 0, 0 ,NULL};
+Q_HEAD    tickQHead;
 Q_HEAD    readyQHead;
 
 /* Locals */
