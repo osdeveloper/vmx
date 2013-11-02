@@ -35,12 +35,15 @@ extern "C" {
  * RETURNS: N/A
  */
 
-void kernInit(
-    FUNCPTR rootTask
+void kernelInit(
+    FUNCPTR rootFunc,
+    char *pMemPoolStart,
+    char *pMemPoolEnd,
+    unsigned excStackSize
     );
 
 /******************************************************************************
- * kernTimeSlice - Enable/Disable round robin task scheduling
+ * kernelTimeSlice - Enable/Disable round robin task scheduling
  *
  * RETURNS: OK
  */

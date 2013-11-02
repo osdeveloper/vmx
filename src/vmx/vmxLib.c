@@ -250,10 +250,10 @@ void vmxTickAnnounce(
     }
 
     /* Perform periodic task switching in round robin mode */
-    if ((kernRoundRobin) &&
+    if ((roundRobinOn == TRUE) &&
         (taskIdCurrent->lockCount == 0) &&
         (taskIdCurrent->status == TASK_READY) &&
-        (++taskIdCurrent->timeSlice >= kernRoundRobinTimeSlice))
+        (++taskIdCurrent->timeSlice >= roundRobinSlice))
     {
         taskIdCurrent->timeSlice = 0;
         Q_REMOVE(&readyQHead, taskIdCurrent);

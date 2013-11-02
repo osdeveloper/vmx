@@ -32,14 +32,18 @@ extern "C" {
 #include <vmx.h>
 #include <vmx/taskLib.h>
 
-IMPORT BOOL kernelInitialized;
-IMPORT BOOL kernelState;
-IMPORT BOOL kernRoundRobin;
-IMPORT unsigned kernRoundRobinTimeSlice;
-IMPORT TCB_ID taskIdCurrent;
-IMPORT Q_HEAD kernActiveQ;
-IMPORT Q_HEAD kernTickQ;
-IMPORT Q_HEAD readyQHead;
+IMPORT BOOL     kernelInitialized;
+IMPORT BOOL     kernelState;
+IMPORT BOOL     roundRobinOn;
+IMPORT unsigned roundRobinSlice;
+
+IMPORT char    *excStackBase;
+IMPORT char    *excStackEnd;
+
+IMPORT TCB_ID   taskIdCurrent;
+IMPORT Q_HEAD   kernActiveQ;
+IMPORT Q_HEAD   kernTickQ;
+IMPORT Q_HEAD   readyQHead;
 
 #ifdef __cplusplus
 }

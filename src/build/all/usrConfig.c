@@ -615,7 +615,7 @@ int initTasks(void)
   return 0;
 }
 
-void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
+void usrMore(char *pMemPoolStart, unsigned memPoolSize)
 {
   char ttyName[20];
   int i, len;
@@ -703,18 +703,19 @@ void kernelInit(char *pMemPoolStart, unsigned memPoolSize)
   printf("Initializing kernel:\n");
 #endif
 
-  kernInit((FUNCPTR) initTasks);
+  kernelInit(
+    (FUNCPTR) initTasks,
+    pMemPoolStart,
+    pMemPoolStart + memPoolSize,
+    INT_STACK_SIZE
+    );
 }
 
 void usrInit(void)
 {
-  int i, j;
-  char *ptr, *lastPtr;
-  PART_ID memUsrPartitionId;
-
   sysHwInit();
 
-  kernelInit((char *) 0x00400000, 0x00400000);
+  usrMore((char *) 0x00400000, 0x00400000);
   kernelTimeSlice(1);
 
 #ifdef DEBUG

@@ -37,12 +37,16 @@
 #define INCLUDE_CONSTANT_RDY_Q
 
 /* Globals */
-BOOL kernelInitialized           = FALSE;
-BOOL kernelState                 = FALSE;
-BOOL kernRoundRobin              = FALSE;
-unsigned kernRoundRobinTimeSlice = 0;
-TCB_ID taskIdCurrent             = NULL;
-Q_HEAD kernActiveQ               = {NULL, 0, 0 ,NULL};
+BOOL kernelInitialized   = FALSE;
+BOOL kernelState         = FALSE;
+BOOL roundRobinOn        = FALSE;
+unsigned roundRobinSlice = 0;
+
+char  *excStackBase      = NULL;
+char  *excStackEnd       = NULL;
+
+TCB_ID taskIdCurrent     = NULL;
+Q_HEAD kernActiveQ       = {NULL, 0, 0 ,NULL};
 Q_HEAD kernTickQ;
 Q_HEAD readyQHead;
 
@@ -58,8 +62,11 @@ LOCAL unsigned kernReadyBmp[8];
  * RETURNS: N/A
  */
 
-void kernInit(
-    FUNCPTR rootTask
+void kernelInit(
+    FUNCPTR rootFunc,
+    char *pMemPoolStart,
+    char *pMemPoolEnd,
+    unsigned excStackSize
     )
 {
     int level;
@@ -77,10 +84,41 @@ void kernInit(
     qInit(&readyQHead, qPrioClassId);
 #endif
 
+
+    /* Align input parameters */
+    pMemPoolStart = (char *) STACK_ROUND_UP(pMemPoolStart);
+    pMemPoolEnd = (char *) STACK_ROUND_UP(pMemPoolEnd);
+    excStackSize = STACK_ROUND_UP(excStackSize);
+
     /* Initialize variables */
-    kernelState             = FALSE;
-    kernRoundRobin          = FALSE;
-    kernRoundRobinTimeSlice = 0;
+    kernelState     = FALSE;
+    roundRobinOn    = FALSE;
+    roundRobinSlice = 0;
+#if (_STACK_DIR == _STACK_GROWS_DOWN)
+
+    /* Setup interrupt stack at bottom of memory pool */
+    excStackBase = pMemPoolStart + excStackSize;
+    excStackEnd  = pMemPoolStart;
+
+    /* Fill stack with 0xee */
+    //memset(pKernExcStkEnd, 0xee, excStackSize);
+
+    /* Memory will start after interrupt stack */
+    pMemPoolStart = excStackBase;
+
+#else /* _STACK_DIR == _STACK_GROWS_UP */
+
+    /* Setup interrupt stack at bottom of memory pool */
+    excStackBase = pMemPoolStart;
+    excStackkEnd = pMemPoolStart + excStackSize;
+
+    /* Fill stack with 0xee */
+    //memset(excStackBase, 0xee, excStackSize);
+
+    /* Memory will start after interrupt stack */
+    pMemPoolStart = excStackEnd;
+
+#endif /* _STACK_DIR */
 
     /* Create and start root task */
     rootTaskId = taskCreat(
@@ -88,7 +126,7 @@ void kernInit(
         0,
         0,
         DEFAULT_STACK_SIZE,
-        rootTask,
+        rootFunc,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         );
     vmxResume((TCB_ID) rootTaskId);
@@ -111,7 +149,7 @@ void kernInit(
 }
 
 /******************************************************************************
- * kernTimeSlice - Enable/Disable round robin task scheduling
+ * kernelTimeSlice - Enable/Disable round robin task scheduling
  *
  * RETURNS: OK
  */
@@ -123,12 +161,12 @@ STATUS kernelTimeSlice(
     /* 0 turns round robin off */
     if (ticks == 0)
     {
-        kernRoundRobin = FALSE;
+        roundRobinOn = FALSE;
     }
     else
     {
-        kernRoundRobinTimeSlice = ticks;
-        kernRoundRobin = TRUE;
+        roundRobinSlice = ticks;
+        roundRobinOn = TRUE;
     }
 
     return OK;
