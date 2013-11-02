@@ -615,7 +615,10 @@ int initTasks(void)
   return 0;
 }
 
-void usrMore(char *pMemPoolStart, unsigned memPoolSize)
+void usrRoot(
+    char *pMemPoolStart,
+    unsigned memPoolSize
+    )
 {
   char ttyName[20];
   int i, len;
@@ -697,7 +700,7 @@ void usrInit(
     /* Initialize kernel libraries */
     usrKernelInit();
 
-    usrMore((char *) 0x00400000, 0x00400000);
+    usrRoot((char *) 0x00400000, 0x00400000);
     kernelTimeSlice(1);
 
 #ifdef DEBUG

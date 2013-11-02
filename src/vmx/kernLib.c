@@ -71,7 +71,7 @@ void kernelInit(
     )
 {
     int level;
-    int rootTaskId, idleTaskId;
+    int rootTaskId;
 
     /* Align input parameters */
     pMemPoolStart = (char *) STACK_ROUND_UP(pMemPoolStart);
@@ -119,16 +119,6 @@ void kernelInit(
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         );
     vmxResume((TCB_ID) rootTaskId);
-
-    idleTaskId = taskCreat(
-        "idleTask",
-        255,
-        0,
-        DEFAULT_STACK_SIZE,
-        (FUNCPTR) taskIdle,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-        );
-    vmxResume((TCB_ID) idleTaskId);
 
     taskIdCurrent = (TCB_ID) rootTaskId;
     INT_LOCK(level);
