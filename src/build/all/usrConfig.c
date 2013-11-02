@@ -621,43 +621,13 @@ void usrMore(char *pMemPoolStart, unsigned memPoolSize)
   int i, len;
 
 #ifdef DEBUG
-  printf("Initializing kernel logger library:\n");
-#endif
-
-  setLogFlags(LOG_TASK_LIB|LOG_VMX_LIB|LOG_SEM_LIB|LOG_KERN_HOOK_LIB);
-  setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING/*|LOG_LEVEL_INFO*/);
-
-#ifdef DEBUG
-  printf("Initializing class library:\n");
-#endif
-
-  classLibInit();
-
-#ifdef DEBUG
   printf("Initializing memory partition library:\n");
 #endif
 
   memPartLibInit(pMemPoolStart, memPoolSize);
 
-#ifdef DEBUG
-  printf("Initializing semaphores:\n");
-#endif
-
-  semLibInit();
-  semBLibInit();
-  semMLibInit();
-  semCLibInit();
-
-  msgQLibInit();
   /* For some reason in need this in order to include ffsLib */
   ffsLsb(0);
-
-#ifdef DEBUG
-  printf("Initializing task library:\n");
-#endif
-
-  tickLibInit();
-  taskLibInit();
 
   iosLibInit(20, 50, "/null");
   pathLibInit();
@@ -714,6 +684,11 @@ void usrMore(char *pMemPoolStart, unsigned memPoolSize)
 void usrInit(void)
 {
   sysHwInit();
+
+  setLogFlags(LOG_TASK_LIB|LOG_VMX_LIB|LOG_SEM_LIB|LOG_KERN_HOOK_LIB);
+  setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING/*|LOG_LEVEL_INFO*/);
+
+  usrKernelInit();
 
   usrMore((char *) 0x00400000, 0x00400000);
   kernelTimeSlice(1);

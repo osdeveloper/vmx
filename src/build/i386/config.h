@@ -77,6 +77,11 @@
 #define PC_CONSOLE              0
 #define N_VIRTUAL_CONSOLES      2
 
+#define INCLUDE_SEM_BINARY
+#define INCLUDE_SEM_MUTEX
+#define INCLUDE_SEM_COUNTING
+#define INCLUDE_MSG_Q
+#define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_PC_CONSOLE
 
 #endif

@@ -33,6 +33,7 @@
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/kernLib.h>
+#include <vmx/private/kernLibP.h>
 
 #define INCLUDE_CONSTANT_RDY_Q
 
@@ -72,19 +73,6 @@ void kernelInit(
     int level;
     int rootTaskId, idleTaskId;
 
-    /* Initialize kernel work queue */
-    workQLibInit();
-
-    /* Initialize queues */
-    qInit(&kernActiveQ, qFifoClassId);
-    qInit(&kernTickQ, qPrioClassId);
-#ifdef INCLUDE_CONSTANT_RDY_Q
-    qInit(&readyQHead, qPriBmpClassId, 256, kernReadyLst, kernReadyBmp);
-#else
-    qInit(&readyQHead, qPrioClassId);
-#endif
-
-
     /* Align input parameters */
     pMemPoolStart = (char *) STACK_ROUND_UP(pMemPoolStart);
     pMemPoolEnd = (char *) STACK_ROUND_UP(pMemPoolEnd);
@@ -94,6 +82,7 @@ void kernelInit(
     kernelState     = FALSE;
     roundRobinOn    = FALSE;
     roundRobinSlice = 0;
+
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
 
     /* Setup interrupt stack at bottom of memory pool */
