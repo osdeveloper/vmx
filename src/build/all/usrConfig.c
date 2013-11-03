@@ -48,6 +48,7 @@
 #include <os/iosLib.h>
 #include <os/pathLib.h>
 #include <os/logLib.h>
+#include <os/excLib.h>
 #include <os/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
@@ -793,6 +794,12 @@ LOCAL void usrRoot(
   ioGlobalStdSet(STDERR_FILENO, consoleFd);
 
   stdioLibInit();
+
+#ifdef INCLUDE_EXC_TASK
+
+  excLibInit();
+
+#endif /* INCLUDE_EXC_TASK */
 
 #ifdef INCLUDE_LOGGING
 
