@@ -23,7 +23,7 @@
 #ifndef _sigLib_h
 #define _sigLib_h
 
-#include <vmx/private/sigLibP.h>
+#include <os/private/sigLibP.h>
 
 #ifndef _ASMLANGUAGE
 

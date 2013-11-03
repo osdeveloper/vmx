@@ -36,7 +36,6 @@
 #include <arch/intArchLib.h>
 #include <arch/vmxArchLib.h>
 #include <arch/taskArchLib.h>
-#include <vmx/logLib.h>
 #include <vmx/memPartLib.h>
 #include <vmx/kernelLib.h>
 #include <vmx/tickLib.h>
@@ -48,6 +47,7 @@
 #include <vmx/wdLib.h>
 #include <os/iosLib.h>
 #include <os/pathLib.h>
+#include <os/logLib.h>
 #include <os/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
@@ -492,7 +492,7 @@ int initTasks(void)
   int restartTaskId;
 #endif
 
-  printf("Welcome to Real VMX...\n");
+  printf("\nWelcome to Real VMX...\n");
   printf("This system is released under GNU public license.\n\n");
 
   memset(&taskHookCnt, 0, sizeof(taskHookCnt));
@@ -721,9 +721,6 @@ void usrInit(
     /* Initialize hardware */
     sysHwInit();
 
-    setLogFlags(LOG_TASK_LIB|LOG_VMX_LIB|LOG_SEM_LIB|LOG_KERN_HOOK_LIB);
-    setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING/*|LOG_LEVEL_INFO*/);
-
     /* Initialize kernel libraries */
     usrKernelInit();
 
@@ -760,7 +757,7 @@ LOCAL void usrRoot(
   /* For some reason in need this in order to include ffsLib */
   ffsLsb(0);
 
-  iosLibInit(20, 50, "/null");
+  iosLibInit(NUM_DRIVERS, NUM_FILES, "/null");
   pathLibInit();
   pcConDrvInit();
 
@@ -796,6 +793,21 @@ LOCAL void usrRoot(
   ioGlobalStdSet(STDERR_FILENO, consoleFd);
 
   stdioLibInit();
+
+#ifdef INCLUDE_LOGGING
+
+  logLibInit(STDERR_FILENO, MAX_LOG_MSGS);
+
+#ifdef INCLUDE_LOG_STARTUP
+
+  logMsg("logging started to %s [%d], queue size %d\n",
+        (ARG) consoleName, (ARG) consoleFd, (ARG) MAX_LOG_MSGS,
+        (ARG) 4, (ARG) 5, (ARG) 6);
+  taskDelay(2);
+
+#endif /* INCLUDE_LOG_STARTUP */
+
+#endif /* INCLUDE_LOGGING */
 
   echoDrvInit();
   echoDevCreate("/echo", 1024, 1024);

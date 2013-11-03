@@ -25,14 +25,11 @@
 #include <drv/video/pvr.h>
 #include <arch/intArchLib.h>
 #include <drv/timer/dreamcast/timer.h>
-#include <vmx/logLib.h>
 
 void usrInit(void)
 {
   int i, j;
   sysHwInit();
-  setLogFlags(LOG_ARCH_LIB);
-  setLogLevel(LOG_LEVEL_ERROR|LOG_LEVEL_WARNING|LOG_LEVEL_INFO|LOG_LEVEL_CALLS);
   for (i = 0; i < 50; i++) { for (j = 0; j < 0xfffff; j++); puts("."); }
   irq_shutdown();
 }

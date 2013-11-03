@@ -24,13 +24,13 @@
 #include <arch/intArchLib.h>
 #include <stdlib.h>
 
+#include <arch/intArchLib.h>
 #include <vmx/errnoLib.h>
 #include <vmx/classLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/sigLib.h>
-#include <arch/intArchLib.h>
+#include <os/sigLib.h>
 #include <vmx/semLib.h>
 
 /* Locals */

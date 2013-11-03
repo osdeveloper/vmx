@@ -85,6 +85,8 @@
 #define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_WDOG
 #define INCLUDE_PC_CONSOLE
+#define INCLUDE_LOGGING
+#define INCLUDE_LOG_STARTUP
 
 #endif
 

@@ -25,18 +25,17 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <arch/vmxArchLib.h>
-#include <vmx/logLib.h>
+#include <util/qLib.h>
+#include <util/qPrioLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
 #include <vmx/memPartLib.h>
-#include <util/qLib.h>
-#include <util/qPrioLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
-#include <vmx/sigLib.h>
 #include <vmx/taskHookLib.h>
 #include <vmx/private/taskHookLibP.h>
+#include <os/sigLib.h>
 #include <vmx/taskLib.h>
 
 /* Defines */

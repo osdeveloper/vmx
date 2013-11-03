@@ -23,11 +23,15 @@
 #ifndef _configAll_h
 #define _configAll_h
 
-#define VEC_BASE_ADRS                   ((char *) LOCAL_MEM_LOCAL_ADRS)
 #define INT_LOCK_LEVEL                  0x0     /* Interrupt lockout level */
 #define ROOT_STACK_SIZE                 10000   /* Root task stack size */
 #define SHELL_STACK_SIZE                20000   /* Shell stack size */
 #define ISR_STACK_SIZE                  2000    /* Interrupt stack size */
+#define VEC_BASE_ADRS                   ((char *) LOCAL_MEM_LOCAL_ADRS)
+
+#define NUM_DRIVERS                     20      /* Maximum drivers */
+#define NUM_FILES                       50      /* Maximum open files */
+#define MAX_LOG_MSGS                    50      /* Maximum of log messages */
 
 #ifdef __cplusplus
 extern "C" {

@@ -25,7 +25,6 @@
 #include <string.h>
 #include <vmx.h>
 #include <util/dllLib.h>
-#include <vmx/logLib.h>
 #include <vmx/errnoLib.h>
 #include <vmx/classLib.h>
 #include <vmx/memPartLib.h>
@@ -455,13 +454,6 @@ void* memPartAlignedAlloc(
     /* Verify object */
     if (OBJ_VERIFY(partId, memPartClassId) != OK)
     {
-        /* errno set by OBJ_VERIFY */
-        logString(
-            "ERROR - Invalid memory partition object",
-            LOG_MEM_LIB,
-            LOG_LEVEL_ERROR
-            );
-
         pHeader = NULL;
     }
     else
@@ -473,15 +465,11 @@ void* memPartAlignedAlloc(
         if ((nWords << 1) < nBytes)
         {
             if (memPartAllocErrorFunc != NULL)
-            (*memPartAllocErrorFunc)(partId, nBytes);
-            errnoSet(ENOMEM);
+            {
+                (*memPartAllocErrorFunc)(partId, nBytes);
+            }
 
-            logStringAndInteger(
-                "ERROR - Memory allocation overflow",
-                nWords << 1,
-                LOG_MEM_LIB,
-                LOG_LEVEL_ERROR
-                );
+            errnoSet(ENOMEM);
 
             /* If block error suspend flag */
             if (partId->options & MEM_ALLOC_ERROR_SUSPEND_FLAG)
@@ -543,14 +531,8 @@ void* memPartAlignedAlloc(
                     {
                         (*memPartAllocErrorFunc)(partId, nBytes);
                     }
-                    errnoSet(ENOMEM);
 
-                    logStringAndInteger(
-                        "ERROR - No more free memory blocks",
-                        dllCount(&partId->freeList),
-                        LOG_MEM_LIB,
-                        LOG_LEVEL_ERROR
-                        );
+                    errnoSet(ENOMEM);
 
                     /* If block error suspend flag */
                     if (partId->options & MEM_ALLOC_ERROR_SUSPEND_FLAG)
@@ -841,12 +823,6 @@ STATUS memPartFree(
             }
 
             errnoSet(S_memPartLib_BLOCK_ERROR);
-
-            logString(
-                "ERROR - Invalid memory block to be freed",
-                LOG_MEM_LIB,
-                LOG_LEVEL_ERROR
-                );
 
             /* If block error suspend flag */
             if (partId->options & MEM_BLOCK_ERROR_SUSPEND_FLAG)
