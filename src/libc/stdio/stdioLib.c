@@ -20,8 +20,6 @@
 
 /* stdioLib.c - Base file for stdio */
 
-#define NO_SWAPLIB
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -30,9 +28,7 @@
 #include <vmx.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/taskLib.h>
-#ifndef NO_SWAPLIB
 #include <vmx/taskHookLib.h>
-#endif
 #include <vmx/errnoLib.h>
 #include <vmx/memPartLib.h>
 #include <vmx/classLib.h>
@@ -281,7 +277,6 @@ LOCAL STATUS stdioInitStd(
             /* File fp in task */
             taskIdCurrent->taskStdFp[stdFd] = fp;
 
-#ifndef NO_SWAPLIB
             /* Task should deallocate std fps when deleted */
             if ((stdioFpCleanupHookDone == FALSE) &&
                 ((fp == stdout) || (fp == stdin) || (fp == stderr)))
@@ -290,7 +285,7 @@ LOCAL STATUS stdioInitStd(
                 taskDeleteHookAdd((FUNCPTR) stdioStdfpCleanup);
                 stdioFpCleanupHookDone = TRUE;
             }
-#endif
+
             status = OK;
         }
     }

@@ -20,8 +20,6 @@
 
 /* vmxLib.c - Task scheduling library */
 
-#define NO_SWAPLIB
-#define NO_MUTEX
 #define NO_WDLIB
 #define NO_UNPENDHDL
 
@@ -36,6 +34,7 @@
 #include <vmx/private/tickLibP.h>
 #include <vmx/workQLib.h>
 #include <vmx/taskLib.h>
+#include <vmx/private/taskHookLibP.h>
 #ifndef NO_WDLIB
 #include <vmx/wdLib.h>
 #endif
@@ -90,7 +89,6 @@ STATUS vmxDelete(
         }
     }
 
-#ifndef NO_SWAPLIB
     /* Disconnect to all swap hooks */
     for (i = 0, mask = tcbId->swapInMask; mask != 0; i++, mask = mask << 1)
     {
@@ -107,7 +105,6 @@ STATUS vmxDelete(
             taskSwapReference[i]--;
         }
     }
-#endif
 
     /* Deactivate task */
     Q_REMOVE(&activeQHead, &tcbId->activeNode);
@@ -370,7 +367,6 @@ void vmxSemDelete(
     /* Get owner */
     pOwner = SEM_OWNER_GET(semId);
 
-#ifndef NO_MUTEX
     /* Special for mutex */
     if (semId->semType == SEM_TYPE_MUTEX)
     {
@@ -390,7 +386,6 @@ void vmxSemDelete(
             }
         }
     }
-#endif
 }
 
 /******************************************************************************
