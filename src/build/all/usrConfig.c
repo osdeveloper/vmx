@@ -81,6 +81,50 @@ int consoleFd;
 int echoFd;
 char consoleName[20];
 
+struct
+{
+    unsigned th_create;
+    unsigned th_delete;
+    unsigned th_switch;
+    unsigned th_swapin;
+    unsigned th_swapout;
+} taskHookCnt;
+
+int task_create(
+    void
+    )
+{
+    return ++taskHookCnt.th_create;
+}
+
+int task_switch(
+    void
+    )
+{
+    return ++taskHookCnt.th_switch;
+}
+
+int task_swapin(
+    void
+    )
+{
+    return ++taskHookCnt.th_swapin;
+}
+
+int task_swapout(
+    void
+    )
+{
+    return ++taskHookCnt.th_swapout;
+}
+
+int task_delete(
+    void
+    )
+{
+    return ++taskHookCnt.th_delete;
+}
+
 #ifdef TASK_POST
 int runMe(ARG arg0)
 {
@@ -196,6 +240,12 @@ int printSysTime(ARG arg0, ARG arg1)
   for (i = 0;;i++) {
     semTake(sem, WAIT_FOREVER);
     printf("System time is: %d...\n", tickGet() / 18);
+    printf("CRE: %d, SWI: %d, SWI: %d, SWO: %d, DEL: %d\n",
+      taskHookCnt.th_create,
+      taskHookCnt.th_switch,
+      taskHookCnt.th_swapin,
+      taskHookCnt.th_swapout,
+      taskHookCnt.th_delete);
     if (i == 3)
     {
       i=0;
@@ -235,11 +285,14 @@ int slowFill(void)
 
 int evtHandler(void)
 {
+  static int cnt;
   for (;;)
   {
     semTake(evtSem, WAIT_FOREVER);
+    ++cnt;
     printf("???????????????????????????????????????????????????????????????\n");
-    printf("Event triggered\n");
+    printf("Event triggered %d time(s), swap-in: %d, swap-out: %d\n",
+           cnt, taskHookCnt.th_swapin, taskHookCnt.th_swapout);
     printf("???????????????????????????????????????????????????????????????\n");
   }
 
@@ -421,12 +474,20 @@ int test_realloc(void)
 
 int initTasks(void)
 {
+  int evtTaskId;
 #ifdef RESTART_TASK
   int restartTaskId;
 #endif
 
   printf("Welcome to Real VMX...\n");
   printf("This system is released under GNU public license.\n\n");
+
+  memset(&taskHookCnt, 0, sizeof(taskHookCnt));
+  taskCreateHookAdd((FUNCPTR) task_create);
+  taskSwitchHookAdd((FUNCPTR) task_switch);
+  taskSwapHookAdd((FUNCPTR) task_swapin);
+  taskSwapHookAdd((FUNCPTR) task_swapout);
+  taskDeleteHookAdd((FUNCPTR) task_delete);
 
   sem = semCreate(SEM_TYPE_BINARY, SEM_Q_FIFO);
   if (sem == NULL)
@@ -533,7 +594,7 @@ int initTasks(void)
              (ARG) 48,
              (ARG) 49);
 
-  taskSpawn("evtHandler", 2, 0,
+  evtTaskId = taskSpawn("evtHandler", 2, 0,
              DEFAULT_STACK_SIZE, (FUNCPTR) evtHandler,
              (ARG) 50,
              (ARG) 51,
@@ -571,6 +632,10 @@ int initTasks(void)
              (ARG) 67,
              (ARG) 68,
              (ARG) 69);
+  taskSuspend(evtTaskId);
+  taskSwapHookAttach((FUNCPTR) task_swapin, evtTaskId, TRUE, FALSE);
+  taskSwapHookAttach((FUNCPTR) task_swapout, evtTaskId, FALSE, TRUE);
+  taskResume(evtTaskId);
 
 #else
 

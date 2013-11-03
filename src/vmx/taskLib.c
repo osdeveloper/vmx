@@ -33,9 +33,11 @@
 #include <util/qPrioLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/private/kernelLibP.h>
-#include <vmx/taskLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/sigLib.h>
+#include <vmx/taskHookLib.h>
+#include <vmx/private/taskHookLibP.h>
+#include <vmx/taskLib.h>
 
 /* Defines */
 #define TASK_EXTRA_BYTES       16
@@ -297,14 +299,15 @@ STATUS taskInit(
             /* Set unique id */
             tcbId->id = new_id++;
 
-            /* Set initial status */
-            tcbId->status = TASK_SUSPEND;
-            tcbId->lockCount = 0;
-            tcbId->priority = priority;
-            tcbId->options = options;
-
-            /* Time slice counter */
-            tcbId->timeSlice = 0;
+            /* Set initial values */
+            tcbId->status      = TASK_SUSPEND;
+            tcbId->lockCount   = 0;
+            tcbId->swapInMask  = 0;
+            tcbId->swapOutMask = 0;
+            tcbId->name        = NULL;
+            tcbId->priority    = priority;
+            tcbId->options     = options;
+            tcbId->timeSlice   = 0;
 
             /* Pendig queue, used by semaphores */
             tcbId->pPendQ = NULL;
@@ -366,6 +369,15 @@ STATUS taskInit(
                 /* Set task name */
                 strcpy(taskName, name);
                 tcbId->name = taskName;
+
+                /* Run create hooks */
+                for (i = 0; i < MAX_TASK_CREATE_HOOKS; i++)
+                {
+                    if (taskCreateHooks[i] != NULL)
+                    {
+                        (*taskCreateHooks[i])(tcbId);
+                    }
+                }
 
                 /* Start task */
                 vmxSpawn(tcbId);
@@ -430,6 +442,7 @@ STATUS taskDestroy(
     )
 {
     STATUS status;
+    int i;
     int level;
     TCB_ID tcbId;
 
@@ -567,6 +580,15 @@ STATUS taskDestroy(
 
                 /* Lock task */
                 taskLock();
+
+                /* Run deletion hooks */
+                for (i = 0; i < MAX_TASK_DELETE_HOOKS; i++)
+                {
+                    if (taskDeleteHooks[i] != NULL)
+                    {
+                        (*taskDeleteHooks[i])(tcbId);
+                    }
+                }
 
                 /* If dealloc and options dealloc stack */
                 if ((freeStack == TRUE) &&

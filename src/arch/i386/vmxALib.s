@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernALib.s - System dependent assembler parts of kernel */
+/* vmxALib.s - System dependent assembler parts of kernel */
 
 #define _ASMLANGUAGE
 #include <vmx.h>
@@ -32,10 +32,8 @@
         .globl  GDATA(taskIdCurrent)
         .globl  GDATA(readyQHead)
         .globl  GDATA(workQIsEmpty)
-#ifdef TASK_HOOK_ENABLE
         .globl  GDATA(taskSwitchHooks)
         .globl  GDATA(taskSwapHooks)
-#endif /* TASK_HOOK_ENABLE */
         .globl  GDATA(sysCsSuper)
         .globl  GDATA(errno)
         .globl  GDATA(kernelState)
@@ -51,10 +49,6 @@
         .globl  GTEXT(vmxTaskReschedule)
         .globl  GTEXT(vmxTaskContextLoad)
         .globl  GTEXT(vmxTaskEntry)
-#ifdef TASK_HOOK_ENABLE
-        .globl  GTEXT(kernHookSwitch)
-        .globl  GTEXT(kernHookSwap)
-#endif /* TASK_HOOK_ENABLE */
         .globl  GTEXT(intStackSet)
         .globl  GTEXT(intStackEnable)
 
@@ -526,7 +520,6 @@ FUNC_LABEL(switchTasks)
         /* Store new task as current */
         movl    %eax, FUNC(taskIdCurrent)
 
-#ifdef TASK_HOOK_ENABLE
         /* Get swap masks */
         movw    TASK_TCB_SWAP_IN(%eax), %bx
         orw     TASK_TCB_SWAP_OUT(%edx), %bx
@@ -539,7 +532,6 @@ FUNC_LABEL(switchTasks)
 
         /* Run hooks */
         jne     FUNC(taskHookSwitch)
-#endif /* TASK_HOOK_ENABLE */
 
         /* FALL TRU TO DISPATCH */
 
@@ -712,7 +704,6 @@ FUNC_LABEL(vmxTaskEntry)
 
 #ifndef schedLib_PORTABLE
 
-#ifdef TASK_HOOK_ENABLE
 /******************************************************************************
  * taskHookSwap - Run task swap hooks
  *
@@ -781,7 +772,6 @@ switchLoop:
         movl    FUNC(taskIdCurrent), %eax       /* Restore task id */
 
         jmp     FUNC(dispatch)
-#endif /* TASK_HOOK_ENABLE */
 
 #endif /* schedLib_PORTABLE */
 

@@ -28,6 +28,7 @@
 #include <util/qPriBmpLib.h>
 #include <vmx/classLib.h>
 #include <vmx/taskLib.h>
+#include <vmx/taskHookLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/workQLib.h>
@@ -62,6 +63,12 @@ void usrKernelInit(void)
 {
     classLibInit();
     taskLibInit();
+
+#ifdef INCLUDE_TASK_HOOKS
+
+  taskHookLibInit();
+
+#endif /* INCLUDE_TASK_HOOK */
 
 #ifdef INCLUDE_SEM_BINARY
 

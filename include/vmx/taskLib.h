@@ -29,6 +29,11 @@
 #define S_taskLib_NULL_TASK_ID                  (M_taskLib | 0x0002)
 #define S_taskLib_INVALID_TIMEOUT               (M_taskLib | 0x0003)
 #define S_taskLib_STACK_OVERFLOW                (M_taskLib | 0x0004)
+#define S_taskLib_TASK_HOOK_TABLE_FULL          (M_taskLib | 0x0005)
+#define S_taskLib_TASK_HOOK_NOT_FOUND           (M_taskLib | 0x0006)
+#define S_taskLib_TASK_SWAP_HOOK_REFERENCED     (M_taskLib | 0x0007)
+#define S_taskLib_TASK_SWAP_HOOK_SET            (M_taskLib | 0x0008)
+#define S_taskLib_TASK_SWAP_HOOK_CLEAR          (M_taskLib | 0x0009)
 
 #define TASK_READY                      0x00
 #define TASK_SUSPEND                    0x01
@@ -89,6 +94,10 @@ typedef struct taskTCB
     unsigned id;                          /* 0x68 */
     unsigned status;                      /* 0x6c */
     unsigned lockCount;                   /* 0x70 */
+
+    /* Kernel hooks */
+    u_int16_t swapInMask;                 /* 0x50 */
+    u_int16_t swapOutMask;                /* 0x52 */
 
     char *name;
     unsigned stackDepth;
