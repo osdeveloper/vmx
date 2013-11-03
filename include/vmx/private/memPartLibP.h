@@ -31,11 +31,7 @@ extern "C" {
 #include <util/dllLib.h>
 #include <vmx/classLib.h>
 #include <vmx/private/objLibP.h>
-
-#define NO_TASKLIB
-#ifndef NO_TASKLIB
 #include <vmx/private/semLibP.h>
-#endif
 
 /* Macros */
 
@@ -97,9 +93,7 @@ typedef struct mem_part
 {
     OBJ_CORE  objCore;
     DL_LIST   freeList;
-#ifndef NO_TASKLIB
     SEMAPHORE sem;
-#endif
     unsigned  totalWords;
     unsigned  minBlockWords;
     unsigned  options;

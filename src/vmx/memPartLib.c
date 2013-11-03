@@ -31,12 +31,10 @@
 #include <vmx/memPartLib.h>
 #include <vmx/private/memPartLibP.h>
 #include <vmx/memLib.h>
-#ifndef NO_TASKLIB
 #include <vmx/semLib.h>
-#include <vmx/private/kernLibP.h>
+#include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
-#endif
 
 /* Locals */
 LOCAL OBJ_CLASS         memPartClass;
@@ -161,20 +159,17 @@ STATUS memPartInit(
         partId->options = memPartOptionsDefault;
         partId->minBlockWords = sizeof(FREE_BLOCK) >> 1;
 
-#ifndef NO_TASKLIB
         (*memPartSemInitFunc)(partId);
-#endif
 
-       /* Initialize free blocks list */
-       dllInit(&partId->freeList);
+        /* Initialize free blocks list */
+        dllInit(&partId->freeList);
 
-       /* Initialize object class core */
-       objCoreInit(&partId->objCore, memPartClassId);
+        /* Initialize object class core */
+        objCoreInit(&partId->objCore, memPartClassId);
 
-       /* Add memory pool to partition  */
-       memPartAddToPool(partId, pPool, poolSize);
-
-       status = OK;
+        /* Add memory pool to partition  */
+        memPartAddToPool(partId, pPool, poolSize);
+        status = OK;
     }
 
     return status;
@@ -263,10 +258,8 @@ STATUS memPartAddToPool(
         pHeaderEnd->free           = FALSE;
         pHeaderEnd->nWords         = sizeof(BLOCK_HEADER) >> 1;
 
-#ifndef NO_TASKLIB
         /* Lock pool */
         semTake(&partId->sem, WAIT_FOREVER);
-#endif
 
         /* Insert nodes into free blocks list */
         dllInsert(
@@ -278,11 +271,8 @@ STATUS memPartAddToPool(
         /* Add size to pool */
         partId->totalWords += (poolSize >> 1);
 
-#ifndef NO_TASKLIB
         /* Unlock pool */
         semGive(&partId->sem);
-#endif
-
         status = OK;
     }
 
@@ -399,10 +389,8 @@ BOOL memPartBlockValidate(
     /* Start assuming the block is valid */
     valid = TRUE;
 
-#ifndef NO_TASKLIB
     taskLock();
     semGive(&partId->sem);
-#endif
 
     /* Check if block header is aligned */
     if (MEM_ALIGNED(pHeader) == FALSE)
@@ -440,10 +428,8 @@ BOOL memPartBlockValidate(
         valid = FALSE;
     }
 
-#ifndef NO_TASKLIB
     semTake(&partId->sem, WAIT_FOREVER);
     taskUnlock();
-#endif
 
     return valid;
 }
@@ -501,12 +487,10 @@ void* memPartAlignedAlloc(
             if (partId->options & MEM_ALLOC_ERROR_SUSPEND_FLAG)
             {
 
-#ifndef NO_TASKLIB
                 if ((taskIdCurrent->options & TASK_OPTIONS_UNBREAKABLE) == 0)
                 {
                     taskSuspend(0);
                 }
-#endif
 
             }
 
@@ -520,9 +504,7 @@ void* memPartAlignedAlloc(
                 nWords = partId->minBlockWords;
             }
 
-#ifndef NO_TASKLIB
             semTake(&partId->sem, WAIT_FOREVER);
-#endif
 
             /* Calculate block word size plus aligment extra */
             nWordsPad = nWords + alignment / 2;
@@ -555,9 +537,7 @@ void* memPartAlignedAlloc(
                 /* All the nodes it the free list has been processed */
                 if (pNode == NULL)
                 {
-#ifndef NO_TASKLIB
                     semGive(&partId->sem);
-#endif
 
                     if (memPartAllocErrorFunc != NULL)
                     {
@@ -575,13 +555,11 @@ void* memPartAlignedAlloc(
                     /* If block error suspend flag */
                     if (partId->options & MEM_ALLOC_ERROR_SUSPEND_FLAG)
                     {
-#ifndef NO_TASKLIB
                         if ((taskIdCurrent->options &
                              TASK_OPTIONS_UNBREAKABLE) == 0)
                         {
                             taskSuspend(0);
                         }
-#endif
                     }
 
                     pHeader = NULL;
@@ -639,9 +617,7 @@ void* memPartAlignedAlloc(
                 partId->currWordsAlloced += pHeader->nWords;
                 partId->cumWordsAlloced += pHeader->nWords;
 
-#ifndef NO_TASKLIB
                 semGive(&partId->sem);
-#endif
             }
         }
     }
@@ -716,9 +692,7 @@ void* memPartRealloc(
             }
             else
             {
-#ifndef NO_TASKLIB
                 semTake(&partId->sem, WAIT_FOREVER);
-#endif /* NO_TASKLIB */
 
                 /* Calculate size including header and aligned */
                 nWords = MEM_ROUND_UP(nBytes + sizeof(BLOCK_HEADER)) >> 1;
@@ -731,9 +705,8 @@ void* memPartRealloc(
                 if ((partId->options & MEM_BLOCK_CHECK) &&
                     (memPartBlockValidate(partId, pHeader, FALSE) == FALSE))
                 {
-#ifndef NO_TASKLIB
                     semGive(&partId->sem);
-#endif /* NO_TASKLIB */
+
                     if (memPartBlockErrorFunc != NULL)
                     {
                         (*memPartBlockErrorFunc)(partId, ptr, "memPartRealloc");
@@ -754,10 +727,7 @@ void* memPartRealloc(
                         if ((pNextHeader->free == FALSE) ||
                             ((pHeader->nWords + pNextHeader->nWords) < nWords))
                         {
-#ifndef NO_TASKLIB
                             semGive(&partId->sem);
-#endif /* NO_TASKLIB */
-
                             giveBackFree = FALSE;
 
                             /* Allocate a completely new block and copy */
@@ -803,9 +773,7 @@ void* memPartRealloc(
                                           memDefaultAlignment
                                           );
 
-#ifndef NO_TASKLIB
                         semGive(&partId->sem);
-#endif /* NO_TASKLIB */
 
                         /* Free leftover block */
                         if (pNextHeader != NULL)
@@ -858,18 +826,14 @@ STATUS memPartFree(
         /* Get header to block to free */
         pHeader = BLOCK_TO_HEADER(pBlock);
 
-#ifndef NO_TASKLIB
         semTake(&partId->sem, WAIT_FOREVER);
-#endif
 
         /* If block is invalid */
         if ( (partId->options & MEM_BLOCK_CHECK) &&
               (memPartBlockValidate(partId, pHeader, FALSE) == FALSE) )
         {
 
-#ifndef NO_TASKLIB
             semGive(&partId->sem);
-#endif
 
             if (memPartBlockErrorFunc != NULL)
             {
@@ -888,12 +852,10 @@ STATUS memPartFree(
             if (partId->options & MEM_BLOCK_ERROR_SUSPEND_FLAG)
             {
 
-#ifndef NO_TASKLIB
                 if ((taskIdCurrent->options & TASK_OPTIONS_UNBREAKABLE) == 0)
                 {
                     taskSuspend(0);
                 }
-#endif
             }
 
             status = ERROR;
@@ -950,9 +912,7 @@ STATUS memPartFree(
             partId->currBlocksAlloced--;
             partId->currWordsAlloced -= nWords;
 
-#ifndef NO_TASKLIB
             semGive(&partId->sem);
-#endif
             status = OK;
         }
     }
@@ -970,8 +930,6 @@ LOCAL void memPartSemInit(
     PART_ID partId
     )
 {
-#ifndef NO_TASKLIB
     semBInit(&partId->sem, SEM_Q_PRIORITY, SEM_FULL);
-#endif
 }
 
