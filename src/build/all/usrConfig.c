@@ -45,6 +45,7 @@
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
+#include <vmx/wdLib.h>
 #include <os/iosLib.h>
 #include <os/pathLib.h>
 #include <os/echoDrv.h>
@@ -53,6 +54,7 @@
 
 #define INPUT_TEST
 #define DELAY_TIME              (18 * 1)
+#define WDOG_TIME               (18 * 2)
 #define MAX_MESSAGES            10
 
 LOCAL void usrRoot(
@@ -75,6 +77,7 @@ char bigString[] = "\n"
 SEM_ID sem;
 SEM_ID evtSem;
 MSG_Q_ID msgQId;
+WDOG_ID wdogId;
 int numMsg = 0;
 char buf[1024];
 int consoleFd;
@@ -123,6 +126,15 @@ int task_delete(
     )
 {
     return ++taskHookCnt.th_delete;
+}
+
+int wdFunc(
+    int arg
+    )
+{
+    printf("Watchdog triggered with argument: %d\n", arg);
+
+    return 0;
 }
 
 #ifdef TASK_POST
@@ -294,6 +306,7 @@ int evtHandler(void)
     printf("Event triggered %d time(s), swap-in: %d, swap-out: %d\n",
            cnt, taskHookCnt.th_swapin, taskHookCnt.th_swapout);
     printf("???????????????????????????????????????????????????????????????\n");
+    wdStart(wdogId, WDOG_TIME, (FUNCPTR) wdFunc, (ARG) cnt);
   }
 
   return 0;
@@ -507,6 +520,13 @@ int initTasks(void)
   if (msgQId == NULL)
   {
     printf("Unable to create message queue\n");
+    for (;;);
+  }
+
+  wdogId = wdCreate();
+  if (wdogId == NULL)
+  {
+    printf("Unable to create watchdog timer\n");
     for (;;);
   }
 
@@ -729,6 +749,14 @@ LOCAL void usrRoot(
 
   memPartLibInit(pMemPoolStart, memPoolSize);
 
+#ifdef INCLUDE_WDOG
+
+  wdLibInit();
+
+#endif /* INCLUDE_WDOG */
+
+  intConnectDefault(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
+
   /* For some reason in need this in order to include ffsLib */
   ffsLsb(0);
 
@@ -771,8 +799,6 @@ LOCAL void usrRoot(
 
   echoDrvInit();
   echoDevCreate("/echo", 1024, 1024);
-
-  intConnectDefault(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
 
   initTasks();
 }

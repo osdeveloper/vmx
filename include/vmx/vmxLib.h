@@ -23,9 +23,6 @@
 #ifndef _vmxLib_h
 #define _vmxLib_h
 
-#define NO_SWAPLIB
-#define NO_MUTEX
-#define NO_WDLIB
 #define NO_UNPENDHDL
 
 #ifndef _ASMLANGUAGE
@@ -38,9 +35,7 @@ extern "C" {
 
 #include <util/qLib.h>
 #include <vmx/taskLib.h>
-#ifndef NO_WDLIB
 #include <vmx/wdLib.h>
-#endif
 
 /* defines */
 
@@ -231,7 +226,6 @@ void vmxPendQTerminate(
     Q_HEAD *pQHead
     );
 
-#ifndef NO_WDLIB
 /******************************************************************************
  * vmxWdStart - Start watchdog timer
  *
@@ -252,7 +246,6 @@ STATUS vmxWdStart(
 void vmxWdCancel(
     WDOG_ID wdId
     );
-#endif
 
 #ifdef __cplusplus
 }

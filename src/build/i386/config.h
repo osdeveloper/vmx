@@ -83,6 +83,7 @@
 #define INCLUDE_SEM_COUNTING
 #define INCLUDE_MSG_Q
 #define INCLUDE_CONSTANT_RDY_Q
+#define INCLUDE_WDOG
 #define INCLUDE_PC_CONSOLE
 
 #endif

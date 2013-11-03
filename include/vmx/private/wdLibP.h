@@ -18,12 +18,18 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* taskHookLibP.h - Task hook libraray private header */
+/* wdLibP.h - Whatchdog private header */
 
-#ifndef _taskHookLibP_h
-#define _taskHookLibP_h
+#ifndef _wdLibP_h
+#define _wdLibP_h
 
 #include <vmx.h>
+#include <vmx/classLib.h>
+#include <util/qLib.h>
+
+#define WDOG_OUT_OF_Q           0x00            /* Watchdog not in tick queue */
+#define WDOG_IN_Q               0x01            /* Watchdog in tick queue */
+#define WDOG_DEAD               0x02            /* Watchdog terminated */
 
 #ifndef _ASMLANGUAGE
 
@@ -31,11 +37,15 @@
 extern "C" {
 #endif
 
-IMPORT FUNCPTR taskCreateHooks[];
-IMPORT FUNCPTR taskSwitchHooks[];
-IMPORT FUNCPTR taskDeleteHooks[];
-IMPORT FUNCPTR taskSwapHooks[];
-IMPORT int     taskSwapReference[];
+typedef struct wdog
+{
+    OBJ_CORE       objCore;             /* Object class */
+    Q_NODE         tickNode;            /* Tick queue node */
+    unsigned short status;              /* Status */
+    unsigned short dfrStartCount;       /* Number of wdog starts */
+    FUNCPTR        wdFunc;              /* Function to call */
+    ARG            wdArg;               /* Argument to function */
+} WDOG;
 
 #ifdef __cplusplus
 }
@@ -43,5 +53,5 @@ IMPORT int     taskSwapReference[];
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _taskHookLibP_h */
+#endif /* _wdLibP_h */
 

@@ -20,7 +20,6 @@
 
 /* vmxLib.c - Task scheduling library */
 
-#define NO_WDLIB
 #define NO_UNPENDHDL
 
 #include <stdlib.h>
@@ -35,10 +34,7 @@
 #include <vmx/workQLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/private/taskHookLibP.h>
-#ifndef NO_WDLIB
 #include <vmx/wdLib.h>
-#endif
-#include <vmx/vmxLib.h>
 #include <vmx/vmxLib.h>
 
 /******************************************************************************
@@ -165,11 +161,9 @@ void vmxTickAnnounce(
 {
     Q_NODE *pNode;
     TCB_ID tcbId;
-#ifndef NO_WDLIB
     WDOG_ID wdId;
     FUNCPTR wdFunc;
     ARG wdArg;
-#endif
     STATUS status;
 
     /* Increase time counters */
@@ -221,7 +215,6 @@ void vmxTickAnnounce(
                 Q_PUT(&readyQHead, tcbId, tcbId->priority);
             }
         }
-#ifndef NO_WDLIB
         else {
             /* Convert to watchdog id */
             wdId = (WDOG_ID) ((int) pNode - OFFSET(WDOG, tickNode) );
@@ -242,7 +235,6 @@ void vmxTickAnnounce(
             /* Do kernel work */
             workQDoWork();
         }
-#endif
     }
 
     /* Perform periodic task switching in round robin mode */
@@ -643,7 +635,6 @@ void vmxPendQTerminate(
     }
 }
 
-#ifndef NO_WDLIB
 /******************************************************************************
  * vmxWdStart - Start watchdog timer
  *
@@ -705,5 +696,4 @@ void vmxWdCancel(
         wdId->status = WDOG_OUT_OF_Q;
     }
 }
-#endif
 
