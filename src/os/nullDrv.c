@@ -2,7 +2,7 @@
  *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  *   This file is part of Real VMX.
- *   Copyright (C) 2008 Surplus Users Ham Society
+ *   Copyright (C) 2013 Surplus Users Ham Society
  *
  *   Real VMX is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,20 +18,23 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* nullDrvP.h - I/O Null Driver private header */
+/* nullDrvLib.c - I/O Null Driver */
 
-#ifndef _nullDrvP_h
-#define _nullDrvP_h
+/*
+ * DESCRIPTION
+ * The null driver should always exist in a VMX system that uses IO.  Of the
+ * seven IO dwarves (open, close, creat, remove, ioctl, read, write) none of
+ * the driver function pointers should be NULL.  This means that the code to
+ * invoke the driver functions can be simplified and NOT need to check for NULL.
+*/
 
-#ifndef _ASMLANGUAGE
+/* includes */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <io/iosLib.h>
-
-/* Functions */
+#include <vmx.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdlib.h>
+#include <os/iosLib.h>
 
 /******************************************************************************
  * nullOpen - open a null file
@@ -44,7 +47,21 @@ int nullOpen(
     const char *filename,       /* not used */
     int flags,                  /* test for O_CREAT */
     int mode                    /* not used */
-    );
+    )
+{
+    int ret;
+
+    if (flags & O_CREAT)
+    {
+        ret = ERROR;
+    }
+    else
+    {
+        ret = (int) NULL;
+    }
+
+    return ret;
+}
 
 /******************************************************************************
  * nullCreate - create a null file
@@ -57,7 +74,10 @@ int nullCreate(
     const char *filename,       /* not used */
     int mode,                   /* not used */
     const char *symlink         /* not used */
-    );
+    )
+{
+    return ERROR;
+}
 
 /******************************************************************************
  * nullRead - read from a null file
@@ -69,8 +89,13 @@ int nullRead(
     DEV_HEADER *pDevHeader,     /* not used */
     void *buffer,               /* buffer to zero */
     int maxBytes                /* number of bytes to zero */
-    );
+    )
+{
+    memset(buffer, 0, maxBytes);
 
+    return maxBytes;
+}
+ 
 /******************************************************************************
  * nullWrite - write to a null file
  *
@@ -81,7 +106,10 @@ int nullWrite(
     DEV_HEADER *pDevHeader,     /* not used */
     void *buffer,               /* buffer to write */
     int maxBytes                /* number of bytes to write */
-    );
+    )
+{
+    return maxBytes;
+}
 
 /******************************************************************************
  * nullIoctl - Set I/O options for null device
@@ -93,7 +121,15 @@ int nullIoctl(
     DEV_HEADER *pDevHeader,     /* not used */
     int command,                /* not used */
     int arg                     /* not used */
-    );
+    )
+{
+    /*
+     * Hmmm ... should we process any commands here?
+     * Probably.  To be done later.
+     */
+
+    return ERROR;
+}
 
 /******************************************************************************
  * nullDelete - Delete null device
@@ -105,23 +141,22 @@ int nullDelete(
     DEV_HEADER *pDevHeader,     /* not used */
     const char *filename,       /* not used */
     mode_t mode                 /* not used */
-    );
+    )
+{
+    /* No files on null device to delete */
+    return ERROR;
+}
 
 /******************************************************************************
- * nullClose - Close null device 
+ * nullClose - Close null device
  *
  * RETURNS: OK
  */
 
 int nullClose(
     DEV_HEADER *pDevHeader      /* not used */
-    );
-
-#ifdef __cplusplus
+    )
+{
+    return OK;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _nullDrvP_h */
 

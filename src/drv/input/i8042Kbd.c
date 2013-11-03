@@ -21,7 +21,7 @@
 /* i8042Kbd.c - Intel 8042 keyboard driver */
 
 #include <vmx.h>
-#include <io/tyLib.h>
+#include <os/tyLib.h>
 #include <drv/input/i8042Kbd.h>
 #include <drv/serial/pcConsole.h>
 

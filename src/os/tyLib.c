@@ -27,8 +27,8 @@
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
 #include <vmx/errnoLib.h>
-#include <io/ioLib.h>
-#include <io/tyLib.h>
+#include <os/ioLib.h>
+#include <os/tyLib.h>
 
 #define XON                     0x11
 #define XOFF                    0x13

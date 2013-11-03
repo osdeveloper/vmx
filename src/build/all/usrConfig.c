@@ -45,9 +45,9 @@
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
-#include <io/iosLib.h>
-#include <io/pathLib.h>
-#include <io/echoDrv.h>
+#include <os/iosLib.h>
+#include <os/pathLib.h>
+#include <os/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
 

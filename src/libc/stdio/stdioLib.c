@@ -37,7 +37,7 @@
 #include <vmx/memPartLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
-#include <io/ioLib.h>
+#include <os/ioLib.h>
 #include <stdio.h>
 
 /* Locals */

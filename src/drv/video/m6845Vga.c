@@ -25,8 +25,8 @@
 #include <vmx.h>
 #include <vmx/semLib.h>
 #include <util/rngLib.h>
-#include <io/ioLib.h>
-#include <io/tyLib.h>
+#include <os/ioLib.h>
+#include <os/tyLib.h>
 #include <drv/serial/pcConsole.h>
 
 /* IMPORTS */

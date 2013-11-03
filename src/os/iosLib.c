@@ -25,9 +25,9 @@
 #include <vmx.h>
 #include <vmx/semLib.h>
 #include <vmx/errnoLib.h>
-#include <io/private/nullDrvP.h>
-#include <io/ioLib.h>
-#include <io/iosLib.h>
+#include <os/private/nullDrvP.h>
+#include <os/ioLib.h>
+#include <os/iosLib.h>
 
 /* GLOBALS */
 char             iosDefaultPath[PATH_MAX + 1];

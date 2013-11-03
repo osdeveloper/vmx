@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 #include <vmx.h>
-#include <io/tyLib.h>
+#include <os/tyLib.h>
 
 typedef struct
 {

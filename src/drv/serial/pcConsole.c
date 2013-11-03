@@ -22,9 +22,9 @@
 
 #include <sys/types.h>
 #include <vmx.h>
-#include <io/iosLib.h>
-#include <io/ioLib.h>
-#include <io/tyLib.h>
+#include <os/iosLib.h>
+#include <os/ioLib.h>
+#include <os/tyLib.h>
 #include <drv/input/i8042Kbd.h>
 #include <drv/video/m6845Vga.h>
 #include <drv/serial/pcConsole.h>

@@ -25,8 +25,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <io/iosLib.h>
-#include <io/pathLib.h>
+#include <os/iosLib.h>
+#include <os/pathLib.h>
 
 /* Locals */
 LOCAL BOOL pathLibInitialized = FALSE;

@@ -47,7 +47,7 @@ typedef struct
     char    *name;              /* ptr to device name */
 } DEV_HEADER;
 
-#include <io/private/iosLibP.h>
+#include <os/private/iosLibP.h>
 
 /******************************************************************************
  * iosLibInit - Initialize library

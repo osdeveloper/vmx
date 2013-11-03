@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <vmx.h>
-#include <io/iosLib.h>
+#include <os/iosLib.h>
 
 /******************************************************************************
  * Create stream for file descritptor

@@ -32,8 +32,8 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/uio.h>
-#include <io/iosLib.h>
-#include <io/ioLib.h>
+#include <os/iosLib.h>
+#include <os/ioLib.h>
 
 /* LOCALS */
 LOCAL int ioStdFd[3];

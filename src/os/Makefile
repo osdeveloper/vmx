@@ -22,7 +22,7 @@
 
 OBJS = iosLib.o ioLib.o pathLib.o tyLib.o nullDrv.o echoDrv.o
 SUBDIRS =
-LIB_TGT = io
+LIB_TGT = os
 
 include $(VMX_BASE)/include/make/build.defaults
 

@@ -23,8 +23,8 @@
 #ifndef _UNISTD_H
 #define _UNISTD_H
 
-#include <io/ioLib.h>
-#include <io/pathLib.h>
+#include <os/ioLib.h>
+#include <os/pathLib.h>
 
 /* File positions */
 #define SEEK_CUR        0       /* set file offset to offset */

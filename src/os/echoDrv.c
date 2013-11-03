@@ -26,8 +26,8 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
-#include <io/iosLib.h>
-#include <io/echoDrv.h>
+#include <os/iosLib.h>
+#include <os/echoDrv.h>
 
 /* locals */
 

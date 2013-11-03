@@ -21,7 +21,7 @@
 # Makefile - Real VMX libraries
 
 OBJS =
-SUBDIRS = arch io libc util vmx
+SUBDIRS = arch os libc util vmx
 LIB_TGT =
 
 include $(VMX_BASE)/include/make/build.defaults

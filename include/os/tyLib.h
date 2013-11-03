@@ -35,7 +35,7 @@ extern "C" {
 #include <sys/types.h>
 #include <vmx/semLib.h>
 #include <util/rngLib.h>
-#include <io/iosLib.h>
+#include <os/iosLib.h>
 #ifndef NO_SELECT
 #include <os/selectLib.h>
 #endif
