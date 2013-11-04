@@ -353,6 +353,9 @@ STATUS taskInit(
                tcbId->taskStdFp[i] = NULL;
             }
 
+            /* Select context */
+            tcbId->selectContextId = NULL;
+
             /* Object core */
             objCoreInit(&tcbId->objCore, taskClassId);
 

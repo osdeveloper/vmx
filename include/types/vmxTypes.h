@@ -68,6 +68,9 @@
 #define STACK_ROUND_DOWN(x)    ROUND_DOWN(x, _ALLOC_ALIGN_SIZE)
 #define MEM_ALIGNED(x)         ALIGNED(x, _ALLOC_ALIGN_SIZE)
 
+#define MSB(x)                 (((x) >> 8) & 0xff)
+#define LSB(x)                 ((x) & 0xff)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

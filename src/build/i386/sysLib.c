@@ -27,7 +27,6 @@
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
 #include <vmx/memPartLib.h>
-#include <drv/timer/i8253.h>
 
 u_int32_t sysIntIdtType	= SYS_INT_TRAPGATE;
 u_int32_t sysVectorIRQ0	= INT_NUM_IRQ0;
@@ -35,6 +34,7 @@ GDT	  *sysGdt	= (GDT *) (LOCAL_MEM_LOCAL_ADRS + GDT_BASE_OFFSET);
 CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 
 #include <drv/intrCtl/i8259Pic.c>
+#include <drv/timer/i8253Timer.c>
 
 /* Console */
 #ifdef   INCLUDE_PC_CONSOLE
@@ -57,12 +57,21 @@ void sysHwInit(
     void
     )
 {
-
     sysIntInitPIC();
     sysIntEnablePIC(PIT0_INT_LVL);
+}
+
+void sysHwInit2(
+    void
+    )
+{
+  /* Connect system timer interrupt handler */
+  intConnectDefault(0x20, sysClockInt, NULL);
 
 #ifdef INCLUDE_PC_CONSOLE
+
     intConnectDefault(0x21, kbdIntr, (void *) 0);
+
 #endif /* INCLUDE_PC_CONSOLE */
 }
 

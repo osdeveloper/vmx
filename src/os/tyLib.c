@@ -28,19 +28,12 @@
 #include <arch/sysArchLib.h>
 #include <vmx/errnoLib.h>
 #include <os/ioLib.h>
+#include <os/excLib.h>
+#include <os/selectLib.h>
 #include <os/tyLib.h>
 
 #define XON                     0x11
 #define XOFF                    0x13
-
-/* Imports */
-#ifndef NO_EXCHOOKS
-IMPORT FUNCPTR _func_excJobAdd;
-#endif
-#ifndef NO_SELECT
-IMPORT FUNCPTR _func_selWakeupListInit;
-IMPORT FUNCPTR _func_selWakeupAll;
-#endif
 
 /* Locals */
 LOCAL int       tyMutexOptions          = SEM_Q_FIFO | SEM_DELETE_SAFE;
@@ -82,7 +75,6 @@ LOCAL void tyTxStartup(
     TY_DEV_ID tyId
     );
 
-#ifndef NO_SELECT
 LOCAL void tySelAdd(
     TY_DEV_ID tyId,
     int arg
@@ -92,7 +84,6 @@ LOCAL void tySelDelete(
     TY_DEV_ID tyId,
     int arg
     );
-#endif
 
 /******************************************************************************
  * tyDevInit - Intialize a typewriter device
@@ -136,13 +127,8 @@ STATUS tyDevInit(
             semBInit(&tyId->writeSync, SEM_Q_PRIORITY, SEM_EMPTY);
             semMInit(&tyId->mutex, tyMutexOptions);
 
-#ifndef NO_SELECT
-            /* Initialize select list if installed */
-            if (_func_selWakeupListInit != NULL)
-            {
-                (*_func_selWakeupListInit)(&tyId->selWakeupList);
-            }
-#endif
+            /* Initialize select list */
+            selWakeupListInit(&tyId->selWakeupList);
 
             tyFlush(tyId);
             status = OK;
@@ -425,7 +411,6 @@ int tyIoctl(
             semGive(&tyId->mutex);
             break;
 
-#ifndef NO_SELECT
         case FIOSELECT:
             tySelAdd(tyId, arg);
             rv = OK;
@@ -435,7 +420,6 @@ int tyIoctl(
             tySelDelete(tyId, arg);
             rv = OK;
             break;
-#endif
 
         default:
             rv = ERROR;
@@ -656,12 +640,9 @@ STATUS tyIntTx(
         if (rngFreeBytes(ringId) == tyWriteTreshold)
         {
             semGive(&tyId->writeSync);
-#ifndef NO_SELECT
-            if (_func_selWakeupAll != NULL)
-            {
-                (*_func_selWakeupAll)(&tyId->selWakeupList, SELWRITE);
-            }
-#endif
+
+            /* Wakeup all write select nodes */
+            selWakeupAll(&tyId->selWakeupList, SELWRITE);
         }
     }
 
@@ -729,24 +710,15 @@ STATUS tyIntRd(
             }
             else if ((c == tyMonitorTrapChar) && (options & OPT_MON_TRAP))
             {
-#ifndef NO_EXCHOOKS
-                if (_func_excJobAdd != NULL)
-                {
-                    (*_func_excJobAdd)(
-                        sysReboot,
-                        (ARG) 0,
-                        (ARG) 0,
-                        (ARG) 0,
-                        (ARG) 0,
-                        (ARG) 0,
-                        (ARG) 0
-                        );
-                }
-                else
-                {
-                    sysReboot();
-                }
-#endif
+                excJobAdd(
+                    sysReboot,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0
+                    );
             }
             else if (((c == XOFF) || (c == XOFF)) && (options & OPT_TANDEM))
             {
@@ -918,12 +890,9 @@ STATUS tyIntRd(
                 if (releaseTaskLevel == TRUE)
                 {
                     semGive(&tyId->readSync);
-#ifndef NO_SELECT
-                    if (_func_selWakeupAll != NULL)
-                    {
-                        (*_func_selWakeupAll)(&tyId->selWakeupList, SELREAD);
-                    }
-#endif
+
+                    /* Wakeup all read select nodes */
+                    selWakeupAll(&tyId->selWakeupList, SELREAD);
                 }
             }
         }
@@ -1000,13 +969,8 @@ LOCAL void tyFlushWrite(
 
     semGive(&tyId->mutex);
 
-#ifndef NO_SELECT
-    /* Wakeup select if installed */
-    if (_func_selWakeupAll != NULL)
-    {
-        (*_func_selWakeupAll) (&tyId->selWakeupList, SELWRITE);
-    }
-#endif
+    /* Wakeup all write select nodes */
+    selWakeupAll(&tyId->selWakeupList, SELWRITE);
 }
 
 /******************************************************************************
@@ -1111,7 +1075,6 @@ LOCAL void tyTxStartup(
     }
 }
 
-#ifndef NO_SELECT
 /*****************************************************************************
  * tySelAdd - Ioctl add select on file descriptor
  *
@@ -1155,5 +1118,4 @@ LOCAL void tySelDelete(
 {
     selNodeDelete(&tyId->selWakeupList, (SEL_WAKEUP_NODE *) arg);
 }
-#endif
 

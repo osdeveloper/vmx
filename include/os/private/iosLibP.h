@@ -58,6 +58,9 @@ typedef struct
     BOOL    dev_used;
 } DRV_ENTRY;
 
+IMPORT int iosMaxDrv;
+IMPORT int iosMaxFd;
+
 #define STD_FIX(fd)     ((fd) + 3)
 #define STD_UNFIX(fd)   ((fd) - 3)
 

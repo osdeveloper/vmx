@@ -62,40 +62,17 @@ unsigned kernReadyBmp[8];
 void usrKernelInit(void)
 {
     classLibInit();
+
     taskLibInit();
 
-#ifdef INCLUDE_TASK_HOOKS
-
-  taskHookLibInit();
-
-#endif /* INCLUDE_TASK_HOOK */
-
-#ifdef INCLUDE_SEM_BINARY
+    taskHookLibInit();
 
     semLibInit();
     semBLibInit();
-
-#endif /* INCLUDE_SEM_BINARY */
-
-#ifdef INCLUDE_SEM_MUTEX
-
-    semLibInit();
     semMLibInit();
-
-#endif /* INCLUDE_SEM_MUTEX */
-
-#ifdef INCLUDE_SEM_COUNTING
-
-    semLibInit();
     semCLibInit();
 
-#endif /* INCLUDE_SEM_COUNTING */
-
-#ifdef INCLUDE_MSG_Q
-
     msgQLibInit();
-
-#endif /* INCLUDE_MSG_Q */
 
     /* Initialize kernel queues */
     qInit(&activeQHead, qFifoClassId);

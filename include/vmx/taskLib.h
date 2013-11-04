@@ -67,6 +67,7 @@ extern "C" {
 #include <vmx/objLib.h>
 #include <vmx/semLib.h>
 #include <util/qLib.h>
+#include <os/selectLib.h>
 #include <stdio.h>
 
 /* Task control block */
@@ -125,6 +126,9 @@ typedef struct taskTCB
     /* I/O related */
     int taskStd[3];
     FILE *taskStdFp[3];
+
+    /* Select context */
+    SEL_CONTEXT_ID selectContextId;
 
     /* Class */
     OBJ_CORE objCore;

@@ -29,16 +29,11 @@
 extern "C" {
 #endif
 
-#define NO_SELECT
-#define NO_EXCHOOKS
-
 #include <sys/types.h>
 #include <vmx/semLib.h>
 #include <util/rngLib.h>
 #include <os/iosLib.h>
-#ifndef NO_SELECT
 #include <os/selectLib.h>
-#endif
 
 typedef struct
 {
@@ -57,6 +52,7 @@ typedef struct
 
     RING_ID   writeBuffer;
     SEMAPHORE writeSync;
+
     struct
     {
         unsigned char busy;
@@ -67,18 +63,15 @@ typedef struct
         unsigned char writeBufferBusy;
     } writeState;
 
-    unsigned char  lnNBytes;
-    unsigned char  lnBytesLeft;
-    unsigned short options;
+    unsigned char   lnNBytes;
+    unsigned char   lnBytesLeft;
+    unsigned short  options;
 
-    FUNCPTR txStartup;
-    FUNCPTR protoHook;
-    ARG protoArg;
-#ifndef NO_SELECT
-  SEL_WAKEUP_LIST selWakeupList;
-#endif
-    int numOpen;
-
+    FUNCPTR         txStartup;
+    FUNCPTR         protoHook;
+    ARG             protoArg;
+    SEL_WAKEUP_LIST selWakeupList;
+    int             numOpen;
 } TY_DEV;
 
 typedef TY_DEV *TY_DEV_ID;

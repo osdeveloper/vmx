@@ -45,6 +45,7 @@
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/wdLib.h>
+#include <os/selectLib.h>
 #include <os/iosLib.h>
 #include <os/pathLib.h>
 #include <os/logLib.h>
@@ -52,6 +53,13 @@
 #include <os/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
+
+IMPORT void sysHwInit0(void);
+IMPORT void sysHwInit(void);
+
+IMPORT STATUS sysClockConnect(FUNCPTR func, int arg);
+IMPORT STATUS sysClockRateSet(int tickePerSecond);
+IMPORT void   sysClockEnable(void);
 
 #define INPUT_TEST
 #define DELAY_TIME              (18 * 1)
@@ -93,6 +101,19 @@ struct
     unsigned th_swapin;
     unsigned th_swapout;
 } taskHookCnt;
+
+/******************************************************************************
+ * usrClock - User system clock routine
+ *
+ * RETURNS: N/A
+ */
+
+void usrClock(
+    void
+    )
+{
+    vmxTickAnnounce();
+}
 
 int task_create(
     void
@@ -713,11 +734,7 @@ void usrInit(
     /* Set exception base vector */
     intVecBaseSet((FUNCPTR *) VEC_BASE_ADRS);
 
-#ifdef INCLUDE_EXC_HANDELING
-
     excVecInit();
-
-#endif /* INCLUDE_EXC_HANDELING */
 
     /* Initialize hardware */
     sysHwInit();
@@ -747,13 +764,12 @@ LOCAL void usrRoot(
 
   memPartLibInit(pMemPoolStart, memPoolSize);
 
-#ifdef INCLUDE_WDOG
-
   wdLibInit();
 
-#endif /* INCLUDE_WDOG */
-
-  intConnectDefault(TIMER_INTERRUPT_NUM, vmxTickAnnounce, NULL);
+  /* Install and start system clock interrupt */
+  sysClockConnect((FUNCPTR) usrClock, 0);
+  sysClockRateSet(SYS_CLOCK_RATE);
+  sysClockEnable();
 
   /* For some reason in need this in order to include ffsLib */
   ffsLsb(0);
@@ -795,13 +811,9 @@ LOCAL void usrRoot(
 
   stdioLibInit();
 
-#ifdef INCLUDE_EXC_TASK
-
   excLibInit();
 
-#endif /* INCLUDE_EXC_TASK */
-
-#ifdef INCLUDE_LOGGING
+  selectLibInit();
 
   logLibInit(STDERR_FILENO, MAX_LOG_MSGS);
 
@@ -813,8 +825,6 @@ LOCAL void usrRoot(
   taskDelay(2);
 
 #endif /* INCLUDE_LOG_STARTUP */
-
-#endif /* INCLUDE_LOGGING */
 
   echoDrvInit();
   echoDevCreate("/echo", 1024, 1024);

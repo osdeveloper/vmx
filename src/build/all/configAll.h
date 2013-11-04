@@ -29,6 +29,7 @@
 #define ISR_STACK_SIZE                  2000    /* Interrupt stack size */
 #define VEC_BASE_ADRS                   ((char *) LOCAL_MEM_LOCAL_ADRS)
 
+#define SYS_CLOCK_RATE                  60      /* Ticks per second */
 #define NUM_DRIVERS                     20      /* Maximum drivers */
 #define NUM_FILES                       50      /* Maximum open files */
 #define MAX_LOG_MSGS                    50      /* Maximum of log messages */
