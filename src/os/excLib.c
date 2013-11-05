@@ -142,7 +142,7 @@ STATUS excJobAdd(
     message.arg[5] = arg5;
 
     /* Select wait method */
-    if (INT_CONTEXT())
+    if (INT_CONTEXT() == TRUE)
     {
         wt = WAIT_NONE;
     }

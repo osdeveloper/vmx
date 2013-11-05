@@ -403,11 +403,11 @@ STATUS msgQSend(
     unsigned priority
     )
 {
-    STATUS status;
-    MSG_NODE *pMsg;
+    STATUS    status  = OK;
+    MSG_NODE *pMsg    = (MSG_NODE *) NONE;
 
     /* Lock */
-    if (!INT_CONTEXT())
+    if (INT_CONTEXT() == FALSE)
     {
         taskLock();
     }
@@ -420,70 +420,58 @@ STATUS msgQSend(
         }
     }
 
-    /* Message send loop */
-    do
+    /* Wait for free slot on message queue */
+    while ((status != ERROR) && (pMsg == (MSG_NODE *) NONE))
     {
         if (OBJ_VERIFY(msgQId, msgQClassId) != OK)
         {
-            if (!INT_CONTEXT())
+            if (INT_CONTEXT() == FALSE)
             {
                 taskUnlock();
             }
             status = ERROR;
+            break;
         }
-        else
-        {
-            /* Check if size is within range */
-            if (nBytes > msgQId->maxMsgLength)
-            {
-                if (!INT_CONTEXT())
-                {
-                    taskUnlock();
-                }
-                errnoSet(S_msgQLib_INVALID_MSG_LENGTH);
-                status = ERROR;
-            }
-            else
-            {
-                /* Get next node from free queue */
-                pMsg = (MSG_NODE *) qMsgGet(msgQId, &msgQId->freeQ, timeout);
-                status = OK;
-            }
-        }
-    } while ((status != ERROR) && (pMsg == (MSG_NODE *) NONE));
 
-    if (status != ERROR)
-    {
+        /* Check if size is within range */
+        if (nBytes > msgQId->maxMsgLength)
+        {
+            errnoSet(S_msgQLib_INVALID_MSG_LENGTH);
+            if (INT_CONTEXT() == FALSE)
+            {
+                taskUnlock();
+            }
+            status = ERROR;
+            break;
+        }
+
+        /* Get next node from free queue */
+        pMsg = (MSG_NODE *) qMsgGet(msgQId, &msgQId->freeQ, timeout);
         if (pMsg == NULL)
         {
             msgQId->sendTimeouts++;
-            if (!INT_CONTEXT())
+            if (INT_CONTEXT() == FALSE)
             {
                 taskUnlock();
             }
             status = ERROR;
+            break;
         }
-        else
+    }
+
+    if (status != ERROR)
+    {
+        /* Put node on message queue */
+        pMsg->msgLength = nBytes;
+        memcpy(MSG_NODE_DATA(pMsg), buffer, nBytes);
+        if (qMsgPut(msgQId, &msgQId->msgQ, &pMsg->node, priority) != OK)
         {
-            /* Put node on message queue */
-            pMsg->msgLength = nBytes;
-            memcpy(MSG_NODE_DATA(pMsg), buffer, nBytes);
-            if (qMsgPut(msgQId, &msgQId->msgQ, &pMsg->node, priority) != OK)
-            {
-                if (!INT_CONTEXT())
-                {
-                    taskUnlock();
-                }
-                status = ERROR;
-            }
-            else
-            {
-                if (!INT_CONTEXT())
-                {
-                    taskUnlock();
-                }
-                status = OK;
-            }
+            status = ERROR;
+        }
+
+        if (INT_CONTEXT() == FALSE)
+        {
+            taskUnlock();
         }
     }
 
@@ -503,56 +491,49 @@ int msgQReceive(
     unsigned timeout
     )
 {
-    MSG_NODE *pMsg;
-    int result;
+    int       result = OK;
+    MSG_NODE *pMsg   = (MSG_NODE *) NONE;
 
     if (INT_RESTRICT() != OK)
     {
         errnoSet(S_intLib_NOT_ISR_CALLABLE);
         result = ERROR;
     }
-    else
+
+    /* Lock */
+    taskLock();
+
+    /* Message receive loop */
+    while ((result != ERROR) && (pMsg == (MSG_NODE *) NONE))
     {
-        /* Lock */
-        taskLock();
-
-        /* Message receive loop */
-        do
+        if (OBJ_VERIFY(msgQId, msgQClassId) != OK)
         {
-            if (OBJ_VERIFY(msgQId, msgQClassId) != OK)
-            {
-                taskUnlock();
-                result = ERROR;
-            }
-            else
-            {
-
-                /* Get next message from message queue */
-                pMsg = (MSG_NODE *) qMsgGet(msgQId, &msgQId->msgQ, timeout);
-                result = 0;
-            }
-        } while ((result != ERROR) && (pMsg == (MSG_NODE *) NONE));
-
-        if (result != ERROR)
-        {
-            if (pMsg == NULL)
-            {
-                msgQId->sendTimeouts++;
-                taskUnlock();
-                result = ERROR;
-            }
-            else
-            {
-                /* Store data */
-                result = min(pMsg->msgLength, maxBytes);
-                memcpy(buffer, MSG_NODE_DATA(pMsg), result);
-
-                /* Put node back on free queue */
-                qMsgPut(msgQId, &msgQId->freeQ, &pMsg->node, 1);
-
-                taskUnlock();
-            }
+            taskUnlock();
+            result = ERROR;
+            break;
         }
+
+        /* Get next message from message queue */
+        pMsg = (MSG_NODE *) qMsgGet(msgQId, &msgQId->msgQ, timeout);
+        if (pMsg == NULL)
+        {
+            msgQId->sendTimeouts++;
+            taskUnlock();
+            result = ERROR;
+            break;
+        }
+    }
+
+    if (result != ERROR)
+    {
+        /* Store data */
+        result = min(pMsg->msgLength, maxBytes);
+        memcpy(buffer, MSG_NODE_DATA(pMsg), result);
+
+        /* Put node back on free queue */
+        qMsgPut(msgQId, &msgQId->freeQ, &pMsg->node, 1);
+
+        taskUnlock();
     }
 
     return result;

@@ -128,7 +128,7 @@ void excExcHandle(
 #endif
 
     /* If exception in isr or pre-kernel */
-    if ((INT_CONTEXT()) || (Q_FIRST(&activeQHead) == NULL))
+    if ((INT_CONTEXT() == TRUE) || (Q_FIRST(&activeQHead) == NULL))
     {
         sysReboot();
     }

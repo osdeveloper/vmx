@@ -281,7 +281,7 @@ int logMsg(
     LOG_MSG logMsg;
 
     /* If called from interupt */
-    if (INT_CONTEXT())
+    if (INT_CONTEXT() == TRUE)
     {
         logMsg.id = -1;
         timeout   = WAIT_NONE;

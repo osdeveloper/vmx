@@ -618,7 +618,7 @@ void selWakeupAll(
     if (listCount(&pList->wakeupList) != 0)
     {
         /* If in interrupt */
-        if (INT_CONTEXT())
+        if (INT_CONTEXT() == TRUE)
         {
             excJobAdd(
                 selWakeupAll,
