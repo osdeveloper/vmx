@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <vmx.h>
 #include <private/stdioP.h>
 #include <arch/iv.h>
@@ -44,12 +45,14 @@
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
+#include <vmx/msgQInfo.h>
 #include <vmx/wdLib.h>
 #include <os/selectLib.h>
 #include <os/iosLib.h>
 #include <os/pathLib.h>
 #include <os/logLib.h>
 #include <os/excLib.h>
+#include <os/pipeDrv.h>
 #include <os/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
@@ -62,8 +65,8 @@ IMPORT STATUS sysClockRateSet(int tickePerSecond);
 IMPORT void   sysClockEnable(void);
 
 #define INPUT_TEST
-#define DELAY_TIME              (18 * 1)
-#define WDOG_TIME               (18 * 2)
+#define DELAY_TIME              (1 * sysClockRateGet())
+#define WDOG_TIME               (2 * sysClockRateGet())
 #define MAX_MESSAGES            10
 
 LOCAL void usrRoot(
@@ -404,9 +407,19 @@ int messageReceiver(void)
   }
 }
 
+int messageInfo(void)
+{
+  MSG_Q_INFO msgInfo;
+
+  msgQInfoGet(msgQId, &msgInfo);
+
+  return 0;
+}
+
 #ifdef INPUT_TEST
 int inputTask(void)
 {
+  int fd, num_msgs;
   size_t bread;
 
   for (;;) {
@@ -414,11 +427,95 @@ int inputTask(void)
     memset(buf, 0, 1024);
     bread = read(STDIN_FILENO, buf, 1024);
     printf("Read %d byte(s): ", bread);
-    write(STDOUT_FILENO, buf, bread);
+    //write(STDOUT_FILENO, buf, bread);
     printf("\n");
+
+    fd = open("/dev/pipe", O_RDWR, 0);
+    if (fd == ERROR)
+    {
+      printf("Unable to open pipe\n");
+      continue;
+    }
+
+    if (write(fd, buf, bread) == ERROR)
+    {
+      printf("Unable to write to pipe\n");
+      close(fd);
+      continue;
+    }
+
+    if (ioctl(fd, FIONMSGS, &num_msgs) == OK)
+    {
+      printf("%d message(s) on pipe\n", num_msgs);
+    }
+
+    close(fd);
   }
 
   return 0;
+}
+
+int readTask(void)
+{
+  size_t bread;
+  int fd, result, i, num_msgs;
+  fd_set readset;
+  struct timeval tv;
+
+  fd = open("/dev/pipe", O_RDWR, 0);
+  if (fd == ERROR)
+  {
+    printf("Unable to open pipe\n");
+    return 1;
+  }
+
+  while(1)
+  {
+    taskDelay(10 * DELAY_TIME);
+    FD_ZERO(&readset);
+    FD_SET(fd, &readset);
+
+    tv.tv_sec = 10;
+    tv.tv_usec = 0;
+
+    result = select(fd + 1, &readset, NULL, NULL, &tv);
+    if (result > 0)
+    {
+      num_msgs = 0;
+      if (ioctl(fd, FIONMSGS, &num_msgs) == ERROR)
+      {
+        printf("Unable to get number of messages from pipe\n", num_msgs);
+        continue;
+      }
+
+      printf("%d message(s) on pipe:\n", num_msgs);
+      for (i = 0; i < num_msgs; i++)
+      {
+        memset(buf, 0, 1024);
+        bread = read(fd, buf, 1024);
+        if (bread == ERROR)
+        {
+          printf("Unable to read from pipe\n");
+          continue;
+        }
+
+        write(STDOUT_FILENO, buf, bread);
+      }
+    }
+    else if (result == 0)
+    {
+      printf("No data available yet\n");
+    }
+    else
+    {
+      printf("Select error\n");
+      break;
+    }
+  }
+
+  close(fd);
+
+  return result;
 }
 
 void print_fds(void)
@@ -516,6 +613,12 @@ int initTasks(void)
 
   printf("\nWelcome to Real VMX...\n");
   printf("This system is released under GNU public license.\n\n");
+
+  if (pipeDevCreate("/dev/pipe", 10, 1024) != OK)
+  {
+    printf("Unable to initialize pipe device\n");
+    for (;;);
+  }
 
   memset(&taskHookCnt, 0, sizeof(taskHookCnt));
   taskCreateHookAdd((FUNCPTR) task_create);
@@ -720,6 +823,19 @@ int initTasks(void)
              (ARG) 67,
              (ARG) 68,
              (ARG) 69);
+
+  taskSpawn("readTask", 4, 0,
+             DEFAULT_STACK_SIZE, (FUNCPTR) readTask,
+             (ARG) 60,
+             (ARG) 61,
+             (ARG) 62,
+             (ARG) 63,
+             (ARG) 64,
+             (ARG) 65,
+             (ARG) 66,
+             (ARG) 67,
+             (ARG) 68,
+             (ARG) 69);
 #endif
 
   return 0;
@@ -825,6 +941,8 @@ LOCAL void usrRoot(
   taskDelay(2);
 
 #endif /* INCLUDE_LOG_STARTUP */
+
+  pipeDrvInit();
 
   echoDrvInit();
   echoDevCreate("/echo", 1024, 1024);

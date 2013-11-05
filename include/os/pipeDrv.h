@@ -18,12 +18,15 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* sigLibP.h - Private signals */
+/* pipeDrv.h - Pipe device header */
 
-#ifndef _sigLibP_h
-#define _sigLibP_h
+#ifndef _pipeDrv_h
+#define _pipeDrv_h
 
-#define SIG_RESTART           1
+#include <vmx.h>
+#include <vmx/msgQLib.h>
+#include <os/iosLib.h>
+#include <os/selectLib.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -31,11 +34,53 @@
 extern "C" {
 #endif
 
+/* Types */
+typedef struct
+{
+    DEV_HEADER      devHeader;
+    MSG_Q           msgQ;
+    SEL_WAKEUP_LIST selWakeupList;
+    unsigned int    numOpens;
+} PIPE_DEV;
+
+/******************************************************************************
+ * pipeDrvInit- Install pipe device
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS pipeDrvInit(
+    void
+    );
+
+/*******************************************************************************
+ * pipeDevCreate - Create pipe device
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS pipeDevCreate(
+    char *name,
+    int maxMsg,
+    int maxBytes
+    );
+
+/******************************************************************************
+ * pipeDevDelete - Delete pipe device
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS pipeDevDelete(
+    char *name,
+    BOOL force
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _sigLibP_h */
+#endif /* _pipeDrv_h */
 

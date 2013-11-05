@@ -38,7 +38,7 @@
  * RETURNS: Non-zero if in interrupt context
  */
 
-#define INT_CONTEXT()           (intCnt > 0)
+#define INT_CONTEXT()           ((intCnt > 0) ? TRUE : FALSE)
 
 /******************************************************************************
  * INT_RESTRICT - Restrict usage from interrupt context
