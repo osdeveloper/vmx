@@ -318,46 +318,40 @@ Q_MSG_NODE* qMsgGet(
             errnoSet(S_msgQLib_INVALID_TIMEOUT);
             INT_UNLOCK(level);
             pNode = NULL;
+            break;
         }
-        else
+
+        /* Enter kernel mode */
+        kernelState = TRUE;
+        INT_UNLOCK(level);
+
+        /* Put task on hold */
+        vmxPendQPut(&pQHead->pendQ, timeout);
+
+        /* Exit trough kernel */
+        status = vmxExit();
+        if (status == SIG_RESTART)
         {
-            /* Enter kernel mode */
-            kernelState = TRUE;
-            INT_UNLOCK(level);
-
-            /* Put task on hold */
-            vmxPendQPut(&pQHead->pendQ, timeout);
-
-            /* Exit trough kernel */
-            status = vmxExit();
-            if (status == SIG_RESTART)
-            {
-                pNode = (Q_MSG_NODE *) NONE;
-                break;
-            }
-            else
-            {
-                if (status != OK)
-                {
-                    pNode = NULL;
-                    break;
-                }
-                else
-                {
-                    /* Verify object */
-                    if (OBJ_VERIFY(msgQId, msgQClassId) != OK)
-                    {
-                        pNode = NULL;
-                        break;
-                    }
-                    else
-                    {
-                        /* Lock interrupts */
-                        INT_LOCK(level);
-                    }
-                }
-            }
+            pNode = (Q_MSG_NODE *) NONE;
+            break;
         }
+
+        if (status != OK)
+        {
+            pNode = NULL;
+            break;
+        }
+
+        /* Verify object */
+        if (OBJ_VERIFY(msgQId, msgQClassId) != OK)
+        {
+            errnoSet(S_objLib_DELETED);
+            pNode = NULL;
+            break;
+        }
+
+        /* Lock interrupts */
+        INT_LOCK(level);
     }
 
     if (pNode != NULL)
