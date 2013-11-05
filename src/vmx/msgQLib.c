@@ -201,6 +201,7 @@ STATUS msgQInit(
             default:
                 errnoSet(S_msgQLib_INVALID_Q_TYPE);
                 status = ERROR;
+                break;
         }
 
         if (status == OK)
@@ -449,7 +450,18 @@ STATUS msgQSend(
         pMsg = (MSG_NODE *) qMsgGet(msgQId, &msgQId->freeQ, timeout);
         if (pMsg == NULL)
         {
-            msgQId->sendTimeouts++;
+            if (errnoGet() == S_objLib_TIMEOUT)
+            {
+                if (OBJ_VERIFY(msgQId, msgQClassId) == OK)
+                {
+                    msgQId->sendTimeouts++;
+                }
+                else
+                {
+                    errnoSet(S_objLib_DELETED);
+                }
+            }
+
             if (INT_CONTEXT() == FALSE)
             {
                 taskUnlock();
@@ -517,7 +529,18 @@ int msgQReceive(
         pMsg = (MSG_NODE *) qMsgGet(msgQId, &msgQId->msgQ, timeout);
         if (pMsg == NULL)
         {
-            msgQId->sendTimeouts++;
+            if (errnoGet() == S_objLib_TIMEOUT)
+            {
+                if (OBJ_VERIFY(msgQId, msgQClassId) == OK)
+                {
+                    msgQId->sendTimeouts++;
+                }
+                else
+                {
+                    errnoSet(S_objLib_DELETED);
+                }
+            }
+
             taskUnlock();
             result = ERROR;
             break;

@@ -214,13 +214,13 @@ STATUS qMsgPut(
     STATUS status;
     int level;
 
-    /* Lock interrupts */
-    INT_LOCK(level);
-
     if (key == Q_MSG_PRI_TAIL)
     {
         /* Add to tail */
         pNode->next = NULL;
+
+        /* Lock interrupts */
+        INT_LOCK(level);
 
         /* Insert */
         if (pQHead->first == NULL)
@@ -236,6 +236,9 @@ STATUS qMsgPut(
     }
     else
     {
+        /* Lock interrupts */
+        INT_LOCK(level);
+
         /* Insert at head */
         if ((pNode->next = pQHead->first) == NULL)
         {
@@ -354,7 +357,7 @@ Q_MSG_NODE* qMsgGet(
         INT_LOCK(level);
     }
 
-    if (pNode != NULL)
+    if ((pNode != NULL) && (pNode != (Q_MSG_NODE *) NONE))
     {
         pQHead->first = pNode->next;
         pQHead->count--;
