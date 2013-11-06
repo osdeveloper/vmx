@@ -55,8 +55,23 @@
 #define LOCAL                  static
 
 /* Macros */
-#define OFFSET(structure, member)        /* byte offset to member */\
-            ((int) &(((structure *) 0 ) -> member))
+/******************************************************************************
+ * OFFSET - Get byte offset to member in structure
+ *
+ * RETURNS: Offset to datastruct member
+ */
+
+#define OFFSET(structure, member)                                             \
+    ((int) &(((structure *) 0) -> member))
+
+/******************************************************************************
+ * NELEMENTS - Get number of elements in an array
+ *
+ * RETURNS: Number of element is array
+ */
+
+#define NELEMENTS(array)                                                      \
+    (sizeof (array) / sizeof ((array) [0]))
 
 #define ROUND_UP(x, align)     (((int)(x) + (align - 1)) & ~(align - 1))
 #define ROUND_DOWN(x, align)   ((int)(x) & ~(align - 1))

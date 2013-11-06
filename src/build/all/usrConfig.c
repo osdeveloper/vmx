@@ -37,6 +37,7 @@
 #include <arch/intArchLib.h>
 #include <arch/vmxArchLib.h>
 #include <arch/taskArchLib.h>
+#include <util/hashLib.h>
 #include <vmx/memPartLib.h>
 #include <vmx/kernelLib.h>
 #include <vmx/tickLib.h>
@@ -45,17 +46,22 @@
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
-#include <vmx/msgQInfo.h>
 #include <vmx/wdLib.h>
 #include <os/selectLib.h>
+#include <os/symLib.h>
 #include <os/iosLib.h>
 #include <os/pathLib.h>
 #include <os/logLib.h>
 #include <os/excLib.h>
 #include <os/pipeDrv.h>
-#include <os/echoDrv.h>
 #include "configAll.h"
 #include "config.h"
+
+/* Imports */
+IMPORT standTableSize;
+IMPORT SYMBOL standTable[];
+
+IMPORT void standTableInit(void);
 
 IMPORT void sysHwInit0(void);
 IMPORT void sysHwInit(void);
@@ -75,6 +81,8 @@ LOCAL void usrRoot(
     );
 
 /* Globals */
+SYMTAB_ID sysSymTable;
+
 char smallString[] = "Hello World!\n";
 
 char bigString[] = "\n"
@@ -93,7 +101,6 @@ WDOG_ID wdogId;
 int numMsg = 0;
 char buf[1024];
 int consoleFd;
-int echoFd;
 char consoleName[20];
 
 struct
@@ -407,15 +414,6 @@ int messageReceiver(void)
   }
 }
 
-int messageInfo(void)
-{
-  MSG_Q_INFO msgInfo;
-
-  msgQInfoGet(msgQId, &msgInfo);
-
-  return 0;
-}
-
 #ifdef INPUT_TEST
 int inputTask(void)
 {
@@ -538,46 +536,6 @@ void print_fds(void)
   }
 
   printf("console drv: %d\n", pcConDrvNumber());
-  printf("echo drv: %d", echoDrvNumber());
-}
-
-void echoWriteInt(void)
-{
-  write(echoFd, smallString, strlen(smallString));
-}
-
-int echoWrite(void)
-{
-  int bwrote;
-
-  for (;;) {
-    taskDelay(3 * DELAY_TIME);
-    bwrote = write(echoFd, smallString, strlen(smallString));
-    if (bwrote <= 0)
-    {
-      printf("Unable to write to echo device\n");
-      break;
-    }
-    {
-      printf("Wrote %d byte(s)\n", bwrote);
-    }
-  }
-}
-
-int echoRead(void)
-{
-  int bread;
-
-  for (;;) {
-    memset(buf, 0, 1024);
-    printf("Waiting for data...\n");
-    bread = read(echoFd, buf, 1024);
-    printf("Read %d byte(s): ", bread);
-    write(STDOUT_FILENO, buf, bread);
-    printf("\n");
-  }
-
-  return 0;
 }
 #endif
 
@@ -654,14 +612,6 @@ int initTasks(void)
     printf("Unable to create watchdog timer\n");
     for (;;);
   }
-
-  echoFd = open("/echo", O_RDWR, 0);
-  if (echoFd == ERROR)
-  {
-    printf("Unable to open echo device\n");
-    for (;;);
-  }
-  ioctl(echoFd, FIOSETOPTIONS, OPT_TERMINAL);
 
   //test_realloc();
 
@@ -887,9 +837,6 @@ LOCAL void usrRoot(
   sysClockRateSet(SYS_CLOCK_RATE);
   sysClockEnable();
 
-  /* For some reason in need this in order to include ffsLib */
-  ffsLsb(0);
-
   iosLibInit(NUM_DRIVERS, NUM_FILES, "/null");
   pathLibInit();
   pcConDrvInit();
@@ -925,6 +872,9 @@ LOCAL void usrRoot(
   ioGlobalStdSet(STDOUT_FILENO, consoleFd);
   ioGlobalStdSet(STDERR_FILENO, consoleFd);
 
+  hashLibInit();
+  symLibInit();
+
   stdioLibInit();
 
   excLibInit();
@@ -944,8 +894,31 @@ LOCAL void usrRoot(
 
   pipeDrvInit();
 
-  echoDrvInit();
-  echoDevCreate("/echo", 1024, 1024);
+#ifdef INCLUDE_LOG_STARTUP
+
+  logMsg("before symTableCreate()\n",
+        (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
+  taskDelay(2);
+
+#endif /* INCLUDE_LOG_STARTUP */
+
+  sysSymTable = symTableCreate(SYM_TABLE_HASH_SIZE_LOG2, TRUE, memSysPartId);
+  standTableInit();
+
+  printf("Adding %d symbols for standalone.\n", standTableSize);
+
+  for (i = 0; i < standTableSize; i++)
+  {
+    symTableAdd(sysSymTable, &standTable[i]);
+  }
+
+#ifdef INCLUDE_LOG_STARTUP
+
+  logMsg("sysSymTable complete.\n",
+        (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
+  taskDelay(2);
+
+#endif /* INCLUDE_LOG_STARTUP */
 
   initTasks();
 }

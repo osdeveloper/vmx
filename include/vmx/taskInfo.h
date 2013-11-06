@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 /* Functions */
+
 /******************************************************************************
  * taskIdDefault - Get/set default task
  *
