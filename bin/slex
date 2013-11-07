@@ -1,0 +1,308 @@
+#!/bin/sh
+###############################################################################
+#   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+#   This file is part of Real VMX.
+#   Copyright (C) 2013 Surplus Users Ham Society
+#
+#   Real VMX is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   Real VMX is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Check number arguments
+if [ $# -ne 1 ]; then
+    echo 1>&2 'Usage: $0 input-file > filename'
+    exit 127;
+fi
+
+# Store name of program and temporary file
+tool=`basename $0`
+prog=/tmp/$tool.$$
+
+# Append awk program output to a temporary file
+cat << 'EOF' > $prog
+
+###############################################################################
+# Beginnig of awk program
+#
+
+BEGIN {
+    # Next state will be INITIAL STATE
+    curr_state = "initial_state"
+
+    nstates = 0
+    nfinals = 0
+
+    ascii = " !\"#$%&'()*+,-./0123456789:;<=>?@" \
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`" \
+            "abcdefgiijklmnopqrstuvwxyz{|}~"
+}
+
+###############################################################################
+
+/^\014/ { next }                # Ignore form feeds
+/^ *$/  { next }                # Ignore blank lines
+
+###############################################################################
+# INITIAL STATE
+#
+
+curr_state == "initial_state" {
+    # Search for start of table
+    if ($0 ~ /FINAL STATES:/) {
+        # Next state will be FINAL STATES
+        curr_state = "final_states"
+    }
+    else if ($0 ~ /CHAR CLASSES:/) {
+        # Next state will be CHAR CLASSES
+        curr_state = "char_classes"
+    }
+    else if ($0 ~ /STATE TABLE:/) {
+        # Next state will be STATE TABLE part1
+        curr_state = "state_table"
+    }
+    else if ($0 ~ /EJECT:/) {
+        # Next state will be EJECT
+        curr_state = "eject"
+    }
+    else {
+        print                   # Print everyting not to be processed
+    }
+    next
+}
+
+###############################################################################
+
+/^ *\/\*/ { next }              # Skip comments inside definitions
+
+###############################################################################
+# FINAL STATES
+#
+
+curr_state == "final_states" {
+    if ($0 ~ /^END/) {
+        # Next state will be INITIAL
+        curr_state = "initial_state"
+        next
+    }
+
+    # Get info about final states
+    nfinals++
+    final[$1]         = nfinals
+    finalDef[nfinals] = $0
+    next
+}
+
+###############################################################################
+# STATE TABLE part1
+#
+
+curr_state == "state_table" {
+    classList = $0
+
+    # Next state will be STATE TABLE part2
+    curr_state = "state_table2"
+    next
+}
+
+###############################################################################
+# STATE TABLE part2
+#
+
+curr_state == "state_table2" {
+    if ($0 ~ /^END/) {
+        # Next state will be INITIAL STATE
+        curr_state = "initial_state"
+        next
+    }
+
+    # Get state names and accosiated transition
+    state[$1]         = nstates
+    stateDef[nstates] = $0
+    nstates++
+    next
+}
+
+###############################################################################
+# CHAR CLASSES
+#
+
+curr_state == "char_classes" {
+    if ($0 ~ /^END/) {
+        # Next state will be INITIAL STATE
+        curr_state = "initial_state"
+        next
+    }
+
+    # Connect class definition and name
+    classDef[$1] = $0
+    next
+}
+
+###############################################################################
+# EJECT 
+#
+
+curr_state == "eject" {
+    print "\nint lexActions(int state, char *str, int nChars, BOOL *pContinue)"
+    print "{"
+    print "  *pContinue = FALSE;"
+    print "  switch(state) {"
+
+    # Print cases in switch
+    for (i = 1; i <= nfinals; i++) {
+        c = index(finalDef[i], "{")
+        if (c == 0) {
+            print "ERROR: final state missing \"{\":\n" finalDef[i]
+        }
+        else {
+            print "    case " i ":"
+            print "        " substr(finalDef[i], c)
+            print "    break;"
+        }
+    }
+
+    print "  }"
+    print "  *pContinue = TRUE;"
+    print "  return 0;"
+    print "}"
+
+    # Calculate objects in char class table
+    nclasses = split(classList, class);
+
+    for (i = 2; i <= nclasses; i++) {
+        classNum = i - 1
+        if (classDef[class[i]] != "") {
+            nwords = split(classDef[class[i]], word)
+        }
+        else {
+            nwords = 2
+            word[2] = class[i]
+        }
+
+        # Processs each definition in class table
+        for (w = 2; w <= nwords; w++) {
+            cl = word[w]
+            n = -2
+
+            if (length(cl) == 1) {
+                # Single character
+                n = index(ascii, cl) + 31
+            }
+            else if (cl == "EOF") {
+                # End of file
+                n = -1
+            }
+            else if (cl == "EOS") {
+                # String terminator
+                n = 0
+            }
+            else if (cl == "\\t") {
+                # Tab
+                n = 9
+            }
+            else if (cl == "\\n") {
+                # Newline
+                n = 10
+            }
+            else if (cl == "SP") {
+                # Space
+                n = 32
+            }
+            else if (cl ~ /^\^/) {
+                # Control character
+                n = index( ascii, substr(cl, 2) ) - 33
+            }
+            else if ((length(cl) == 3) && (substr(cl, 2, 1) == "-")) {
+                # Range
+                n1 = index(ascii, substr(cl, 1, 1)) + 31
+                n2 = index(ascii, substr(cl, 3, 1)) + 31
+
+                for (j = n1; j <= n2; j++) {
+                    classTable[j] = classNum
+                }
+            }
+            else {
+                # Invalid
+                print "ERROR: unrecognized class definition: " cl
+            }
+
+            if (n != -2) {
+                classTable[n] = classNum
+            }
+        }
+    }
+
+    # Print number of classes
+    print "\nint lexNclasses = " nclasses ";"
+
+    # Print class table
+    print "\nchar lexClassTable[] = {"
+    printf "  " classTable[-1] ","
+    for (i = 0; i <= 127; i++) {
+        if ((i % 16) == 0) {
+            printf "\n  "
+        }
+
+        printf "%2d, ", classTable[i]
+    }
+
+    print "\n};"
+
+    # Print state table
+    print "\nchar lexStateTable[] = {"
+    for (i = 0; i < nstates; i++) {
+        n = split(stateDef[i], word);
+
+        if (n != (nclasses + 1)) {
+            print "ERROR: Invalid number of transitions for state " i
+        }
+
+        printf "  "
+        for (j = 2; j <= n; j++) {
+            if (word[j] == ".") {
+                printf "%2d,", i
+            }
+            else if (final[word[j]] != "") {
+                printf "-%d,", final[word[j]]
+            }
+            else if (state[word[j]] != "") {
+                printf "%2d,", state[word[j]]
+            }
+            else {
+                print "\nunknown state: " word[j]
+            }
+        }
+
+        printf "\n"
+    }
+
+    print "};"
+
+    # Next state will be INITIAL
+    curr_state = "initial_state"
+    next
+}
+
+###############################################################################
+# End of awk program
+#
+
+EOF
+
+# Run awk program
+awk -f $prog $*
+
+# Remove temporary awk program file
+rm -f $prog
+
