@@ -198,7 +198,7 @@ void* realloc(
  * RETURNS: N/A
  */
 
-void* free(
+void free(
     void *ptr
     );
 

@@ -37,10 +37,11 @@ char* fgets(
     FILE *fp
     )
 {
+    char *ret;
+    BOOL terminated;
     size_t size;
     char *sp;
     unsigned char *p, *t;
-    char *ret;
 
     /* Verify object */
     if (OBJ_VERIFY(fp, fpClassId) != OK)
@@ -49,16 +50,19 @@ char* fgets(
     }
     else
     {
-        /* If to few characters to read */
+         /* If to few characters to read */
         if (num < 2)
         {
             ret = NULL;
         }
         else
         {
+            /* Clear variables */
+            ret        = buf;
+            terminated = FALSE;
+
             /* Setup pointer to begining of buffer */
             sp = buf;
-            ret = buf;
 
             /* Decrease number of characters by one */
             num--;
@@ -73,10 +77,10 @@ char* fgets(
                     /* Fill buffer if needed */
                     if (__srefill(fp))
                     {
+
                         /* The same as the target buffer */
                         if (sp == buf)
                         {
-                            sp = NULL;
                             ret = NULL;
                         }
 
@@ -98,15 +102,18 @@ char* fgets(
                 }
 
                 /* Search for end-of-line in buffer */
-                t = memchr(p, '\n', size);
+                t = memchr((void *) p, '\n', size);
                 if (t != NULL)
                 {
                     /* Got end-of-line return */
-                    size = ++t - p;
+                    size    = ++t - p;
                     fp->_r -= size;
-                    fp->_p = t;
+                    fp->_p  = t;
+
                     memcpy(sp, p, size);
-                    sp[size] = EOS;
+
+                    sp[size]   = EOS;
+                    terminated = TRUE;
                     break;
                 }
 
@@ -118,13 +125,13 @@ char* fgets(
                 memcpy(sp, p, size);
 
                 /* Advance locals */
-                sp += size;
+                sp  += size;
                 num -= size;
             } while (num != 0);
 
-            /* Terminate string */
-            if (sp != NULL)
+            if ((terminated != TRUE) && (ret != NULL))
             {
+                /* Terminate string */
                 *sp = EOS;
             }
         }
