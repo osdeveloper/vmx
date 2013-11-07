@@ -34,6 +34,7 @@
 #include <arch/esf.h>
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
+#include <arch/excArchShow.h>
 #include <arch/excArchLib.h>
 
 /* Imports */
@@ -43,15 +44,10 @@ IMPORT u_int32_t        sysIntIdtType;
 IMPORT u_int32_t        sysCsExc;
 IMPORT u_int32_t        sysCsInt;
 
-#define NO_EXCHOOKS
-#ifndef NO_EXCHOOKS
-IMPORT FUNCPTR          _func_excBaseHook;
-IMPORT FUNCPTR          _func_excIntHook;
-IMPORT FUNCPTR          _func_excInfoShow;
-IMPORT FUNCPTR          _func_sigExcKill;
-#endif
-
 /* Locals */
+LOCAL FUNCPTR     excBaseHook    = NULL;
+LOCAL VOIDFUNCPTR excSigKillHook = NULL;
+
 LOCAL void excGetInfoFromESF(
     int vecNum,
     ESF0 *pEsf,
@@ -111,51 +107,48 @@ void excExcHandle(
     )
 {
     EXC_INFO excInfo;
+    BOOL done = FALSE;
 
     /* Get exception info */
     excGetInfoFromESF(vecNum, pEsf, pRegs, &excInfo, error);
 
-#ifndef NO_EXCHOOKS
     /* Call os hook if it exists */
-    if (_func_excBaseHook != NULL)
+    if (excBaseHook != NULL)
     {
         /* If os hook returns success (non zero) */
-        if (((*_func_excBaseHook)(vecNum, pEsf, pRegs, &excInfo)))
+        if (((*excBaseHook)(vecNum, pEsf, pRegs, &excInfo)))
         {
-            return;
+            done = TRUE;
         }
     }
-#endif
 
-    /* If exception in isr or pre-kernel */
-    if ((INT_CONTEXT() == TRUE) || (Q_FIRST(&activeQHead) == NULL))
+    if (done != TRUE)
     {
-        sysReboot();
-    }
-    else
-    {
-        /* If we are here a task caused the exception */
-        taskIdCurrent->pExcRegSet = pRegs;
-        taskIdDefault( (int) taskIdCurrent );
-        memcpy(&taskIdCurrent->excInfo, &excInfo, sizeof(excInfo));
-
-#ifndef NO_EXCHOOKS
-        /* Call kill signal if set */
-        if (_func_sigExcKill != NULL)
+        /* If exception in isr or pre-kernel */
+        if ((INT_CONTEXT() == TRUE) || (Q_FIRST(&activeQHead) == NULL))
         {
-            (*_func_sigExcKill)(vecNum, INUM_TO_IVEC(vecNum), pRegs);
+            sysReboot();
         }
-
-        /* Call exception show if set */
-        if (_func_excInfoShow != NULL)
+        else
         {
-            (*_func_excInfoShow )(&excInfo, TRUE);
-        }
-#endif
+            /* If we are here a task caused the exception */
+            taskIdCurrent->pExcRegSet = pRegs;
+            taskIdDefault( (int) taskIdCurrent );
+            memcpy(&taskIdCurrent->excInfo, &excInfo, sizeof(excInfo));
 
-        /* Suspend task and invalidate exception regs */
-        taskSuspend(0);
-        taskIdCurrent->pExcRegSet = NULL;
+            /* Call kill signal if set */
+            if (excSigKillHook != NULL)
+            {
+                (*excSigKillHook)(vecNum, INUM_TO_IVEC(vecNum), pRegs);
+            }
+
+            /* Show exception info */
+            excInfoShow(&excInfo, TRUE);
+
+            /* Suspend task and invalidate exception regs */
+            taskSuspend(0);
+            taskIdCurrent->pExcRegSet = NULL;
+        }
     }
 }
 
@@ -177,18 +170,39 @@ void excIntHandle(
     /* Get exception info */
     excGetInfoFromESF(vecNum, pEsf, pRegs, &excInfo, error);
 
-#ifndef NO_EXCHOOKS
-    /* Call os hook if existing */
-    if (_func_excIntHook != NULL)
-    {
-        (*_func_excIntHook)(vecNum, pEsf, pRegs, &excInfo);
-    }
-#endif
+    /* Call exception interrupt info show  */
+    excIntInfoShow(vecNum, pEsf, pRegs, &excInfo);
 
     if (Q_FIRST(&activeQHead) == NULL)
     {
         sysReboot();
     }
+}
+
+/******************************************************************************
+ * excBaseHookSet - Set exception base hook
+ *
+ * RETURNS: N/A
+ */
+
+void excBaseHookSet(
+    FUNCPTR func 
+    )
+{
+    excBaseHook = func;
+}
+
+/******************************************************************************
+ * excSigKillHookSet - Set exception signal kill hook
+ *
+ * RETURNS: N/A
+ */
+
+void excSigKillHookSet(
+    VOIDFUNCPTR func 
+    )
+{
+    excSigKillHook = func;
 }
 
 /******************************************************************************

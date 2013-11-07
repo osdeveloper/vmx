@@ -35,6 +35,8 @@
 #include <arch/iv.h>
 #include <arch/sysArchLib.h>
 #include <arch/intArchLib.h>
+#include <arch/excArchLib.h>
+#include <arch/excArchShow.h>
 #include <arch/vmxArchLib.h>
 #include <arch/taskArchLib.h>
 #include <util/hashLib.h>
@@ -879,6 +881,7 @@ LOCAL void usrRoot(
   stdioLibInit();
 
   excLibInit();
+  excShowInit();
 
   selectLibInit();
 

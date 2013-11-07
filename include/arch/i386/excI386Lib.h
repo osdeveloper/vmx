@@ -111,6 +111,26 @@ void excIntHandle(
     BOOL error
     );
 
+/******************************************************************************
+ * excBaseHookSet - Set exception base hook
+ *
+ * RETURNS: N/A
+ */
+
+void excBaseHookSet(
+    FUNCPTR func
+    );
+
+/******************************************************************************
+ * excSigKillHookSet - Set exception signal kill hook
+ *
+ * RETURNS: N/A
+ */
+
+void excSigKillHookSet(
+    VOIDFUNCPTR func
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
