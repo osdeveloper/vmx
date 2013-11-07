@@ -54,6 +54,7 @@
 #include <os/logLib.h>
 #include <os/excLib.h>
 #include <os/pipeDrv.h>
+#include <tools/shellLib.h>
 #include "configAll.h"
 #include "config.h"
 
@@ -920,6 +921,6 @@ LOCAL void usrRoot(
 
 #endif /* INCLUDE_LOG_STARTUP */
 
-  initTasks();
+  shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);
 }
 

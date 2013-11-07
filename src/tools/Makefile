@@ -18,14 +18,11 @@
  #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  #
 
-# Makefile - Real VMX libraries
+# Makefile - Utilities library for Real VMX
 
-OBJS =
-SUBDIRS = arch vmx os libc util tools
-LIB_TGT =
+OBJS = shellLexer.o shellParser.o shellLib.o
+SUBDIRS =
+LIB_TGT = tools
 
 include $(VMX_BASE)/include/make/build.defaults
-
-purge:
-	rm -fr $(VMX_BASE)/lib/$(CPU)
 
