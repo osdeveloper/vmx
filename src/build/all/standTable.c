@@ -32,8 +32,9 @@
 #include <sys/uio.h>
 #include <private/stdioP.h>
 #include <vmx.h>
-#include <vmx/classLib.h>
 #include <vmx/objLib.h>
+#include <vmx/classLib.h>
+#include <vmx/classShow.h>
 #include <vmx/errnoLib.h>
 #include <os/iosLib.h>
 #include <os/symbol.h>
@@ -168,6 +169,7 @@ SYMBOL standTable[] = {
   {NULL, "_classInit", classInit, 0, N_TEXT | N_EXT},
   {NULL, "_classShowConnect", classShowConnect, 0, N_TEXT | N_EXT},
   {NULL, "_classDestroy", classDestroy, 0, N_TEXT | N_EXT},
+  {NULL, "_classShow", classShow, 0, N_TEXT | N_EXT},
 
   /* objLib */
   {NULL, "_objAllocPad", objAllocPad, 0, N_TEXT | N_EXT},

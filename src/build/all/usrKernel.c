@@ -27,7 +27,9 @@
 #include <util/qPrioLib.h>
 #include <util/qPriBmpLib.h>
 #include <vmx/classLib.h>
+#include <vmx/classShow.h>
 #include <vmx/taskLib.h>
+#include <vmx/taskShow.h>
 #include <vmx/taskHookLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
@@ -73,6 +75,9 @@ void usrKernelInit(void)
     semCLibInit();
 
     msgQLibInit();
+
+    classShowInit();
+    taskShowInit();
 
     /* Initialize kernel queues */
     qInit(&activeQHead, qFifoClassId);
