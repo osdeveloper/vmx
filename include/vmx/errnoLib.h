@@ -55,6 +55,16 @@ int errnoGet(
     void
     );
 
+/******************************************************************************
+ * errnoOfTaskGet - Get error number from task
+ *
+ * RETURNS: Error code or ERROR
+ */
+
+int errnoOfTaskGet(
+    int taskId
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

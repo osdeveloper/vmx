@@ -28,6 +28,8 @@
 #define EFLAGS_IF              0x00000200          /* Interrupt enable flag */
 #define IDT_TRAP_GATE          0x0000ef00
 
+#define GREG_NUM                        8
+
 #define REGS_EDI                     0x00
 #define REGS_ESI                     0x04
 #define REGS_EBP                     0x08
@@ -87,6 +89,13 @@ typedef struct
     u_int32_t     eflags;
     INSTR        *pc;
 } __attribute__((packed)) REG_SET;
+
+/* Macros */
+
+#define G_REG_BASE              0x00
+#define G_REG_OFFSET(n)         (G_REG_BASE + (n) * sizeof(u_int32_t))
+#define SR_OFFSET               G_REG_OFFSET(GREG_NUM)
+#define PC_OFFSET               (SR_OFFSET + sizeof(u_int32_t))
 
 #ifdef __cplusplus
 }

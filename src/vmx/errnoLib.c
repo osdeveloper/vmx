@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <vmx.h>
 #include <errno.h>
+#include <vmx/taskLib.h>
 #include <vmx/errnoLib.h>
 
 int errno;
@@ -53,5 +54,38 @@ int errnoGet(
     )
 {
     return errno;
+}
+
+/******************************************************************************
+ * errnoOfTaskGet - Get error number from task
+ *
+ * RETURNS: Error code or ERROR
+ */
+
+int errnoOfTaskGet(
+    int taskId
+    )
+{
+    int ret;
+    TCB_ID tcbId;
+
+    if ((taskId == 0) || (taskId == taskIdSelf()))
+    {
+        ret = errno;
+    }
+    else
+    {
+        tcbId = taskTcb(taskId);
+        if (tcbId == NULL)
+        {
+            ret = ERROR;
+        }
+        else
+        {
+            ret = tcbId->errorStatus;
+        }
+    }
+
+    return ret;
 }
 

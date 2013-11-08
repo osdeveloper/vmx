@@ -29,5 +29,15 @@
 #include <arch/i386/regsI386.h>
 #endif
 
+#ifndef _ASMLANGUAGE
+
+typedef struct regindex
+{
+    char *regName;              /* Register name */
+    int   regOffset;            /* Register offset */
+} REG_INDEX;
+
+#endif /* _ASMLANGUANGE */
+
 #endif
 

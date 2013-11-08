@@ -24,10 +24,18 @@
 #define _taskArchLib_h
 
 #include <types/vmxCpu.h>
+#include <vmx.h>
+#include <arch/regs.h>
 
 #if      CPU_FAMILY==I386
 #include <arch/i386/taskI386Lib.h>
 #endif
+
+#ifndef _ASMLANGUAGE
+
+IMPORT REG_INDEX taskRegName[];
+
+#endif /* _ASMLANGUANGE */
 
 #endif /* _taskArchLib_h */
 

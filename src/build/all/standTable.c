@@ -46,6 +46,7 @@
 #include <util/rngLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
+#include <vmx/taskShow.h>
 #include <vmx/memPartLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
@@ -279,6 +280,7 @@ SYMBOL standTable[] = {
   {NULL, "_taskRegsGet", taskRegsGet, 0, N_TEXT | N_EXT},
   {NULL, "_taskIdListGet", taskIdListGet, 0, N_TEXT | N_EXT},
   {NULL, "_taskOptionsSet", taskOptionsSet, 0, N_TEXT | N_EXT},
+  {NULL, "_taskShow", taskShow, 0, N_TEXT | N_EXT},
 
   /* memLib */
   {NULL, "_memPartClassId", NULL, 0, N_DATA | N_EXT},

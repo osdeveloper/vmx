@@ -20,10 +20,28 @@
 
 /* taskArchLib.c - Task switching functions */
 
+#include <stdlib.h>
 #include <vmx.h>
 #include <arch/vmxArchLib.h>
+#include <arch/regs.h>
 #include <vmx/taskLib.h>
 #include <arch/taskArchLib.h>
+
+/* Globals */
+REG_INDEX taskRegName[] =
+{
+    {"edi",    G_REG_OFFSET(0)},
+    {"esi",    G_REG_OFFSET(1)},
+    {"ebp",    G_REG_OFFSET(2)},
+    {"esp",    G_REG_OFFSET(3)},
+    {"ebx",    G_REG_OFFSET(4)},
+    {"edx",    G_REG_OFFSET(5)},
+    {"ecx",    G_REG_OFFSET(6)},
+    {"eax",    G_REG_OFFSET(7)},
+    {"eflags", SR_OFFSET      },
+    {"pc",     PC_OFFSET      },
+    {NULL,     0              }
+};
 
 /******************************************************************************
  * taskRegsInit - Initialize architecture depedant tcb data

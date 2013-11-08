@@ -81,27 +81,27 @@ typedef struct taskTCB
     /* Stack */
     char *pStackBase;                     /* 0x30 */
     char *pStackLimit;                    /* 0x34 */
-
-    /* Registers */
-    REG_SET regs;                         /* 0x38 */
+    char *pStackEnd;                      /* 0x38 */
 
     /* Entry point */
-    FUNCPTR entry;                        /* 0x60 */
+    FUNCPTR entry;                        /* 0x3c */
 
     /* Errno */
-    int errno;                            /* 0x64 */
+    int errno;                            /* 0x40 */
 
     /* Status */
-    unsigned id;                          /* 0x68 */
-    unsigned status;                      /* 0x6c */
-    unsigned lockCount;                   /* 0x70 */
+    unsigned id;                          /* 0x44 */
+    unsigned status;                      /* 0x48 */
+    unsigned lockCount;                   /* 0x4c */
 
     /* Kernel hooks */
     u_int16_t swapInMask;                 /* 0x50 */
     u_int16_t swapOutMask;                /* 0x52 */
 
+    /* Registers */
+    REG_SET regs;                         /* 0x54 */
+
     char *name;
-    unsigned stackDepth;
     unsigned priority;
     int options;
 
@@ -110,6 +110,17 @@ typedef struct taskTCB
 
     /* Used with semaphores */
     Q_HEAD *pPendQ;
+
+    /*
+     * These next three fields are used to handle the case when the task
+     * has timed out, or has been deleted, BEFORE it has obtained the
+     * object on which it is pending.  Some objects require special code
+     * for this (inversion safe mutex semaphores, read-write semaphores, ...).
+     */
+
+    void    (*objUnpendHandler)(void *, int);
+    void   *pObj;     /* ptr to object (sem/msgQ/...) on which task pends */
+    int     objInfo;  /* info to handler about what to do */
 
     /* Safety */
     unsigned safeCount;

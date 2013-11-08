@@ -45,6 +45,7 @@
 #include <vmx/tickLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
+#include <vmx/taskShow.h>
 #include <vmx/vmxLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
@@ -874,6 +875,8 @@ LOCAL void usrRoot(
   ioGlobalStdSet(STDIN_FILENO, consoleFd);
   ioGlobalStdSet(STDOUT_FILENO, consoleFd);
   ioGlobalStdSet(STDERR_FILENO, consoleFd);
+
+  taskShowInit();
 
   hashLibInit();
   symLibInit();

@@ -202,7 +202,7 @@ int taskCreat(
             pStackBase = pTaskMem + stackSize;
             tcbId = (TCB_ID) pStackBase;
 #else /* _STACK_GROWS_UP */
-            tcbId = (TCB_ID) (pTaskMem + 16);
+            tcbId = (TCB_ID) (pTaskMem + TASK_EXTRA_BYTES);
             pStackBase = STACK_ROUND_UP(
                              pTaskMem + TASK_EXTRA_BYTES + sizeof(TCB)
                              );
@@ -311,6 +311,10 @@ STATUS taskInit(
             /* Pendig queue, used by semaphores */
             tcbId->pPendQ = NULL;
 
+            tcbId->objUnpendHandler = NULL;
+            tcbId->pObj             = NULL;
+            tcbId->objInfo          = 0;
+
             /* Initialize safety */
             tcbId->safeCount = 0;
             qInit(
@@ -333,12 +337,25 @@ STATUS taskInit(
 
             /* Setup error status */
             tcbId->errorStatus = OK;
-            tcbId->exitCode = 0;
+            tcbId->exitCode    = 0;
+
+            /* Exception info */
+            tcbId->pExcRegSet    = NULL;
+            tcbId->excInfo.valid = 0;
 
             /* Setup stack */
-            tcbId->stackDepth = stackSize;
-            tcbId->pStackBase = pStackBase;
+            tcbId->pStackBase  = pStackBase;
             tcbId->pStackLimit = tcbId->pStackBase + stackSize * _STACK_DIR;
+            tcbId->pStackEnd   = tcbId->pStackLimit;
+
+            if ((options & TASK_OPTIONS_NO_STACK_FILL) == 0)
+            {
+#if (_STACK_DIR == _STACK_GROWS_DOWN)
+                memset(tcbId->pStackLimit, 0xee, stackSize);
+#else /* _STACK_GROWS_UP */
+                memset(tcbId->stackBase, 0xee, stackSize);
+#endif /* _STACK_DIR */
+            }
 
             /* Initialize architecutre depedent stuff */
             taskRegsInit(tcbId, pStackBase);
@@ -599,7 +616,7 @@ STATUS taskDestroy(
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
                     objFree(taskClassId, tcbId->pStackLimit);
 #else
-                    objFree(taskClassId, tbcId - 16);
+                    objFree(taskClassId, tbcId - STACK_EXTRA_BYTES);
 #endif
                 }
 

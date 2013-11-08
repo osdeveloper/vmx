@@ -39,14 +39,14 @@
 #define TASK_TCB_PC            TASK_TCB_REGS + REGS_PC
 
 #define TASK_INITIAL_FLAGS     0x202
-#define TASK_TCB_REGS           0x38
-#define TASK_TCB_ENTRY          0x60
-#define TASK_TCB_ERRNO          0x64
-#define TASK_TCB_ID             0x68
-#define TASK_TCB_STATUS         0x6c
-#define TASK_TCB_LOCK_COUNT     0x70
-#define TASK_TCB_SWAP_IN        0x74
-#define TASK_TCB_SWAP_OUT       0x76
+#define TASK_TCB_ENTRY          0x3c
+#define TASK_TCB_ERRNO          0x40
+#define TASK_TCB_ID             0x44
+#define TASK_TCB_STATUS         0x48
+#define TASK_TCB_LOCK_COUNT     0x4c
+#define TASK_TCB_SWAP_IN        0x50
+#define TASK_TCB_SWAP_OUT       0x52
+#define TASK_TCB_REGS           0x54
 
 #ifndef _ASMLANGUAGE
 

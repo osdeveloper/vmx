@@ -20,8 +20,6 @@
 
 /* vmxLib.c - Task scheduling library */
 
-#define NO_UNPENDHDL
-
 #include <stdlib.h>
 #include <sys/types.h>
 #include <vmx.h>
@@ -197,16 +195,14 @@ void vmxTickAnnounce(
                 taskRetValueSet (tcbId, ERROR);    /* Task timed-out. */
                 tcbId->errno = S_objLib_TIMEOUT;   /* Set errno */
 
-#ifndef NO_UNPENDHDL
                 /*
                  * If the task removed from the pend queue has a custom
                  * 'unpend' handler, call it.
                  */
                 if (tcbId->objUnpendHandler != NULL)
                 {
-                    tcbId->objUnpendHandler (tcbId, VMX_TIMEOUT);
+                    tcbId->objUnpendHandler(tcbId, VMX_TIMEOUT);
                 }
-#endif
             }
 
             /* If task is ready now, add it to ready queue */
