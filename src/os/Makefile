@@ -20,8 +20,8 @@
 
 # Makefile - I/O library for Real VMX
 
-OBJS = iosLib.o ioLib.o pathLib.o tyLib.o logLib.o excLib.o selectLib.o \
-       symLib.o nullDrv.o pipeDrv.o echoDrv.o
+OBJS = iosLib.o iosShow.o ioLib.o pathLib.o tyLib.o logLib.o excLib.o symLib.o \
+       selectLib.o nullDrv.o pipeDrv.o echoDrv.o
 SUBDIRS =
 LIB_TGT = os
 

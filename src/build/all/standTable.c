@@ -37,6 +37,7 @@
 #include <vmx/classShow.h>
 #include <vmx/errnoLib.h>
 #include <os/iosLib.h>
+#include <os/iosShow.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
 #include <util/listLib.h>
@@ -162,6 +163,9 @@ SYMBOL standTable[] = {
   {NULL, "_lstat", lstat, 0, N_TEXT | N_EXT},
   {NULL, "_mkdir", mkdir, 0, N_TEXT | N_EXT},
   {NULL, "_stat", stat, 0, N_TEXT | N_EXT},
+
+  {NULL, "_iosDevShow", iosDevShow, 0, N_TEXT | N_EXT},
+  {NULL, "_iosFdShow", iosFdShow, 0, N_TEXT | N_EXT},
 
   /* classLib */
   {NULL, "_rootClassId", NULL, 0, N_DATA | N_EXT},

@@ -27,6 +27,7 @@
 #define FOLLOW_DOTDOT           (-11)     /* follow ".." to a new device */
 
 #include <vmx.h>
+#include <util/dllLib.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -58,8 +59,11 @@ typedef struct
     BOOL    dev_used;
 } DRV_ENTRY;
 
-IMPORT int iosMaxDrv;
-IMPORT int iosMaxFd;
+IMPORT int  iosMaxDrv;
+IMPORT int  iosMaxFd;
+FD_ENTRY   *iosFdTable;
+DL_LIST     iosDevList;
+
 
 #define STD_FIX(fd)     ((fd) + 3)
 #define STD_UNFIX(fd)   ((fd) - 3)

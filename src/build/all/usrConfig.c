@@ -52,6 +52,7 @@
 #include <os/selectLib.h>
 #include <os/symLib.h>
 #include <os/iosLib.h>
+#include <os/iosShow.h>
 #include <os/pathLib.h>
 #include <os/logLib.h>
 #include <os/excLib.h>
@@ -840,8 +841,10 @@ LOCAL void usrRoot(
   sysClockRateSet(SYS_CLOCK_RATE);
   sysClockEnable();
 
-  iosLibInit(NUM_DRIVERS, NUM_FILES, "/null");
   pathLibInit();
+  iosLibInit(NUM_DRIVERS, NUM_FILES, "/null");
+  iosShowInit();
+
   pcConDrvInit();
 
   /* For all virtual consoles */
