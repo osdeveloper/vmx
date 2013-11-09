@@ -51,6 +51,7 @@
 #include <vmx/wdLib.h>
 #include <os/selectLib.h>
 #include <os/symLib.h>
+#include <os/symShow.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
 #include <os/pathLib.h>
@@ -881,6 +882,7 @@ LOCAL void usrRoot(
 
   hashLibInit();
   symLibInit();
+  symShowInit();
 
   stdioLibInit();
 
