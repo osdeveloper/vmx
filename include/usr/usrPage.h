@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* kernelLib.h - Kernel library */
+/* usrPage.h - Termina page facilities header */
 
-#ifndef _kernelLib_h
-#define _kernelLib_h
+#ifndef _usrPage_h
+#define _usrPage_h
 
 #ifndef _ASMLANGUAGE
 
@@ -30,37 +30,42 @@ extern "C" {
 #endif
 
 /******************************************************************************
- * kernelInit - Initialize kernel
+ * usrPageInit - Initialize page display facilities
  *
  * RETURNS: N/A
  */
 
-void kernelInit(
-    FUNCPTR rootFunc,
-    unsigned rootMemSize,
-    char *pMemPoolStart,
-    char *pMemPoolEnd,
-    unsigned excStackSize,
-    int lockOutLevel
+void usrPageInit(
+    int numLines
     );
 
 /******************************************************************************
- * kernelTimeSlice - Enable/Disable round robin task scheduling
- *
- * RETURNS: OK
- */
-
-STATUS kernelTimeSlice(
-    unsigned ticks
-    );
-
-/******************************************************************************
- * kernelVersion - Return a string with kernel version
+ * usrPageReset - Reset line counter for page
  *
  * RETURNS: N/A
  */
 
-char* kernelVersion(
+void usrPageReset(
+    void
+    );
+
+/******************************************************************************
+ * usrPageNumLinesSet - Set number of lines for a page
+ *
+ * RETURNS: N/A
+ */
+
+void usrPageNumLinesSet(
+    int numLines
+    );
+
+/******************************************************************************
+ * usrPageCheck - Check if max page lines are reached and wait for input
+ *
+ * RETURNS: TRUE if continue or FALSE if quit
+ */
+
+BOOL usrPageCheck(
     void
     );
 
@@ -70,5 +75,5 @@ char* kernelVersion(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _kernelLib_h */
+#endif /* _usrPage_h */
 

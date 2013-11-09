@@ -58,6 +58,7 @@
 #include <os/excLib.h>
 #include <os/pipeDrv.h>
 #include <tools/shellLib.h>
+#include <usr/usrLib.h>
 #include "configAll.h"
 #include "config.h"
 
@@ -891,28 +892,28 @@ LOCAL void usrRoot(
   logLibInit(STDERR_FILENO, MAX_LOG_MSGS);
 
 #ifdef INCLUDE_LOG_STARTUP
-
   logMsg("logging started to %s [%d], queue size %d\n",
-        (ARG) consoleName, (ARG) consoleFd, (ARG) MAX_LOG_MSGS,
-        (ARG) 4, (ARG) 5, (ARG) 6);
+         (ARG) consoleName, (ARG) consoleFd, (ARG) MAX_LOG_MSGS,
+         (ARG) 4, (ARG) 5, (ARG) 6);
   taskDelay(2);
-
 #endif /* INCLUDE_LOG_STARTUP */
 
   pipeDrvInit();
 
 #ifdef INCLUDE_LOG_STARTUP
-
   logMsg("before symTableCreate()\n",
-        (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
+         (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
   taskDelay(2);
-
 #endif /* INCLUDE_LOG_STARTUP */
 
   sysSymTable = symTableCreate(SYM_TABLE_HASH_SIZE_LOG2, TRUE, memSysPartId);
   standTableInit();
 
-  printf("Adding %d symbols for standalone.\n", standTableSize);
+#ifdef INCLUDE_LOG_STARTUP
+  logMsg("Adding %d symbols for standalone.\n",
+         (ARG) standTableSize,
+         (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
+#endif /* INCLUDE_LOG_STARTUP */
 
   for (i = 0; i < standTableSize; i++)
   {
@@ -920,12 +921,14 @@ LOCAL void usrRoot(
   }
 
 #ifdef INCLUDE_LOG_STARTUP
-
   logMsg("sysSymTable complete.\n",
-        (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
+         (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
   taskDelay(2);
-
 #endif /* INCLUDE_LOG_STARTUP */
+
+  usrLibInit();
+
+  printLogo();
 
   shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);
 }

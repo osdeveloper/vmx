@@ -32,7 +32,6 @@ extern "C" {
 #include <vmx.h>
 #include <vmx/taskLib.h>
 
-IMPORT BOOL      kernelInitialized;
 IMPORT BOOL      kernelState;
 IMPORT BOOL      roundRobinOn;
 IMPORT unsigned  roundRobinSlice;

@@ -20,6 +20,8 @@
 
 /* standTable.c - Standalone symbol table */
 
+#define NO_LOADER
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,10 +61,37 @@
 #include <vmx/tickLib.h>
 #include <vmx/taskHookLib.h>
 #include <vmx/wdLib.h>
+#include <usr/usrLib.h>
 
 /* Gloabals */
 int standTableSize = 0;
-SYMBOL standTable[] = {
+SYMBOL standTable[] =
+{
+  /* usrLib */
+  {NULL, "_show", show, 0, N_TEXT | N_EXT},
+  {NULL, "_taskIdFigure", taskIdFigure, 0, N_TEXT | N_EXT},
+  {NULL, "_help", help, 0, N_TEXT | N_EXT},
+  {NULL, "_i", i, 0, N_TEXT | N_EXT},
+  {NULL, "_ti", ti, 0, N_TEXT | N_EXT},
+  {NULL, "_sp", sp, 0, N_TEXT | N_EXT},
+  {NULL, "_ts", ts, 0, N_TEXT | N_EXT},
+  {NULL, "_tr", tr, 0, N_TEXT | N_EXT},
+  {NULL, "_td", td, 0, N_TEXT | N_EXT},
+  {NULL, "_d", d, 0, N_TEXT | N_EXT},
+  {NULL, "_m", m, 0, N_TEXT | N_EXT},
+  {NULL, "_pc", pc, 0, N_TEXT | N_EXT},
+  {NULL, "_devs", devs, 0, N_TEXT | N_EXT},
+#ifndef NO_LOADER
+  {NULL, "_ld", ld, 0, N_TEXT | N_EXT},
+#endif
+  {NULL, "_lkup", lkup, 0, N_TEXT | N_EXT},
+  {NULL, "_checkStack", checkStack, 0, N_TEXT | N_EXT},
+  {NULL, "_periodRun", periodRun, 0, N_TEXT | N_EXT},
+  {NULL, "_period", period, 0, N_TEXT | N_EXT},
+  {NULL, "_repeatRun", repeatRun, 0, N_TEXT | N_EXT},
+  {NULL, "_repeat", repeat, 0, N_TEXT | N_EXT},
+  {NULL, "_version", version, 0, N_TEXT | N_EXT},
+  {NULL, "_printLogo", printLogo, 0, N_TEXT | N_EXT},
 
   /* stdio */
   {NULL, "_fpClassId", NULL, 0, N_DATA | N_EXT},

@@ -45,7 +45,6 @@
 #define MEM_TOTAL_BLOCK_SIZE    ((2*MEM_BLOCK_HEADER_SIZE)+MEM_FREE_BLOCK_SIZE)
 
 /* Globals */
-BOOL      kernelInitialized = FALSE;
 BOOL      kernelState       = FALSE;
 BOOL      roundRobinOn      = FALSE;
 unsigned  roundRobinSlice   = 0;
@@ -64,9 +63,10 @@ Q_HEAD    readyQHead;
 
 /* Locals */
 #ifdef INCLUDE_CONSTANT_RDY_Q
-LOCAL DL_LIST kernReadyLst[256];
-LOCAL unsigned kernReadyBmp[8];
+LOCAL      DL_LIST kernReadyLst[256];
+LOCAL      unsigned kernReadyBmp[8];
 #endif
+LOCAL char kernelVer[]   = "vmx pre-alpha";
 
 /******************************************************************************
  * kernelInit - Initialize kernel
@@ -200,9 +200,6 @@ void kernelInit(
     /* Temp storage for taskIdCurrent, later it points to next ready task */
     taskIdCurrent = &tcbAligned.initTcb;
 
-    /* Mark kernel as initialized */
-    kernelInitialized = TRUE;
-
     /* Start the root task */
     taskActivate(rootTaskId);
 }
@@ -229,5 +226,18 @@ STATUS kernelTimeSlice(
     }
 
     return OK;
+}
+
+/******************************************************************************
+ * kernelVersion - Return a string with kernel version
+ *
+ * RETURNS: N/A
+ */
+
+char* kernelVersion(
+    void
+    )
+{
+    return kernelVer;
 }
 

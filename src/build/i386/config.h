@@ -78,7 +78,6 @@
 
 #define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_PC_CONSOLE
-#define INCLUDE_LOG_STARTUP
 
 #endif
 
