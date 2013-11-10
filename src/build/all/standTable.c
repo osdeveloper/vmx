@@ -57,7 +57,7 @@
 #include <vmx/taskShow.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
-#include <vmx/msgQInfo.h>
+#include <vmx/msgQShow.h>
 #include <vmx/kernelLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
@@ -361,6 +361,7 @@ SYMBOL standTable[] =
   {NULL, "_msgQSend", msgQSend, 0, N_TEXT | N_EXT},
   {NULL, "_msgQReceive", msgQReceive, 0, N_TEXT | N_EXT},
   {NULL, "_msgQInfoGet", msgQInfoGet, 0, N_TEXT | N_EXT},
+  {NULL, "_msgQShow", msgQShow, 0, N_TEXT | N_EXT},
 
   /* ffsLib */
   {NULL, "_ffsLsb", ffsLsb, 0, N_TEXT | N_EXT},

@@ -31,7 +31,6 @@
 #define MSG_Q_TYPE_MASK                 0x01
 #define MSG_Q_FIFO                      0x00
 #define MSG_Q_PRIORITY                  0x01
-#define MSG_Q_EVENTSEND_ERROR_NOTIFY    0x02
 
 #define MSG_PRI_NORMAL                  0
 #define MSG_PRI_URGENT                  1

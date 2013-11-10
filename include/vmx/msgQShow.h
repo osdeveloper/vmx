@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* msgQInfo.h - Message queue info header */
+/* msgQShow.h - Message queue show header */
 
-#ifndef _msgQInfo_h
-#define _msgQInfo_h
+#ifndef _msgQShow_h
+#define _msgQShow_h
 
 #include <vmx.h>
 
@@ -47,6 +47,18 @@ typedef struct
     int   *msgLengthList;       /* Input: Pointer to num messages in list */
 } MSG_Q_INFO;
 
+/* Functions */
+
+/******************************************************************************
+ * msgQShowInit - Initialize show message queue info
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS msgQShowInit(
+    void
+    );
+
 /******************************************************************************
  * msgQInfoGet - Get information about message queue
  *
@@ -58,11 +70,22 @@ STATUS msgQInfoGet(
     MSG_Q_INFO *pInfo
     );
 
+/******************************************************************************
+ * msgQShow - Show message queue info
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS msgQShow(
+    MSG_Q_ID msgQId,
+    int mode
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _msgQInfo_h */
+#endif /* _msgQShow_h */
 

@@ -33,6 +33,7 @@
 #include <vmx/taskHookLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
+#include <vmx/msgQShow.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
 
@@ -75,6 +76,7 @@ void usrKernelInit(void)
     semCLibInit();
 
     msgQLibInit();
+    msgQShowInit();
 
     classShowInit();
     taskShowInit();

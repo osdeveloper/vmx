@@ -30,7 +30,7 @@
 #include <vmx/taskLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
-#include <vmx/msgQInfo.h>
+#include <vmx/msgQShow.h>
 #include <util/listLib.h>
 #include <os/ioLib.h>
 #include <os/pipeDrv.h>
