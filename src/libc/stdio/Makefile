@@ -22,7 +22,7 @@
 
 OBJS = stdioLib.o fclose.o fdopen.o feof.o ferror.o fflush.o fgetc.o fgets.o \
        fopen.o fputc.o fread.o fwrite.o getc.o getchar.o gets.o printf.o \
-       putc.o putchar.o puts.o scanf.o setvbuf.o ungetc.o ltostr.o ultostr.o
+       putc.o putchar.o puts.o scanf.o setvbuf.o ungetc.o
 SUBDIRS =
 LIB_TGT = stdc
 

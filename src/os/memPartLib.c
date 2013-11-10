@@ -27,9 +27,9 @@
 #include <util/dllLib.h>
 #include <vmx/errnoLib.h>
 #include <vmx/classLib.h>
-#include <vmx/memPartLib.h>
-#include <vmx/private/memPartLibP.h>
-#include <vmx/memLib.h>
+#include <os/memPartLib.h>
+#include <os/private/memPartLibP.h>
+#include <os/memLib.h>
 #include <vmx/semLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>

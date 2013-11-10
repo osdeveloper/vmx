@@ -42,7 +42,7 @@ extern "C" {
  */
 
 #define NEXT_HEADER(pHeader)                                                  \
-    ((BLOCK_HEADER *)((char *)(pHeader) + (2 * (pHeader)->nWords)))
+    ((BLOCK_HEADER *) ((char *) (pHeader) + (2 * (pHeader)->nWords)))
 
 /******************************************************************************
  * PREV_HEADER - Get previous memory block header
@@ -60,7 +60,7 @@ extern "C" {
  */
 
 #define HEADER_TO_BLOCK(pHeader)                                              \
-    ((char *)((int)pHeader + sizeof(BLOCK_HEADER)))
+    ((char *) ((int) pHeader + sizeof(BLOCK_HEADER)))
 
 /******************************************************************************
  * BLOCK_TO_HEADER - Get header for memory block
@@ -69,7 +69,7 @@ extern "C" {
  */
 
 #define BLOCK_TO_HEADER(pBlock)                                               \
-    ((BLOCK_HEADER *)((int)pBlock - sizeof(BLOCK_HEADER)))
+    ((BLOCK_HEADER *) ((int) pBlock - sizeof(BLOCK_HEADER)))
 
 /******************************************************************************
  * HEADER_TO_NODE - Get list node from memory block header
@@ -87,7 +87,7 @@ extern "C" {
  */
 
 #define NODE_TO_HEADER(pNode)                                                 \
-    ((BLOCK_HEADER *) ((int)pNode - OFFSET(FREE_BLOCK,node)))
+    ((BLOCK_HEADER *) ((int) pNode - OFFSET(FREE_BLOCK,node)))
 
 typedef struct mem_part
 {
@@ -122,6 +122,8 @@ typedef struct
     DL_NODE               node;
 } FREE_BLOCK;
 
+/* Functions */
+
 /******************************************************************************
  * memPartBlockValidate - Check validity of a block
  *
@@ -133,6 +135,11 @@ BOOL memPartBlockValidate(
     BLOCK_HEADER *pHeader,
     BOOL isFree
     );
+
+IMPORT FUNCPTR  memPartBlockErrorFunc;
+IMPORT FUNCPTR  memPartAllocErrorFunc;
+IMPORT FUNCPTR  memPartSemInitFunc;
+IMPORT unsigned memPartOptionsDefault;
 
 #ifdef __cplusplus
 }

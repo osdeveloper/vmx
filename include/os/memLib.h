@@ -24,15 +24,14 @@
 #define _memLib_h
 
 #include <tools/moduleNumber.h>
+
 #include <vmx.h>
-#include <vmx/memPartLib.h>
+#include <os/memPartLib.h>
 
-#define S_memLib_PAGE_SIZE_UNAVAILABLE  (M_memLib | 0x0001)
-
-#define MEM_BLOCK_CHECK                 0x10
-#define MEM_ALLOC_ERROR_LOG_FLAG        0x20
-#define MEM_ALLOC_ERROR_SUSPEND_FLAG    0x40
-#define MEM_BLOCK_ERROR_LOG_FLAG        0x80
+#define MEM_BLOCK_CHECK                  0x10
+#define MEM_ALLOC_ERROR_LOG_FLAG         0x20
+#define MEM_ALLOC_ERROR_SUSPEND_FLAG     0x40
+#define MEM_BLOCK_ERROR_LOG_FLAG         0x80
 #define MEM_BLOCK_ERROR_SUSPEND_FLAG    0x100
 
 #ifndef _ASMLANGUAGE
@@ -42,6 +41,27 @@ extern "C" {
 #endif
 
 /* Functions */
+
+/******************************************************************************
+ * memLibInit - Initialize memory library
+ *
+ * RETURNS: OK
+ */
+
+STATUS memLibInit(
+    void
+    );
+
+/******************************************************************************
+ * memPartOptionsSet - Set memory options
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS memPartOptionsSet(
+    PART_ID partId,
+    unsigned options
+    );
 
 #ifdef __cplusplus
 }

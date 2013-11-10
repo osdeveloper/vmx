@@ -38,8 +38,10 @@
 #include <vmx/classLib.h>
 #include <vmx/classShow.h>
 #include <vmx/errnoLib.h>
+#include <os/memPartLib.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
+#include <os/ffsLib.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
 #include <util/listLib.h>
@@ -51,11 +53,9 @@
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
 #include <vmx/taskShow.h>
-#include <vmx/memPartLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/msgQInfo.h>
-#include <vmx/ffsLib.h>
 #include <vmx/kernelLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>

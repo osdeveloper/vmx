@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <util/qPriBmpLib.h>
-#include <vmx/ffsLib.h>
+#include <os/ffsLib.h>
 
 /* forward declarations */ 
 

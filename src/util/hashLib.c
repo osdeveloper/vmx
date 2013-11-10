@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <vmx.h>
-#include <vmx/memPartLib.h>
+#include <os/memPartLib.h>
 #include <util/hashLib.h>
 
 /* Imports */

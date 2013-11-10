@@ -29,9 +29,9 @@
 #include <util/qPrioLib.h>
 #include <util/qMsgLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/memPartLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
+#include <os/memPartLib.h>
 #include <vmx/msgQLib.h>
 
 /* Imports */

@@ -24,8 +24,8 @@
 #include <vmx.h>
 #include <vmx/errnoLib.h>
 #include <vmx/classLib.h>
+#include <os/memPartLib.h>
 #include <vmx/objLib.h>
-#include <vmx/memPartLib.h>
 
 /******************************************************************************
  * objAllocPad - Allocated object with padding bytes

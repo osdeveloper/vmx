@@ -40,7 +40,6 @@
 #include <arch/vmxArchLib.h>
 #include <arch/taskArchLib.h>
 #include <util/hashLib.h>
-#include <vmx/memPartLib.h>
 #include <vmx/kernelLib.h>
 #include <vmx/tickLib.h>
 #include <vmx/taskLib.h>
@@ -49,6 +48,8 @@
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/wdLib.h>
+#include <os/memPartLib.h>
+#include <os/memLib.h>
 #include <os/selectLib.h>
 #include <os/symLib.h>
 #include <os/symShow.h>
@@ -899,6 +900,8 @@ LOCAL void usrRoot(
          (ARG) 4, (ARG) 5, (ARG) 6);
   taskDelay(2);
 #endif /* INCLUDE_LOG_STARTUP */
+
+  memLibInit();
 
   pipeDrvInit();
 

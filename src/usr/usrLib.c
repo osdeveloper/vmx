@@ -421,7 +421,7 @@ void td(
         /* If task id self */
         if (taskId == 0 || taskId == taskIdSelf())
         {
-            fprintf(stderr, "sorry, the shell can't delete itself.\n");
+            fprintf(stderr, "sorry, the task can't delete itself.\n");
         }
         else
         {

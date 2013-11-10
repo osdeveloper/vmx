@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <vmx.h>
-#include <vmx/memLib.h>
+#include <os/memPartLib.h>
 
 /******************************************************************************
  * realloc - Reallocated memory from heap, keep existing data

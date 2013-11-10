@@ -30,10 +30,10 @@
 #include <vmx/taskLib.h>
 #include <vmx/taskHookLib.h>
 #include <vmx/errnoLib.h>
-#include <vmx/memPartLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
 #include <os/ioLib.h>
+#include <os/memPartLib.h>
 #include <stdio.h>
 
 /* Locals */

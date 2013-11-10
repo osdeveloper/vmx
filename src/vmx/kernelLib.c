@@ -33,7 +33,7 @@
 #include <vmx/taskLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
-#include <vmx/memPartLib.h>
+#include <os/memPartLib.h>
 #include <vmx/kernelLib.h>
 #include <vmx/private/kernelLibP.h>
 

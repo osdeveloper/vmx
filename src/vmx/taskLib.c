@@ -29,12 +29,12 @@
 #include <util/qPrioLib.h>
 #include <vmx/classLib.h>
 #include <vmx/objLib.h>
-#include <vmx/memPartLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskHookLib.h>
 #include <vmx/private/taskHookLibP.h>
+#include <os/memPartLib.h>
 #include <os/sigLib.h>
 #include <vmx/taskLib.h>
 
@@ -172,8 +172,9 @@ int taskCreat(
     ARG arg9
     )
 {
-    char numString[10];
-    char taskName[20];
+    static char numString[20];
+    static char taskName[24];
+
     TCB_ID tcbId;
     char *pTaskMem;
     char *pStackBase;
@@ -503,7 +504,6 @@ STATUS taskDestroy(
                 {
                     /* Unlock interrupts */
                     INT_UNLOCK(level);
-
                     status = ERROR;
                 }
                 else
@@ -569,7 +569,6 @@ STATUS taskDestroy(
                                     {
                                         /* Unlock interrupts */
                                         INT_UNLOCK(level);
-
                                         status = ERROR;
                                     }
                                 }

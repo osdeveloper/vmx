@@ -18,13 +18,11 @@
  #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  #
 
-# Makefile - Real VMX Operating System library
+# Makefile - Standard C common
 
-OBJS = errnoLib.o objLib.o classLib.o classShow.o kernelLib.o workQLib.o \
-       vmxLib.o taskLib.o taskInfo.o taskShow.o taskHookLib.o tickLib.o \
-       wdLib.o semLib.o semBLib.o semMLib.o semCLib.o msgQLib.o msgQInfo.o
+OBJS = ltostr.o ultostr.o
 SUBDIRS =
-LIB_TGT = vmx
+LIB_TGT = stdc
 
 include $(VMX_BASE)/include/make/build.defaults
 

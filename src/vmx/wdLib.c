@@ -29,7 +29,7 @@
 #include <vmx/vmxLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/memPartLib.h>
+#include <os/memPartLib.h>
 #include <vmx/wdLib.h>
 
 /* Locals */

@@ -32,16 +32,13 @@
  * are smaller than the previous functions and don't require static buffers.
  */
 
-#define NO_LOGLIB
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <vmx.h>
-#ifndef NO_LOGLIB
 #include <os/logLib.h>
-#endif
 
 char *__ltostr(char *buf, unsigned long uval, int base, int uppercase);
 
@@ -60,11 +57,7 @@ void __assert(char *assertion, char *filename,
         strcat(str, ": Assertion \"");
         strcat(str, assertion);
         strcat(str, "\" failed.\n");
-#ifndef NO_LOGLIB
         logMsg(str, (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
-#else
-        fprintf(stderr, str);
-#endif
         exit(1); /* abort(); */
 }
 

@@ -32,7 +32,7 @@
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/memPartLib.h>
+#include <os/memPartLib.h>
 #include <vmx/semLib.h>
 
 /* Locals */

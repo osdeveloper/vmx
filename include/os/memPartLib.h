@@ -32,7 +32,7 @@ typedef struct mem_part *PART_ID;
 #include <tools/moduleNumber.h>
 #include <vmx.h>
 #include <util/dllLib.h>
-#include <vmx/private/memPartLibP.h>
+#include <os/private/memPartLibP.h>
 
 #define S_memPartLib_NOT_INSTALLED       (M_memPartLib | 0x0001)
 #define S_memPartLib_INVALID_NBYTES      (M_memPartLib | 0x0002)

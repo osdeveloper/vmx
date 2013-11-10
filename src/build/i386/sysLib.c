@@ -26,7 +26,6 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
-#include <vmx/memPartLib.h>
 
 u_int32_t sysIntIdtType	= SYS_INT_TRAPGATE;
 u_int32_t sysVectorIRQ0	= INT_NUM_IRQ0;

@@ -26,7 +26,7 @@
 #include <util/hashLib.h>
 #include <vmx/classLib.h>
 #include <vmx/semLib.h>
-#include <vmx/memPartLib.h>
+#include <os/memPartLib.h>
 #include <os/private/symbolP.h>
 
 #ifndef _ASMLANGUAGE

@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <vmx/ffsLib.h>
+#include <os/ffsLib.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
 

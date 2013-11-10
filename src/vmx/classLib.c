@@ -24,9 +24,9 @@
 #include <vmx.h>
 #include <stdlib.h>
 
+#include <os/memPartLib.h>
 #include <vmx/objLib.h>
 #include <vmx/classLib.h>
-#include <vmx/memPartLib.h>
 
 /* Imports */
 

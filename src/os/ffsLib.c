@@ -21,7 +21,7 @@
 /* ffsLib.c - find first set bit library */
 
 #include <vmx.h>
-#include <vmx/ffsLib.h>
+#include <os/ffsLib.h>
 
 LOCAL unsigned char msbTable[256] =
 {

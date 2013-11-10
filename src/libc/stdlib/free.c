@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <vmx.h>
-#include <vmx/memLib.h>
+#include <os/memPartLib.h>
 
 /******************************************************************************
  * free - Free allocate memory to heap

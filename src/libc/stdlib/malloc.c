@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <vmx.h>
-#include <vmx/memLib.h>
+#include <os/memPartLib.h>
 
 /******************************************************************************
  * malloc - Allocate memory from heap
