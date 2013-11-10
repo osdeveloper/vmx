@@ -132,40 +132,47 @@ STATUS excJobAdd(
     int wt;
     EXC_MSG message;
 
-    /* Setup work structure */
-    message.func   = func;
-    message.arg[0] = arg0;
-    message.arg[1] = arg1;
-    message.arg[2] = arg2;
-    message.arg[3] = arg3;
-    message.arg[4] = arg4;
-    message.arg[5] = arg5;
-
-    /* Select wait method */
-    if (INT_CONTEXT() == TRUE)
+    if (excLibInstalled != TRUE)
     {
-        wt = WAIT_NONE;
-    }
-    else
-    {
-        wt = WAIT_FOREVER;
-    }
-
-    /* Send message to queue */
-    if (msgQSend(
-            excMsgQId,
-            &message,
-            sizeof(message),
-            wt,
-            MSG_PRI_NORMAL
-            ) != OK)
-    {
-        ++excMsgsLost;
         status = ERROR;
     }
     else
     {
-        status = OK;
+        /* Setup work structure */
+        message.func   = func;
+        message.arg[0] = arg0;
+        message.arg[1] = arg1;
+        message.arg[2] = arg2;
+        message.arg[3] = arg3;
+        message.arg[4] = arg4;
+        message.arg[5] = arg5;
+
+        /* Select wait method */
+        if (INT_CONTEXT() == TRUE)
+        {
+            wt = WAIT_NONE;
+        }
+        else
+        {
+            wt = WAIT_FOREVER;
+        }
+
+        /* Send message to queue */
+        if (msgQSend(
+                excMsgQId,
+                &message,
+                sizeof(message),
+                wt,
+                MSG_PRI_NORMAL
+                ) != OK)
+        {
+            ++excMsgsLost;
+            status = ERROR;
+        }
+        else
+        {
+            status = OK;
+        }
     }
 
     return status;
@@ -255,14 +262,25 @@ void printExc(
     ARG arg4
     )
 {
-    excJobAdd(
-        (VOIDFUNCPTR) printErr,
-        fmt,
-        (ARG) arg0,
-        (ARG) arg1,
-        (ARG) arg2,
-        (ARG) arg3,
-        (ARG) arg4
-        );
+    if (excJobAdd(
+            (VOIDFUNCPTR) printErr,
+            fmt,
+            (ARG) arg0,
+            (ARG) arg1,
+            (ARG) arg2,
+            (ARG) arg3,
+            (ARG) arg4
+            ) != OK)
+    {
+        fprintf(
+            stderr,
+            fmt,
+            (ARG) arg0,
+            (ARG) arg1,
+            (ARG) arg2,
+            (ARG) arg3,
+            (ARG) arg4
+            );
+    }
 }
 
