@@ -31,6 +31,7 @@
 #include <vmx/taskLib.h>
 #include <vmx/taskShow.h>
 #include <vmx/semLib.h>
+#include <vmx/semShow.h>
 #include <vmx/msgQLib.h>
 #include <vmx/msgQShow.h>
 #include <vmx/workQLib.h>
@@ -82,6 +83,7 @@ void usrKernelInit(void)
 
     classShowInit();
     taskShowInit();
+    semShowInit();
 
     /* Initialize kernel queues */
     qInit(&activeQHead, qFifoClassId);

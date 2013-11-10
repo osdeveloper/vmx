@@ -58,6 +58,7 @@
 #include <vmx/taskInfo.h>
 #include <vmx/taskShow.h>
 #include <vmx/semLib.h>
+#include <vmx/semShow.h>
 #include <vmx/msgQLib.h>
 #include <vmx/msgQShow.h>
 #include <vmx/kernelLib.h>
@@ -345,6 +346,7 @@ SYMBOL standTable[] =
   {NULL, "_semInvalid", semInvalid, 0, N_TEXT | N_EXT},
   {NULL, "_semQFlush", semQFlush, 0, N_TEXT | N_EXT},
   {NULL, "_semQFlushDefer", semQFlushDefer, 0, N_TEXT | N_EXT},
+  {NULL, "_semShow", semShow, 0, N_TEXT | N_EXT},
   {NULL, "_semBCreate", semBCreate, 0, N_TEXT | N_EXT},
   {NULL, "_semBInit", semBInit, 0, N_TEXT | N_EXT},
   {NULL, "_semMCreate", semMCreate, 0, N_TEXT | N_EXT},
