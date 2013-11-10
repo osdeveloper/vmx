@@ -65,6 +65,7 @@
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
 #include <vmx/wdLib.h>
+#include <vmx/wdShow.h>
 #include <usr/usrLib.h>
 
 /* Gloabals */
@@ -430,6 +431,7 @@ SYMBOL standTable[] =
   {NULL, "_wdTerminate", wdTerminate, 0, N_TEXT | N_EXT},
   {NULL, "_wdStart", wdStart, 0, N_TEXT | N_EXT},
   {NULL, "_wdCancel", wdCancel, 0, N_TEXT | N_EXT},
+  {NULL, "_wdShow", wdShow, 0, N_TEXT | N_EXT}
 };
 
 /* Locals */

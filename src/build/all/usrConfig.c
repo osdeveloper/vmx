@@ -48,6 +48,7 @@
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/wdLib.h>
+#include <vmx/wdShow.h>
 #include <os/memPartLib.h>
 #include <os/memLib.h>
 #include <os/memShow.h>
@@ -840,6 +841,7 @@ LOCAL void usrRoot(
   memPartLibInit(pMemPoolStart, memPoolSize);
 
   wdLibInit();
+  wdShowInit();
 
   /* Install and start system clock interrupt */
   sysClockConnect((FUNCPTR) usrClock, 0);

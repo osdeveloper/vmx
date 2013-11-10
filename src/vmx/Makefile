@@ -22,7 +22,7 @@
 
 OBJS = errnoLib.o objLib.o classLib.o classShow.o workQLib.o kernelLib.o \
        vmxLib.o taskLib.o taskInfo.o taskShow.o semLib.o semBLib.o semMLib.o \
-       semCLib.o semShow.o msgQLib.o msgQShow.o tickLib.o wdLib.o
+       semCLib.o semShow.o msgQLib.o msgQShow.o tickLib.o wdLib.o wdShow.o
 SUBDIRS =
 LIB_TGT = vmx
 
