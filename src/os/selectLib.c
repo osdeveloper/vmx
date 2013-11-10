@@ -27,8 +27,8 @@
 #include <arch/intArchLib.h>
 #include <vmx/errnoLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/taskHookLib.h>
 #include <vmx/private/kernelLibP.h>
+#include <os/taskHookLib.h>
 #include <os/ioLib.h>
 #include <os/iosLib.h>
 #include <os/private/iosLibP.h>

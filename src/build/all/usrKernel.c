@@ -30,12 +30,12 @@
 #include <vmx/classShow.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskShow.h>
-#include <vmx/taskHookLib.h>
 #include <vmx/semLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/msgQShow.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
+#include <os/taskHookLib.h>
 
 #include "config.h"
 

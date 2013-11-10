@@ -51,6 +51,7 @@
 #include <os/memPartLib.h>
 #include <os/memLib.h>
 #include <os/memShow.h>
+#include <os/taskHookLib.h>
 #include <os/selectLib.h>
 #include <os/symLib.h>
 #include <os/symShow.h>

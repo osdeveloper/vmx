@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <vmx.h>
 #include <vmx/taskLib.h>
-#include <vmx/taskHookLib.h>
+#include <os/taskHookLib.h>
 
 /* GLOBALS */
 FUNCPTR taskCreateHooks[MAX_TASK_CREATE_HOOKS + 1];

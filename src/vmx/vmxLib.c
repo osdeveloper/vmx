@@ -31,8 +31,8 @@
 #include <vmx/private/tickLibP.h>
 #include <vmx/workQLib.h>
 #include <vmx/taskLib.h>
-#include <vmx/private/taskHookLibP.h>
 #include <vmx/wdLib.h>
+#include <os/private/taskHookLibP.h>
 #include <vmx/vmxLib.h>
 
 /******************************************************************************

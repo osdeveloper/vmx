@@ -41,6 +41,7 @@
 #include <os/memPartLib.h>
 #include <os/memLib.h>
 #include <os/memShow.h>
+#include <os/taskHookLib.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
 #include <os/ffsLib.h>
@@ -61,7 +62,6 @@
 #include <vmx/kernelLib.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
-#include <vmx/taskHookLib.h>
 #include <vmx/wdLib.h>
 #include <usr/usrLib.h>
 

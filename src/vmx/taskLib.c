@@ -32,9 +32,9 @@
 #include <vmx/workQLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
-#include <vmx/taskHookLib.h>
-#include <vmx/private/taskHookLibP.h>
 #include <os/memPartLib.h>
+#include <os/taskHookLib.h>
+#include <os/private/taskHookLibP.h>
 #include <os/sigLib.h>
 #include <vmx/taskLib.h>
 
