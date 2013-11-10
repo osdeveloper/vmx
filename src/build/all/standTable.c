@@ -39,6 +39,8 @@
 #include <vmx/classShow.h>
 #include <vmx/errnoLib.h>
 #include <os/memPartLib.h>
+#include <os/memLib.h>
+#include <os/memShow.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
 #include <os/ffsLib.h>
@@ -328,6 +330,8 @@ SYMBOL standTable[] =
   {NULL, "_memPartAlloc", memPartAlloc, 0, N_TEXT | N_EXT},
   {NULL, "_memPartRealloc", memPartRealloc, 0, N_TEXT | N_EXT},
   {NULL, "_memPartFree", memPartFree, 0, N_TEXT | N_EXT},
+  {NULL, "_memPartOptionsSet", memPartOptionsSet, 0, N_TEXT | N_EXT},
+  {NULL, "_memPartShow", memPartShow, 0, N_TEXT | N_EXT},
 
   /* semLib */
   {NULL, "_semClassId", NULL, 0, N_DATA | N_EXT},

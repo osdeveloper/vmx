@@ -50,6 +50,7 @@
 #include <vmx/wdLib.h>
 #include <os/memPartLib.h>
 #include <os/memLib.h>
+#include <os/memShow.h>
 #include <os/selectLib.h>
 #include <os/symLib.h>
 #include <os/symShow.h>
@@ -902,6 +903,7 @@ LOCAL void usrRoot(
 #endif /* INCLUDE_LOG_STARTUP */
 
   memLibInit();
+  memShowInit();
 
   pipeDrvInit();
 
