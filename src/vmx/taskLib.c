@@ -44,422 +44,495 @@
 
 /* Locals */
 LOCAL OBJ_CLASS taskClass;
-LOCAL BOOL taskLibInstalled = FALSE;
-LOCAL int namelessCount = 0;
+LOCAL BOOL      taskLibInstalled = FALSE;
+LOCAL int       namelessCount = 0;
 
 /* Globals */
-CLASS_ID taskClassId = &taskClass;
-char namelessPrefix[] = "t";
-char restartTaskName[] = "tRestart";
-int restartTaskPriority = 0;
-int restartTaskStackSize = 6000;
-int restartTaskOptions = TASK_OPTIONS_UNBREAKABLE |
-                         TASK_OPTIONS_NO_STACK_FILL;
+CLASS_ID taskClassId          = &taskClass;
+char     namelessPrefix[]     = "t";
+char     restartTaskName[]    = "tRestart";
+int      restartTaskPriority  = 0;
+int      restartTaskStackSize = 6000;
+int      restartTaskOptions   = TASK_OPTIONS_UNBREAKABLE |
+                                TASK_OPTIONS_NO_STACK_FILL;
 
-/*******************************************************************************
-* taskLibInit - Initialize task library
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskLibInit - Initialize task library
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskLibInit(void)
+STATUS taskLibInit(
+    void
+    )
 {
-  if (taskLibInstalled) {
-    return OK;
-  }
+    STATUS status;
 
-  if (classInit(taskClassId,
+    if (taskLibInstalled == TRUE)
+    {
+        status = OK;
+    }
+    else
+    {
+        if (classInit(taskClassId,
                 STACK_ROUND_UP(sizeof(TCB) + TASK_EXTRA_BYTES),
                 OFFSET(TCB, objCore),
                 memSysPartId,
                 (FUNCPTR) taskCreat,
                 (FUNCPTR) taskInit,
-                (FUNCPTR) taskDestroy) != OK) {
-    /* errno set by classInit() */
-    return ERROR;
-  }
+                (FUNCPTR) taskDestroy
+                ) != OK)
+        {
+            /* errno set by classInit() */
+            status = ERROR;
+        }
+        else
+        {
+            taskLibInstalled = TRUE;
+            status = OK;
+        }
+    }
 
-  taskLibInstalled = TRUE;
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskSpawn - Create a new task and start it
-*
-* RETURNS: Integer taskId or NULL
-*******************************************************************************/
+/******************************************************************************
+ * taskSpawn - Create a new task and start it
+ *
+ * RETURNS: Integer taskId or zero
+ */
 
-int taskSpawn(const char *name,
-              unsigned priority,
-              int options,
-              unsigned stackSize,
-              FUNCPTR func,
-              ARG arg0,
-              ARG arg1,
-              ARG arg2,
-              ARG arg3,
-              ARG arg4,
-              ARG arg5,
-              ARG arg6,
-              ARG arg7,
-              ARG arg8,
-              ARG arg9)
+int taskSpawn(
+    const char *name,
+    unsigned    priority,
+    int         options,
+    unsigned    stackSize,
+    FUNCPTR     func,
+    ARG         arg0,
+    ARG         arg1,
+    ARG         arg2,
+    ARG         arg3,
+    ARG         arg4,
+    ARG         arg5,
+    ARG         arg6,
+    ARG         arg7,
+    ARG         arg8,
+    ARG         arg9
+    )
 {
-  int taskId;
+    int taskId;
 
-  /* Create task */
-  taskId = taskCreat(name, priority, options, stackSize, func,
-                     arg0,
-                     arg1,
-                     arg2,
-                     arg3,
-                     arg4,
-                     arg5,
-                     arg6,
-                     arg7,
-                     arg8,
-                     arg9);
-  if (taskId == (int) NULL)
-  {
-    /* errno set by taskCreat() */
-    return ((int) NULL);
-  }
+    /* Create task */
+    taskId = taskCreat(
+                 name,
+                 priority,
+                 options,
+                 stackSize,
+                 func,
+                 arg0,
+                 arg1,
+                 arg2,
+                 arg3,
+                 arg4,
+                 arg5,
+                 arg6,
+                 arg7,
+                 arg8,
+                 arg9
+                 );
+    if (taskId != 0)
+    {
+        /* Then start it */
+        taskActivate(taskId);
+    }
 
-  /* Then start it */
-  taskActivate(taskId);
-
-  return taskId;
+    return taskId;
 }
 
-/*******************************************************************************
-* taskCreat - Create a new task without starting it
-*
-* RETURNS: Integer taskId or NULL
-*******************************************************************************/
+/******************************************************************************
+ * taskCreat - Create a new task without starting it
+ *
+ * RETURNS: Integer taskId or or zero
+ */
 
-int taskCreat(const char *name,
-              unsigned priority,
-              int options,
-              unsigned stackSize,
-              FUNCPTR func,
-              ARG arg0,
-              ARG arg1,
-              ARG arg2,
-              ARG arg3,
-              ARG arg4,
-              ARG arg5,
-              ARG arg6,
-              ARG arg7,
-              ARG arg8,
-              ARG arg9)
+int taskCreat(
+    const char *name,
+    unsigned    priority,
+    int         options,
+    unsigned    stackSize,
+    FUNCPTR     func,
+    ARG         arg0,
+    ARG         arg1,
+    ARG         arg2,
+    ARG         arg3,
+    ARG         arg4,
+    ARG         arg5,
+    ARG         arg6,
+    ARG         arg7,
+    ARG         arg8,
+    ARG         arg9
+    )
 {
-  static char digits[] = "0123456789";
+    static char digits[] = "0123456789";
 
-  TCB_ID tcbId;
-  char *pTaskMem;
-  char *pStackBase;
-  char newName[20];
-  int value, nBytes, nPreBytes;
-  char *pBufStart, *pBufEnd;
-  char ch;
+    TCB_ID  tcbId;
+    char   *pTaskMem;
+    char   *pStackBase;
+    char    newName[20];
+    int     value;
+    int     nBytes;
+    int     nPreBytes;
+    char   *pBufStart;
+    char   *pBufEnd;
+    char    ch;
 
-  /* Check if task lib is installed */
-  if (taskLibInstalled == FALSE)
-  {
-    errnoSet (S_taskLib_NOT_INSTALLED);
-    return ((int) NULL);
-  }
+    /* Check if task lib is installed */
+    if (taskLibInstalled != TRUE)
+    {
+        errnoSet(S_taskLib_NOT_INSTALLED);
+        tcbId = NULL;
+    }
+    else
+    {
+        /* If NULL name create default name for task */
+        if (name == NULL)
+        {
+            strcpy(newName, namelessPrefix);
+            nBytes    = strlen(newName);
+            nPreBytes = nBytes;
+            value     = ++namelessCount;
 
-  /* If NULL name create default name for task */
-  if (name == NULL) {
+            /* Do while value is non-zero */
+            do
+            {
+                newName[nBytes++] = digits[value % 10];
+                value /= 10;
+            } while(value != 0);
 
-    strcpy(newName, namelessPrefix);
-    nBytes = strlen(newName);
-    nPreBytes = nBytes;
-    value = ++namelessCount;
+            /* Calculate start/end positions in name */
+            pBufStart = newName + nPreBytes;
+            pBufEnd   = newName + nBytes - 1;
 
-    /* Do while value is non-zero */
-    do {
+            /* While startbuffer lt. end buffer */
+            while (pBufStart < pBufEnd)
+            {
+                ch         = *pBufStart;
+                *pBufStart = *pBufEnd;
+                *pBufEnd   = ch;
+                pBufStart++;
+                pBufEnd--;
+            }
 
-      newName[nBytes++] = digits[value % 10];
-      value /= 10;
+            /* Terminate string */
+            newName[nBytes] = EOS;
 
-    } while(value != 0);
+            /* Use this a the name for the task */
+            name = newName;
+        }
 
-    /* Calculate start/end positions in name */
-    pBufStart = newName + nPreBytes;
-    pBufEnd = newName + nBytes - 1;
+        /* Round up stack size */
+        stackSize = STACK_ROUND_UP(stackSize);
 
-    /* While startbuffer lt. end buffer */
-    while (pBufStart < pBufEnd) {
-
-      ch = *pBufStart;
-      *pBufStart = *pBufEnd;
-      *pBufEnd = ch;
-      pBufStart++;
-      pBufEnd--;
-
-    } /* End while startbuffer lt. end buffer */
-
-    /* Terminate string */
-    newName[nBytes] = EOS;
-
-    /* Use this a the name for the task */
-    name = newName;
-
-  } /* End if null name create default name for task */
-
-  /* Round up stack size */
-  stackSize = STACK_ROUND_UP(stackSize);
-
-  /* Allocate new TCB plus stack */
-  pTaskMem = objAllocPad(taskClassId,
-                         (unsigned) stackSize,
-                         (void **) NULL);
-  if (pTaskMem == NULL) {
-
-    /* errno set by objAllocPad() */
-    return ((int) NULL);
-  }
-
-  /* Setup stack vars */
+        /* Allocate new TCB plus stack */
+        pTaskMem = objAllocPad(
+                       taskClassId,
+                       (unsigned) stackSize,
+                       (void **) NULL
+                       );
+        if (pTaskMem == NULL)
+        {
+            /* errno set by objAllocPad() */
+            tcbId = NULL;
+        }
+        else
+        {
+            /* Setup stack vars */
 
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
-
-  pStackBase = pTaskMem + stackSize;
-  tcbId = (TCB_ID) pStackBase;
-
+            pStackBase = pTaskMem + stackSize;
+            tcbId      = (TCB_ID) pStackBase;
 #else /* _STACK_GROWS_UP */
-
-  tcbId = (TCB_ID) (pTaskMem + TASK_EXTRA_BYTES);
-  pStackBase = STACK_ROUND_UP(pTaskMem + TASK_EXTRA_BYTES + sizeof(TCB));
-
+            tcbId      = (TCB_ID) (pTaskMem + TASK_EXTRA_BYTES);
+            pStackBase = STACK_ROUND_UP(
+                             pTaskMem + TASK_EXTRA_BYTES + sizeof(TCB)
+                             );
 #endif /* _STACK_DIR */
 
-  /* Initialize task */
-  if (taskInit(tcbId, name, priority, options, pStackBase, stackSize, func,
-               arg0, arg1, arg2, arg3, arg4, arg5,
-               arg6, arg7, arg8, arg9) != OK)
-  {
+            /* Initialize task */
+            if (taskInit(
+                    tcbId,
+                    name,
+                    priority,
+                    options,
+                    pStackBase,
+                    stackSize,
+                    func,
+                    arg0,
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5,
+                    arg6,
+                    arg7,
+                    arg8,
+                    arg9
+                    ) != OK)
+            {
+                /* errno set by taskInit() */
+                objFree(taskClassId, tcbId);
+                tcbId = NULL;
+            }
+        }
+    }
 
-    /* errno set by taskInit() */
-    objFree(taskClassId, tcbId);
-    return ((int) NULL);
-  }
-
-  return ((int) tcbId);
+    return (int) tcbId;
 }
 
-/*******************************************************************************
-* taskInit - Initialize task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskInit - Initialize task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskInit(TCB_ID tcbId,
-                const char *name,
-                unsigned priority,
-                int options,
-                char *pStackBase,
-                unsigned stackSize,
-                FUNCPTR func,
-                ARG arg0,
-                ARG arg1,
-                ARG arg2,
-                ARG arg3,
-                ARG arg4,
-                ARG arg5,
-                ARG arg6,
-                ARG arg7,
-                ARG arg8,
-                ARG arg9)
+STATUS taskInit(
+    TCB_ID      tcbId,
+    const char *name,
+    unsigned    priority,
+    int         options,
+    char       *pStackBase,
+    unsigned    stackSize,
+    FUNCPTR     func,
+    ARG         arg0,
+    ARG         arg1,
+    ARG         arg2,
+    ARG         arg3,
+    ARG         arg4,
+    ARG         arg5,
+    ARG         arg6,
+    ARG         arg7,
+    ARG         arg8,
+    ARG         arg9
+    )
 {
-  static unsigned new_id;
-  int i, len;
-  char *taskName;
-  ARG args[MAX_TASK_ARGS];
+    static unsigned new_id;
 
-  if (INT_RESTRICT() != OK)
-  {
-    errnoSet (S_intLib_NOT_ISR_CALLABLE);
-    return ERROR;
-  }
+    STATUS status;
+    int    i;
+    int    len;
+    char  *taskName;
+    ARG    args[MAX_TASK_ARGS];
 
-  /* Check if task lib is installed */
-  if (!taskLibInstalled)
-  {
-    errnoSet (S_taskLib_NOT_INSTALLED);
-    return ERROR;
-  }
+    if (INT_RESTRICT() != OK)
+    {
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
+        status = ERROR;
+    }
+    else
+    {
+        /* Check if task lib is installed */
+        if (taskLibInstalled != TRUE)
+        {
+            errnoSet(S_taskLib_NOT_INSTALLED);
+            status = ERROR;
+        }
+        else
+        {
+            /* Copy args to array */
+            args[0] = arg0;
+            args[1] = arg1;
+            args[2] = arg2;
+            args[3] = arg3;
+            args[4] = arg4;
+            args[5] = arg5;
+            args[6] = arg6;
+            args[7] = arg7;
+            args[8] = arg8;
+            args[9] = arg9;
 
-  /* Copy args to array */
-  args[0] = arg0;
-  args[1] = arg1;
-  args[2] = arg2;
-  args[3] = arg3;
-  args[4] = arg4;
-  args[5] = arg5;
-  args[6] = arg6;
-  args[7] = arg7;
-  args[8] = arg8;
-  args[9] = arg9;
+            /* Task entry point */
+            tcbId->entry = func;
 
-  /* Set unique id */
-  tcbId->id = new_id++;
+            /* Setup errno */
+            tcbId->errno = 0;
 
-  /* Set initial status as suspended */
-  tcbId->status = TASK_SUSPEND;
-  tcbId->lockCount = 0;
-  tcbId->priority = priority;
-  tcbId->options = options;
-  tcbId->swapInMask = 0;
-  tcbId->swapOutMask = 0;
+            /* Set unique id */
+            tcbId->id = new_id++;
 
-  /* Time slice counter */
-  tcbId->timeSlice = 0;
+            /* Set initial status as suspended */
+            tcbId->status    = TASK_SUSPEND;
+            tcbId->lockCount = 0;
 
-  /* Pending queue, used by semaphores */
-  tcbId->pPendQ = NULL;
+            /* Zero swap mask */
+            tcbId->swapInMask  = 0;
+            tcbId->swapOutMask = 0;
 
-  tcbId->objUnpendHandler = NULL;
-  tcbId->pObj             = NULL;
-  tcbId->objInfo          = 0;
+            /* Name and options */
+            tcbId->priority = priority;
+            tcbId->options  = options;
 
-  /* Initialize safety */
-  tcbId->safeCount = 0;
-  qInit(&tcbId->safetyQ, qPrioClassId,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0,
-        (ARG)0);
+            /* Round robin time slice */
+            tcbId->timeSlice   = 0;
 
-  /* Task entry point */
-  tcbId->entry = func;
+            /* Pending queue, used by semaphores */
+            tcbId->pPendQ = NULL;
 
-  /* Setup error status */
-  tcbId->errorStatus = OK;
-  tcbId->exitCode = 0;
+            /* Zero unpend callback */
+            tcbId->objUnpendHandler = NULL;
+            tcbId->pObj             = NULL;
+            tcbId->objInfo          = 0;
+
+            /* Initialize safety */
+            tcbId->safeCount = 0;
+            qInit(
+                &tcbId->safetyQ,
+                qPrioClassId,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0);
+
+            /* Setup error status and exit code */
+            tcbId->errorStatus = OK;
+            tcbId->exitCode    = 0;
 
 #ifdef TASKVAR
-  /* Zero task extensions */
-  tcbId->pTaskVar = NULL;
+            /* Zero task extensions */
+            tcbId->pTaskVar = NULL;
 #endif
 
 #ifdef SIGNAL
-  /* Zero signals and exception info */
-  tcbId->pSignalInfo = NULL;
+            /* Zero signals and exception info */
+            tcbId->pSignalInfo = NULL;
 #endif
 
-  /* Exception info */
-  tcbId->pExcRegSet = NULL;
-  tcbId->excInfo.valid = 0;
+            /* Exception info */
+            tcbId->pExcRegSet    = NULL;
+            tcbId->excInfo.valid = 0;
 
-  /* Setup stack */
-  tcbId->pStackBase = pStackBase;
-  tcbId->pStackLimit = tcbId->pStackBase + stackSize * _STACK_DIR;
-  tcbId->pStackEnd = tcbId->pStackLimit;
+            /* Setup stack */
+            tcbId->pStackBase  = pStackBase;
+            tcbId->pStackLimit = tcbId->pStackBase + stackSize * _STACK_DIR;
+            tcbId->pStackEnd   = tcbId->pStackLimit;
 
-  if ( !(options & TASK_OPTIONS_NO_STACK_FILL) )
-
+            if ((options & TASK_OPTIONS_NO_STACK_FILL) == 0)
+            {
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
-
-    memset(tcbId->pStackLimit, 0xee, stackSize);
-
+                memset(tcbId->pStackLimit, 0xee, stackSize);
 #else /* _STACK_GROWS_UP */
-
-    memset(tcbId->stackBase, 0xee, stackSize);
-
+                memset(tcbId->stackBase, 0xee, stackSize);
 #endif /* _STACK_DIR */
+            }
 
-  /* Initialize standard file desriptors */
-  for (i = 0; i < 3; i++) {
+            /* Initialize standard file desriptors */
+            for (i = 0; i < 3; i++)
+            {
+                tcbId->taskStd[i]   = i;
+                tcbId->taskStdFp[i] = NULL;
+            }
 
-    tcbId->taskStd[i] = i;
-    tcbId->taskStdFp[i] = NULL;
+            /* Initialize architecutre depedent stuff */
+            taskRegsInit(tcbId, pStackBase);
 
-  }
+            /* Push args on task stack */
+            taskArgSet(tcbId, pStackBase, args);
 
-  /* Initialize architecutre depedent stuff */
-  taskRegsInit(tcbId, pStackBase);
+            /* Object core */
+            objCoreInit(&tcbId->objCore, taskClassId);
 
-  /* Push args on task stack */
-  taskArgSet(tcbId, pStackBase, args);
+            /* Copy name if not unnamed */
+            if (name != NULL)
+            {
+                len = strlen(name) + 1;
 
-  /* Object core */
-  objCoreInit(&tcbId->objCore, taskClassId);
+                taskName = (char *) taskStackAllot((int) tcbId, len);
+                if (taskName != NULL)
+                {
+                    strcpy(taskName, name);
+                }
 
-  /* Copy name if not unnamed */
-  if (name != NULL) {
-    len = strlen(name) + 1;
-    taskName = (char *) taskStackAllot((int) tcbId, len);
-    if (taskName != NULL)
-      strcpy(taskName, name);
-    tcbId->name = taskName;
-  }
-  else
-    tcbId->name = NULL;
+                tcbId->name = taskName;
+            }
+            else
+            {
+                tcbId->name = NULL;
+            }
 
-  /* Run create hooks */
-  for (i = 0; i < MAX_TASK_CREATE_HOOKS; i++)
-    if (taskCreateHooks[i] != NULL)
-      (*taskCreateHooks[i])(tcbId);
+            /* Run create hooks */
+            for (i = 0; i < MAX_TASK_CREATE_HOOKS; i++)
+            {
+                if (taskCreateHooks[i] != NULL)
+                {
+                    (*taskCreateHooks[i])(tcbId);
+                }
+            }
 
-  /* Start task */
-  vmxSpawn(tcbId);
+            /* Set task as active */
+            vmxSpawn(tcbId);
+            status = OK;
+        }
+    }
 
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskDelete - Delete task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskDelete - Delete task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskDelete(int taskId)
+STATUS taskDelete(
+    int taskId
+    )
 {
-  return (taskDestroy(taskId, TRUE, WAIT_FOREVER, FALSE));
+    return taskDestroy(taskId, TRUE, WAIT_FOREVER, FALSE);
 }
 
-/*******************************************************************************
-* taskDeleteForce - Remove task forcevly
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskDeleteForce - Remove task forced
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskDeleteForce(int taskId)
+STATUS taskDeleteForce(
+    int taskId
+    )
 {
-  return (taskDestroy(taskId, TRUE, WAIT_FOREVER, TRUE));
+    return taskDestroy(taskId, TRUE, WAIT_FOREVER, TRUE);
 }
 
-/*******************************************************************************
-* taskTerminate - Terminate task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskTerminate - Terminate task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskTerminate(int taskId)
+STATUS taskTerminate(
+    int taskId
+    )
 {
-  return (taskDestroy(taskId, FALSE, WAIT_FOREVER, FALSE));
+    return taskDestroy(taskId, FALSE, WAIT_FOREVER, FALSE);
 }
 
-/*******************************************************************************
-* taskDestroy - Kill task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskDestroy - Kill task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskDestroy(int taskId,
-                   BOOL freeStack,
-                   unsigned timeout,
-                   BOOL forceDestroy)
+STATUS taskDestroy(
+    int      taskId,
+    BOOL     freeStack,
+    unsigned timeout,
+    BOOL     forceDestroy
+    )
 {
   STATUS status;
   int i, level;
@@ -684,247 +757,301 @@ taskDestroyLoop:
   return OK;
 }
 
-/*******************************************************************************
-* taskActivate - Activate task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskActivate - Activate task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskActivate(int taskId)
+STATUS taskActivate(
+    int taskId
+    )
 {
-  return(taskResume(taskId));
+    return taskResume(taskId);
 }
 
-/*******************************************************************************
-* taskSuspend - Suspend a task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskSuspend - Suspend a task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskSuspend(int taskId)
+STATUS taskSuspend(
+    int taskId
+    )
 {
-  TCB_ID tcbId;
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Get task context */
-  tcbId = taskTcb(taskId);
-  if (tcbId == NULL)
-    return ERROR;
+    /* Get task context */
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* TASK_ID_VERIFY() already done by taskTcb() */
 
-  /* TASK_ID_VERIFY() already done by taskTcb() */
+        /* Check if in kernel mode */
+        if (kernelState == TRUE)
+        {
+            /* Add to kernel queue */
+            workQAdd1((FUNCPTR) vmxSuspend, (ARG) tcbId);
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel mode */
+            kernelState = TRUE;
 
-  /* Check if in kernel mode */
-  if (kernelState == TRUE)
-  {
-    /* Add to kernel queue */
-    workQAdd1((FUNCPTR) vmxSuspend, (ARG) tcbId);
+            /* Suspend task */
+            vmxSuspend(tcbId);
 
-    return OK;
-  }
+            /* Exit trough kernel */
+            vmxExit();
+            status = OK;
+        }
+    }
 
-  /* Enter kernel mode */
-  kernelState = TRUE;
-
-  /* Suspend task */
-  vmxSuspend(tcbId);
-
-  /* Exit trough kernel */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskResume - Resume task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskResume - Resume task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskResume(int taskId)
+STATUS taskResume(
+    int taskId
+    )
 {
-  TCB_ID tcbId;
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* If try to resume current task */
-  if (taskId == 0)
-    return OK;
+    /* If try to resume current task */
+    if (taskId == 0)
+    {
+        status = OK;
+    }
+    else
+    {
+        tcbId = (TCB_ID) taskId;
 
-  tcbId = (TCB_ID) taskId;
+        /* Verify that it is actually a task */
+        if (TASK_ID_VERIFY(tcbId) != OK)
+        {
+            /* errno set by TASK_ID_VERIFY() */
+            status = ERROR;
+        }
+        else
+        {
+            /* Put on queue if in kernel mode */
+            if (kernelState == TRUE)
+            {
+                /* Put on kernel queue */
+                workQAdd1((FUNCPTR) vmxResume, (ARG) tcbId);
+                status = OK;
+            }
+            else
+            {
+                /* Enter kernel mode */
+                kernelState = TRUE;
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(tcbId) != OK)
-  {
-    /* errno set by TASK_ID_VERIFY() */
-    return ERROR;
-  }
+                /* Resume task */
+                vmxResume(tcbId);
 
-  /* Put on queue if in kernel mode */
-  if (kernelState == TRUE)
-  {
-    /* Put on kernel queue */
-    workQAdd1((FUNCPTR) vmxResume, (ARG) tcbId);
+                /* Exit kernel mode */
+                vmxExit();
+                status = OK;
+            }
+        }
+    }
 
-    return OK;
-  }
-
-  /* Enter kernel mode */
-  kernelState = TRUE;
-
-  /* Resume task */
-  vmxResume(tcbId);
-
-  /* Exit kernel mode */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskDelay - Put a task to sleep
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskDelay - Put a task to sleep
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskDelay(unsigned timeout)
+STATUS taskDelay(
+    unsigned timeout
+    )
 {
-  STATUS status;
+    STATUS status;
 
-  if (INT_RESTRICT() != OK)
-  {
-    errnoSet (S_intLib_NOT_ISR_CALLABLE);
-    return ERROR;
-  }
+    if (INT_RESTRICT() != OK)
+    {
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
+        status = ERROR;
+    }
+    else
+    {
+        /* Enter kernel mode */
+        kernelState = TRUE;
 
-  /* Enter kernel mode */
-  kernelState = TRUE;
+        /* If no wait, then just re-insert it */
+        if (timeout == WAIT_NONE)
+        {
+            Q_REMOVE(&readyQHead, taskIdCurrent);
+            Q_PUT(&readyQHead, taskIdCurrent, taskIdCurrent->priority);
+        }
+        else
+        {
+            /* Put to sleep */
+            vmxDelay(timeout);
+        }
 
-  /* If no wait, then just reinsert it */
-  if (timeout == WAIT_NONE)
-  {
-    Q_REMOVE(&readyQHead, taskIdCurrent);
-    Q_PUT(&readyQHead, taskIdCurrent, taskIdCurrent->priority);
-  }
-  /* Put to sleep */
-  else
-  {
-    vmxDelay(timeout);
-  }
+        /* Exit trough kernel, and check for error */
+        if ((status = vmxExit()) == SIG_RESTART)
+        {
+            status = ERROR;
+        }
+    }
 
-  /* Exit trough kernel, and check for error */
-  if ( (status = vmxExit()) == SIG_RESTART)
-  {
-    status = ERROR;
-  }
-
-  return status;
+    return status;
 }
 
-/*******************************************************************************
-* taskUndelay - Wake up a sleeping task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskUndelay - Wake up a sleeping task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskUndelay(int taskId)
+STATUS taskUndelay(
+    int taskId
+    )
 {
-  TCB_ID tcbId;
+    STATUS status;
+    TCB_ID tcbId;
 
-  tcbId = (TCB_ID) taskId;
+    tcbId = (TCB_ID) taskId;
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(tcbId) != OK)
-  {
-    /* errno set by TASK_ID_VERIFY() */
-    return ERROR;
-  }
+    /* Verify that it is actually a task */
+    if (TASK_ID_VERIFY(tcbId) != OK)
+    {
+        /* errno set by TASK_ID_VERIFY() */
+        status = ERROR;
+    }
+    else
+    {
+        /* Put on queue if in kernel mode */
+        if (kernelState == TRUE)
+        {
+            /* Put on kernel queue */
+            workQAdd1((FUNCPTR) vmxUndelay, (ARG) tcbId);
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel mode */
+            kernelState = TRUE;
 
-  /* Put on queue if in kernel mode */
-  if (kernelState == TRUE)
-  {
-    /* Put on kernel queue */
-    workQAdd1((FUNCPTR) vmxUndelay, (ARG) tcbId);
+            /* Resume task */
+            vmxUndelay(tcbId);
 
-    return OK;
-  }
+            /* Exit kernel mode */
+            vmxExit();
+            status = OK;
+        }
+    }
 
-  /* Enter kernel mode */
-  kernelState = TRUE;
-
-  /* Resume task */
-  vmxUndelay(tcbId);
-
-  /* Exit kernel mode */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskPrioritySet - Change task priority
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskPrioritySet - Change task priority
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskPrioritySet(int taskId, unsigned priority)
+STATUS taskPrioritySet(
+    int      taskId,
+    unsigned priority
+    )
 {
-  TCB_ID tcbId;
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Get task context */
-  tcbId = taskTcb(taskId);
-  if (tcbId == NULL)
-    return ERROR;
+    /* Get task context */
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* TASK_ID_VERIFY() already done by taskTcb() */
 
-  /* TASK_ID_VERIFY() already done by taskTcb() */
+        /* Check if in kernel mode */
+        if (kernelState == TRUE)
+        {
+            /* Add work to kernel */
+            workQAdd2((FUNCPTR) vmxPrioritySet, (ARG) tcbId, (ARG) priority);
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel mode */
+            kernelState = TRUE;
 
-  /* Check if in kernel mode */
-  if (kernelState == TRUE)
-  {
-    /* Add work to kernel */
-    workQAdd2 ((FUNCPTR) vmxPrioritySet, (ARG) tcbId, (ARG) priority);
+            /* Set priority */
+            vmxPrioritySet(tcbId, priority);
 
-    return OK;
-  }
+            /* Exit trough kernel */
+            vmxExit();
+            status = OK;
+        }
+    }
 
-  /* Enter kernel mode */
-  kernelState = TRUE;
-
-  /* Set priority */
-  vmxPrioritySet(tcbId, priority);
-
-  /* Exit trough kernel */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskPriorityGet - Get task priority
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskPriorityGet - Get task priority
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskPriorityGet(int taskId, unsigned *priority)
+STATUS taskPriorityGet(
+    int       taskId,
+    unsigned *priority
+    )
 {
-  TCB_ID tcbId;
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Get task context */
-  tcbId = taskTcb(taskId);
-  if (tcbId == NULL)
-    return ERROR;
+    /* Get task context */
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* TASK_ID_VERIFY() already done by taskTcb() */
 
-  /* TASK_ID_VERIFY() already done by taskTcb() */
+        /* Store priority */
+        *priority = tcbId->priority;
+        status = OK;
+    }
 
-  /* Store priority */
-  *priority = tcbId->priority;
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
-* taskRestart - Restart a task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskRestart - Restart a task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskRestart(int taskId)
+STATUS taskRestart(
+    int taskId
+    )
 {
   TCB_ID tcbId;
   char *name, *rename;
@@ -939,7 +1066,7 @@ STATUS taskRestart(int taskId)
 
   if (INT_RESTRICT() != OK)
   {
-    errnoSet (S_intLib_NOT_ISR_CALLABLE);
+    errnoSet(S_intLib_NOT_ISR_CALLABLE);
     return ERROR;
   }
 
@@ -1035,223 +1162,236 @@ STATUS taskRestart(int taskId)
   return OK;
 }
 
-/*******************************************************************************
-* taskExit - Exit from task
-*
-* RETURNS: N/A
-*******************************************************************************/
+/******************************************************************************
+ * taskExit - Exit from task
+ *
+ * RETURNS: N/A
+ */
 
-void taskExit(int code)
+void taskExit(
+    int code
+    )
 {
-  /* Store return code */
-  taskIdCurrent->exitCode = code;
+    /* Store return code */
+    taskIdCurrent->exitCode = code;
 
-  /* Lock task */
-  taskLock();
+    /* Lock task */
+    taskLock();
 
-  /* Destroy task */
-  taskDestroy(NULL, TRUE, WAIT_FOREVER, FALSE);
+    /* Destroy task */
+    taskDestroy(NULL, TRUE, WAIT_FOREVER, FALSE);
 
-  /* Unlock task */
-  taskUnlock();
+    /* Unlock task */
+    taskUnlock();
 }
 
-/*******************************************************************************
-* exit - Exit from task
-*
-* RETURNS: N/A
-*******************************************************************************/
+/******************************************************************************
+ * taskLock - Prevent task from beeing switched out
+ *
+ * RETURNS: OK
+ */
 
-void exit(int code)
+STATUS taskLock(
+    void
+    )
 {
-  taskExit(code);
+    taskIdCurrent->lockCount++;
+
+    return OK;
 }
 
-/*******************************************************************************
-* taskLock - Prevent task from beeing switched out
-*
-* RETURNS: N/A
-*******************************************************************************/
+/******************************************************************************
+ * taskUnlock - Allow task to be switched out
+ *
+ * RETURNS: OK
+ */
 
-STATUS taskLock(void)
+STATUS taskUnlock(
+    void
+    )
 {
-  taskIdCurrent->lockCount++;
+    /* Check if state is chaged */
+    if ((taskIdCurrent->lockCount > 0) && (--taskIdCurrent->lockCount == 0))
+    {
+        /* Enter kernel mode */
+        kernelState = TRUE;
 
-  return OK;
+        if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
+        {
+            vmxPendQFlush(&taskIdCurrent->safetyQ);
+        }
+
+        /* Exit trough kernel */
+        vmxExit();
+    }
+
+    return OK;
 }
 
-/*******************************************************************************
-* taskUnlock - Allow task to be switched out
-*
-* RETURNS: N/A
-*******************************************************************************/
+/******************************************************************************
+ * taskSafe - Make safe from deletion
+ *
+ * RETURNS: OK
+ */
 
-STATUS taskUnlock(void)
+STATUS taskSafe(
+    void
+    )
 {
-  /* Check if state is chaged */
-  if ( (taskIdCurrent->lockCount > 0) && (--taskIdCurrent->lockCount == 0) )
-  {
-    /* Enter kernel mode */
-    kernelState = TRUE;
+    taskIdCurrent->safeCount++;
 
-    if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
-      vmxPendQFlush(&taskIdCurrent->safetyQ);
-
-    /* Exit trough kernel */
-    vmxExit();
-  }
-  return OK;
+    return OK;
 }
 
-/*******************************************************************************
-* taskSafe - Make safe from deletion
-*
-* RETURNS: Ok or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskUnsafe - Make unsafe from deletion
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskSafe(void)
+STATUS taskUnsafe(
+    void
+    )
 {
-  taskIdCurrent->safeCount++;
+    /* Check if state is chaged */
+    if ((taskIdCurrent->safeCount > 0) && (--taskIdCurrent->safeCount == 0))
+    {
+        /* Enter kernel mode */
+        kernelState = TRUE;
 
-  return OK;
+        if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
+        {
+            vmxPendQFlush(&taskIdCurrent->safetyQ);
+        }
+
+        /* Exit trough kernel */
+        vmxExit();
+    }
+
+    return OK;
 }
 
-/*******************************************************************************
-* taskUnsafe - Make unsafe from deletion
-*
-* RETURNS: Ok or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskIdSelf - Get my own TCB
+ *
+ * RETURNS: Integer taskId
+ */
 
-STATUS taskUnsafe(void)
+int taskIdSelf(
+    void
+    )
 {
-  /* Check if state is chaged */
-  if ( (taskIdCurrent->safeCount > 0) && (--taskIdCurrent->safeCount == 0) )
-  {
-    /* Enter kernel mode */
-    kernelState = TRUE;
-
-    if (Q_FIRST(&taskIdCurrent->safetyQ) != NULL)
-      vmxPendQFlush(&taskIdCurrent->safetyQ);
-
-    /* Exit trough kernel */
-    vmxExit();
-  }
-
-  return OK;
+    return (int) taskIdCurrent;
 }
 
-/*******************************************************************************
-* taskIdSelf - Get my own TCB
-*
-* RETURNS: Integer taskId
-*******************************************************************************/
+/******************************************************************************
+ * taskTcb - Get TCB
+ *
+ * RETURNS: Pointer to task control block or NULL
+ */
 
-int taskIdSelf(void)
+TCB_ID taskTcb(
+    int taskId
+    )
 {
-  return((int) taskIdCurrent);
+    TCB_ID tcbId;
+
+    /* If 0, return current task id */
+    if (taskId == 0)
+    {
+        tcbId = taskIdCurrent;
+    }
+    else
+    {
+        /* Convert to pointer to TCB struct */
+        tcbId = (TCB_ID) taskId;
+
+        /* Verify that it is actually a task */
+        if (TASK_ID_VERIFY(tcbId) != OK)
+        {
+            /* errno set by TASK_ID_VERIFY() */
+            tcbId = NULL;
+        }
+    }
+
+    return tcbId;
 }
 
-/*******************************************************************************
-* taskTcb - Get TCB
-*
-* RETURNS: TCB_ID to task, or to runnig task if 0 as arg
-*******************************************************************************/
+/******************************************************************************
+ * taskStackAllot - Allot memory from callers stack
+ *
+ * RETURNS: Pointer to memory, or NULL
+ */
 
-TCB_ID taskTcb(int taskId)
+void* taskStackAllot(
+    int      taskId,
+    unsigned size
+    )
 {
-  TCB_ID tcbId;
+    TCB_ID tcbId;
+    char  *pStackPrev;
+    void  *pNewMem;
 
-  /* If 0, return current task id */
-  if (taskId == 0) return(taskIdCurrent);
+    /* Get task context */
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        pNewMem = NULL;
+    }
+    else
+    {
+        /* TASK_ID_VERIFY() already done by taskTcb() */
 
-  /* Convert to pointer to TCB struct */
-  tcbId = (TCB_ID) taskId;
+        /* Round up */
+        size = STACK_ROUND_UP(size);
 
-  /* Verify that it is actually a task */
-  if (TASK_ID_VERIFY(tcbId) != OK)
-  {
-    /* errno set by TASK_ID_VERIFY() */
-    return NULL;
-  }
-
-  /* Return pointer to TCB struct */
-  return tcbId;
-}
-
-/*******************************************************************************
-* taskStackAllot - Allot memory from callers stack
-*
-* RETURNS: Pointer to memory, or NULL
-*******************************************************************************/
-
-void *taskStackAllot(int taskId, unsigned size)
-{
-  TCB_ID tcbId;
-  char *pStackPrev;
-
-  /* Get task context */
-  tcbId = taskTcb(taskId);
-  if (tcbId == NULL)
-    return NULL;
-
-  /* TASK_ID_VERIFY() already done by taskTcb() */
-
-  /* Round up */
-  size = STACK_ROUND_UP(size);
-
-  /* Check if size is ok */
-  if (size > (tcbId->pStackLimit - tcbId->pStackBase) * _STACK_DIR)
-  {
-    errnoSet (S_taskLib_STACK_OVERFLOW);
-    return NULL;
-  }
-
-  /* Store old stack end */
-  pStackPrev = tcbId->pStackLimit;
-
+        /* Check if size is ok */
+        if (size > (tcbId->pStackLimit - tcbId->pStackBase) * _STACK_DIR)
+        {
+            errnoSet(S_taskLib_STACK_OVERFLOW);
+            pNewMem = NULL;
+        }
+        else
+        {
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
-
-  tcbId->pStackLimit += size;
-  return( (void *) pStackPrev);
-
+            pStackPrev          = tcbId->pStackLimit;
+            tcbId->pStackLimit += size;
+            pNewMem = pStackPrev;
 #else /* _STACK_GROWS_UP */
-
-  tcbId->pStackLimit -= size;
-  return( (void *) tcbId->pStackLimit);
-
+            tcbId->pStackLimit -= size;
+            pNewMem = tcbId->pStackLimit;
 #endif /* _STACK_DIR */
+        }
+    }
+
+    return pNewMem;
 }
 
-/*******************************************************************************
-* taskIdVerify - Verify that this is actually a task
-*
-* RETURNS: OK or ERROR
-*******************************************************************************/
+/******************************************************************************
+ * taskIdVerify - Verify that this is actually a task
+ *
+ * RETURNS: OK or ERROR
+ */
 
-STATUS taskIdVerify(int taskId)
+STATUS taskIdVerify(
+    int taskId
+    )
 {
-  TCB_ID tcbId;
+    STATUS status;
+    TCB_ID tcbId;
 
-  /* Get task context */
-  tcbId = taskTcb(taskId);
-  if (tcbId == NULL)
-    return ERROR;
+    /* Get task context */
+    tcbId = taskTcb(taskId);
+    if (tcbId == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* TASK_ID_VERIFY() already done by taskTcb() */
+        status = OK;
+    }
 
-  /* TASK_ID_VERIFY() already done by taskTcb() */
-
-  return OK;
-}
-
-/*******************************************************************************
-* taskIdle - An idle task
-*
-* RETURNS: return value
-*******************************************************************************/
-
-int taskIdle(void)
-{
-  for (;;);
-
-  return 0;
+    return status;
 }
 

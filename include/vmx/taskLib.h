@@ -135,7 +135,7 @@ typedef struct taskTCB
     EXC_INFO excInfo;
 
     /* I/O related */
-    int taskStd[3];
+    int   taskStd[3];
     FILE *taskStdFp[3];
 
     /* Select context */
@@ -143,11 +143,10 @@ typedef struct taskTCB
 
     /* Class */
     OBJ_CORE objCore;
-
 } __attribute__((packed)) TCB;
 
 /* Exports */
-typedef TCB *TCB_ID;
+typedef TCB    *TCB_ID;
 IMPORT CLASS_ID taskClassId;
 
 /* Macros */
@@ -158,7 +157,7 @@ IMPORT CLASS_ID taskClassId;
  * RETURNS: OK or ERROR
  */
 
-#define TASK_ID_VERIFY(tcbId)                                                  \
+#define TASK_ID_VERIFY(tcbId)                                                 \
     (OBJ_VERIFY(tcbId, taskClassId))
 
 /* Functions */
@@ -174,51 +173,51 @@ STATUS taskLibInit(
     );
 
 /******************************************************************************
- * taskSpawn - Create a new task start it
+ * taskSpawn - Create a new task and start it
  *
- * RETURNS: taskId or 0
+ * RETURNS: Integer taskId or zero
  */
 
 int taskSpawn(
     const char *name,
-    unsigned priority,
-    int options,
-    unsigned stackSize,
-    FUNCPTR func,
-    ARG arg0,
-    ARG arg1,
-    ARG arg2,
-    ARG arg3,
-    ARG arg4,
-    ARG arg5,
-    ARG arg6,
-    ARG arg7,
-    ARG arg8,
-    ARG arg9
+    unsigned    priority,
+    int         options,
+    unsigned    stackSize,
+    FUNCPTR     func,
+    ARG         arg0,
+    ARG         arg1,
+    ARG         arg2,
+    ARG         arg3,
+    ARG         arg4,
+    ARG         arg5,
+    ARG         arg6,
+    ARG         arg7,
+    ARG         arg8,
+    ARG         arg9
     );
 
 /******************************************************************************
  * taskCreat - Create a new task without starting it
  *
- * RETURNS: taskId or 0
+ * RETURNS: Integer taskId or or zero
  */
 
 int taskCreat(
     const char *name,
-    unsigned priority,
-    int options,
-    unsigned stackSize,
-    FUNCPTR func,
-    ARG arg0,
-    ARG arg1,
-    ARG arg2,
-    ARG arg3,
-    ARG arg4,
-    ARG arg5,
-    ARG arg6,
-    ARG arg7,
-    ARG arg8,
-    ARG arg9
+    unsigned    priority,
+    int         options,
+    unsigned    stackSize,
+    FUNCPTR     func,
+    ARG         arg0,
+    ARG         arg1,
+    ARG         arg2,
+    ARG         arg3,
+    ARG         arg4,
+    ARG         arg5,
+    ARG         arg6,
+    ARG         arg7,
+    ARG         arg8,
+    ARG         arg9
     );
 
 /******************************************************************************
@@ -226,24 +225,25 @@ int taskCreat(
  *
  * RETURNS: OK or ERROR
  */
+
 STATUS taskInit(
-    TCB_ID tcbId,
+    TCB_ID      tcbId,
     const char *name,
-    unsigned priority,
-    int options,
-    char *pStackBase,
-    unsigned stackSize,
-    FUNCPTR func,
-    ARG arg0,
-    ARG arg1,
-    ARG arg2,
-    ARG arg3,
-    ARG arg4,
-    ARG arg5,
-    ARG arg6,
-    ARG arg7,
-    ARG arg8,
-    ARG arg9
+    unsigned    priority,
+    int         options,
+    char       *pStackBase,
+    unsigned    stackSize,
+    FUNCPTR     func,
+    ARG         arg0,
+    ARG         arg1,
+    ARG         arg2,
+    ARG         arg3,
+    ARG         arg4,
+    ARG         arg5,
+    ARG         arg6,
+    ARG         arg7,
+    ARG         arg8,
+    ARG         arg9
     );
 
 /******************************************************************************
@@ -283,10 +283,10 @@ STATUS taskTerminate(
  */
 
 STATUS taskDestroy(
-    int taskId,
-    BOOL freeStack,
+    int      taskId,
+    BOOL     freeStack,
     unsigned timeout,
-    BOOL forceDestroy
+    BOOL     forceDestroy
     );
 
 /******************************************************************************
@@ -346,7 +346,7 @@ STATUS taskUndelay(
  */
 
 STATUS taskPrioritySet(
-    int taskId,
+    int      taskId,
     unsigned priority
     );
 
@@ -357,7 +357,7 @@ STATUS taskPrioritySet(
  */
 
 STATUS taskPriorityGet(
-    int taskId,
+    int       taskId,
     unsigned *priority
     );
 
@@ -434,7 +434,7 @@ int taskIdSelf(
 /******************************************************************************
  * taskTcb - Get TCB
  *
- * RETURNS: Task control block id or NULL
+ * RETURNS: Pointer to task control block or NULL
  */
 
 TCB_ID taskTcb(
@@ -444,11 +444,11 @@ TCB_ID taskTcb(
 /******************************************************************************
  * taskStackAllot - Allot memory from callers stack
  *
- * RETURNS: Pointer to memory or NULL
+ * RETURNS: Pointer to memory, or NULL
  */
 
 void* taskStackAllot(
-    int taskId,
+    int      taskId,
     unsigned size
     );
 
@@ -460,16 +460,6 @@ void* taskStackAllot(
  
 STATUS taskIdVerify(
     int taskId
-    );
-
-/******************************************************************************
- * taskIdle - An idle task
- *
- * RETURNS: return value
- */
-
-int taskIdle(
-    void
     );
 
 #ifdef __cplusplus
