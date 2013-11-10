@@ -36,6 +36,7 @@
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
 #include <os/taskHookLib.h>
+#include <os/taskHookShow.h>
 
 #include "config.h"
 
@@ -69,6 +70,7 @@ void usrKernelInit(void)
     taskLibInit();
 
     taskHookLibInit();
+    taskHookShowInit();
 
     semLibInit();
     semBLibInit();

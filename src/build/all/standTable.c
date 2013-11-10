@@ -42,6 +42,7 @@
 #include <os/memLib.h>
 #include <os/memShow.h>
 #include <os/taskHookLib.h>
+#include <os/taskHookShow.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
 #include <os/ffsLib.h>
@@ -406,14 +407,18 @@ SYMBOL standTable[] =
   /* taskHookLib */
   {NULL, "_taskCreateHookAdd", taskCreateHookAdd, 0, N_TEXT | N_EXT},
   {NULL, "_taskCreateHookDelete", taskCreateHookDelete, 0, N_TEXT | N_EXT},
+  {NULL, "_taskCreateHookShow", taskCreateHookShow, 0, N_TEXT | N_EXT},
   {NULL, "_taskSwitchHookAdd", taskSwitchHookAdd, 0, N_TEXT | N_EXT},
   {NULL, "_taskSwitchHookDelete", taskSwitchHookDelete, 0, N_TEXT | N_EXT},
+  {NULL, "_taskSwitchHookShow", taskSwitchHookShow, 0, N_TEXT | N_EXT},
   {NULL, "_taskDeleteHookAdd", taskDeleteHookAdd, 0, N_TEXT | N_EXT},
   {NULL, "_taskDeleteHookDelete", taskDeleteHookDelete, 0, N_TEXT | N_EXT},
+  {NULL, "_taskDeleteHookShow", taskDeleteHookShow, 0, N_TEXT | N_EXT},
   {NULL, "_taskSwapHookAdd", taskSwapHookAdd, 0, N_TEXT | N_EXT},
   {NULL, "_taskSwapHookDelete", taskSwapHookDelete, 0, N_TEXT | N_EXT},
   {NULL, "_taskSwapHookAttach", taskSwapHookAttach, 0, N_TEXT | N_EXT},
   {NULL, "_taskSwapHookDetach", taskSwapHookDetach, 0, N_TEXT | N_EXT},
+  {NULL, "_taskSwapHookShow", taskSwapHookShow, 0, N_TEXT | N_EXT},
 
   /* wdLib */
   {NULL, "_wdCreate", wdCreate, 0, N_TEXT | N_EXT},
