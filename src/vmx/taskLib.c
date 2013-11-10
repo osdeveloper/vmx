@@ -44,6 +44,8 @@
 /* Locals */
 LOCAL OBJ_CLASS taskClass;
 LOCAL BOOL taskLibInstalled  = FALSE;
+LOCAL char namelessPrefix[]  = "t";
+LOCAL int  namelessCount     = 0;
 LOCAL char restartTaskName[] = "tRestart";
 int restartTaskPriority      = 0;
 int restartTaskStackSize     = 6000;
@@ -170,6 +172,8 @@ int taskCreat(
     ARG arg9
     )
 {
+    char numString[10];
+    char taskName[20];
     TCB_ID tcbId;
     char *pTaskMem;
     char *pStackBase;
@@ -182,6 +186,15 @@ int taskCreat(
     }
     else
     {
+        /* If no task name given */
+        if (name == NULL)
+        {
+            strcpy(taskName, namelessPrefix);
+            itoa(++namelessCount, numString, 10);
+            strcat(taskName, numString);
+            name = taskName;
+        }
+
         /* Round up stack size */
         STACK_ROUND_UP(stackSize);
 
