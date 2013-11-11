@@ -23,7 +23,7 @@
 #ifndef _selectLib_h
 #define _selectLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 #define S_selectLib_NO_SELECT_CONTEXT                   (M_selectLib | 0x0001)
 #define S_selectLib_NO_SELECT_SUPPORT_IN_DRIVER         (M_selectLib | 0x0002)
 #define S_selectLib_WIDTH_OUT_OF_RANGE                  (M_selectLib | 0x0003)

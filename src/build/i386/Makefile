@@ -32,7 +32,7 @@ CFLAGS = -nostdinc -fno-builtin -m32 -fno-stack-protector
 ASMFLAGS = -nostdinc -fno-builtin -m32
 DFLAGS = -DCPU=$(CPU) \
 	 -DCOMPILE_DATE=\"`date +%d_%B_%Y.%H:%M`\"
-LIBS = -lvmx -larch -los -lstdc -lutil -ltools -lusr
+LIBS = -lvmx -larch -los -lstdc -lutil -lostool -lusr
 LDFLAGS = -T $(VMX_BASE)/include/make/i386/link.ld -m elf_i386
 INCFLAGS = -I./ -I../all -I$(VMX_BASE)/include -I$(VMX_BASE)/src
 LD_LIBRARY_PATH = -L$(VMX_BASE)/lib/$(CPU)/

@@ -23,7 +23,7 @@
 #ifndef _semLib_h
 #define _semLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 #include <vmx/private/semLibP.h>
 
 #define MAX_SEM_TYPE                        3

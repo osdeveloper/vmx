@@ -23,7 +23,7 @@
 #ifndef _memLib_h
 #define _memLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 
 #include <vmx.h>
 #include <os/memPartLib.h>

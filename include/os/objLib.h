@@ -31,7 +31,7 @@ extern "C" {
 
 /* includes */
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 #include <vmx.h>
 #include <os/classLib.h>
 #include <os/private/objLibP.h>

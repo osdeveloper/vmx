@@ -33,7 +33,7 @@
 #include <os/symLib.h>
 #include <os/ioLib.h>
 
-#include <tools/private/shellLibP.h>
+#include <ostool/private/shellLibP.h>
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;

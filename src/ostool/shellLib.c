@@ -30,7 +30,7 @@
 #include <vmx/taskLib.h>
 #include <os/ioLib.h>
 #include <os/excLib.h>
-#include <tools/shellLib.h>
+#include <ostool/shellLib.h>
 
 /* Defines */
 #define MAX_PROMPT_LEN          80

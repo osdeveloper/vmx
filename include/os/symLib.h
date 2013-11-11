@@ -23,7 +23,7 @@
 #ifndef _symLib_h
 #define _symLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 
 #define S_symLib_SYMBOL_NOT_FOUND               (M_symLib | 0x0001)
 

@@ -23,7 +23,7 @@
 #ifndef _ioLib_h
 #define _ioLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 
 #define S_ioLib_UNKNOWN_REQUEST                 (M_ioLib | 0x0001)
 #define S_ioLib_DEVICE_ERROR                    (M_ioLib | 0x0002)

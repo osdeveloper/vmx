@@ -23,7 +23,7 @@
 #ifndef _classLib_h
 #define _classLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 
 #define S_classLib_NOT_INSTALLED     (M_classLib | 0x0001)
 #define S_classLib_ID_ERROR          (M_classLib | 0x0002)

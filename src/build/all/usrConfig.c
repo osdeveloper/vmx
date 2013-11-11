@@ -62,7 +62,7 @@
 #include <os/logLib.h>
 #include <os/excLib.h>
 #include <os/pipeDrv.h>
-#include <tools/shellLib.h>
+#include <ostool/shellLib.h>
 #include <usr/usrLib.h>
 #include "configAll.h"
 #include "config.h"

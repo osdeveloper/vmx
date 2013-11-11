@@ -22,7 +22,7 @@
 
 OBJS = shellLexer.o shellParser.o shellLib.o
 SUBDIRS =
-LIB_TGT = tools
+LIB_TGT = ostool
 
 include $(VMX_BASE)/include/make/build.defaults
 

@@ -29,7 +29,7 @@ extern "C" {
 
 typedef struct mem_part *PART_ID;
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 #include <vmx.h>
 #include <util/dllLib.h>
 #include <os/private/memPartLibP.h>

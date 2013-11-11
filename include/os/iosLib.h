@@ -23,7 +23,7 @@
 #ifndef _iosLib_h
 #define _iosLib_h
 
-#include <tools/moduleNumber.h>
+#include <ostool/moduleNumber.h>
 
 #define S_iosLib_DRIVER_GLUT                    (M_iosLib | 0x0001)
 #define S_iosLib_DUPLICATE_DEVICE_NAME          (M_iosLib | 0x0002)

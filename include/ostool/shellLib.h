@@ -24,7 +24,7 @@
 #define _shellLib_h
 
 #include <vmx.h>
-#include <tools/private/shellLibP.h>
+#include <ostool/private/shellLibP.h>
 
 #ifndef _ASMLANGUAGE
 
