@@ -48,6 +48,7 @@
 #include <os/ffsLib.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
+#include <os/erfLib.h>
 #include <util/listLib.h>
 #include <util/dllLib.h>
 #include <util/sllLib.h>
@@ -198,8 +199,16 @@ SYMBOL standTable[] =
   {NULL, "_mkdir", mkdir, 0, N_TEXT | N_EXT},
   {NULL, "_stat", stat, 0, N_TEXT | N_EXT},
 
+  /* iosLib */
   {NULL, "_iosDevShow", iosDevShow, 0, N_TEXT | N_EXT},
   {NULL, "_iosFdShow", iosFdShow, 0, N_TEXT | N_EXT},
+
+  /* erfLib */
+  {NULL, "_erfHandlerRegister", erfHandlerRegister, 0, N_TEXT | N_EXT},
+  {NULL, "_erfHandlerUnregister", erfHandlerUnregister, 0, N_TEXT | N_EXT},
+  {NULL, "_erfEventRaise", erfEventRaise, 0, N_TEXT | N_EXT},
+  {NULL, "_erfCategoryAllocate", erfCategoryAllocate, 0, N_TEXT | N_EXT},
+  {NULL, "_erfTypeAllocate", erfTypeAllocate, 0, N_TEXT | N_EXT},
 
   /* classLib */
   {NULL, "_rootClassId", NULL, 0, N_DATA | N_EXT},

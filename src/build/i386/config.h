@@ -76,6 +76,9 @@
 #define PC_CONSOLE              0
 #define N_VIRTUAL_CONSOLES      3
 
+#define MAX_EVENT_CATEGORIES    20
+#define MAX_EVENT_TYPES         20
+
 #define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_PC_CONSOLE
 

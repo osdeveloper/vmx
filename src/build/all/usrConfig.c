@@ -61,6 +61,7 @@
 #include <os/pathLib.h>
 #include <os/logLib.h>
 #include <os/excLib.h>
+#include <os/erfLib.h>
 #include <os/pipeDrv.h>
 #include <ostool/shellLib.h>
 #include <usr/usrLib.h>
@@ -935,6 +936,8 @@ LOCAL void usrRoot(
          (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
   taskDelay(2);
 #endif /* INCLUDE_LOG_STARTUP */
+
+  erfLibInit(MAX_EVENT_CATEGORIES, MAX_EVENT_TYPES);
 
   usrLibInit();
 
