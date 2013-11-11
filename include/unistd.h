@@ -49,8 +49,8 @@ extern "C" {
  */
 
 int read(
-    int fd,
-    void *buffer,
+    int    fd,
+    void  *buffer,
     size_t nBytes
     );
 
@@ -61,8 +61,8 @@ int read(
  */
 
 int write(
-    int fd,
-    void *buffer,
+    int    fd,
+    void  *buffer,
     size_t nBytes
     );
 
@@ -106,7 +106,7 @@ int chdir(
  */
 
 char* getcwd(
-    char *buf,
+    char  *buf,
     size_t size
     );
 
@@ -129,7 +129,7 @@ STATUS rmdir(
 STATUS symlink(
     const char *path,     /* path to symlink to create */
     const char *target,   /* path against which to link */
-    mode_t mode           /* file permission bits */
+    mode_t      mode      /* file permission bits */
     );
 
 /******************************************************************************
@@ -140,8 +140,8 @@ STATUS symlink(
 
 ssize_t readlink(
     const char *path,
-    char *buf,
-    size_t bufsize
+    char       *buf,
+    size_t      bufsize
     );
 
 /******************************************************************************
@@ -163,7 +163,7 @@ long fpathconf(
 
 long pathconf(
     const char *path,
-    int name
+    int         name
     );
 
 /******************************************************************************
@@ -173,7 +173,7 @@ long pathconf(
  */
 
 int ftruncate(
-    int fd,
+    int   fd,
     off_t length
     );
 
@@ -184,9 +184,9 @@ int ftruncate(
  */
 
 off_t lseek(
-    int fd,
+    int   fd,
     off_t offset,
-    int whence
+    int   whence
     );
 
 #ifdef __cplusplus

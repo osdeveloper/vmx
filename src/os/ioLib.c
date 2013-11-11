@@ -49,7 +49,7 @@ void ioGlobalStdSet(
     int newFd
     )
 {
-    if (STD_VALID(stdFd))
+    if (STD_VALID(stdFd) == TRUE)
     {
         ioStdFd[stdFd] = newFd;
     }
@@ -67,7 +67,7 @@ int ioGlobalStdGet(
 {
     int f;
 
-    if (STD_VALID(stdFd))
+    if (STD_VALID(stdFd) == TRUE)
     {
         f = ioStdFd[stdFd];
     }
@@ -95,7 +95,7 @@ void ioTaskStdSet(
 
     /* Get task or default task if zero */
     tcbId = taskTcb(taskId);
-    if (STD_VALID(stdFd) && (tcbId != NULL))
+    if ((STD_VALID(stdFd) == TRUE) && (tcbId != NULL))
     {
         tcbId->taskStd[stdFd] = newFd;
     }
@@ -124,7 +124,7 @@ int ioTaskStdGet(
     else
     {
         fd = tcbId->taskStd[stdFd];
-        if (STD_VALID(fd))
+        if (STD_VALID(fd) == TRUE)
         {
             f = ioStdFd[fd];
         }
@@ -145,15 +145,15 @@ int ioTaskStdGet(
 
 LOCAL int openConnect(
     DEV_HEADER *pDevHeader,
-    char *filename,     
-    va_list args
+    char       *filename,
+    va_list     args
     )
 {
-    int oflags;
+    int    oflags;
     mode_t mode;
 
     oflags = va_arg(args, int);
-    mode = va_arg(args, mode_t);
+    mode   = va_arg(args, mode_t);
 
     return iosOpen(pDevHeader, filename, oflags, mode);
 }
@@ -166,14 +166,14 @@ LOCAL int openConnect(
 
 LOCAL int creatConnect(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    va_list args
+    char       *filename,
+    va_list     args
     )
 {
     mode_t mode;
-    char *symlink;
+    char  *symlink;
 
-    mode = va_arg(args, mode_t);
+    mode    = va_arg(args, mode_t);
     symlink = va_arg(args, char *);
 
     return iosCreate(pDevHeader, filename, mode, symlink);
@@ -187,8 +187,8 @@ LOCAL int creatConnect(
 
 LOCAL int removeConnect(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    va_list args
+    char       *filename,
+    va_list     args
     )
 {
     mode_t mode;     /* type of file to remove */
@@ -205,19 +205,19 @@ LOCAL int removeConnect(
  */
 
 LOCAL int ioConnect(
-    FUNCPTR funcInternal,
+    FUNCPTR     funcInternal,
     const char *filename,
     ...
     )
 {
-    int rv;
-    int len;
-    int fd;
-    int cwdLen;
-    char path[PATH_MAX + 1];
-    char *tail;
+    int         rv;
+    int         len;
+    int         fd;
+    int         cwdLen;
+    char        path[PATH_MAX + 1];
+    char       *tail;
     DEV_HEADER *pDevHeader;
-    va_list args;
+    va_list     args;
 
     if ((filename == NULL) || (filename[0] == '\0'))
     {
@@ -313,11 +313,11 @@ LOCAL int ioConnect(
 
 LOCAL int openInternal(
     const char *filename,
-    int oflags,
+    int         oflags,
     ...
     )
 {
-    int mode;
+    int      mode;
     va_list  args;
 
     va_start(args, oflags);
@@ -335,12 +335,12 @@ LOCAL int openInternal(
 
 int open(
     const char *filename,
-    int oflags,
+    int         oflags,
     ...
     )
 {
-    int fd;
-    int mode;
+    int     fd;
+    int     mode;
     va_list args;
 
     mode = 0;
@@ -382,7 +382,7 @@ int open(
 
 int creat(
     const char *filename,
-    mode_t mode
+    mode_t      mode
     )
 {
     int fd;
@@ -431,8 +431,8 @@ STATUS remove(
  */
 
 int read(
-    int fd,
-    void *buffer,
+    int    fd,
+    void  *buffer,
     size_t nBytes
     )
 {
@@ -446,8 +446,8 @@ int read(
  */
 
 int write(
-    int fd,
-    void *buffer,
+    int    fd,
+    void  *buffer,
     size_t nBytes
     )
 {
@@ -490,11 +490,11 @@ int isatty(
 
 STATUS mkdir(
     const char *path,     /* path to directory to create */
-    mode_t mode           /* permissions for directory */
+    mode_t      mode      /* permissions for directory */
     )
 {
     STATUS status;
-    int fd;
+    int    fd;
 
     if(mode & ~0777)      /* only allow permission bits to be set */
     {
@@ -508,9 +508,11 @@ STATUS mkdir(
         {
             status = ERROR;
         }
-
-        close(fd);
-        status = OK;
+        else
+        {
+            close(fd);
+            status = OK;
+        }
     }
 
     return status;
@@ -542,11 +544,11 @@ STATUS rmdir(
 STATUS symlink(
     const char *path,     /* path to symlink to create */
     const char *target,   /* path against which to link */
-    mode_t mode           /* file permission bits */
+    mode_t      mode      /* file permission bits */
     )
 {
     STATUS status;
-    int fd;
+    int    fd;
 
     if (mode & ~0777)     /* only allow permission bits */
     {
@@ -560,9 +562,11 @@ STATUS symlink(
         {
             status = ERROR;
         }
-
-        close(fd);
-        status = OK;
+        else
+        {
+            close(fd);
+            status = OK;
+        }
     }
 
     return status;
@@ -580,9 +584,9 @@ ssize_t readlink(
     size_t bufsize
     )
 {
-    int fd;
+    int     fd;
     ssize_t size;
-    struct iovec arg;
+    struct  iovec arg;
 
     fd = ioConnect(openConnect, path, O_RDONLY, S_IFLNK);
     if (fd < 0)
@@ -609,7 +613,7 @@ ssize_t readlink(
  */
 
 STATUS fstat(
-    int fd,
+    int          fd,
     struct stat *buf
     )
 {
@@ -627,11 +631,11 @@ STATUS fstat(
  */
 
 STATUS stat(
-    const char *path,
+    const char  *path,
     struct stat *buf
     )
 {
-    int fd;
+    int    fd;
     STATUS status;
 
     fd = ioConnect(openConnect, path, O_RDONLY, 0);
@@ -642,7 +646,6 @@ STATUS stat(
     else
     {
         status = ioctl(fd, FIOSTATGET, (int) buf);
-
         close(fd);
     }
 
@@ -656,11 +659,11 @@ STATUS stat(
  */
 
 STATUS lstat(
-    const char *path,
+    const char  *path,
     struct stat *buf
     )
 {
-    int fd;
+    int    fd;
     STATUS status;
 
     /*
@@ -680,7 +683,6 @@ STATUS lstat(
     else
     {
         status = ioctl(fd, FIOSTATGET, (int) buf);
-
         close(fd);
     }
 
@@ -713,10 +715,10 @@ long fpathconf(
 
 long pathconf(
     const char *path,
-    int name
+    int         name
     )
 {
-    int fd;
+    int  fd;
     long rv;
 
     fd = ioConnect(openConnect, path, O_RDONLY, 0);
@@ -727,7 +729,6 @@ long pathconf(
     else
     {
         rv = fpathconf(fd, name);
-
         close(fd);
     }
 
@@ -741,7 +742,7 @@ long pathconf(
  */
 
 int ftruncate(
-    int fd,
+    int   fd,
     off_t length
     )
 {
@@ -759,14 +760,14 @@ int ftruncate(
  */
 
 off_t lseek(
-    int fd,
+    int   fd,
     off_t offset,
-    int whence
+    int   whence
     )
 {
     struct stat buf;
     STATUS status;
-    off_t value;
+    off_t  value;
 
     if (whence == SEEK_CUR)
     {
@@ -800,14 +801,17 @@ off_t lseek(
         status = ERROR;
     }
 
-    if (offset < 0) {
-        errnoSet(EINVAL);
-        status = ERROR;
-    }
-
     if (status == OK)
     {
-        status = ioctl(fd, FIOSEEK, offset);
+        if (offset < 0)
+        {
+            errnoSet(EINVAL);
+            status = ERROR;
+        }
+        else
+        {
+            status = ioctl(fd, FIOSEEK, offset);
+        }
     }
 
     return status;

@@ -108,7 +108,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  */
 
-#define STD_VALID(fd) \
+#define STD_VALID(fd)                                                         \
     (((fd) >= 0) && ((fd) < 3) ? TRUE : FALSE)
 
 /******************************************************************************

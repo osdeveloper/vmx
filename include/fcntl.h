@@ -61,7 +61,7 @@ extern "C" {
 
 int open(
     const char *filename,
-    int oflags,
+    int         oflags,
     ...
     );
 
@@ -73,10 +73,8 @@ int open(
 
 int creat(
     const char *filename,
-    mode_t mode
+    mode_t      mode
     );
-
-int  fcntl (int fd, int cmd, ...);
 
 #ifdef __cplusplus
 }
