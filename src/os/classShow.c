@@ -27,8 +27,8 @@
 #include <vmx.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
-#include <vmx/classLib.h>
-#include <vmx/classShow.h>
+#include <os/classLib.h>
+#include <os/classShow.h>
 
 /* Defines */
 

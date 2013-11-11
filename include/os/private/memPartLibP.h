@@ -29,8 +29,8 @@ extern "C" {
 
 #include <vmx.h>
 #include <util/dllLib.h>
-#include <vmx/classLib.h>
-#include <vmx/private/objLibP.h>
+#include <os/classLib.h>
+#include <os/private/objLibP.h>
 #include <vmx/private/semLibP.h>
 
 /* Macros */

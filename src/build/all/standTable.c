@@ -34,10 +34,10 @@
 #include <sys/uio.h>
 #include <private/stdioP.h>
 #include <vmx.h>
-#include <vmx/objLib.h>
-#include <vmx/classLib.h>
-#include <vmx/classShow.h>
-#include <vmx/errnoLib.h>
+#include <os/objLib.h>
+#include <os/classLib.h>
+#include <os/classShow.h>
+#include <os/errnoLib.h>
 #include <os/memPartLib.h>
 #include <os/memLib.h>
 #include <os/memShow.h>

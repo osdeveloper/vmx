@@ -25,9 +25,9 @@
 #include <sys/time.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
-#include <vmx/errnoLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/private/kernelLibP.h>
+#include <os/errnoLib.h>
 #include <os/taskHookLib.h>
 #include <os/ioLib.h>
 #include <os/iosLib.h>

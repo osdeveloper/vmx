@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <vmx.h>
-#include <vmx/errnoLib.h>
+#include <os/errnoLib.h>
 
 /******************************************************************************
  * fclose - Close stream

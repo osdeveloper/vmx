@@ -27,11 +27,11 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <vmx/taskLib.h>
-#include <vmx/errnoLib.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/uio.h>
+#include <vmx/taskLib.h>
+#include <os/errnoLib.h>
 #include <os/iosLib.h>
 #include <os/ioLib.h>
 

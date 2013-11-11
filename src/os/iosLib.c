@@ -24,8 +24,8 @@
 #include <string.h>
 #include <vmx.h>
 #include <vmx/semLib.h>
-#include <vmx/errnoLib.h>
 #include <os/private/nullDrvP.h>
+#include <os/errnoLib.h>
 #include <os/ioLib.h>
 #include <os/iosLib.h>
 

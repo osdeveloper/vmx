@@ -29,7 +29,7 @@ The kernel queue is implemented as a ring buffer.
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
-#include <vmx/errnoLib.h>
+#include <os/errnoLib.h>
 #include <vmx/workQLib.h>
 
 /* defines */

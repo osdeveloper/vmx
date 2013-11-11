@@ -24,8 +24,8 @@
 #define _symLibP_h
 
 #include <util/hashLib.h>
-#include <vmx/classLib.h>
 #include <vmx/semLib.h>
+#include <os/classLib.h>
 #include <os/memPartLib.h>
 #include <os/private/symbolP.h>
 

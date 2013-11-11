@@ -23,11 +23,11 @@
 #include <stdlib.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
-#include <vmx/errnoLib.h>
-#include <vmx/classLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
+#include <os/classLib.h>
+#include <os/errnoLib.h>
 #include <os/sigLib.h>
 #include <vmx/semLib.h>
 

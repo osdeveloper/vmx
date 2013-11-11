@@ -26,7 +26,7 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <arch/sysArchLib.h>
-#include <vmx/errnoLib.h>
+#include <os/errnoLib.h>
 #include <os/ioLib.h>
 #include <os/excLib.h>
 #include <os/selectLib.h>

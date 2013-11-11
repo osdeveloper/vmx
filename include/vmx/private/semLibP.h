@@ -23,8 +23,8 @@
 #ifndef _semLibP_h
 #define _semLibP_h
 
-#include <vmx/classLib.h>
 #include <util/qLib.h>
+#include <os/classLib.h>
 
 /* Mutex kernel give states */
 #define SEM_M_Q_GET            0x01

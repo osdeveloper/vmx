@@ -25,15 +25,14 @@
 #include <string.h>
 #include <vmx.h>
 #include <util/dllLib.h>
-#include <vmx/errnoLib.h>
-#include <vmx/classLib.h>
-#include <os/memPartLib.h>
-#include <os/private/memPartLibP.h>
-#include <os/memLib.h>
 #include <vmx/semLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
+#include <os/errnoLib.h>
+#include <os/classLib.h>
+#include <os/memLib.h>
+#include <os/memPartLib.h>
 
 /* Locals */
 LOCAL OBJ_CLASS         memPartClass;

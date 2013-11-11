@@ -27,9 +27,9 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <util/qLib.h>
-#include <vmx/classLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/private/kernelLibP.h>
+#include <os/classLib.h>
 #include <vmx/semLib.h>
 #include <vmx/semShow.h>
 

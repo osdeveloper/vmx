@@ -63,10 +63,10 @@ extern "C" {
 
 #include <arch/regs.h>
 #include <arch/excArchLib.h>
-#include <vmx/classLib.h>
-#include <vmx/objLib.h>
-#include <vmx/semLib.h>
 #include <util/qLib.h>
+#include <vmx/semLib.h>
+#include <os/classLib.h>
+#include <os/objLib.h>
 #include <os/selectLib.h>
 #include <stdio.h>
 

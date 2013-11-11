@@ -23,9 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vmx.h>
-#include <vmx/classLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/semLib.h>
+#include <os/classLib.h>
 #include <os/memPartLib.h>
 #include <os/private/memPartLibP.h>
 #include <os/memLib.h>

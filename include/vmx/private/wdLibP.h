@@ -24,8 +24,8 @@
 #define _wdLibP_h
 
 #include <vmx.h>
-#include <vmx/classLib.h>
 #include <util/qLib.h>
+#include <os/classLib.h>
 
 #define WDOG_OUT_OF_Q           0x00            /* Watchdog not in tick queue */
 #define WDOG_IN_Q               0x01            /* Watchdog in tick queue */

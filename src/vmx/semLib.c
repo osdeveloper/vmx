@@ -26,12 +26,12 @@
 #include <util/qLib.h>
 #include <util/qFifoLib.h>
 #include <util/qPrioLib.h>
-#include <vmx/objLib.h>
-#include <vmx/classLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/workQLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/taskLib.h>
+#include <os/objLib.h>
+#include <os/classLib.h>
 #include <os/memPartLib.h>
 #include <vmx/semLib.h>
 

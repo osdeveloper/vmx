@@ -26,8 +26,8 @@
 #include <stdarg.h>
 #include <vmx.h>
 #include <sys/types.h>
-#include <vmx/classLib.h>
-#include <vmx/objLib.h>
+#include <os/classLib.h>
+#include <os/objLib.h>
 
 #ifdef __cplusplus
 extern "C" {

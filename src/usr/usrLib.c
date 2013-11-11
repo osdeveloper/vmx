@@ -31,13 +31,13 @@
 #include <a.out.h>
 #include <vmx.h>
 #include <arch/regs.h>
-#include <vmx/classLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
 #include <vmx/taskShow.h>
 #include <vmx/kernelLib.h>
 #include <vmx/private/kernelLibP.h>
-#include <vmx/errnoLib.h>
+#include <os/classLib.h>
+#include <os/errnoLib.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
 #include <os/symbol.h>

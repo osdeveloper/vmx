@@ -26,7 +26,7 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <util/qLib.h>
-#include <vmx/classLib.h>
+#include <os/classLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/wdLib.h>
 #include <vmx/wdShow.h>

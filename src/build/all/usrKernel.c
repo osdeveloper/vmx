@@ -26,8 +26,6 @@
 #include <util/qFifoLib.h>
 #include <util/qPrioLib.h>
 #include <util/qPriBmpLib.h>
-#include <vmx/classLib.h>
-#include <vmx/classShow.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskShow.h>
 #include <vmx/semLib.h>
@@ -36,6 +34,8 @@
 #include <vmx/msgQShow.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
+#include <os/classLib.h>
+#include <os/classShow.h>
 #include <os/taskHookLib.h>
 #include <os/taskHookShow.h>
 

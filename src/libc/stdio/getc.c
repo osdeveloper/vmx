@@ -22,8 +22,8 @@
 
 #include <stdio.h>
 #include <vmx.h>
-#include <vmx/classLib.h>
-#include <vmx/objLib.h>
+#include <os/classLib.h>
+#include <os/objLib.h>
 
 /******************************************************************************
  * getc - Get character from stream

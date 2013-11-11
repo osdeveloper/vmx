@@ -25,7 +25,7 @@
 
 #include <vmx.h>
 #include <util/sllLib.h>
-#include <vmx/classLib.h>
+#include <os/classLib.h>
 
 #ifndef _ASMLANGUAGE
 

@@ -42,8 +42,8 @@ typedef struct obj_class *CLASS_ID;
 extern CLASS_ID rootClassId;
 
 #include <vmx.h>
-#include <vmx/objLib.h>
-#include <vmx/private/classLibP.h>
+#include <os/objLib.h>
+#include <os/private/classLibP.h>
 
 /* Structs */
 struct mem_part;

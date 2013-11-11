@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vmx.h>
-#include <vmx/errnoLib.h>
+#include <os/errnoLib.h>
 
 /******************************************************************************
  * fflush - Flush stdio buffers

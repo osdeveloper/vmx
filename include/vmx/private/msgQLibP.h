@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 
-#include <vmx/objLib.h>
-#include <vmx/classLib.h>
+#include <os/objLib.h>
+#include <os/classLib.h>
 #include <util/qMsgLib.h>
 
 typedef struct msg_q

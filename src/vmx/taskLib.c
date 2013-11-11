@@ -27,12 +27,12 @@
 #include <arch/intArchLib.h>
 #include <arch/vmxArchLib.h>
 #include <arch/taskArchLib.h>
-#include <vmx/classLib.h>
-#include <vmx/objLib.h>
 #include <util/qLib.h>
 #include <util/qPrioLib.h>
 #include <vmx/vmxLib.h>
 #include <vmx/private/kernelLibP.h>
+#include <os/classLib.h>
+#include <os/objLib.h>
 #include <os/sigLib.h>
 #include <os/memPartLib.h>
 #include <os/private/taskHookLibP.h>

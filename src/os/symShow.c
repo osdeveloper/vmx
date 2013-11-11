@@ -26,8 +26,8 @@
 #include <string.h>
 #include <a.out.h>
 #include <vmx.h>
-#include <vmx/classLib.h>
 #include <usr/usrPage.c>
+#include <os/classLib.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
 #include <os/symShow.h>

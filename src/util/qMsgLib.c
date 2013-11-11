@@ -27,7 +27,7 @@
 #include <vmx/vmxLib.h>
 #include <vmx/msgQLib.h>
 #include <vmx/workQLib.h>
-#include <vmx/errnoLib.h>
+#include <os/errnoLib.h>
 #include <os/sigLib.h>
 #include <util/dllLib.h>
 #include <util/qMsgLib.h>

@@ -18,14 +18,71 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* objLib.c - Object Library */
+/* objLib.h - Object Library header */
 
-#include <stdlib.h>
+#ifndef _objLib_h
+#define _objLib_h
+
+#ifndef _ASMLANGUAGE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* includes */
+
+#include <tools/moduleNumber.h>
 #include <vmx.h>
-#include <vmx/errnoLib.h>
-#include <vmx/classLib.h>
-#include <os/memPartLib.h>
-#include <vmx/objLib.h>
+#include <os/classLib.h>
+#include <os/private/objLibP.h>
+#include <os/errnoLib.h>
+
+/* defines */
+
+#define S_objLib_NOT_INSTALLED  (M_objLib | 0x0001)
+#define S_objLib_ID_ERROR       (M_objLib | 0x0002)
+#define S_objLib_UNAVAILABLE    (M_objLib | 0x0003)
+#define S_objLib_DELETED        (M_objLib | 0x0004)
+#define S_objLib_TIMEOUT        (M_objLib | 0x0005)
+
+/* typedefs */
+
+typedef struct obj_core *OBJ_ID;
+
+/* macros */
+
+/******************************************************************************
+ * CLASS_TO_OBJ_ID - Get object core from class object
+ *
+ * RETURNS: Pointer to object core
+ */
+
+#define CLASS_TO_OBJ_ID(objId, classId)                                       \
+  (OBJ_ID) ( (int) (objId) + (classId)->coreOffset )
+
+/******************************************************************************
+ * CLASS_RESOLVE - Resolve class
+ *
+ * RETURNS: Class id or pointer to object core
+ */
+
+#define CLASS_RESOLVE(objId, classId)                                         \
+  ( (CLASS_TO_OBJ_ID(objId, classId))->pObjClass == (classId) )               \
+    ? (classId)                                                               \
+    : (objId)->pObjClass
+
+/******************************************************************************
+ * OBJ_VERIFY - Verify object class
+ *
+ * RETURNS: OK or ERROR
+ */
+
+#define OBJ_VERIFY(objId, classId)                                            \
+ ( (CLASS_TO_OBJ_ID(objId, classId))->pObjClass == (classId) )                \
+   ? OK                                                                       \
+   : (errno = S_objLib_ID_ERROR, ERROR)
+
+/* functions */
 
 /******************************************************************************
  * objAllocPad - Allocated object with padding bytes
@@ -37,32 +94,7 @@ void* objAllocPad(
     CLASS_ID  classId,
     unsigned  nPadBytes,
     void    **ppPad
-    )
-{
-    void *pObj;
-
-    /* Verify object */
-    if (OBJ_VERIFY(classId, rootClassId) != OK)
-    {
-        errnoSet (S_classLib_INVALID_INSTANCE);
-        pObj = NULL;
-    }
-    else
-    {
-        /* Allocate memory for object */
-        pObj = memPartAlloc(classId->objPartId, classId->objSize + nPadBytes);
-        if (pObj != NULL)
-        {
-            classId->objAllocCount++;
-            if (ppPad != NULL)
-            {
-                *ppPad = (void *) (((char *) pObj) + classId->objSize);
-            }
-        }
-    }
-
-    return pObj;
-}
+    );
 
 /******************************************************************************
  * objAlloc - Allocated an object
@@ -72,10 +104,7 @@ void* objAllocPad(
 
 void* objAlloc(
     CLASS_ID classId
-    )
-{
-    return objAllocPad(classId, 0, (void **) NULL);
-}
+    );
 
 /******************************************************************************
  * objShow - Call objects show method
@@ -87,36 +116,7 @@ STATUS objShow(
     CLASS_ID classId,
     OBJ_ID   objId,
     int      mode
-    )
-{
-    STATUS   status;
-    CLASS_ID pObjClass;
-
-    /* Resolve object class */
-    pObjClass = CLASS_RESOLVE(objId, classId);
-
-    /* Verify object */
-    if (OBJ_VERIFY(pObjClass, rootClassId) != OK)
-    {
-        status = ERROR;
-    }
-    else
-    {
-        /* If no show method specified */
-        if (pObjClass->showMethod == NULL)
-        {
-            errnoSet(S_classLib_OBJ_NO_METHOD);
-            status = ERROR;
-        }
-        else
-        {
-            /* Call function and return */
-            status = (*pObjClass->showMethod)(objId, mode);
-        }
-    }
-
-    return status;
-}
+    );
 
 /******************************************************************************
  * objFree - Free object memory
@@ -127,25 +127,7 @@ STATUS objShow(
 STATUS objFree(
     CLASS_ID classId,
     void    *pObj
-    )
-{
-    STATUS status;
-
-    /* Verify object */
-    if (OBJ_VERIFY(classId, rootClassId) != OK)
-    {
-        /* errno set by OBJ_VERIFY() */
-        status = ERROR;
-    }
-    else
-    {
-        memPartFree(classId->objPartId, pObj);
-        classId->objFreeCount++;
-        status = OK;
-    }
-
-    return status;
-}
+    );
 
 /******************************************************************************
  * objCoreInit - Initialize object core
@@ -156,14 +138,8 @@ STATUS objFree(
 void objCoreInit(
     OBJ_CORE *pObjCore,
     CLASS_ID  pObjClass
-    )
-{
-    /* Initialize object core */
-    pObjCore->pObjClass = pObjClass;
+    );
 
-    /* Increase intialized objects counter in used class */
-    pObjClass->objInitCount++;
-}
 
 /******************************************************************************
  * objCoreTerminate - Terminate object core
@@ -173,9 +149,13 @@ void objCoreInit(
 
 void objCoreTerminate(
     OBJ_CORE *pObjCore
-    )
-{
-    pObjCore->pObjClass->objTerminateCount++;
-    pObjCore->pObjClass = NULL;
+    );
+
+#ifdef __cplusplus
 }
+#endif /* __cplusplus */
+
+#endif /* ASMLANGUAGE */
+
+#endif /* _objLib_h */
 

@@ -30,8 +30,8 @@ extern "C" {
 #endif
 
 #include <vmx.h>
-#include <vmx/classLib.h>
-#include <vmx/private/objLibP.h>
+#include <os/classLib.h>
+#include <os/private/objLibP.h>
 
 struct mem_part;
 

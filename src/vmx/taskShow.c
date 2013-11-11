@@ -28,10 +28,10 @@
 #include <arch/regs.h>
 #include <arch/intArchLib.h>
 #include <arch/taskArchLib.h>
+#include <util/qLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/private/kernelLibP.h>
-#include <vmx/errnoLib.h>
-#include <util/qLib.h>
+#include <os/errnoLib.h>
 #include <os/symLib.h>
 #include <os/symbol.h>
 #include <vmx/taskInfo.h>

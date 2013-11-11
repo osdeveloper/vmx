@@ -28,12 +28,12 @@
 #include <vmx.h>
 #include <vmx/private/kernelLibP.h>
 #include <vmx/taskLib.h>
-#include <vmx/errnoLib.h>
-#include <vmx/classLib.h>
-#include <vmx/objLib.h>
-#include <os/ioLib.h>
+#include <os/classLib.h>
+#include <os/objLib.h>
 #include <os/memPartLib.h>
 #include <os/taskHookLib.h>
+#include <os/errnoLib.h>
+#include <os/ioLib.h>
 #include <stdio.h>
 
 /* Locals */

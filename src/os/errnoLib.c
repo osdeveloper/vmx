@@ -24,7 +24,7 @@
 #include <vmx.h>
 #include <errno.h>
 #include <vmx/taskLib.h>
-#include <vmx/errnoLib.h>
+#include <os/errnoLib.h>
 
 int errno;
 
