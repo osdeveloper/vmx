@@ -524,11 +524,9 @@ void vmxPendQWithHandlerPut(
 
     taskIdCurrent->pPendQ = pQHead;          /* Set task pending queue */
 
-#ifndef NO_UNPENDHDL
     taskIdCurrent->objUnpendHandler = handler;
     taskIdCurrent->pObj = pObj;
     taskIdCurrent->objInfo = info;
-#endif
 
     /* Put on task pending queue */
     Q_PUT (pQHead, taskIdCurrent, taskIdCurrent->priority);

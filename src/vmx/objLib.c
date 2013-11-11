@@ -34,9 +34,9 @@
  */
 
 void* objAllocPad(
-    CLASS_ID classId,
-    unsigned nPadBytes,
-    void **ppPad
+    CLASS_ID  classId,
+    unsigned  nPadBytes,
+    void    **ppPad
     )
 {
     void *pObj;
@@ -49,13 +49,9 @@ void* objAllocPad(
     }
     else
     {
-#ifndef NO_MEM
         /* Allocate memory for object */
         pObj = memPartAlloc(classId->objPartId, classId->objSize + nPadBytes);
-        if (pObj == NULL) {
-            /* errno set by memPartAlloc() */
-        }
-        else
+        if (pObj != NULL)
         {
             classId->objAllocCount++;
             if (ppPad != NULL)
@@ -63,7 +59,6 @@ void* objAllocPad(
                 *ppPad = (void *) (((char *) pObj) + classId->objSize);
             }
         }
-#endif
     }
 
     return pObj;
@@ -90,11 +85,11 @@ void* objAlloc(
 
 STATUS objShow(
     CLASS_ID classId,
-    OBJ_ID objId,
-    int mode
+    OBJ_ID   objId,
+    int      mode
     )
 {
-    STATUS status;
+    STATUS   status;
     CLASS_ID pObjClass;
 
     /* Resolve object class */
@@ -131,7 +126,7 @@ STATUS objShow(
 
 STATUS objFree(
     CLASS_ID classId,
-    void *pObj
+    void    *pObj
     )
 {
     STATUS status;
@@ -144,9 +139,7 @@ STATUS objFree(
     }
     else
     {
-#ifndef NO_MEM
         memPartFree(classId->objPartId, pObj);
-#endif
         classId->objFreeCount++;
         status = OK;
     }
@@ -162,7 +155,7 @@ STATUS objFree(
 
 void objCoreInit(
     OBJ_CORE *pObjCore,
-    CLASS_ID pObjClass
+    CLASS_ID  pObjClass
     )
 {
     /* Initialize object core */

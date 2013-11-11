@@ -36,7 +36,7 @@ LOCAL BOOL semMLibInstalled = FALSE;
 
 LOCAL STATUS semMCoreInit(
     SEM_ID semId,
-    int options
+    int    options
     );
 
 LOCAL STATUS semMGive(
@@ -45,11 +45,11 @@ LOCAL STATUS semMGive(
 
 LOCAL STATUS semMKernGive(
     SEM_ID semId,
-    int kernWork
+    int    kernWork
     );
  
 LOCAL STATUS semMTake(
-    SEM_ID semId,
+    SEM_ID   semId,
     unsigned timeout
     );
 
@@ -127,7 +127,7 @@ SEM_ID semMCreate(
 
 STATUS semMInit(
     SEM_ID semId,
-    int options
+    int    options
     )
 {
     STATUS status;
@@ -170,11 +170,12 @@ STATUS semMInit(
 
 LOCAL STATUS semMCoreInit(
     SEM_ID semId,
-    int options
+    int    options
     )
 {
-    /* Initialize variables */
     SEM_OWNER_SET(semId, NULL);
+
+    /* Initialize variables */
     semId->recurse = 0;
     semId->options = options;
     semId->semType = SEM_TYPE_MUTEX;
@@ -196,9 +197,9 @@ LOCAL STATUS semMGive(
     )
 {
     STATUS status;
-    int level;
-    int kernWork = 0x00;
+    int    level;
     TCB_ID pOwner;
+    int    kernWork = 0x00;
 
     if (INT_RESTRICT() != OK)
     {
@@ -255,7 +256,7 @@ LOCAL STATUS semMGive(
                     }
 
                     /* Check if where is any kernel work to be done */
-                    if (!kernWork)
+                    if (kernWork == 0x00)
                     {
                         INT_UNLOCK(level);
                         status = OK;
@@ -281,7 +282,7 @@ LOCAL STATUS semMGive(
  */
 
 LOCAL STATUS semMTake(
-    SEM_ID semId,
+    SEM_ID   semId,
     unsigned timeout
     )
 {
@@ -306,50 +307,46 @@ LOCAL STATUS semMTake(
             {
                 INT_UNLOCK(level);
                 status = ERROR;
+                break;
             }
-            else
+
+            /* Take semaphore if free */
+            pOwner = SEM_OWNER_GET(semId);
+            if (pOwner == NULL)
             {
-                /* Take semaphore if free */
-                pOwner = SEM_OWNER_GET(semId);
-                if (pOwner == NULL)
-                {
-                    SEM_OWNER_SET(semId, taskIdCurrent);
+                SEM_OWNER_SET(semId, taskIdCurrent);
 
-                    if (semId->options & SEM_DELETE_SAFE)
-                    {
+                if (semId->options & SEM_DELETE_SAFE)
+                {
                         taskIdCurrent->safeCount++;
-                    }
+                }
 
-                    INT_UNLOCK(level);
-                    status = OK;
-                }
-                else
-                {
-                    /* Check recurse */
-                    if (pOwner == taskIdCurrent)
-                    {
-                        semId->recurse++;
-                        INT_UNLOCK(level);
-                        status = OK;
-                    }
-                    else
-                    {
-                        if (timeout == WAIT_NONE)
-                        {
-                            errnoSet(S_objLib_UNAVAILABLE);
-                            status = ERROR;
-                        }
-                        else
-                        {
-                            /* Do kernel work */
-                            kernelState = TRUE;
-                            INT_UNLOCK(level);
-                            vmxPendQPut(&semId->qHead, timeout);
-                            status = vmxExit();
-                        }
-                    }
-                }
+                INT_UNLOCK(level);
+                status = OK;
+                break;
             }
+
+            /* Check recurse */
+            if (pOwner == taskIdCurrent)
+            {
+                semId->recurse++;
+                INT_UNLOCK(level);
+                status = OK;
+                break;
+            }
+
+            if (timeout == WAIT_NONE)
+            {
+                errnoSet(S_objLib_UNAVAILABLE);
+                status = ERROR;
+                break;
+            }
+
+            /* Do kernel work */
+            kernelState = TRUE;
+            INT_UNLOCK(level);
+            vmxPendQPut(&semId->qHead, timeout);
+            status = vmxExit();
         } while (status == SIG_RESTART);
     }
 
@@ -366,27 +363,27 @@ LOCAL STATUS semMTake(
  */
 
 STATUS semMGiveForce(
-    SEM_ID  semId      /* mutex semaphore to forcibly give */
+    SEM_ID semId       /* mutex semaphore to forcibly give */
     )
 {
     STATUS status;
-    int level;
+    int    level;
     TCB_ID pOwner;
     TCB_ID pNewOwner;
-    BOOL taskIsValid;
+    BOOL   taskIsValid;
 
     if (INT_RESTRICT() != OK)
     {
-        errnoSet (S_intLib_NOT_ISR_CALLABLE);
+        errnoSet(S_intLib_NOT_ISR_CALLABLE);
         status = ERROR;
     }
     else
     {
         INT_LOCK(level);    /* Lock interrupts */
 
-        if (OBJ_VERIFY (semId, semClassId) != OK)
+        if (OBJ_VERIFY(semId, semClassId) != OK)
         {
-            INT_UNLOCK (level);
+            INT_UNLOCK(level);
             status = ERROR;
         }
         else
@@ -397,7 +394,7 @@ STATUS semMGiveForce(
 
             if (taskIdCurrent == pOwner)   /* If the semaphore is owned by  */
             {                              /* the current task, unlock ints */
-                INT_UNLOCK (level);        /* and use the standard API to   */
+                INT_UNLOCK(level);         /* and use the standard API to   */
                 status = semMGive(semId);  /* give the semaphore.           */
             }
             else
@@ -413,23 +410,23 @@ STATUS semMGiveForce(
                  * modifications (operations that take un-fixed amount of time)
                  * in this section.
                  */
-                taskIsValid = (TASK_ID_VERIFY (pOwner) == OK);
+                taskIsValid = (TASK_ID_VERIFY(pOwner) == OK) ? TRUE : FALSE;
 
                 kernelState = TRUE;
-                INT_UNLOCK (level);
+                INT_UNLOCK(level);
 
-                if (taskIsValid)
+                if (taskIsValid == TRUE)
                 {
                     if ((semId->options & SEM_DELETE_SAFE) &&
                         (--pOwner->safeCount == 0) &&
-                        (Q_FIRST (&pOwner->safetyQ) != NULL))
+                        (Q_FIRST(&pOwner->safetyQ) != NULL))
                     {
                         vmxPendQFlush (&pOwner->safetyQ);
                     }
                 }
 
                 /* Update to next pending task */
-                pNewOwner = (TCB_ID) Q_FIRST (&semId->qHead);
+                pNewOwner = (TCB_ID) Q_FIRST(&semId->qHead);
                 if ((semId->semOwner = pNewOwner) != NULL)
                 {
                     vmxPendQGet(&semId->qHead);
@@ -457,7 +454,7 @@ STATUS semMGiveForce(
 
 LOCAL STATUS semMKernGive(
     SEM_ID semId,
-    int kernWork
+    int    kernWork
     )
 {
     STATUS status;
@@ -485,6 +482,6 @@ LOCAL STATUS semMKernGive(
 
     status = vmxExit();
 
-    return(status);
+    return status;
 }
 

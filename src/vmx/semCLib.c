@@ -36,8 +36,8 @@ LOCAL BOOL semCLibInstalled = FALSE;
 
 LOCAL STATUS semCCoreInit(
     SEM_ID semId,
-    int options,
-    int initialCount
+    int    options,
+    int    initialCount
     );
 
 LOCAL STATUS semCGive(
@@ -45,7 +45,7 @@ LOCAL STATUS semCGive(
     );
 
 LOCAL STATUS semCTake(
-    SEM_ID semId,
+    SEM_ID   semId,
     unsigned timeout
     );
 
@@ -131,8 +131,8 @@ SEM_ID semCCreate(
 
 STATUS semCInit(
     SEM_ID semId,
-    int options,
-    int initialCount
+    int    options,
+    int    initialCount
     )
 {
     STATUS status;
@@ -175,11 +175,12 @@ STATUS semCInit(
 
 LOCAL STATUS semCCoreInit(
     SEM_ID semId,
-    int options,
-    int initialCount
+    int    options,
+    int    initialCount
     )
 {
     STATUS status;
+
     if (options & SEM_DELETE_SAFE)
     {
         errnoSet(S_semLib_INVALID_OPTION);
@@ -189,9 +190,9 @@ LOCAL STATUS semCCoreInit(
     {
         /* Initialize variables */
         SEM_COUNT(semId) = initialCount;
-        semId->recurse = 0;
-        semId->options = options;
-        semId->semType = SEM_TYPE_COUNTING;
+        semId->recurse   = 0;
+        semId->options   = options;
+        semId->semType   = SEM_TYPE_COUNTING;
 
         /* Initialize object core */
         objCoreInit(&semId->objCore, semClassId);
@@ -212,7 +213,7 @@ LOCAL STATUS semCGive(
     )
 {
     STATUS status;
-    int level;
+    int    level;
 
     /* Lock interrupts */
     INT_LOCK(level);
@@ -262,12 +263,12 @@ LOCAL STATUS semCTake(
     )
 {
     STATUS status;
-    int level;
+    int    level;
 
     if (INT_RESTRICT() != OK)
     {
         errnoSet(S_intLib_NOT_ISR_CALLABLE);
-        status = OK;
+        status = ERROR;
     }
     else
     {
@@ -282,38 +283,35 @@ LOCAL STATUS semCTake(
             {
                 INT_UNLOCK(level);
                 status = ERROR;
+                break;
             }
-            else
+
+            /* Check if taken recursively */
+            if (SEM_COUNT(semId) > 0)
             {
-                /* Check if taken recursively */
-                if (SEM_COUNT(semId) > 0)
-                {
-                    SEM_COUNT(semId)--;
-                    INT_UNLOCK(level);
-                    status = OK;
-                }
-                else
-                {
-                    if (timeout == WAIT_NONE)
-                    {
-                        INT_UNLOCK(level);
-                        errnoSet(S_objLib_UNAVAILABLE);
-                        status = ERROR;
-                    } 
-                    else
-                    {
-                        /* Enter kernel mode */
-                        kernelState = TRUE;
-                        INT_UNLOCK(level);
-
-                        /* Put on pending queue */
-                        vmxPendQPut(&semId->qHead, timeout);
-
-                        /* Exit through kernel */
-                        status = vmxExit();
-                    }
-                }
+                SEM_COUNT(semId)--;
+                INT_UNLOCK(level);
+                status = OK;
+                break;
             }
+
+            if (timeout == WAIT_NONE)
+            {
+                INT_UNLOCK(level);
+                errnoSet(S_objLib_UNAVAILABLE);
+                status = ERROR;
+                break;
+            }
+
+            /* Enter kernel mode */
+            kernelState = TRUE;
+            INT_UNLOCK(level);
+
+            /* Put on pending queue */
+            vmxPendQPut(&semId->qHead, timeout);
+
+            /* Exit through kernel */
+            status = vmxExit();
         } while (status == SIG_RESTART);
     }
 

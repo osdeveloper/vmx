@@ -37,8 +37,8 @@
 LOCAL BOOL semBLibInstalled = FALSE;
 
 LOCAL STATUS semBCoreInit(
-    SEM_ID semId,
-    int options,
+    SEM_ID      semId,
+    int         options,
     SEM_B_STATE state
     );
 
@@ -50,14 +50,8 @@ LOCAL void semBGiveDefer(
     SEM_ID semId
     );
 
-/******************************************************************************
- * semBTake - Take hold of semaphore
- *
- * RETURNS: OK or ERROR
- */
-
 LOCAL STATUS semBTake(
-    SEM_ID semId,
+    SEM_ID   semId,
     unsigned timeout
     );
 
@@ -101,7 +95,7 @@ STATUS semBLibInit(
  */
 
 SEM_ID semBCreate(
-    int options,
+    int         options,
     SEM_B_STATE state
     )
 {
@@ -138,8 +132,8 @@ SEM_ID semBCreate(
  */
 
 STATUS semBInit(
-    SEM_ID semId,
-    int options,
+    SEM_ID      semId,
+    int         options,
     SEM_B_STATE state
     )
 {
@@ -190,8 +184,8 @@ STATUS semBInit(
  */
 
 LOCAL STATUS semBCoreInit(
-    SEM_ID semId,
-    int options,
+    SEM_ID      semId,
+    int         options,
     SEM_B_STATE state
     )
 {
@@ -320,41 +314,38 @@ LOCAL STATUS semBTake(
             {
                 INT_UNLOCK(level);
                 status = ERROR;
+                break;
             }
-            else
+
+            /* Check if it is already given back */
+            if (SEM_OWNER_GET(semId) == NULL)
             {
-                /* Check if it is already given back */
-                if (SEM_OWNER_GET(semId) == NULL)
-                {
-                    /* Then take it */
-                    SEM_OWNER_SET(semId, taskIdCurrent);
+                /* Then take it */
+                SEM_OWNER_SET(semId, taskIdCurrent);
 
-                    /* Unlock interrupts */
-                    INT_UNLOCK(level);
-                    status = OK;
-                }
-                else
-                {
-                    if (timeout == WAIT_NONE)
-                    {
-                        INT_UNLOCK(level);
-                        errnoSet(S_objLib_UNAVAILABLE);
-                        status = ERROR;
-                    }
-                    else
-                    {
-                        /* Enter kernel mode */
-                        kernelState = TRUE;
-                        INT_UNLOCK(level);
-
-                        /* Put on pending queue */
-                        vmxPendQPut(&semId->qHead, timeout);
-
-                        /* Exit through kernel */
-                        status = vmxExit();
-                    }
-                }
+                /* Unlock interrupts */
+                INT_UNLOCK(level);
+                status = OK;
+                break;
             }
+
+            if (timeout == WAIT_NONE)
+            {
+                INT_UNLOCK(level);
+                errnoSet(S_objLib_UNAVAILABLE);
+                status = ERROR;
+                break;
+            }
+
+            /* Enter kernel mode */
+            kernelState = TRUE;
+            INT_UNLOCK(level);
+
+            /* Put on pending queue */
+            vmxPendQPut(&semId->qHead, timeout);
+
+            /* Exit through kernel */
+            status = vmxExit();
         } while(status == SIG_RESTART);
     }
 

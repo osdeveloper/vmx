@@ -70,12 +70,12 @@ STATUS classLibInit(
  */
 
 CLASS_ID classCreate(
-    unsigned objSize,
-    int coreOffset,
+    unsigned         objSize,
+    int              coreOffset,
     struct mem_part *partId,
-    FUNCPTR createMethod,
-    FUNCPTR initMethod,
-    FUNCPTR destroyMethod
+    FUNCPTR          createMethod,
+    FUNCPTR          initMethod,
+    FUNCPTR          destroyMethod
     );
 
 /******************************************************************************
@@ -85,13 +85,13 @@ CLASS_ID classCreate(
  */
 
 STATUS classInit(
-    OBJ_CLASS *pObjClass,
-    unsigned objSize,
-    int coreOffset,
+    OBJ_CLASS       *pObjClass,
+    unsigned         objSize,
+    int              coreOffset,
     struct mem_part *partId,
-    FUNCPTR createMethod,
-    FUNCPTR initMethod,
-    FUNCPTR destroyMethod
+    FUNCPTR          createMethod,
+    FUNCPTR          initMethod,
+    FUNCPTR          destroyMethod
     );
 
 /******************************************************************************
@@ -102,7 +102,7 @@ STATUS classInit(
 
 STATUS classShowConnect(
     CLASS_ID classId,
-    FUNCPTR showMethod
+    FUNCPTR  showMethod
     );
 
 /******************************************************************************

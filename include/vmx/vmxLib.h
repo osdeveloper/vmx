@@ -23,8 +23,6 @@
 #ifndef _vmxLib_h
 #define _vmxLib_h
 
-#define NO_UNPENDHDL
-
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

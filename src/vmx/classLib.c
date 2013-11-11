@@ -24,9 +24,10 @@
 #include <vmx.h>
 #include <stdlib.h>
 
-#include <os/memPartLib.h>
 #include <vmx/objLib.h>
 #include <vmx/classLib.h>
+#include <vmx/errnoLib.h>
+#include <os/memPartLib.h>
 
 /* Imports */
 
@@ -77,20 +78,18 @@ STATUS classLibInit(
  */
 
 CLASS_ID classCreate(
-    unsigned objSize,
-    int coreOffset,
+    unsigned         objSize,
+    int              coreOffset,
     struct mem_part *partId,
-    FUNCPTR createMethod,
-    FUNCPTR initMethod,
-    FUNCPTR destroyMethod
+    FUNCPTR          createMethod,
+    FUNCPTR          initMethod,
+    FUNCPTR          destroyMethod
     )
 {
-    CLASS_ID classId = (CLASS_ID) objAlloc(rootClassId);
+    CLASS_ID classId;
 
-    if (classId == NULL) {
-        /* errno set by objAlloc() */
-    }
-    else
+    classId = (CLASS_ID) objAlloc(rootClassId);
+    if (classId != NULL)
     {
         if (classInit(
                 classId,
@@ -103,6 +102,7 @@ CLASS_ID classCreate(
                 ) != OK)
         {
             /* errno set by classInit() */
+            objFree(classId, rootClassId);
             classId = NULL;
         }
     }
@@ -117,13 +117,13 @@ CLASS_ID classCreate(
  */
 
 STATUS classInit(
-    OBJ_CLASS *pObjClass,
-    unsigned objSize,
-    int coreOffset,
+    OBJ_CLASS       *pObjClass,
+    unsigned         objSize,
+    int              coreOffset,
     struct mem_part *partId,
-    FUNCPTR createMethod,
-    FUNCPTR initMethod,
-    FUNCPTR destroyMethod
+    FUNCPTR          createMethod,
+    FUNCPTR          initMethod,
+    FUNCPTR          destroyMethod
     )
 {
     /* Default memory partition */
@@ -164,7 +164,7 @@ STATUS classInit(
 
 STATUS classShowConnect(
     CLASS_ID classId,
-    FUNCPTR showMethod
+    FUNCPTR  showMethod
     )
 {
     STATUS status;
@@ -194,6 +194,8 @@ STATUS classDestroy(
     CLASS_ID classId
     )
 {
+    errnoSet(S_classLib_NO_CLASS_DESTROY);
+
     return ERROR;
 }
 

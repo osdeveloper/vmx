@@ -79,7 +79,7 @@ IMPORT FUNCPTR semFlushDeferTable[];
  * RETURNS: Get semaphore owner
  */
 
-#define SEM_OWNER_GET(semId) \
+#define SEM_OWNER_GET(semId)                                                  \
     ((TCB_ID) semId->state.owner)
 
 /******************************************************************************
@@ -88,7 +88,7 @@ IMPORT FUNCPTR semFlushDeferTable[];
  * RETURNS: Set semaphore owner
  */
 
-#define SEM_OWNER_SET(semId, val) \
+#define SEM_OWNER_SET(semId, val)                                             \
     (semId->state.owner = (void *) val)
 
 /******************************************************************************
@@ -97,7 +97,7 @@ IMPORT FUNCPTR semFlushDeferTable[];
  * RETURNS: Get semaphore counter
  */
 
-#define SEM_COUNT(semId) \
+#define SEM_COUNT(semId)                                                      \
     (semId->state.count)
 
 IMPORT OBJ_CLASS semClass;
@@ -112,7 +112,7 @@ IMPORT OBJ_CLASS semClass;
 
 STATUS semQInit(
     Q_HEAD *pQHead,
-    int options
+    int     options
     );
 
 /******************************************************************************

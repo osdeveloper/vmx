@@ -91,9 +91,9 @@ typedef struct obj_core *OBJ_ID;
  */
 
 void* objAllocPad(
-    CLASS_ID classId,
-    unsigned nPadBytes,
-    void **ppPad
+    CLASS_ID  classId,
+    unsigned  nPadBytes,
+    void    **ppPad
     );
 
 /******************************************************************************
@@ -114,8 +114,8 @@ void* objAlloc(
 
 STATUS objShow(
     CLASS_ID classId,
-    OBJ_ID objId,
-    int mode
+    OBJ_ID   objId,
+    int      mode
     );
 
 /******************************************************************************
@@ -126,7 +126,7 @@ STATUS objShow(
 
 STATUS objFree(
     CLASS_ID classId,
-    void *pObj
+    void    *pObj
     );
 
 /******************************************************************************
@@ -137,7 +137,7 @@ STATUS objFree(
 
 void objCoreInit(
     OBJ_CORE *pObjCore,
-    CLASS_ID pObjClass
+    CLASS_ID  pObjClass
     );
 
 

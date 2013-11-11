@@ -182,8 +182,8 @@ SEM_ID semCreate(
 
 STATUS semInit(
     SEM_ID semId,
-    int type,
-    int options
+    int    type,
+    int    options
     )
 {
     STATUS status;
@@ -254,7 +254,7 @@ STATUS semTerminate(
 
 STATUS semDestroy(
     SEM_ID semId,
-    BOOL deallocate
+    BOOL   deallocate
     )
 {
     STATUS status;
@@ -330,7 +330,7 @@ STATUS semGive(
  */
 
 STATUS semTake(
-    SEM_ID semId,
+    SEM_ID   semId,
     unsigned timeout
     )
 {
@@ -427,7 +427,7 @@ LOCAL STATUS semFlushDefer(
 
 STATUS semQInit(
     Q_HEAD *pQHead,
-    int options
+    int     options
     )
 {
     STATUS status;
@@ -464,7 +464,7 @@ STATUS semQFlush(
     )
 {
     STATUS status;
-    int level;
+    int    level;
 
     INT_LOCK(level);
 
@@ -473,20 +473,23 @@ STATUS semQFlush(
         INT_UNLOCK (level);
         status = ERROR;
     }
-
-    /* Check next object */
-    if (Q_FIRST(&semId->qHead) == NULL)
-    {
-        INT_UNLOCK(level);
-    }
     else
     {
-        /* Enter kernel and flush pending queue */
-        kernelState = TRUE;
-        INT_UNLOCK(level);
-        vmxPendQFlush(&semId->qHead);
-        vmxExit();
-        status = OK;
+        /* Check next object */
+        if (Q_FIRST(&semId->qHead) == NULL)
+        {
+            INT_UNLOCK(level);
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel and flush pending queue */
+            kernelState = TRUE;
+            INT_UNLOCK(level);
+            vmxPendQFlush(&semId->qHead);
+            vmxExit();
+            status = OK;
+        }
     }
 
     return status;

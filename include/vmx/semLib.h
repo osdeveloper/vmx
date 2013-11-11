@@ -94,8 +94,8 @@ SEM_ID semCreate(
 
 STATUS semInit(
     SEM_ID semId,
-    int type,
-    int options
+    int    type,
+    int    options
     );
 
 /******************************************************************************
@@ -126,7 +126,7 @@ STATUS semTerminate(
 
 STATUS semDestroy(
     SEM_ID semId,
-    BOOL deallocate
+    BOOL   deallocate
     );
 
 /******************************************************************************
@@ -156,7 +156,7 @@ STATUS semGive(
  */
 
 STATUS semTake(
-    SEM_ID semId,
+    SEM_ID   semId,
     unsigned timeout
     );
 
@@ -227,7 +227,7 @@ STATUS semBLibInit(
  */
 
 SEM_ID semBCreate(
-    int options,
+    int         options,
     SEM_B_STATE state
     );
 
@@ -238,8 +238,8 @@ SEM_ID semBCreate(
  */
 
 STATUS semBInit(
-    SEM_ID semId,
-    int options,
+    SEM_ID      semId,
+    int         options,
     SEM_B_STATE state
     );
 
@@ -271,7 +271,7 @@ SEM_ID semMCreate(
 
 STATUS semMInit(
     SEM_ID semId,
-    int options
+    int    options
     );
 
 /******************************************************************************
@@ -284,7 +284,7 @@ STATUS semMInit(
  */
 
 STATUS semMGiveForce(
-    SEM_ID  semId      /* mutex semaphore to forcibly give */
+    SEM_ID semId       /* mutex semaphore to forcibly give */
     );
 
 /******************************************************************************
@@ -316,8 +316,8 @@ SEM_ID semCCreate(
 
 STATUS semCInit(
     SEM_ID semId,
-    int options,
-    int initialCount
+    int    options,
+    int    initialCount
     );
 
 #ifdef __cplusplus
