@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vmx.h>
-#include <util/listLib.h>
+#include <util/dllLib.h>
 #include <os/iosLib.h>
 #include <os/private/iosLibP.h>
 #include <os/iosShow.h>
@@ -56,9 +56,9 @@ void iosDevShow(
     /* Print header */
     printf("%3s %-20s\n", "drv", "name");
 
-    for (pDevHeader = (DEV_HEADER *) LIST_HEAD(&iosDevList);
+    for (pDevHeader = (DEV_HEADER *) DLL_HEAD(&iosDevList);
          pDevHeader != NULL;
-         pDevHeader = (DEV_HEADER *) LIST_NEXT(&pDevHeader->node))
+         pDevHeader = (DEV_HEADER *) DLL_NEXT(&pDevHeader->node))
     {
         printf("%3d %-20s\n", pDevHeader->drvNumber, pDevHeader->name);
     }

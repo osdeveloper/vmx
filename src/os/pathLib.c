@@ -33,9 +33,9 @@ LOCAL BOOL pathLibInitialized = FALSE;
 LOCAL char pathCwd[PATH_MAX + 1];
 
 LOCAL void pathParse(
-    char *longname,
+    char  *longname,
     char **namearray,
-    char *namebuf
+    char  *namebuf
     );
 
 LOCAL void pathArrayReduce(
@@ -45,7 +45,7 @@ LOCAL void pathArrayReduce(
 LOCAL STATUS pathBuild(
     char **namearray,
     char **arrayend,
-    char *result
+    char  *result
     );
 
 LOCAL STATUS pathCat(
@@ -94,10 +94,7 @@ STATUS ioDefPathSet(
     )
 {
     STATUS status;
-    char *pTail;
-
-    /* Initialize locals */
-    pTail = path;
+    char  *pTail = path;
 
     /* Find device */
     if (iosDevFind(path, &pTail) == NULL)
@@ -151,8 +148,8 @@ STATUS ioDefPathCat(
     )
 {
     STATUS status;
-    char newpath[PATH_MAX + 1];
-    char *pTail;
+    char   newpath[PATH_MAX + 1];
+    char  *pTail;
 
     /* Concatenate path to current */
     if (pathCat(pathCwd, path, newpath) != OK)
@@ -206,7 +203,7 @@ char* getcwd(
     size_t size
     )
 {
-    int len;
+    int   len;
     char *cwd;
 
     if (size <= 0)
@@ -222,9 +219,11 @@ char* getcwd(
             errnoSet(ERANGE);
             cwd = NULL;
         }
-
-        strcpy (buf, pathCwd);
-        cwd = buf;
+        else
+        {
+            strcpy (buf, pathCwd);
+            cwd = buf;
+        }
     }
 
     return cwd;
@@ -270,10 +269,11 @@ void pathSplit(
     )
 {
     char *p;
-    int n;
+    int   n;
 
     /* If empty path */
-    if (path == NULL) {
+    if (path == NULL)
+    {
         strcpy(dirname, "");
         strcpy(filename, "");
     }
@@ -311,9 +311,9 @@ void pathCondense(
     char *path
     )
 {
+    char  nameBuffer[PATH_MAX];
+    char  newPath[PATH_MAX];
     char *nameArray[10];
-    char nameBuffer[PATH_MAX];
-    char newPath[PATH_MAX];
     char *pTail;
 
     /* Remove devicename */
@@ -348,20 +348,16 @@ void pathCondense(
  */
 
 LOCAL void pathParse(
-    char *longname,
+    char  *longname,
     char **namearray,
-    char *namebuf
+    char  *namebuf
     )
 {
-    char *pName, *p0, *p1;
-    int nChars, nameCount;
-
-    /* Initialize locals */
-    pName     = namebuf;
-    nameCount = 0;
-    nameCount = 0;
-    p0        = longname;
-    p1        = longname;
+    int   nChars;
+    char *pName     = namebuf;
+    char *p0        = longname;
+    char *p1        = longname;
+    int   nameCount = 0;
 
     /* While not end-of-string */
     while (*p0 != EOS)
@@ -426,11 +422,9 @@ LOCAL void pathArrayReduce(
     char **namearray
     )
 {
-    char *pString;
-    char **pArray, **ppPrevString;
-
-    /* Initialize locals */
-    pArray = namearray;
+    char  *pString;
+    char **ppPrevString;
+    char **pArray = namearray;
 
     /* While more pices in array */
     while ((pString = *pArray) != NULL)
@@ -471,18 +465,14 @@ LOCAL void pathArrayReduce(
 LOCAL STATUS pathBuild(
     char **namearray,
     char **arrayend,
-    char *result
+    char  *result
     )
 {
-    STATUS status;
     char **pp;
-    int len, newlen;
-    BOOL slashEnd;
-
-    /* Initialize locals */
-    len      = strlen(result);
-    newlen   = 0;
-    slashEnd = FALSE;
+    int    len      = strlen(result);
+    int    newlen   = 0;
+    BOOL   slashEnd = FALSE;
+    STATUS status   = OK;
 
     if (len >= PATH_MAX)
     {
@@ -509,14 +499,11 @@ LOCAL STATUS pathBuild(
                     status = ERROR;
                     break;
                 }
-                else
-                {
-                    strcat(result, *pp);
-                    strcat(result, "/");
-                    slashEnd = TRUE;
-                    len      = newlen;
-                    status   = OK;
-                }
+
+                strcat(result, *pp);
+                strcat(result, "/");
+                slashEnd = TRUE;
+                len      = newlen;
             }
         }
 
@@ -544,7 +531,7 @@ LOCAL STATUS pathCat(
     char *result
     )
 {
-    char *pTail;
+    char  *pTail;
     STATUS status = ERROR;
 
     /* If no filename given */
@@ -620,10 +607,8 @@ LOCAL char* pathSlashLastIndex(
     char *str
     )
 {
-    char *f, *b;
-
-    f = strrchr(str, '/');
-    b = strrchr(str, '\\');
+    char *f = strrchr(str, '/');
+    char *b = strrchr(str, '\\');
 
     return max(f, b);
 }
