@@ -74,7 +74,7 @@
 #define STATUS_8048             COMMAND_8048
 
 #define PC_CONSOLE              0
-#define N_VIRTUAL_CONSOLES      2
+#define N_VIRTUAL_CONSOLES      3
 
 #define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_PC_CONSOLE

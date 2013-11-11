@@ -63,13 +63,14 @@ LOCAL DEV_HEADER* iosDevMatch(
  */
 
 STATUS iosLibInit(
-    int max_drv,
-    int max_fd,
+    int   max_drv,
+    int   max_fd,
     char *nullDevName
     )
 {
     STATUS status;
-    int i, size;
+    int    i;
+    int    size;
 
     if (iosLibInstalled == TRUE)
     {
@@ -79,7 +80,7 @@ STATUS iosLibInit(
     {
         /* Setup max variables */
         iosMaxDrv = max_drv;
-        iosMaxFd = max_fd;
+        iosMaxFd  = max_fd;
 
         /* Setup empty path */
         strcpy(iosDefaultPath, "");
@@ -87,7 +88,7 @@ STATUS iosLibInit(
         /* Init file table */
         size = iosMaxFd * sizeof(FD_ENTRY);
 
-        iosFdTable = malloc(size);
+        iosFdTable = (FD_ENTRY *) malloc(size);
         if (iosFdTable == NULL)
         {
             status = ERROR;
@@ -173,7 +174,7 @@ int iosDrvInstall(
     FUNCPTR ioctlMethod
     )
 {
-    int drvNumber;
+    int        drvNumber;
     DRV_ENTRY *pDrvEntry;
 
     if ((createMethod == NULL) || (deleteMethod == NULL) ||
@@ -230,19 +231,16 @@ int iosDrvInstall(
  */
 
 STATUS iosDrvRemove(
-    int drvNumber,
+    int  drvNumber,
     BOOL forceClose
     )
 {
-    STATUS status;
+    int         fd;
     DEV_HEADER *pDevHeader;
-    int fd;
-    FD_ENTRY *pFdEntry;
-    DRV_ENTRY *pDrvEntry;
-    FUNCPTR drvClose;
-
-    pDrvEntry = &iosDrvTable[drvNumber];
-    drvClose = pDrvEntry->dev_close;
+    FD_ENTRY   *pFdEntry;
+    DRV_ENTRY  *pDrvEntry = &iosDrvTable[drvNumber];
+    FUNCPTR     drvClose  = pDrvEntry->dev_close;
+    STATUS      status    = OK;
 
     iosLock();
 
@@ -260,16 +258,10 @@ STATUS iosDrvRemove(
                 status = ERROR;
                 break;
             }
-            else
-            {
-                /* Close file */
-                if (drvClose != NULL)
-                {
-                    (*drvClose)(pFdEntry->value);
-                }
-                iosFdFree(STD_FIX(fd));
-                status = OK;
-            }
+
+            /* Close file */
+            (*drvClose)(pFdEntry->value);
+            iosFdFree(STD_FIX(fd));
         }
     }
 
@@ -324,17 +316,14 @@ void iosDefaultPathSet(
 
 STATUS iosDevAdd(
     DEV_HEADER *pDevHeader,
-    char *name,
-    int drvNumber
+    char       *name,
+    int         drvNumber
     )
 {
-    STATUS status;
-    DEV_HEADER *pMatch;
+    STATUS      status;
+    DEV_HEADER *pMatch = iosDevMatch(name);
 
-    /* Find best matching device */
-    pMatch = iosDevMatch(name);
-
-    /* Check if no full matching device exists */
+    /* Check for name clashes */
     if ((pMatch != NULL) && (strcmp(pMatch->name, name) == 0))
     {
         errnoSet(S_iosLib_DUPLICATE_DEVICE_NAME);
@@ -342,7 +331,7 @@ STATUS iosDevAdd(
     }
     else
     {
-        /* Store name */
+        /* Allocate space for name */
         pDevHeader->name = (char *) malloc(strlen(name) + 1);
         if (pDevHeader->name == NULL)
         {
@@ -394,7 +383,7 @@ void iosDevDelete(
  */
 
 DEV_HEADER* iosDevFind(
-    char *name,
+    char  *name,
     char **pNameTail
     )
 {
@@ -432,8 +421,10 @@ LOCAL DEV_HEADER* iosDevMatch(
     char *name
     )
 {
-    DEV_HEADER *pDevHeader, *pBestDevHeader = NULL;
-    int len, maxLen = 0;
+    int         len;
+    DEV_HEADER *pDevHeader;
+    DEV_HEADER *pBestDevHeader = NULL;
+    int         maxLen         = 0;
 
     iosLock();
 
@@ -450,7 +441,7 @@ LOCAL DEV_HEADER* iosDevMatch(
             if (len > maxLen)
             {
                 pBestDevHeader = pDevHeader;
-                maxLen = len;
+                maxLen         = len;
             }
         }
     }
@@ -494,14 +485,10 @@ ARG iosFdValue(
     int fd
     )
 {
-    int f;
     ARG value;
+    int f = STD_MAP(fd);
 
-    /* Validate and get fd */
-    f = STD_MAP(fd);
-
-    if (((f >= 0) && (f < iosMaxFd)) && 
-        (iosFdTable[f].used != FALSE))
+    if ((f >= 0) && (f < iosMaxFd) && (iosFdTable[f].used == TRUE))
     {
         value = iosFdTable[f].value;
     }
@@ -525,13 +512,9 @@ DEV_HEADER* iosFdDevFind(
     )
 {
     DEV_HEADER *pDevHeader;
-    int f;
+    int         f = STD_MAP(fd);
 
-    /* Validate and get fd */
-    f = STD_MAP(fd);
-
-    if (((f >= 0) && (f < iosMaxFd)) && 
-        (iosFdTable[f].used != FALSE))
+    if ((f >= 0) && (f < iosMaxFd) && (iosFdTable[f].used == TRUE))
     {
         pDevHeader = iosFdTable[f].pDevHeader;
     }
@@ -555,14 +538,10 @@ void iosFdFree(
     )
 {
     FD_ENTRY *pFdEntry;
-    int f;
-
-    /* Get and validate fd */
-    f = STD_MAP(fd);
+    int       f = STD_MAP(fd);
 
     /* Get entry */
     pFdEntry = FD_CHECK(f);
-
     if (pFdEntry != NULL)
     {
         if (pFdEntry->name != NULL)
@@ -591,23 +570,22 @@ void iosFdFree(
  */
 
 STATUS iosFdSet(
-    int fd,
+    int         fd,
     DEV_HEADER *pDevHeader,
-    char *name,
-    ARG value
+    char       *name,
+    ARG         value
     )
 {
-    STATUS status;
+    STATUS    status;
     FD_ENTRY *pFdEntry;
-    char *ptr;
 
-    if (fd >= iosMaxFd)       /* Bounds check */
+    if ((fd < 3) || (fd >= iosMaxFd))     /* Bounds check */
     {
         status = ERROR;
     }
     else
     {
-        /* Initialize locals */
+        /* Get file descriptor entry */
         pFdEntry = &iosFdTable[STD_UNFIX(fd)];
         if (pFdEntry->used != TRUE)       /* Do nothing if fd not in use. */
         {
@@ -615,33 +593,38 @@ STATUS iosFdSet(
         }
         else
         {
-            if (pFdEntry->name != NULL)
+            if ((pFdEntry->name != NULL) &&
+                (pFdEntry->name != pDevHeader->name))
             {
                 free(pFdEntry->name);
             }
 
-            if (name != NULL)
+            if (name == NULL)
             {
-                ptr = (char *) malloc(strlen(name) + 1);
-                if (ptr == NULL)
+                pFdEntry->name = NULL;
+                status = OK;
+            }
+            else if (strcmp(name, pDevHeader->name) == 0)
+            {
+                pFdEntry->name = pDevHeader->name;
+                status = OK;
+            }
+            else
+            {
+                pFdEntry->name = (char *) malloc(strlen(name) + 1);
+                if (pFdEntry->name == NULL)
                 {
                     status = ERROR;
                 }
                 else
                 {
-                    strcpy(ptr, name);
+                    strcpy(pFdEntry->name, name);
                     status = OK;
                 }
-            }
-            else
-            {
-                ptr = NULL;
-                status = OK;
             }
 
             if (status == OK)
             {
-                pFdEntry->name       = ptr;
                 pFdEntry->pDevHeader = pDevHeader;
                 pFdEntry->value      = value;
             }
@@ -659,15 +642,12 @@ STATUS iosFdSet(
 
 int iosFdNew(
     DEV_HEADER *pDevHeader,
-    char *name,
-    ARG value
+    char       *name,
+    ARG         value
     )
 {
-    int fd;
-    FD_ENTRY *pFdEntry;
-
-    /* Initailize locals */
-    pFdEntry = NULL;
+    int       fd;
+    FD_ENTRY *pFdEntry = NULL;
 
     iosLock();
 
@@ -720,15 +700,15 @@ int iosFdNew(
 
 int iosCreate(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    int mode,
+    char       *filename,
+    int         mode,
     const char *symlink
     )
 {
-    int status;
+    int     status;
     FUNCPTR func;
 
-    func = iosDrvTable[pDevHeader->drvNumber].dev_create;
+    func   = iosDrvTable[pDevHeader->drvNumber].dev_create;
     status = (*func)(pDevHeader, filename, mode, symlink);
 
     return status;
@@ -742,14 +722,14 @@ int iosCreate(
 
 int iosDelete(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    mode_t mode
+    char       *filename,
+    mode_t      mode
     )
 {
-    int status;
+    int     status;
     FUNCPTR func;
 
-    func = iosDrvTable[pDevHeader->drvNumber].dev_delete;
+    func   = iosDrvTable[pDevHeader->drvNumber].dev_delete;
     status = (*func)(pDevHeader, filename, mode);
 
     return status;
@@ -763,15 +743,15 @@ int iosDelete(
 
 int iosOpen(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    int flags,
-    int mode
+    char       *filename,
+    int         flags,
+    int         mode
     )
 {
-    int status;
+    int     status;
     FUNCPTR func;
 
-    func = iosDrvTable[pDevHeader->drvNumber].dev_open;
+    func   = iosDrvTable[pDevHeader->drvNumber].dev_open;
     status = (*func)(pDevHeader, filename, flags, mode);
 
     return status;
@@ -787,12 +767,12 @@ int iosClose(
     int fd
     )
 {
-    int status;
+    int       status;
+    FUNCPTR   func;
     FD_ENTRY *pFdEntry;
-    FUNCPTR func;
-    int fDesc;
+    int       fDesc = STD_MAP(fd);
 
-    fDesc = STD_MAP(fd);
+    /* Get entry */
     pFdEntry = FD_CHECK(fDesc);
     if (pFdEntry == NULL)
     {
@@ -800,7 +780,7 @@ int iosClose(
     }
     else
     {
-        func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_close;
+        func   = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_close;
         status = (*func)(pFdEntry->value);
 
         /* Remove fd */
@@ -817,17 +797,17 @@ int iosClose(
  */
 
 int iosRead(
-    int fd,
+    int   fd,
     void *buffer,
-    int maxBytes
+    int   maxBytes
     )
 {
-    int status;
+    int       status;
+    FUNCPTR   func;
     FD_ENTRY *pFdEntry;
-    FUNCPTR func;
-    int fDesc;
+    int       fDesc = STD_MAP(fd);
 
-    fDesc = STD_MAP(fd);
+    /* Get entry */
     pFdEntry = FD_CHECK(fDesc);
     if (pFdEntry == NULL)
     {
@@ -835,7 +815,7 @@ int iosRead(
     }
     else
     {
-        func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_read;
+        func   = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_read;
         status = (*func)(pFdEntry->value, buffer, maxBytes);
     }
 
@@ -849,17 +829,17 @@ int iosRead(
  */
 
 int iosWrite(
-    int fd,
+    int   fd,
     void *buffer,
-    int maxBytes
+    int   maxBytes
     )
 {
-    int status;
+    int       status;
+    FUNCPTR   func;
     FD_ENTRY *pFdEntry;
-    FUNCPTR func;
-    int fDesc;
+    int       fDesc = STD_MAP(fd);
 
-    fDesc = STD_MAP(fd);
+    /* Get entry */
     pFdEntry = FD_CHECK(fDesc);
     if (pFdEntry == NULL)
     {
@@ -867,7 +847,7 @@ int iosWrite(
     }
     else
     {
-        func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_write;
+        func   = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_write;
         status = (*func)(pFdEntry->value, buffer, maxBytes);
     }
 
@@ -886,12 +866,12 @@ int iosIoctl(
     ARG arg
     )
 {
-    int status;
+    int       status;
+    FUNCPTR   func;
     FD_ENTRY *pFdEntry;
-    FUNCPTR func;
-    int fDesc;
+    int       fDesc = STD_MAP(fd);
 
-    fDesc = STD_MAP(fd);
+    /* Get entry */
     pFdEntry = FD_CHECK(fDesc);
     if (pFdEntry == NULL)
     {
@@ -907,7 +887,7 @@ int iosIoctl(
         }
         else
         {
-            func = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_ioctl;
+            func   = iosDrvTable[pFdEntry->pDevHeader->drvNumber].dev_ioctl;
             status = (*func)(pFdEntry->value, function, arg);
         }
     }
@@ -939,20 +919,5 @@ LOCAL void iosUnlock(
     )
 {
     semGive(&iosSem);
-}
-
-/******************************************************************************
- * iosNullWrite - Null write
- *
- * RETURNS: Number parameter
- */
-
-LOCAL int iosNullWrite(
-    int dummy,
-    void *buf,
-    int n
-    )
-{
-    return n;
 }
 

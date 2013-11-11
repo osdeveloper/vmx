@@ -56,8 +56,8 @@ typedef struct
  */
 
 STATUS iosLibInit(
-    int max_drv,
-    int max_fd,
+    int   max_drv,
+    int   max_fd,
     char *nullDevName
     );
 
@@ -84,7 +84,7 @@ int iosDrvInstall(
  */
 
 STATUS iosDrvRemove(
-    int drvNumber,
+    int  drvNumber,
     BOOL forceClose
     );
 
@@ -106,8 +106,8 @@ void iosDefaultPathSet(
 
 STATUS iosDevAdd(
     DEV_HEADER *pDevHeader,
-    char *name,
-    int drvNumber
+    char       *name,
+    int         drvNumber
     );
 
 /******************************************************************************
@@ -127,7 +127,7 @@ void iosDevDelete(
  */
 
 DEV_HEADER* iosDevFind(
-    char *name,
+    char  *name,
     char **pNameTail
     );
 
@@ -178,10 +178,10 @@ void iosFdFree(
  */
 
 STATUS iosFdSet(
-    int fd,
+    int         fd,
     DEV_HEADER *pDevHeader,
-    char *name,
-    ARG value
+    char       *name,
+    ARG         value
     );
 
 /******************************************************************************
@@ -192,8 +192,8 @@ STATUS iosFdSet(
 
 int iosFdNew(
     DEV_HEADER *pDevHeader,
-    char *name,
-    ARG value
+    char       *name,
+    ARG         value
     );
 
 /******************************************************************************
@@ -204,8 +204,8 @@ int iosFdNew(
 
 int iosCreate(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    int mode,
+    char       *filename,
+    int         mode,
     const char *symlink
     );
 
@@ -217,8 +217,8 @@ int iosCreate(
 
 int iosDelete(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    mode_t mode
+    char       *filename,
+    mode_t      mode
     );
 
 /******************************************************************************
@@ -229,9 +229,9 @@ int iosDelete(
 
 int iosOpen(
     DEV_HEADER *pDevHeader,
-    char *filename,
-    int flags,
-    int mode
+    char       *filename,
+    int         flags,
+    int         mode
     );
 
 /******************************************************************************
@@ -251,9 +251,9 @@ int iosClose(
  */
 
 int iosRead(
-    int fd,
+    int   fd,
     void *buffer,
-    int maxBytes
+    int   maxBytes
     );
 
 /******************************************************************************
@@ -263,9 +263,9 @@ int iosRead(
  */
 
 int iosWrite(
-    int fd,
+    int   fd,
     void *buffer,
-    int maxBytes
+    int   maxBytes
     );
 
 /******************************************************************************
