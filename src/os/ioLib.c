@@ -768,6 +768,7 @@ off_t lseek(
     STATUS status;
     struct stat buf;
     off_t  value;
+    off_t  ret;
 
     if (whence == SEEK_SET)
     {
@@ -805,7 +806,11 @@ off_t lseek(
         status = ERROR;
     }
 
-    if (status == OK)
+    if (status != OK)
+    {
+        ret = ERROR;
+    }
+    else
     {
         if (offset < 0)
         {
@@ -814,10 +819,17 @@ off_t lseek(
         }
         else
         {
-            status = ioctl(fd, FIOSEEK, offset);
+            if (ioctl(fd, FIOSEEK, offset) != OK)
+            {
+                ret = ERROR;
+            }
+            else
+            {
+                ret = offset;
+            }
         }
     }
 
-    return status;
+    return ret;
 }
 
