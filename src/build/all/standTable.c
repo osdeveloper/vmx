@@ -34,6 +34,7 @@
 #include <sys/uio.h>
 #include <private/stdioP.h>
 #include <vmx.h>
+#include <arch/vmxArchLib.h>
 #include <os/objLib.h>
 #include <os/classLib.h>
 #include <os/classShow.h>
@@ -448,7 +449,17 @@ SYMBOL standTable[] =
   {NULL, "_wdTerminate", wdTerminate, 0, N_TEXT | N_EXT},
   {NULL, "_wdStart", wdStart, 0, N_TEXT | N_EXT},
   {NULL, "_wdCancel", wdCancel, 0, N_TEXT | N_EXT},
-  {NULL, "_wdShow", wdShow, 0, N_TEXT | N_EXT}
+  {NULL, "_wdShow", wdShow, 0, N_TEXT | N_EXT},
+
+  /* vmxArchLib */
+  {NULL, "_intEnt", intEnt, 0, N_TEXT | N_EXT},
+  {NULL, "_intExit", intExit, 0, N_TEXT | N_EXT},
+  {NULL, "_vmxExit", vmxExit, 0, N_TEXT | N_EXT},
+  {NULL, "_vmxTaskContextLoad", vmxTaskContextLoad, 0, N_TEXT | N_EXT},
+  {NULL, "_vmxTaskEntry", vmxTaskEntry, 0, N_TEXT | N_EXT},
+  {NULL, "_vmxTaskEntry", vmxTaskEntry, 0, N_TEXT | N_EXT},
+  {NULL, "_intStackSet", intStackSet, 0, N_TEXT | N_EXT},
+  {NULL, "_intStackEnable", intStackEnable, 0, N_TEXT | N_EXT}
 };
 
 /* Locals */

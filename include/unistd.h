@@ -27,9 +27,9 @@
 #include <os/pathLib.h>
 
 /* File positions */
-#define SEEK_CUR        0       /* set file offset to offset */
-#define SEEK_END        1       /* set file offset to current + offset */
-#define SEEK_SET        2       /* set file offset to EOF + offset */
+#define SEEK_SET        0       /* set file offset to offset */
+#define SEEK_CUR        1       /* set file offset to current + offset */
+#define SEEK_END        2       /* set file offset to EOF + offset */
 
 /* Standard file descriptors */
 #define STDIN_FILENO    0       /* Standard input */

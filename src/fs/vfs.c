@@ -1198,7 +1198,7 @@ int vncioIoctl (
             offset = (vattr.va_size > pFileDesc->fd_off) ?
                      (vattr.va_size - pFileDesc->fd_off) : 0;
             *((off_t *) arg) = offset;
-            return (OK);
+            break;
 
         case FIOFLUSH:
             /*
@@ -1229,6 +1229,7 @@ int vncioIoctl (
                 break;
             }
             pFileDesc->fd_off = offset;
+            error = OK;
             break;
 
         case FIOWHERE:
@@ -1242,7 +1243,8 @@ int vncioIoctl (
                 break;
             }
             *((off_t *) arg) = pFileDesc->fd_off;
-            return (OK);
+            error = OK;
+            break;
 
         case FIOSTATGET:
             if (arg == NULL) {
@@ -1275,7 +1277,7 @@ int vncioIoctl (
             pStat->st_ctime   = vattr.va_ctime.tv_sec;
             pStat->st_blksize = vattr.va_blksize;
             pStat->st_blocks  = vattr.va_size / vattr.va_blksize;
-            return (OK);
+            break;
 
         case FIOREADLINK:
             if (arg == NULL) {

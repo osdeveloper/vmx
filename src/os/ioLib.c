@@ -20,7 +20,6 @@
 
 /* ioLib.c - I/O library */
 
-#include <vmx.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -30,6 +29,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/uio.h>
+#include <vmx.h>
 #include <vmx/taskLib.h>
 #include <os/errnoLib.h>
 #include <os/iosLib.h>
@@ -765,11 +765,15 @@ off_t lseek(
     int   whence
     )
 {
-    struct stat buf;
     STATUS status;
+    struct stat buf;
     off_t  value;
 
-    if (whence == SEEK_CUR)
+    if (whence == SEEK_SET)
+    {
+        status = OK;
+    }
+    else if (whence == SEEK_CUR)
     {
         /* Add <offset> to current position */
         if (ioctl(fd, FIOWHERE, (int) &value) != OK)
@@ -795,7 +799,7 @@ off_t lseek(
             status  = OK;
         }
     }
-    else if (whence != SEEK_SET)
+    else
     {
         errnoSet(EINVAL);
         status = ERROR;
