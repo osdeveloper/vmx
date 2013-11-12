@@ -106,6 +106,7 @@ int                   erfTaskPriority  = ERF_TASK_PRIORITY;
 int                   erfTaskStackSize = ERF_TASK_STACK_SIZE;
 
 /***************************************************************************
+ *
  * erfLibInit - Initialize event reporting framework
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -114,8 +115,7 @@ int                   erfTaskStackSize = ERF_TASK_STACK_SIZE;
 STATUS erfLibInit (
     int  maxCategories,
     int  maxTypes
-    )
-{
+    ) {
     char *  data;
     int     size;
     int     i;
@@ -204,6 +204,7 @@ STATUS erfLibInit (
 }
 
 /***************************************************************************
+ *
  * erfHandlerRegister - Register event handler
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -215,8 +216,7 @@ STATUS erfHandlerRegister (
     void    (*func)(int, int, void *, void*),
     void *  pUserData,
     int     flags
-    )
-{
+    ) {
     ERF_TYPE *     erfType;
     ERF_HDL  *     pErfHdl;
     STATUS         status;
@@ -269,6 +269,7 @@ STATUS erfHandlerRegister (
 }
 
 /***************************************************************************
+ *
  * erfHandlerUnregister - Unregister event handler
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -279,8 +280,7 @@ STATUS erfHandlerUnregister (
     int     eventType,
     void    (*func)(int, int, void *, void*),
     void *  pUserData
-    )
-{
+    ) {
     ERF_HDL  *     pErfHdl;
     STATUS         status;
 
@@ -309,6 +309,7 @@ STATUS erfHandlerUnregister (
 }
 
 /***************************************************************************
+ *
  * erfEventRaise - raise an event
  * 
  * RETURNS: OK on success, ERROR otherwise
@@ -320,8 +321,7 @@ STATUS erfEventRaise (
     int     processType,
     void *  pEventData,
     void    (*freeFunc)(void *)
-    )
-{
+    ) {
     ERF_TYPE *  erfType;
     ERF_MSG     erfMsg;
     STATUS      status;
@@ -364,6 +364,7 @@ STATUS erfEventRaise (
 }
 
 /***************************************************************************
+ *
  * erfCategoryAllocate - Allocate event category
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -371,8 +372,7 @@ STATUS erfEventRaise (
 
 STATUS erfCategoryAllocate (
     int *  pCategory
-    )
-{
+    ) {
 
     if (pCategory == NULL) {
         errnoSet (S_erfLib_INVALID_PARAMETER);
@@ -403,6 +403,7 @@ STATUS erfCategoryAllocate (
 }
 
 /***************************************************************************
+ *
  * erfTypeAllocate - Allocate event type
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -411,8 +412,7 @@ STATUS erfCategoryAllocate (
 STATUS erfTypeAllocate (
     int    category,
     int *  pType
-    )
-{
+    ) {
 
     if ((category >= erfCatUsed) || (pType == NULL)) {
         errnoSet (S_erfLib_INVALID_PARAMETER);
@@ -442,6 +442,7 @@ STATUS erfTypeAllocate (
 }
 
 /***************************************************************************
+ *
  * erfTask - Event handler task
  *
  * RETURNS: Not expected to return
@@ -449,8 +450,7 @@ STATUS erfTypeAllocate (
 
 LOCAL STATUS erfTask (
     void
-    )
-{
+    ) {
     ERF_MSG     erfMsg;
     ERF_TYPE *  erfType;
     int  eventCategory;
@@ -488,6 +488,7 @@ LOCAL STATUS erfTask (
 }
 
 /***************************************************************************
+ *
  * erfHandler - Event handler function
  *
  * RETURNS: N/A
@@ -498,8 +499,7 @@ LOCAL void erfHandler (
     int     type,          /* event type */
     void *  pEventData,    /* event data */
     void *  pUserData      /* not used */
-    )
-{
+    ) {
     ERF_HDL *   pErfHdl;
     ERF_TYPE *  erfType;
     ERF_TYPE *  prevErfType;

@@ -18,13 +18,14 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* typesI386.h - System types */
+/* unixLib.h - Unix routines library header */
 
-#ifndef _typesI386_h
-#define _typesI386_h
+#ifndef _unixLib_h
+#define _unixLib_h
 
-#define _QUAD_HIGHWORD          1
-#define _QUAD_LOWWORD           0
+#include <vmx.h>
+#include <vmx/taskLib.h>
+#include <vmx/semLib.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -32,24 +33,15 @@
 extern "C" {
 #endif
 
-/* Signed types */
-typedef char                    int8_t;
-typedef short                   int16_t;
-typedef int                     int32_t;
-typedef long long               int64_t;
+/******************************************************************************
+ * unixLibInit - Inititalize unix library
+ *
+ * RETURNS: OK or ERROR
+ */
 
-/* Unsigned types */
-typedef unsigned char           u_int8_t;
-typedef unsigned short          u_int16_t;
-typedef unsigned int            u_int32_t;
-typedef unsigned long long      u_int64_t;
-
-/* Pointer types */
-typedef char                   *addr_t;
-
-/* Misc types */
-typedef unsigned int            size_t;
-typedef int                     ssize_t;
+STATUS unixLibInit(
+    void
+    );
 
 #ifdef __cplusplus
 }
@@ -57,5 +49,5 @@ typedef int                     ssize_t;
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _typesI386_h */
+#endif /* _unixLib_h */
 

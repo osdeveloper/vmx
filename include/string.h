@@ -56,6 +56,18 @@ void *memcpy(
     );
 
 /******************************************************************************
+ * memmove - Move between memory areas
+ *
+ * RETURNS: Pointer to destdination
+ */
+
+void* memmove(
+    void *dst,
+    const void *src, 
+    size_t len
+    );
+
+/******************************************************************************
  * memset - Set memory location with data
  *
  * RETURNS: Pointer to destination
@@ -114,7 +126,7 @@ char* strchr(
     );
 
 /******************************************************************************
- * strrchr.c - Find character in string revesed 
+ * strrchr - Find character in string revesed 
  * 
  * RETURNS: Pointer to character or NULL
  */

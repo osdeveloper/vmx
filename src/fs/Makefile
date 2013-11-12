@@ -18,12 +18,12 @@
  #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  #
 
-# Makefile - String library for C
+# Makefile - Filesystem library for Real VMX
 
-OBJS = memchr.o memcpy.o memmove.o memset.o strcat.o strncat.o strchr.o \
-       strrchr.o strcmp.o strncmp.o strcpy.o strncpy.o strlen.o
-SUBDIRS =
-LIB_TGT = stdc
+OBJS = bio.o mount.o vnode.o vfs.o fsEventUtilLib.o fsMonitor.o \
+       xbdLib.o xbdPartition.o xbdRamDisk.o
+SUBDIRS = rawfs
+LIB_TGT = fs
 
 include $(VMX_BASE)/include/make/build.defaults
 

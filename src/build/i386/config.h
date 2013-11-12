@@ -78,6 +78,10 @@
 
 #define MAX_EVENT_CATEGORIES    20
 #define MAX_EVENT_TYPES         20
+#define MAX_XBD_DEVICES         64
+
+#define RAWFS_MAX_BUFFERS       16
+#define RAWFS_MAX_FILES         16
 
 #define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_PC_CONSOLE

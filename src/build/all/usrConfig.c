@@ -28,6 +28,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <a.out.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <vmx.h>
@@ -54,6 +55,7 @@
 #include <os/memShow.h>
 #include <os/taskHookLib.h>
 #include <os/selectLib.h>
+#include <os/unixLib.h>
 #include <os/symLib.h>
 #include <os/symShow.h>
 #include <os/iosLib.h>
@@ -64,6 +66,12 @@
 #include <os/erfLib.h>
 #include <os/pipeDrv.h>
 #include <ostool/shellLib.h>
+#include <fs/xbd.h>
+#include <fs/xbdRamDisk.h>
+#include <fs/fsMonitor.h>
+#include <fs/fsEventUtilLib.h>
+#include <fs/fsMonitor.h>
+#include <fs/rawfsLib.h>
 #include <usr/usrLib.h>
 #include "configAll.h"
 #include "config.h"
@@ -802,6 +810,87 @@ int initTasks(void)
   return 0;
 }
 
+int rawDevCreate(char *name, BOOL partFlag, BOOL openDevice)
+{
+  char partName[10];
+  char ioName[10];
+  device_t device;
+  devname_t devname;
+  FS_PATH_WAIT_STRUCT pathWait;
+  int fd;
+
+  strcpy(partName, name);
+  strcat(partName, ":0");
+
+  strcpy(ioName, name);
+  strcat(ioName, "$rawfs");
+
+  //fsmNameMap(name, ioName);
+  //fsmNameMap(partName, ioName);
+
+  device = xbdRamDiskDevCreate(512, 80 * 512, partFlag, name);
+  if (device == ERROR) {
+
+    fprintf(stderr, "ERROR: Failed to create device.\n");
+    return (ERROR);
+
+  }
+
+  if (xbdDevName(device, devname) != OK) {
+
+    fprintf(stderr, "ERROR: Failed to get device namn.\n");
+    return (ERROR);
+
+  }
+  printf("Created device with name: %s\n", devname);
+
+  if (!openDevice)
+    return (device);
+
+  if (fsPathAddedEventSetup(&pathWait, ioName) != OK) {
+
+    fprintf(stderr, "ERROR: Unable to setup path wait for%s\n", ioName);
+    return (ERROR);
+
+  }
+
+  printf("Waiting for path: %s...", ioName);
+
+  if (fsWaitForPath(&pathWait) != OK) {
+
+    fprintf(stderr, "ERROR: Path wait failed for: %s\n", ioName);
+    return (ERROR);
+
+  }
+
+  printf("Path got available.\n");
+
+  fd = open(ioName, O_RDWR, 0777);
+  if (fd == ERROR) {
+
+    fprintf(stderr, "ERROR: Unable to open file: %s\n", ioName);
+    return (ERROR);
+
+  }
+
+  return (fd);
+}
+
+void demoInit(void)
+{
+    static SYMBOL symTableDemo[] =
+    {
+        {NULL, "_rawDevCreate", rawDevCreate, 0, N_TEXT | N_EXT}
+    };
+
+    int i;
+
+    for (i = 0; i < NELEMENTS(symTableDemo); i++)
+    {
+        symTableAdd(sysSymTable, &symTableDemo[i]);
+    }
+}
+
 void usrInit(
     void
     )
@@ -896,6 +985,7 @@ LOCAL void usrRoot(
   excShowInit();
 
   selectLibInit();
+  unixLibInit();
 
   logLibInit(STDERR_FILENO, MAX_LOG_MSGS);
 
@@ -939,10 +1029,19 @@ LOCAL void usrRoot(
 
   erfLibInit(MAX_EVENT_CATEGORIES, MAX_EVENT_TYPES);
 
+  xbdLibInit(MAX_XBD_DEVICES);
+  xbdPartitionLibInit();
+  fsEventUtilInit();
+  fsMonitorInit();
+  vfsInit();
+  rawfsLibInit(RAWFS_MAX_BUFFERS, RAWFS_MAX_FILES, 0, 0);
+  usrRawfsInit(RAWFS_MAX_BUFFERS, RAWFS_MAX_FILES, 0, 0);
+
   usrLibInit();
 
   printLogo();
 
+  demoInit();
   shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);
 }
 

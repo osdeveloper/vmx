@@ -18,13 +18,13 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* typesI386.h - System types */
+/* xbdRamDisk.h - Ramdisk XBD device */
 
-#ifndef _typesI386_h
-#define _typesI386_h
+#ifndef _xbdRamDisk_h
+#define _xbdRamDisk_h
 
-#define _QUAD_HIGHWORD          1
-#define _QUAD_LOWWORD           0
+#include <vmx.h>
+#include <fs/xbd.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -32,24 +32,32 @@
 extern "C" {
 #endif
 
-/* Signed types */
-typedef char                    int8_t;
-typedef short                   int16_t;
-typedef int                     int32_t;
-typedef long long               int64_t;
+/* functions */
 
-/* Unsigned types */
-typedef unsigned char           u_int8_t;
-typedef unsigned short          u_int16_t;
-typedef unsigned int            u_int32_t;
-typedef unsigned long long      u_int64_t;
+/***************************************************************************
+ *
+ * xbdRamDiskDevCreate - create an XBD ramdisk device
+ *
+ * RETURNS: XBD's device ID on success, NULLDEV on error
+ */
 
-/* Pointer types */
-typedef char                   *addr_t;
+device_t xbdRamDiskDevCreate (
+    unsigned      blockSize,   /* block size (bytes) */
+    unsigned      diskSize,    /* disk size (bytes) */
+    BOOL          flag,        /* TRUE if partitions supported, else FALSE */
+    const char *  name         /* ramdisk name */
+    );
 
-/* Misc types */
-typedef unsigned int            size_t;
-typedef int                     ssize_t;
+/***************************************************************************
+ *
+ * xbdRamDiskDevDelete - delete an XBD ramdisk device
+ *
+ * RETURNS: OK on success, ERROR otherwise
+ */
+
+STATUS xbdRamDiskDevDelete (
+    device_t  device
+    );
 
 #ifdef __cplusplus
 }
@@ -57,5 +65,5 @@ typedef int                     ssize_t;
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _typesI386_h */
+#endif /* _xbdRamDisk_h */
 

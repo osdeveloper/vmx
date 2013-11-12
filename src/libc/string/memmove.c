@@ -18,44 +18,39 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* typesI386.h - System types */
+/* memmove.c - Move between memory areas */
 
-#ifndef _typesI386_h
-#define _typesI386_h
+#include <string.h>
+#include <vmx.h>
 
-#define _QUAD_HIGHWORD          1
-#define _QUAD_LOWWORD           0
+/******************************************************************************
+ * memmove - Move between memory areas
+ *
+ * RETURNS: Pointer to destdination
+ */
 
-#ifndef _ASMLANGUAGE
+void* memmove(
+    void *dst,
+    const void *src,
+    size_t len
+    )
+{
+    char *s1 = dst, *s2 = (char *) src;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    /* This bit of sneakyness c/o Glibc, it assumes the test is unsigned */
+    if (s1 - s2 >= len)
+    {
+        return memcpy(dst, src, len);
+    }
 
-/* Signed types */
-typedef char                    int8_t;
-typedef short                   int16_t;
-typedef int                     int32_t;
-typedef long long               int64_t;
+    /* This reverse copy only used if we absolutly have to */
+    s1 += len;
+    s2 += len;
+    while (len-- > 0)
+    {
+        *(--s1) = *(--s2);
+    }
 
-/* Unsigned types */
-typedef unsigned char           u_int8_t;
-typedef unsigned short          u_int16_t;
-typedef unsigned int            u_int32_t;
-typedef unsigned long long      u_int64_t;
-
-/* Pointer types */
-typedef char                   *addr_t;
-
-/* Misc types */
-typedef unsigned int            size_t;
-typedef int                     ssize_t;
-
-#ifdef __cplusplus
+    return dst;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _typesI386_h */
 

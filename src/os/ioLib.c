@@ -785,7 +785,7 @@ off_t lseek(
     else if (whence == SEEK_END) 
     {
         /* Add <offset> to size of the file */
-        if (fstat (fd, &buf) != OK)
+        if (fstat(fd, &buf) != OK)
         {
             status = ERROR;
         }

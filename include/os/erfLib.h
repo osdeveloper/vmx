@@ -32,6 +32,7 @@
 #define ERF_SYNC_PROCESS     0x00000002
 
 /***************************************************************************
+ *
  * erfLibInit - Initialize event reporting framework
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -43,6 +44,7 @@ STATUS erfLibInit (
     );
 
 /***************************************************************************
+ *
  * erfHandlerRegister - Register event handler
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -57,6 +59,7 @@ STATUS erfHandlerRegister (
     );
 
 /***************************************************************************
+ *
  * erfHandlerUnregister - Unregister event handler
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -70,6 +73,7 @@ STATUS erfHandlerUnregister (
     );
 
 /***************************************************************************
+ *
  * erfEventRaise - raise an event
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -84,6 +88,7 @@ STATUS erfEventRaise (
     );
 
 /***************************************************************************
+ *
  * erfCategoryAllocate - Allocate event category
  *
  * RETURNS: OK on success, ERROR otherwise
@@ -94,6 +99,7 @@ STATUS erfCategoryAllocate (
     );
 
 /***************************************************************************
+ *
  * erfTypeAllocate - Allocate event type
  *
  * RETURNS: OK on success, ERROR otherwise

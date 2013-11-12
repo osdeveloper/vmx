@@ -59,6 +59,23 @@ struct uio
     enum uio_rw   uio_rw;      /* direction of copy: UIO_READ or UIO_WRITE */
 };
 
+/***************************************************************************
+ * uiomove - move data between buffer and I/O vectors
+ *
+ * This routine moves data between a buffer and one or more I/O vectors.  This
+ * is particularly useful when dealing with scatter-gather I/O.  Data is written
+ * from the I/O vector(s) to the buffer.  Data is read from the buffer to the
+ * I/O vector(s).
+ *
+ * RETURNS: OK, or EINVAL
+ */
+
+int uiomove(
+    void *buffer,           /* source or destination buffer */
+    int nBytes,             /* number of bytes to move */
+    struct uio *pUio        /* ptr to uio structure */
+    );
+
 #endif  /* !_ASMLANGUAGE */
 
 #ifdef __cplusplus
@@ -66,3 +83,4 @@ struct uio
 #endif
 
 #endif  /* _SYS_UIO_H */
+

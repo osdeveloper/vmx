@@ -149,6 +149,7 @@ SYMBOL standTable[] =
   /* string */
   {NULL, "_memchr", memchr, 0, N_TEXT | N_EXT},
   {NULL, "_memcpy", memcpy, 0, N_TEXT | N_EXT},
+  {NULL, "_memmove", memmove, 0, N_TEXT | N_EXT},
   {NULL, "_memset", memset, 0, N_TEXT | N_EXT},
   {NULL, "_strlen", strlen, 0, N_TEXT | N_EXT},
   {NULL, "_strcpy", strcpy, 0, N_TEXT | N_EXT},
@@ -192,6 +193,9 @@ SYMBOL standTable[] =
 
   /* ioctl */
   {NULL, "_ioctl", ioctl, 0, N_TEXT | N_EXT},
+
+  /* uio */
+  {NULL, "_uiomove", uiomove, 0, N_TEXT | N_EXT},
 
   /* stat */
   {NULL, "_fstat", fstat, 0, N_TEXT | N_EXT},

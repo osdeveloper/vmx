@@ -25,7 +25,7 @@
 #include <vmx.h>
 
 /******************************************************************************
- * strrchr.c - Find character in string revesed
+ * strrchr - Find character in string revesed
  *
  * RETURNS: Pointer to character or NULL
  */
