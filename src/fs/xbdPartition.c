@@ -385,7 +385,7 @@ STATUS xbdCreatePartition (
     }
 
     /* Free temporary storage */
-    //free (pXbdPart - 3);
+    free (pXbdPart - 3);
 
     /* Calculate partition table length */
     len = sizeof(PARTITION_ENTRY) * 4;
