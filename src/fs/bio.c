@@ -145,12 +145,10 @@ int bwrite (
     int rtval;
     int oldflags = bp->b_flags;
 
-#ifdef notyet
     if(bp->b_flags & B_INVAL) {
         brelse (bp);
         return (OK);
     }
-#endif
 
     if((bp->b_flags & B_BUSY) == 0) {
 #ifdef DIAGNOSTIC
@@ -230,9 +228,7 @@ void brelse (
     /* unlock */
     bp->b_flags &= ~(B_WANTED | B_BUSY | B_ASYNC);
 
-#ifdef notyet
-    free (b->b_bio);
-#endif
+    free (bp->b_bio);
 }
 
 /***************************************************************************

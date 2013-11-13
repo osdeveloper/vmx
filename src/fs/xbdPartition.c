@@ -823,9 +823,7 @@ LOCAL void xbdPartitionEject (
 #ifdef DEBUG_XBD_PART
         printf("No more partition(s).\n");
 #endif
-#ifdef notyet
         free (pXbdPartitions);
-#endif
     }
 }
 
