@@ -72,6 +72,7 @@
 #include <fs/fsEventUtilLib.h>
 #include <fs/fsMonitor.h>
 #include <fs/rawfsLib.h>
+#include <fs/rt11fsLib.h>
 #include <usr/usrLib.h>
 #include "configAll.h"
 #include "config.h"
@@ -253,8 +254,10 @@ LOCAL void usrRoot(
   fsEventUtilInit();
   fsMonitorInit();
   vfsInit();
-  rawfsLibInit(RAWFS_MAX_BUFFERS, RAWFS_MAX_FILES, 0, 0);
-  usrRawfsInit(RAWFS_MAX_BUFFERS, RAWFS_MAX_FILES, 0, 0);
+  rawfsLibInit(MAX_FS_BUFFERS, MAX_FS_FILES, 0, 0);
+  usrRawfsInit(MAX_FS_BUFFERS, MAX_FS_FILES, 0, 0);
+  rt11fsLibInit(MAX_FS_BUFFERS, MAX_FS_FILES, MAX_FS_DIR_ENTRIES);
+  usrRt11fsInit(MAX_FS_BUFFERS, MAX_FS_FILES, MAX_FS_DIR_ENTRIES);
 
   usrLibInit();
 

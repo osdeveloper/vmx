@@ -28,6 +28,7 @@
 #include <a.out.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <vmx.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
@@ -40,81 +41,224 @@
 #include <fs/fsEventUtilLib.h>
 #include <fs/fsMonitor.h>
 #include <fs/rawfsLib.h>
+#include <fs/rt11fsLib.h>
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
 
-int rawDevCreate(char *name, BOOL partFlag, BOOL openDevice)
+int waitForDev(
+    char *name,
+    BOOL partFlag,
+    BOOL openDevice
+    )
 {
-  char partName[10];
-  char ioName[10];
-  device_t device;
-  devname_t devname;
-  FS_PATH_WAIT_STRUCT pathWait;
-  int fd;
+    char partName[10];
+    FS_PATH_WAIT_STRUCT pathWait;
+    int fd;
 
-  strcpy(partName, name);
-  strcat(partName, ":0");
+    strcpy(partName, name);
+    if (partFlag == TRUE)
+    {
+        strcat(partName, ":0");
+    }
 
-  strcpy(ioName, name);
-  strcat(ioName, "$rawfs");
+    if (fsPathAddedEventSetup(&pathWait, partName) != OK)
+    {
+        fprintf(stderr, "ERROR: Unable to setup path wait for%s\n", partName);
+        return (ERROR);
+    }
 
-  //fsmNameMap(name, ioName);
-  //fsmNameMap(partName, ioName);
+    printf("Waiting for path: %s...", partName);
 
-  device = xbdRamDiskDevCreate(512, 80 * 512, partFlag, name);
-  if (device == ERROR) {
+    if (fsWaitForPath(&pathWait) != OK)
+    {
+        fprintf(stderr, "ERROR: Path wait failed for: %s\n", partName);
+        return (ERROR);
+    }
 
-    fprintf(stderr, "ERROR: Failed to create device.\n");
-    return (ERROR);
+    printf("Path %s got available.\n", partName);
 
-  }
+    if (openDevice == FALSE)
+    {
+        return (OK);
+    }
 
-  if (xbdDevName(device, devname) != OK) {
+    fd = open(partName, O_RDWR, 0777);
+    if (fd == ERROR)
+    {
+        fprintf(stderr, "ERROR: Unable to open file: %s\n", partName);
+        return (ERROR);
+    }
 
-    fprintf(stderr, "ERROR: Failed to get device namn.\n");
-    return (ERROR);
-
-  }
-  printf("Created device with name: %s\n", devname);
-
-  if (!openDevice)
-    return (device);
-
-  if (fsPathAddedEventSetup(&pathWait, ioName) != OK) {
-
-    fprintf(stderr, "ERROR: Unable to setup path wait for%s\n", ioName);
-    return (ERROR);
-
-  }
-
-  printf("Waiting for path: %s...", ioName);
-
-  if (fsWaitForPath(&pathWait) != OK) {
-
-    fprintf(stderr, "ERROR: Path wait failed for: %s\n", ioName);
-    return (ERROR);
-
-  }
-
-  printf("Path got available.\n");
-
-  fd = open(ioName, O_RDWR, 0777);
-  if (fd == ERROR) {
-
-    fprintf(stderr, "ERROR: Unable to open file: %s\n", ioName);
-    return (ERROR);
-
-  }
-
-  return (fd);
+    return (fd);
 }
 
-void fsDemoInit(void)
+int ramDevCreate(
+    char *name,
+    BOOL partFlag
+    )
+{
+    device_t device;
+    devname_t devname;
+
+    device = xbdRamDiskDevCreate(512, 80 * 512, partFlag, name);
+    if (device == ERROR)
+    {
+        fprintf(stderr, "ERROR: Failed to create device %s.\n", name);
+        return (ERROR);
+    }
+
+    if (xbdDevName(device, devname) != OK)
+    {
+        fprintf(stderr, "ERROR: Failed to get device namne.\n");
+        return (ERROR);
+    }
+
+    printf("Created device with name: %s\n", devname);
+
+    return (OK);
+}
+
+int partition(
+    char *name,
+    int size1,
+    int size2,
+    int size3
+    )
+{
+    if (!size1)
+    {
+        size1 = 50;
+    }
+
+    if (!size2)
+    {
+        size2 = 25;
+    }
+
+    if (!size3)
+    {
+        size3 = 25;
+    }
+
+    return xbdCreatePartition (name, 3, size1, size2, size3);
+}
+
+int geometry(
+    int fd
+    )
+{
+    XBD_GEOMETRY xbdGeometry;
+
+    if (ioctl (fd, XBD_GEOMETRY_GET, &xbdGeometry) != OK)
+    {
+        fprintf(stderr, "ERROR: Unable to get geometry.\n");
+        return (ERROR);
+    }
+
+    printf("Drive geometry:\n");
+    printf("sectorsPerTrack:    %d\n", xbdGeometry.sectorsPerTrack);
+    printf("numHeads:           %d\n", xbdGeometry.numHeads);
+    printf("numCylinders:       %d\n", xbdGeometry.numCylinders);
+
+    return (OK);
+}
+
+int filestat(
+    int fd
+    )
+{
+    struct stat st;
+
+    if (fstat (fd, &st) != OK)
+    {
+        fprintf(stderr, "ERROR: Unable to get file stats.\n");
+        return (ERROR);
+    }
+
+    printf("File status:\n");
+    printf("Total size:      %d\n", st.st_size);
+    printf("Block size:      %d\n", st.st_blksize);
+    printf("Num blocks:      %d\n", st.st_blocks);
+
+    return (OK);
+}
+
+STATUS format(
+    char *path,
+    int maxEntries
+    )
+{
+    if (maxEntries < 0)
+    {
+        maxEntries = 0;
+    }
+
+    return rt11fsVolFormat (path, maxEntries);
+}
+
+int eject(
+    char *name,
+    BOOL partFlag
+    )
+{
+    char partName[10];
+    int fd;
+    FS_PATH_WAIT_STRUCT pathWait;
+
+    strcpy(partName, name);
+    if (partFlag == TRUE)
+    {
+        strcat(partName, ":0");
+    }
+
+    if (fsPathAddedEventSetup(&pathWait, partName) != OK)
+    {
+        fprintf(stderr, "ERROR: Unable to setup path wait for %s\n", partName);
+        return (ERROR);
+    }
+
+    fd = open(partName, O_RDWR, 0777);
+    if (fd == ERROR)
+    {
+        fprintf(stderr, "ERROR: Unable to open file: %s\n", partName);
+        return (ERROR);
+    }
+
+    if (ioctl(fd, XBD_SOFT_EJECT, 0) != OK)
+    {
+        fprintf(stderr, "ERROR: Unable to soft eject device\n");
+        return (ERROR);
+    }
+
+    close(fd);
+
+    printf("Waiting for path: %s...", partName);
+
+    if (fsWaitForPath(&pathWait) != OK)
+    {
+        fprintf(stderr, "ERROR: Path wait failed for: %s\n", partName);
+        return (ERROR);
+    }
+
+    printf("Path %s got available.\n", name);
+
+    return (OK);
+}
+
+void fsDemoInit(
+    void
+    )
 {
     static SYMBOL symTableDemo[] =
     {
-        {NULL, "_rawDevCreate", rawDevCreate, 0, N_TEXT | N_EXT}
+        {NULL, "_waitForDev", waitForDev, 0, N_TEXT | N_EXT},
+        {NULL, "_ramDevCreate", ramDevCreate, 0, N_TEXT | N_EXT},
+        {NULL, "_partition", partition, 0, N_TEXT | N_EXT},
+        {NULL, "_geometry", geometry, 0, N_TEXT | N_EXT},
+        {NULL, "_filestat", filestat, 0, N_TEXT | N_EXT},
+        {NULL, "_format", format, 0, N_TEXT | N_EXT},
+        {NULL, "_eject", eject, 0, N_TEXT | N_EXT}
     };
 
     int i;
