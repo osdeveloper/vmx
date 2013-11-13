@@ -311,7 +311,7 @@ LOCAL int ioConnect(
  * RETURNS: Status from openConnect
  */
 
-LOCAL int openInternal(
+int openInternal(
     const char *filename,
     int         oflags,
     ...

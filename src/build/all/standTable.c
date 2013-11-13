@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <a.out.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -69,6 +70,7 @@
 #include <vmx/wdLib.h>
 #include <vmx/wdShow.h>
 #include <usr/usrLib.h>
+#include <usr/usrFsLib.h>
 
 /* Gloabals */
 int standTableSize = 0;
@@ -99,6 +101,17 @@ SYMBOL standTable[] =
   {NULL, "_repeat", repeat, 0, N_TEXT | N_EXT},
   {NULL, "_version", version, 0, N_TEXT | N_EXT},
   {NULL, "_printLogo", printLogo, 0, N_TEXT | N_EXT},
+
+  /* usrFsLib */
+  {NULL, "_ioHelp", ioHelp, 0, N_TEXT | N_EXT},
+  {NULL, "_dirList", dirList, 0, N_TEXT | N_EXT},
+  {NULL, "_cd", cd, 0, N_TEXT | N_EXT},
+  {NULL, "_pwd", pwd, 0, N_TEXT | N_EXT},
+  {NULL, "_ls", ls, 0, N_TEXT | N_EXT},
+  {NULL, "_ll", ll, 0, N_TEXT | N_EXT},
+  {NULL, "_lsr", lsr, 0, N_TEXT | N_EXT},
+  {NULL, "_llr", llr, 0, N_TEXT | N_EXT},
+  {NULL, "_copy", copy, 0, N_TEXT | N_EXT},
 
   /* stdio */
   {NULL, "_fpClassId", NULL, 0, N_DATA | N_EXT},
@@ -191,6 +204,12 @@ SYMBOL standTable[] =
   {NULL, "_ftruncate", ftruncate, 0, N_TEXT | N_EXT},
   {NULL, "_symlink", symlink, 0, N_TEXT | N_EXT},
   {NULL, "_readlink", readlink, 0, N_TEXT | N_EXT},
+
+  /* dirent */
+  {NULL, "_closedir", closedir, 0, N_TEXT | N_EXT},
+  {NULL, "_opendir", opendir, 0, N_TEXT | N_EXT},
+  {NULL, "_readdir", readdir, 0, N_TEXT | N_EXT},
+  {NULL, "_rewinddir", rewinddir, 0, N_TEXT | N_EXT},
 
   /* ioctl */
   {NULL, "_ioctl", ioctl, 0, N_TEXT | N_EXT},

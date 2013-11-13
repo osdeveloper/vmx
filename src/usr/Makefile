@@ -20,7 +20,7 @@
 
 # Makefile - I/O library for Real VMX
 
-OBJS = usrPage.o usrLib.o
+OBJS = usrPage.o usrLib.o usrFsLib.o
 SUBDIRS =
 LIB_TGT = usr
 
