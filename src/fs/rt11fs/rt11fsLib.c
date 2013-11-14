@@ -65,17 +65,61 @@ int rt11fsMaxEntries = 0;
 STATUS rt11fsLibInit(
     int maxBufs,
     int maxFiles,
-    int maxEntries
+    int maxEntries,
+    int reserved1
     ) {
     int i;
 
     /* Store globals */
     rt11fsMaxBuffers = maxBufs;
-    rt11fsMaxFiles = maxFiles;
+    rt11fsMaxFiles   = maxFiles;
     rt11fsMaxEntries = maxEntries;
 
     rt11fsLibInstalled = TRUE;
     return (OK);
+}
+
+/***************************************************************************
+ *
+ * rt11fsEject - eject the rt11 file system
+ *
+ * RETURNS: N/A
+ */
+
+LOCAL void rt11fsEject (
+    int     category,
+    int     type,
+    void *  pEventData,   /* device to eject */
+    void *  pUserData     /* ptr to device structure */
+    ) {
+    device_t     device;
+    RT11FS_DEV * pFsDev;
+
+    if ((category != xbdEventCategory) ||
+        ((type != xbdEventRemove) && (type != xbdEventMediaChanged))) {
+        return;
+    }
+
+    device = (device_t) pEventData;
+    pFsDev = (RT11FS_DEV *) pUserData;
+
+    /* If this event is not for us, then return */
+    if (pFsDev->volDesc.vd_device != device) {
+        return;
+    }
+
+    /*
+     * Unregister the registered events.  Then inform the vnode layer to
+     * unmount the rt11 file system.
+     */
+
+    erfHandlerUnregister (xbdEventCategory, xbdEventRemove,
+                          rt11fsEject, pFsDev);
+    erfHandlerUnregister (xbdEventCategory, xbdEventMediaChanged,
+                          rt11fsEject, pFsDev);
+
+
+    mountEject (pFsDev->volDesc.vd_pMount, type == xbdEventMediaChanged);
 }
 
 /***************************************************************************
@@ -212,8 +256,15 @@ STATUS rt11fsDevCreate2 (
 
     close (fd);
 
-    xbdIoctl (device, XBD_STACK_COMPLETE, NULL);
+    if ((erfHandlerRegister (xbdEventCategory, xbdEventRemove,
+                             rt11fsEject, pFsDev, 0) != OK) ||
+        (erfHandlerRegister (xbdEventCategory, xbdEventMediaChanged,
+                             rt11fsEject, pFsDev, 0) != OK)) {
+        goto errorReturn;
+    }
 
+    xbdIoctl (device, XBD_STACK_COMPLETE, NULL);
+    fsPathAddedEventRaise (pDevName);
     return (OK);
 
 errorReturn:

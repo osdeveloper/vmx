@@ -48,7 +48,7 @@ LOCAL int  rawfsMaxFiles;
 
 /***************************************************************************
  *
- * rawfsEject - eject the faw file system
+ * rawfsEject - eject the raw file system
  *
  * RETURNS: N/A
  */

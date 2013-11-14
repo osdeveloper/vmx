@@ -47,7 +47,8 @@
 STATUS usrRt11fsInit(
     int maxBufs,
     int maxFiles,
-    int maxEntries
+    int maxEntries,
+    int reserved1
     ) {
     STATUS status;
 

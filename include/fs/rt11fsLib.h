@@ -130,7 +130,8 @@ IMPORT const vnode_ops_t        rt11VopsSyncer;        /* Vnode operators */
 STATUS usrRt11fsInit(
     int maxBufs,
     int maxFiles,
-    int maxEntries
+    int maxEntries,
+    int reserved1
     );
 
 /******************************************************************************
@@ -143,7 +144,8 @@ STATUS usrRt11fsInit(
 STATUS rt11fsLibInit(
     int maxBufs,
     int maxFiles,
-    int maxEntries
+    int maxEntries,
+    int reserved1
     );
 
 /***************************************************************************
