@@ -2,7 +2,7 @@ Real VMX  - Realtime Operating System.
 Starting from scratch based on: http://sourceforge.net/projects/vmx/  
    
 Setup enviroment:  
-    export VMX_BASE=/vmx-source-path  
+	export VMX_BASE=/vmx-source-path  
    
 Build instructions:  
     cd $VMX_BASE  
