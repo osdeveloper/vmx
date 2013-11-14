@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <a.out.h>
+#include <time.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
@@ -190,6 +191,13 @@ SYMBOL standTable[] =
   {NULL, "_isxdigit", isxdigit, 0, N_TEXT | N_EXT},
   {NULL, "_tolower", tolower, 0, N_TEXT | N_EXT},
   {NULL, "_toupper", toupper, 0, N_TEXT | N_EXT},
+
+  /* time */
+  {NULL, "_time", time, 0, N_TEXT | N_EXT},
+  {NULL, "_mktime", mktime, 0, N_TEXT | N_EXT},
+  {NULL, "_localtime", localtime, 0, N_TEXT | N_EXT},
+  {NULL, "_localtime_r", localtime_r, 0, N_TEXT | N_EXT},
+  {NULL, "_strftime", strftime, 0, N_TEXT | N_EXT},
 
   /* fcntl */
   {NULL, "_open", open, 0, N_TEXT | N_EXT},

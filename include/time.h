@@ -58,5 +58,59 @@ struct itimerspec
     struct timespec  it_value;       /* timer expiration */
 };
 
+/******************************************************************************
+ * localtime - Convert calendar time to broken-down time
+ *
+ * RETURNS: Pointer to time struct
+ */
+
+struct tm* localtime(
+    const time_t *timer
+    );
+
+/******************************************************************************
+ * localtime_r - Convert calendar time to broken-down time
+ *
+ * RETURNS: OK
+ */
+
+int localtime_r(
+    const time_t *timer,
+    struct tm    *timeBuffer
+    );
+
+/******************************************************************************
+ * mktime - Convert broken-down time to calendar time
+ *
+ * RETURNS: Time
+ */
+
+time_t mktime(
+    struct tm *pTime
+    );
+
+/******************************************************************************
+ * strftime - Format time into string
+ *
+ * RETURNS: Number of chars
+ */
+
+size_t strftime(
+    char            *s,
+    size_t           n,
+    const char      *fmt,
+    const struct tm *tmp
+    );
+
+/******************************************************************************
+ * time - Get current calendar time
+ *
+ * RETURNS: Current time
+ */
+
+time_t time(
+    time_t *timer
+    );
+
 #endif
 

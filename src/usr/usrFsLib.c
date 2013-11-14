@@ -683,7 +683,6 @@ LOCAL STATUS dirListEntry(
         /* Print size */
         fprintf(fp, " %9lu ", filestat->st_size);
 
-#ifdef TIMELIB
         /* Get current time */
         now = time(&now);
         localtime_r(&now, &nowDate);
@@ -714,7 +713,6 @@ LOCAL STATUS dirListEntry(
                 fileDate.tm_year + 1900
                 );
         }
-#endif
     }
     else
     {

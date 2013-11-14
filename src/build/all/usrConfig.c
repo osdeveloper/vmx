@@ -33,6 +33,7 @@
 #include <sys/time.h>
 #include <vmx.h>
 #include <private/stdioP.h>
+#include <private/timeP.h>
 #include <arch/iv.h>
 #include <arch/sysArchLib.h>
 #include <arch/intArchLib.h>
@@ -55,6 +56,7 @@
 #include <os/memShow.h>
 #include <os/taskHookLib.h>
 #include <os/selectLib.h>
+#include <os/private/timerLibP.h>
 #include <os/unixLib.h>
 #include <os/symLib.h>
 #include <os/symShow.h>
@@ -202,6 +204,8 @@ LOCAL void usrRoot(
   symShowInit();
 
   stdioLibInit();
+  timeLibInit();
+  clockLibInit();
 
   excLibInit();
   excShowInit();

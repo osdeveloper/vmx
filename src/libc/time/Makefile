@@ -18,11 +18,11 @@
 #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Makefile - Standard C library
+# Makefile - ANSI time library
 
-OBJS =
-SUBDIRS = common stdio stdlib string ctype assert time
-LIB_TGT =
+OBJS = timeLib.o localtime.o mktime.o strftime.o time.o
+SUBDIRS =
+LIB_TGT = stdc
 
 include $(VMX_BASE)/include/make/build.defaults
 

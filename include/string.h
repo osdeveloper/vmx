@@ -192,6 +192,51 @@ size_t strlen(
     const char *str
     );
 
+/******************************************************************************
+ * strpbrk -
+ *
+ * RETURNS: Pointer in string or NULL
+ */
+
+char* strpbrk(
+    const char *str,
+    const char *set
+    );
+
+/******************************************************************************
+ * strspn - Return the length of the maximum initial segment
+ *
+ * RETURNS: Number of chars
+ */
+
+size_t strspn(
+    const char *s,
+    const char *accept
+    );
+
+/******************************************************************************
+ * strtok - Find string separator token
+ *
+ * RETURNS: Pointer in string or NULL
+ */
+
+char* strtok(
+    char *s,
+    const char *delim
+    );
+
+/******************************************************************************
+ * strtok_r - Reverse find string separator token
+ *
+ * RETURNS: Pointer in string or NULL
+ */
+
+char* strtok_r(
+    char *s,
+    const char *delim,
+    char **save_ptr
+    );
+
 #endif
 
 #ifdef __cplusplus
