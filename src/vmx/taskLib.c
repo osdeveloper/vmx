@@ -437,6 +437,9 @@ STATUS taskInit(
                 tcbId->taskStdFp[i] = NULL;
             }
 
+            /* Environment */
+            tcbId->ppEnviron = NULL;
+
             /* Initialize architecutre depedent stuff */
             taskRegsInit(tcbId, pStackBase);
 

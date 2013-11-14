@@ -54,6 +54,7 @@
 #define TASK_OPTIONS_UNBREAKABLE        0x0002
 #define TASK_OPTIONS_DEALLOC_STACK      0x0004
 #define TASK_OPTIONS_NO_STACK_FILL      0x0100
+#define TASK_OPTIONS_PRIVATE_ENV        0x0200
 
 #ifndef _ASMLANGUAGE
 
@@ -140,6 +141,11 @@ typedef struct taskTCB
 
     /* Select context */
     SEL_CONTEXT_ID selectContextId;
+
+    /* Environment */
+    char **ppEnviron;
+    int    envTableSize;
+    int    nEnvVarEntries;
 
     /* Class */
     OBJ_CORE objCore;

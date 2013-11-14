@@ -50,6 +50,7 @@
 #include <os/ffsLib.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
+#include <os/envShow.h>
 #include <os/erfLib.h>
 #include <util/listLib.h>
 #include <util/dllLib.h>
@@ -159,6 +160,10 @@ SYMBOL standTable[] =
   {NULL, "_itoa", itoa, 0, N_TEXT | N_EXT},
   {NULL, "_itox", itox, 0, N_TEXT | N_EXT},
   {NULL, "_rand", rand, 0, N_TEXT | N_EXT},
+
+  {NULL, "_getenv", getenv, 0, N_TEXT | N_EXT},
+  {NULL, "_putenv", putenv, 0, N_TEXT | N_EXT},
+  {NULL, "_envShow", envShow, 0, N_TEXT | N_EXT},
 
   /* string */
   {NULL, "_memchr", memchr, 0, N_TEXT | N_EXT},

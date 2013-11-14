@@ -63,6 +63,8 @@
 #include <os/pathLib.h>
 #include <os/logLib.h>
 #include <os/excLib.h>
+#include <os/envLib.h>
+#include <os/envShow.h>
 #include <os/erfLib.h>
 #include <os/pipeDrv.h>
 #include <ostool/shellLib.h>
@@ -248,6 +250,9 @@ LOCAL void usrRoot(
 #endif /* INCLUDE_LOG_STARTUP */
 
   erfLibInit(MAX_EVENT_CATEGORIES, MAX_EVENT_TYPES);
+
+  envLibInit(TRUE);
+  envShowInit();
 
   xbdLibInit(MAX_XBD_DEVICES);
   xbdPartitionLibInit();

@@ -212,6 +212,26 @@ void exit(
     int status
     );
 
+/******************************************************************************
+ * getenv - Get environment
+ *
+ * RETURNS: Pointer to value string or NULL
+ */
+
+char* getenv(
+    const char *name
+    );
+
+/******************************************************************************
+ * putenv - Put environment variable
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int putenv(
+    char *string
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

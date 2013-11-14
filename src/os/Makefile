@@ -23,7 +23,8 @@
 OBJS = objLib.o classLib.o classShow.o memPartLib.o memLib.o memShow.o \
        errnoLib.o ffsLib.o taskHookLib.o taskHookShow.o pathLib.o iosLib.o \
        iosShow.o ioLib.o dirLib.o tyLib.o logLib.o excLib.o symLib.o symShow.o \
-       uioLib.o unixLib.o selectLib.o erfLib.o nullDrv.o pipeDrv.o
+       uioLib.o unixLib.o selectLib.o erfLib.o envLib.o envShow.o nullDrv.o \
+       pipeDrv.o
 SUBDIRS =
 LIB_TGT = os
 
