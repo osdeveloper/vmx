@@ -228,7 +228,9 @@ void brelse (
     /* unlock */
     bp->b_flags &= ~(B_WANTED | B_BUSY | B_ASYNC);
 
+#ifdef investigate
     free (bp->b_bio);
+#endif
 }
 
 /***************************************************************************
