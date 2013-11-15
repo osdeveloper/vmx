@@ -48,6 +48,7 @@
 #include <os/taskHookShow.h>
 #include <os/iosLib.h>
 #include <os/iosShow.h>
+#include <os/logLib.h>
 #include <os/ffsLib.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
@@ -239,6 +240,9 @@ SYMBOL standTable[] =
   /* iosLib */
   {NULL, "_iosDevShow", iosDevShow, 0, N_TEXT | N_EXT},
   {NULL, "_iosFdShow", iosFdShow, 0, N_TEXT | N_EXT},
+
+  /* logLib */
+  {NULL, "_logMsg", logMsg, 0, N_TEXT | N_EXT},
 
   /* erfLib */
   {NULL, "_erfHandlerRegister", erfHandlerRegister, 0, N_TEXT | N_EXT},

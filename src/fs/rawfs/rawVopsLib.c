@@ -612,10 +612,15 @@ LOCAL int rawVopStrategy (
      * in rawFS.  Thus no translation is required between the two.
      */
 
+    pBio = pBuf->b_bio;
+
     if (pBuf->b_flags & B_READ) {
+        pBio->bio_flags = BIO_READ;
+    }
+    else {
+        pBio->bio_flags = BIO_WRITE;
     }
 
-    pBio = pBuf->b_bio;
     pBio->bio_blkno   = (pBuf->b_blkno << pVolDesc->secPerBlk2);
     pBio->bio_bcount  = pVolDesc->blkSize;
     pBio->bio_error   = OK;
@@ -625,6 +630,7 @@ LOCAL int rawVopStrategy (
 #endif
 
     xbdStrategy (pVolDesc->device, pBio);
+
 #ifdef fssync
     semTake (pFsDev->bioSem, WAIT_FOREVER);
 

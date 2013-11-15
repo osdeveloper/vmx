@@ -246,6 +246,67 @@ int eject(
     return (OK);
 }
 
+int fsTest1(
+    char *name,
+    int   num,
+    int   size
+    )
+{
+    int    i;
+    size_t pos, count;
+    int    bread;
+    int    fd;
+    char   c;
+    char  *buf;
+
+    if (num <= 0)
+    {
+        num = 1;
+    }
+
+    if (size <= 0)
+    {
+        size = 1024;
+    }
+
+    buf = malloc(size);
+    if (buf == NULL)
+    {
+        fprintf(stderr, "Unable to allocate memory\n");
+        return 1;
+    }
+
+    fd = open(name, O_RDWR, 0777);
+    if (fd == ERROR)
+    {
+        free(buf);
+        fprintf(stderr, "Unable to open file %s\n", name);
+        return 1;
+    }
+
+    for (i = 0, pos = 0; i < num; i++)
+    {
+        c = 'a' + i;
+        printf("Write: %c at: %d\n", c, (int) pos);
+        memset(buf, c, size);
+        lseek(fd, pos, SEEK_SET);
+        pos += write(fd, buf, size);
+        lseek(fd, 0, SEEK_SET);
+        for (count = 0, bread = 0; count < pos; count += bread)
+        {
+            memset(buf, 0, size);
+            bread = read(fd, buf, size);
+            write(STDOUT_FILENO, buf, bread);
+            getchar();
+        }
+    }
+
+    free(buf);
+    close(fd);
+
+    return 0;
+}
+
 void fsDemoInit(
     void
     )
@@ -258,7 +319,8 @@ void fsDemoInit(
         {NULL, "_geometry", geometry, 0, N_TEXT | N_EXT},
         {NULL, "_filestat", filestat, 0, N_TEXT | N_EXT},
         {NULL, "_format", format, 0, N_TEXT | N_EXT},
-        {NULL, "_eject", eject, 0, N_TEXT | N_EXT}
+        {NULL, "_eject", eject, 0, N_TEXT | N_EXT},
+        {NULL, "_fsTest1", fsTest1, 0, N_TEXT | N_EXT}
     };
 
     int i;
