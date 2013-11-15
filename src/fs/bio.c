@@ -117,6 +117,7 @@ int bread (
     if ((bp->b_flags & B_CACHE) == 0) {
         bp->b_flags |= B_READ;
         bp->b_flags &= ~(B_DONE | B_ERROR | B_INVAL);
+        bp->b_bio->bio_flags = BIO_READ;
 
         args.vp = vp;
         args.bp = bp;
@@ -159,6 +160,7 @@ int bwrite (
     }
 
     bp->b_flags &= ~(B_READ | B_DONE | B_ERROR);
+    bp->b_bio->bio_flags = BIO_WRITE;
 
     args.vp = bp->b_vp;
     args.bp = bp;
