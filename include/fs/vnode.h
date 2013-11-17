@@ -20,12 +20,6 @@
 
 /* vnode.h - vnode header file */
 
-/*
- * XXX
- * This file is definitely incomplete.  It is a work in progress.
- * XXX
- */
-
 #ifndef __VNODE_H
 #define __VNODE_H
 
@@ -48,35 +42,89 @@
 #define VNOVAL      -1
 
 /* macros */
-#define VOP_LOOKUP(vp, args)    (vp)->v_ops->lookup  ((args))
-#define VOP_CREATE(vp, args)    (vp)->v_ops->create   ((args))
-#define VOP_OPEN(vp, args)      (vp)->v_ops->open     ((args))
-#define VOP_CLOSE(vp, args)     (vp)->v_ops->close    ((args))
-#define VOP_ACCESS(vp, args)    (vp)->v_ops->access   ((args))
-#define VOP_READ(vp, args)      (vp)->v_ops->read     ((args))
-#define VOP_WRITE(vp, args)     (vp)->v_ops->write    ((args))
-#define VOP_IOCTL(vp, args)     (vp)->v_ops->ioctl    ((args))
-#define VOP_LINK(vp, args)      (vp)->v_ops->link     ((args))
-#define VOP_UNLINK(vp, args)    (vp)->v_ops->unlink   ((args))
-#define VOP_SYMLINK(vp, args)   (vp)->v_ops->symlink  ((args))
-#define VOP_READLINK(vp, args)  (vp)->v_ops->readlink ((args))
-#define VOP_MKDIR(vp, args)     (vp)->v_ops->mkdir    ((args))
-#define VOP_RMDIR(vp, args)     (vp)->v_ops->rmdir    ((args))
-#define VOP_READDIR(vp, args)   (vp)->v_ops->readdir  ((args))
-#define VOP_GETATTR(vp, args)   (vp)->v_ops->getattr  ((args))
-#define VOP_SETATTR(vp, args)   (vp)->v_ops->setattr  ((args))
-#define VOP_TRUNCATE(vp, args)  (vp)->v_ops->truncate ((args))
-#define VOP_FSYNC(vp, args)     (vp)->v_ops->fsync    ((args))
-#define VOP_ACTIVATE(vp, args)  (vp)->v_ops->activate ((args))
-#define VOP_INACTIVE(vp, args)  (vp)->v_ops->inactive ((args))
-#define VOP_PATHCONF(vp, args)  (vp)->v_ops->pathconf ((args))
-#define VOP_SEEK(vp, args)      (vp)->v_ops->seek     ((args))
-#define VOP_RENAME(vp, args)    (vp)->v_ops->rename   ((args))
-#define VOP_ABORT(vp, args)     (vp)->v_ops->abort    ((args))
-#define VOP_STRATEGY(vp, args)  (vp)->v_ops->strategy ((args))
-#define VOP_PRINT(vp, args)     (vp)->v_ops->print    ((args))
+#define VOP_LOOKUP(dvp, vpp, cnp) \
+    (dvp)->v_ops->vop_lookup ((dvp), (vpp), (cnp))
 
-#define VTODATA(type, vp)       ((type *) (vp)->v_data)
+#define VOP_CREATE(dvp, vpp, cnp, vap) \
+    (dvp)->v_ops->vop_create ((dvp), (vpp), (cnp), (vap))
+
+#define VOP_OPEN(vp, mode, ucp) \
+    (vp)->v_ops->vop_open ((vp), (mode), (ucp))
+
+#define VOP_CLOSE(vp, flags, ucp) \
+    (vp)->v_ops->vop_close ((vp), (flags), (ucp))
+
+#define VOP_ACCESS(vp, mode, ucp) \
+    (vp)->v_ops->vop_access ((vp), (mode), (ucp))
+
+#define VOP_READ(vp, uio, ioflag, ucp) \
+    (vp)->v_ops->vop_read ((vp), (uio), (ioflag), (ucp))
+
+#define VOP_WRITE(vp, uio, ioflag, ucp) \
+    (vp)->v_ops->vop_write ((vp), (uio), (ioflag), (ucp))
+
+#define VOP_IOCTL(vp, cmd, data, fflag, ucp) \
+    (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
+
+#define VOP_LINK(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_link ((dvp), (vp), (cnp))
+
+#define VOP_REMOVE(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_remove ((dvp), (vp), (cnp))
+
+#define VOP_SYMLINK(dvp, vpp, cnp, vap, tgt) \
+    (dvp)->v_ops->vop_symlink((dvp), (vpp), (cnp), (vap), (tgt))
+
+#define VOP_READLINK(vp, uio, ucp) \
+    (vp)->v_ops->vop_readlink ((vp), (uio), (ucp))
+
+#define VOP_MKDIR(dvp, vpp, cnp, vap) \
+    (dvp)->v_ops->vop_mkdir ((dvp), (vpp), (cnp), (vap))
+
+#define VOP_RMDIR(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_rmdir ((dvp), (vp), (cnp))
+
+#define VOP_READDIR(vp, dep, ucp, eof, ncookies, cookies) \
+    (vp)->v_ops->vop_readdir ((vp), (dep), (ucp), (eof), (ncookies), (cookies))
+
+#define VOP_GETATTR(vp, vap, ucp) \
+    (vp)->v_ops->vop_getattr ((vp), (vap), (ucp))
+
+#define VOP_SETATTR(vp, vap, ucp) \
+    (vp)->v_ops->setattr ((vp), (vap), (ucp))
+
+#define VOP_TRUNCATE(vp, len, flags, ucp) \
+    (vp)->v_ops->vop_truncate ((vp), (len), (flags), (ucp))
+
+#define VOP_FSYNC(vp, ucp, flags) \
+    (vp)->v_ops->vop_fsync ((vp), (ucp), (flags))
+
+#define VOP_ACTIVATE(vp) \
+    (vp)->v_ops->vop_activate ((vp))
+
+#define VOP_INACTIVE(vp) \
+    (vp)->v_ops->vop_inactive ((vp))
+
+#define VOP_PATHCONF(vp, name, rv) \
+    (vp)->v_ops->vop_pathconf ((vp), (name), (rv))
+
+#define VOP_SEEK(vp, off1, off2, ucp) \
+    (vp)->v_ops->vop_seek ((vp), (off1), (off2), (ucp))
+
+#define VOP_RENAME(fdvp, fvp, fcnp, tdvp, tvp, tcnp) \
+    (fdvp)->v_ops->vop_rename ((fdvp), (fvp), (fcnp), (tdvp), (tvp), (tcnp))
+
+#define VOP_ABORT(vp, cnp) \
+    (vp)->v_ops->vop_abort ((vp), (cnp))
+
+#define VOP_STRATEGY(vp, bp) \
+    (vp)->v_ops->vop_strategy ((vp), (bp))
+
+#define VOP_PRINT(vp) \
+    (vp)->v_ops->vop_print ((vp))
+
+#define VTODATA(type, vp) \
+    ((type *) (vp)->v_data)
 
 /* enums */
 
@@ -94,6 +142,8 @@ enum vtype {
 /* structs */
 
 struct mount;
+struct dirent;
+struct buf;
 
 /* typedefs */
 
@@ -126,210 +176,176 @@ typedef struct vattr {
     unsigned         va_filerev;      /* file revision # */
 } vattr_t;
 
-/*
- * The arguments to the various vnode operator methods have their own types.
- * Should new parameters need to be added to a particular type in the future,
- * this should hopefully minimize the amount of retro-fitting.
- */
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode **         vpp;   /* retrieved vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-} lookup_args_t;
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode **         vpp;   /* created vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-    struct vattr *          vap;   /* vnode attributes pointer */
-} create_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    int             mode;          /* mode */
-    struct ucred *  ucp;           /* user credentials pointer */
-} open_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    int             flags;         /* flags */
-    struct ucred *  ucp;           /* user credentials pointer */
-} close_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    int             mode;          /* mode */
-    struct ucred *  ucp;           /* user credentials pointer */
-} access_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct uio *    uio;           /* user IO pointer */
-    int             ioflag;        /* IO flags */
-    struct ucred *  ucp;           /* user credentials pointer */
-} read_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct uio *    uio;           /* user IO pointer */
-    int             ioflag;        /* IO flags */
-    struct ucred *  ucp;           /* user credentials pointer */
-} write_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    u_long          cmd;           /* device specific command */
-    void *          data;          /* extra data */
-    int             fflag;         /* flags */
-    struct ucred *  ucp;           /* user credentials pointer */
-} ioctl_args_t;
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode *          vp;    /* file vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-} link_args_t;
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode *          vp;    /* file vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-} unlink_args_t;
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode **         vpp;   /* created vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-    struct vattr *          vap;   /* vnode attributes pointer */
-    char *                  tgt;   /* ptr to target path string */
-} symlink_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct uio *    uio;           /* user IO pointer */
-    struct ucred *  ucp;           /* user credentials pointer */
-} readlink_args_t;
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode **         vpp;   /* created vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-    struct vattr *          vap;   /* vnode attributes pointer */
-} mkdir_args_t;
-
-typedef struct {
-    struct vnode *          dvp;   /* directory vnode pointer */
-    struct vnode *          vp;    /* file vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-} rmdir_args_t;
-
-typedef struct {
-    struct vnode *   dvp;          /* directory vnode pointer */
-    struct dirent *  dep;          /* directory entry pointer */
-    struct ucred *   ucp;          /* user credentials pointer */
-    int *            eof;          /* end of file status */
-    int *            nCookies;     /* number of cookies */
-    u_long *         cookies;      /* cookies */
-} readdir_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct vattr *  vap;           /* vnode attributes pointer */
-    struct ucred *  ucp;           /* user credentials pointer */
-} getattr_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct vattr *  vap;           /* vnode attributes pointer */
-    struct ucred *  ucp;           /* user credentials pointer */
-} setattr_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    off_t           len;           /* new length of the file */
-    int             flags;         /* flags */
-    struct ucred *  ucp;           /* user credentials pointer */
-} truncate_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct ucred *  ucp;           /* user credentials pointer */
-    int             flags;         /* flags */
-} fsync_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-} activate_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-} inactive_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    int             name;          /* type of info to return */
-    int *           rv;            /* return value */
-} pathconf_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    off_t           off1;          /* old offset */
-    off_t           off2;          /* new offset */
-    struct ucred *  ucp;           /* user credentials pointer */
-} seek_args_t;
-
-typedef struct {
-    struct vnode *          fdvp;  /* from directory vnode pointer */
-    struct vnode *          fvp;   /* from file vnode pointer */
-    struct componentname *  fcnp;  /* from path name component pointer */
-    struct vnode *          tdvp;  /* to directory vnode pointer */
-    struct vnode *          tvp;   /* to file vnode pointer */
-    struct componentname *  tcnp;  /* to path name component pointer */
-} rename_args_t;
-
-typedef struct {
-    struct vnode *          vp;    /* file vnode pointer */
-    struct componentname *  cnp;   /* path name component pointer */
-} abort_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-    struct buf *    bp;            /* buffer pointer */
-} strategy_args_t;
-
-typedef struct {
-    struct vnode *  vp;            /* file vnode pointer */
-} print_args_t;
-
 typedef struct vnode_ops {
-    int  (*lookup)   (lookup_args_t);
-    int  (*create)   (create_args_t);
-    int  (*open)     (open_args_t);
-    int  (*close)    (close_args_t);
-    int  (*access)   (access_args_t);
-    int  (*read)     (read_args_t);
-    int  (*write)    (write_args_t);
-    int  (*ioctl)    (ioctl_args_t);
-    int  (*link)     (link_args_t);
-    int  (*unlink)   (unlink_args_t);
-    int  (*symlink)  (symlink_args_t);
-    int  (*readlink) (readlink_args_t);
-    int  (*mkdir)    (mkdir_args_t);
-    int  (*rmdir)    (rmdir_args_t);
-    int  (*readdir)  (readdir_args_t);
-    int  (*getattr)  (getattr_args_t);
-    int  (*setattr)  (setattr_args_t);
-    int  (*truncate) (truncate_args_t);
-    int  (*fsync)    (fsync_args_t);
-    int  (*activate) (activate_args_t);
-    int  (*inactive) (inactive_args_t);
-    int  (*pathconf) (pathconf_args_t);
-    int  (*seek)     (seek_args_t);
-    int  (*rename)   (rename_args_t);
-    int  (*abort)    (abort_args_t);
-    int  (*strategy) (strategy_args_t);
-    int  (*print)    (print_args_t);
+    int (*vop_lookup) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode **         vpp,   /* retrieved vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
+        );
+
+    int (*vop_create) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode **         vpp,   /* created vnode pointer */
+        struct componentname *  cnp,   /* path name component pointer */
+        struct vattr *          vap    /* vnode attributes pointer */
+        );
+
+    int (*vop_open) (
+        struct vnode *  vp,            /* file vnode pointer */
+        int             mode,          /* mode */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_close) (
+        struct vnode *  vp,            /* file vnode pointer */
+        int             flags,         /* flags */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_access) (
+        struct vnode *  vp,            /* file vnode pointer */
+        int             mode,          /* mode */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_read) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct uio *    uio,           /* user IO pointer */
+        int             ioflag,        /* IO flags */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_write) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct uio *    uio,           /* user IO pointer */
+        int             ioflag,        /* IO flags */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_ioctl) (
+        struct vnode *  vp,            /* file vnode pointer */
+        u_long          cmd,           /* device specific command */
+        void *          data,          /* extra data */
+        int             fflag,         /* flags */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_link) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode *          vp,    /* file vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
+        );
+
+    int (*vop_remove) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode *          vp,    /* file vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
+        );
+
+    int (*vop_symlink) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode **         vpp,   /* created vnode pointer */
+        struct componentname *  cnp,   /* path name component pointer */
+        struct vattr *          vap,   /* vnode attributes pointer */
+        char *                  tgt    /* ptr to target path string */
+        );
+
+    int (*vop_readlink) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct uio *    uio,           /* user IO pointer */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_mkdir) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode **         vpp,   /* created vnode pointer */
+        struct componentname *  cnp,   /* path name component pointer */
+        struct vattr *          vap    /* vnode attributes pointer */
+        );
+
+    int (*vop_rmdir) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode *          vp,    /* file vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
+        );
+
+    int (*vop_readdir) (
+        struct vnode *   vp,           /* directory vnode pointer */
+        struct dirent *  dep,          /* directory entry pointer */
+        struct ucred *   ucp,          /* user credentials pointer */
+        int *            eof,          /* end of file status */
+        int *            ncookies,     /* number of cookies */
+        u_long **        cookies       /* cookies */
+        );
+
+    int (*vop_getattr) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct vattr *  vap,           /* vnode attributes pointer */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_setattr) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct vattr *  vap,           /* vnode attributes pointer */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_truncate) (
+        struct vnode *  vp,            /* file vnode pointer */
+        off_t           len,           /* new length of the file */
+        int             flags,         /* flags */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_fsync) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct ucred *  ucp,           /* user credentials pointer */
+        int             flags          /* flags */
+        );
+
+    int (*vop_activate) (
+        struct vnode *  vp             /* file vnode pointer */
+        );
+
+    int (*vop_inactive) (
+        struct vnode *  vp             /* file vnode pointer */
+        );
+
+    int (*vop_pathconf) (
+        struct vnode *  vp,            /* file vnode pointer */
+        int             name,          /* type of info to return */
+        int *           rv             /* return value */
+        );
+
+    int (*vop_seek) (
+        struct vnode *  vp,            /* file vnode pointer */
+        off_t           off1,          /* old offset */
+        off_t           off2,          /* new offset */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_rename) (
+        struct vnode *          fdvp,  /* from directory vnode pointer */
+        struct vnode *          fvp,   /* from file vnode pointer */
+        struct componentname *  fcnp,  /* from path name component pointer */
+        struct vnode *          tdvp,  /* to directory vnode pointer */
+        struct vnode *          tvp,   /* to file vnode pointer */
+        struct componentname *  tcnp   /* to path name component pointer */
+        );
+
+    int (*vop_abort) (
+        struct vnode *          vp,    /* file vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
+        );
+
+    int (*vop_strategy) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct buf *    bp             /* buffer pointer */
+        );
+
+    int (*vop_print) (
+        struct vnode *  vp             /* file vnode pointer */
+        );
 } vnode_ops_t;
 
 typedef struct vnode {

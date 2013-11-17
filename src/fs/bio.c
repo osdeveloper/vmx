@@ -108,7 +108,6 @@ int bread (
     struct buf **bpp
     ) {
     struct buf *bp;
-    strategy_args_t args;
 
     bp = buf_getblk (vp, blkno, size);
     *bpp = bp;
@@ -119,9 +118,7 @@ int bread (
         bp->b_flags &= ~(B_DONE | B_ERROR | B_INVAL);
         bp->b_bio->bio_flags = BIO_READ;
 
-        args.vp = vp;
-        args.bp = bp;
-        VOP_STRATEGY (vp, args);
+        VOP_STRATEGY (vp, bp);
         
         return (buf_wait (bp));
     }
@@ -142,7 +139,6 @@ int bread (
 int bwrite (
     struct buf *bp
     ) {
-    strategy_args_t args;
     int rtval;
     int oldflags = bp->b_flags;
 
@@ -162,9 +158,7 @@ int bwrite (
     bp->b_flags &= ~(B_READ | B_DONE | B_ERROR);
     bp->b_bio->bio_flags = BIO_WRITE;
 
-    args.vp = bp->b_vp;
-    args.bp = bp;
-    VOP_STRATEGY (bp->b_vp, args);
+    VOP_STRATEGY (bp->b_vp, bp);
 
     if ((oldflags & B_ASYNC) == 0) {
         rtval = buf_wait (bp);

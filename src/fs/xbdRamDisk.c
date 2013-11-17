@@ -24,6 +24,7 @@
 #include <vmx.h>
 #include <vmx/semLib.h>
 #include <os/erfLib.h>
+#include <os/logLib.h>
 
 #include <fs/xbd.h>
 #include <fs/bio.h>
@@ -224,12 +225,30 @@ LOCAL int xbdRamDiskStrategy (
         for (bio = pBio; bio != NULL; bio = bio->bio_chain) {
             pData = xbdRamDisk->data +
                     (bio->bio_blkno * xbdRamDisk->xbd.blkSize);
+#ifdef DIAGNOSTIC
+            logMsg("Rd:\t%d\t%d\t%x\n",
+                   (ARG) (int) bio->bio_blkno,
+                   (ARG) (int) bio->bio_bcount,
+                   (ARG) pData,
+                   (ARG) 0,
+                   (ARG) 0,
+                   (ARG) 0);
+#endif
             memcpy  (bio->bio_data, pData, bio->bio_bcount);
         }
     } else {
         for (bio = pBio; bio != NULL; bio = bio->bio_chain) {
             pData = xbdRamDisk->data +
                     (bio->bio_blkno * xbdRamDisk->xbd.blkSize);
+#ifdef DIAGNOSTIC
+            logMsg("Wr:\t%d\t%d\t%x\n",
+                   (ARG) (int) bio->bio_blkno,
+                   (ARG) (int) bio->bio_bcount,
+                   (ARG) pData,
+                   (ARG) 0,
+                   (ARG) 0,
+                   (ARG) 0);
+#endif
             memcpy  (pData, bio->bio_data, bio->bio_bcount);
         }
     }

@@ -85,16 +85,14 @@ int  vnioReadlink (
     int *           bytesRead
     ) {
     struct vattr     va;
-    getattr_args_t   getAttrArgs;
-    readlink_args_t  readlinkArgs;
     struct uio       uio;
     int              error;
 
-    getAttrArgs.vp  = vp;
-    getAttrArgs.vap = &va;
-    getAttrArgs.ucp = NULL;   /* Not yet supported. */
-
-    error = VOP_GETATTR (vp, getAttrArgs);
+    error = VOP_GETATTR (
+                vp,
+                &va,
+                NULL    /* Not yet supported. */
+                );
     if (error != OK) {
         return (error);
     }
@@ -105,11 +103,11 @@ int  vnioReadlink (
     uio.uio_resid  = va.va_size;
     uio.uio_rw     = UIO_READ;
 
-    readlinkArgs.vp  = vp;
-    readlinkArgs.uio = &uio;
-    readlinkArgs.ucp = NULL;   /* Not yet supported. */
-
-    error = VOP_READLINK (vp, readlinkArgs);
+    error = VOP_READLINK (
+                vp,
+                &uio,
+                NULL    /* Not yet supported. */
+                );
     if (error != OK) {
         return (error);
     }
@@ -127,8 +125,6 @@ int  vnioReadlink (
 int  lookup (
     nameidata_t *  nidp
     ) {
-    readlink_args_t    readlinkArgs;
-    lookup_args_t      args;
     componentname_t *  cnp;
     int     len;
     int     increment;
@@ -177,10 +173,11 @@ int  lookup (
         }
     }
 
-    args.dvp = nidp->ni_dvp;
-    args.vpp = &nidp->ni_vp;
-    args.cnp = cnp;
-    error = VOP_LOOKUP (nidp->ni_dvp, args);
+    error = VOP_LOOKUP(
+                nidp->ni_dvp,
+                &nidp->ni_vp,
+                cnp
+                );
 
 #ifdef optional
     if (cnp->cn_flags & CN_ISDOTDOT) {
@@ -462,7 +459,6 @@ int vnioMkdir (
     int            oflags, /* not used */
     int            error
     ) {
-    mkdir_args_t  args;
     vattr_t       vattr;
     mount_t *     mp;
 
@@ -481,13 +477,12 @@ int vnioMkdir (
     vattr.va_type = VDIR;
     vattr.va_mode = mode;
 
-    args.dvp = nidp->ni_dvp;
-    args.vpp = &fdp->fd_vnode;
-    args.cnp = &nidp->ni_cn;
-    args.vap = &vattr;
-
-    error = VOP_MKDIR (nidp->ni_dvp, args);
-
+    error = VOP_MKDIR (
+                nidp->ni_dvp,
+                &fdp->fd_vnode,
+                &nidp->ni_cn,
+                &vattr
+                );
     if (error != OK) {
         goto errorReturn;
     }
@@ -521,7 +516,6 @@ int vnioSymlink (
     int            oflags, /* not used */
     int            error
     ) {
-    symlink_args_t  args;
     vattr_t         vattr;
     mount_t *       mp;
 
@@ -540,14 +534,13 @@ int vnioSymlink (
     vattr.va_type = VLNK;
     vattr.va_mode = mode;
 
-    args.dvp = nidp->ni_dvp;
-    args.vpp = &fdp->fd_vnode;
-    args.cnp = &nidp->ni_cn;
-    args.vap = &vattr;
-    args.tgt = tgt;
-
-    error = VOP_SYMLINK (nidp->ni_dvp, args);
-
+    error = VOP_SYMLINK (
+                nidp->ni_dvp,
+                &fdp->fd_vnode,
+                &nidp->ni_cn,
+                &vattr,
+                tgt
+                );
     if (error != OK) {
         goto errorReturn;
     }
@@ -581,9 +574,6 @@ int vnioCreate (
     int            oflags, /* not used */
     int            error
     ) {
-    create_args_t    createArgs;
-    open_args_t      openArgs;
-    truncate_args_t  truncateArgs;
     vattr_t          vattr;
     BOOL             doesNotExist;
     mount_t *        mp;
@@ -606,34 +596,34 @@ int vnioCreate (
     vattr.va_mode = mode & 0777;
 
     if (doesNotExist) {
-        createArgs.dvp = nidp->ni_dvp;
-        createArgs.vpp = &fdp->fd_vnode;
-        createArgs.cnp = &nidp->ni_cn;
-        createArgs.vap = &vattr;
-
-        error = VOP_CREATE (nidp->ni_dvp, createArgs);
+        error = VOP_CREATE (
+                    nidp->ni_dvp,
+                    &fdp->fd_vnode,
+                    &nidp->ni_cn,
+                    &vattr
+                    );
         if (error != OK) {
             goto errorReturn;
         }
 
         /* Store created file vnode */
-        nidp->ni_vp = *createArgs.vpp;
+        nidp->ni_vp = fdp->fd_vnode;
     } else {
         fdp->fd_vnode = nidp->ni_vp;
-        openArgs.vp   = nidp->ni_vp;
-        openArgs.mode = mode;
-        openArgs.ucp  = NULL;
-
-        error = VOP_OPEN (nidp->ni_vp, openArgs);
+        error = VOP_OPEN (
+                    nidp->ni_vp,
+                    mode,
+                    NULL           /* Not supported yet */
+                    );
     }
 
     if ((error == OK) && (oflags & O_TRUNC)) {
-        truncateArgs.vp    = nidp->ni_vp;
-        truncateArgs.len   = 0;
-        truncateArgs.flags = 0;     /* XXX: change later */
-        truncateArgs.ucp   = NULL;
-            
-        error = VOP_TRUNCATE (nidp->ni_vp, truncateArgs);
+        error = VOP_TRUNCATE (
+                    nidp->ni_vp,
+                    0,
+                    0,             /* XXX: change later */
+                    NULL           /* Not supported yet */
+                    );
     }
 
     if (error != OK) {
@@ -673,7 +663,6 @@ int vnioOpen (
     int            error
     ) {
     mount_t *      mp;
-    open_args_t    openArgs;
 
     mp = nidp->ni_dvp->v_mount;
 
@@ -707,12 +696,11 @@ int vnioOpen (
     }
 
     fdp->fd_vnode = nidp->ni_vp;
-    openArgs.vp   = nidp->ni_vp;
-    openArgs.mode = mode;
-    openArgs.ucp  = NULL;
-
-    error = VOP_OPEN (nidp->ni_vp, openArgs);
-
+    error = VOP_OPEN (
+                nidp->ni_vp,
+                mode,
+                NULL
+                );
     if (error != OK) {
         goto errorReturn;
     }
@@ -750,7 +738,6 @@ int vnioRmdir (
     int            error
     ) {
     mount_t *     mp;
-    rmdir_args_t  args;
 
     mp = nidp->ni_dvp->v_mount;
 
@@ -765,11 +752,11 @@ int vnioRmdir (
     }
 
     fdp->fd_vnode = nidp->ni_vp;
-    args.dvp      = nidp->ni_dvp;
-    args.vp       = nidp->ni_vp;
-    args.cnp      = &nidp->ni_cn;
-
-    error = VOP_RMDIR (nidp->ni_vp, args);
+    error = VOP_RMDIR (
+                nidp->ni_dvp,
+                nidp->ni_vp,
+                &nidp->ni_cn
+                );
 
     vnodeUnlock (nidp->ni_vp);
 
@@ -796,8 +783,6 @@ int vnioRemove (
     int            error
     ) {
     mount_t *      mp;
-    rmdir_args_t   rmdirArgs;
-    unlink_args_t  unlinkArgs;
 
     mp = nidp->ni_dvp->v_mount;
 
@@ -809,17 +794,19 @@ int vnioRemove (
 
     switch (nidp->ni_vp->v_type) {
     case VDIR:
-        rmdirArgs.dvp = nidp->ni_dvp;
-        rmdirArgs.vp  = nidp->ni_vp;
-        rmdirArgs.cnp = &nidp->ni_cn;
-        error = VOP_RMDIR (nidp->ni_vp, rmdirArgs);
+        error = VOP_RMDIR (
+                    nidp->ni_dvp,
+                    nidp->ni_vp,
+                    &nidp->ni_cn
+                    );
         break;
     case VREG:
     case VLNK:
-        unlinkArgs.dvp = nidp->ni_dvp;
-        unlinkArgs.vp  = nidp->ni_vp;
-        unlinkArgs.cnp = &nidp->ni_cn;
-        error = VOP_UNLINK (nidp->ni_vp, unlinkArgs);
+        error = VOP_REMOVE (
+                    nidp->ni_dvp,
+                    nidp->ni_vp,
+                    &nidp->ni_cn
+                    );
         if (error == OK) {
             nidp->ni_vp->v_flags |= V_DELETED;
             /*
@@ -919,7 +906,6 @@ int  vncioClose (
     ) {
     mount_t *    mp;
     vnode_t *    vp;
-    close_args_t args;
     int          error;
 
     mp = pFileDesc->fd_vnode->v_mount;
@@ -936,10 +922,11 @@ int  vncioClose (
      * <vp> will have to be written to the backing media.
      */
 
-    args.vp = vp;
-    args.flags = 0;
-    args.ucp = NULL;
-    error = VOP_CLOSE (args.vp, args);
+    error = VOP_CLOSE (
+                vp,
+                0,
+                NULL      /* Not supported yet */
+                );
 
     vnodeUnlock (vp);     /* unlock (and mark as inactive if necessary) */
 
@@ -1038,7 +1025,6 @@ int vncioRead (
     void *       buffer,        /* buffer into which to read data */
     int          maxBytes       /* maximum # of bytes to read */
     ) {
-    read_args_t   args;
     struct uio    uio;
     struct iovec  iovec;
     mount_t *     mp;
@@ -1060,15 +1046,13 @@ int vncioRead (
     uio.uio_resid  = maxBytes;
     uio.uio_rw     = UIO_READ;
 
-    args.vp = pFileDesc->fd_vnode;
-    args.uio = &uio;
-    args.ioflag = 0;                /* Not used (yet) */
-    args.ucp = NULL;                /* Not used (yet) */
-
     mountLock (mp);
-
-    error = VOP_READ (args.vp, args);
-
+    error = VOP_READ (
+                pFileDesc->fd_vnode,
+                &uio,
+                0,                 /* Not used (yet) */
+                NULL               /* Not used (yet) */
+                );
     mountUnlock (mp);
 
     if (error != OK) {
@@ -1096,7 +1080,6 @@ int vncioWrite (
     void *       buffer,       /* buffer containing data to be written */
     int          maxBytes      /* maximum # of bytes to write */
     ) {
-    write_args_t  args;
     struct uio    uio;
     struct iovec  iovec;
     mount_t *  mp;
@@ -1118,15 +1101,13 @@ int vncioWrite (
     uio.uio_resid  = maxBytes;
     uio.uio_rw     = UIO_WRITE;
 
-    args.vp = pFileDesc->fd_vnode;
-    args.uio = &uio;
-    args.ioflag = 0;                /* Not used (yet) */
-    args.ucp = NULL;                /* Not used (yet) */
-
     mountLock (mp);
-
-    error = VOP_WRITE (args.vp, args);
-
+    error = VOP_WRITE (
+                pFileDesc->fd_vnode,
+                &uio,
+                0,                 /* Not used (yet) */
+                NULL               /* Not used (yet) */
+                );
     mountUnlock (mp);
 
     if (error != OK) {
@@ -1158,13 +1139,6 @@ int vncioIoctl (
     int              rv;
     int              eof;
     int              bytesRead;
-    getattr_args_t   getAttrArgs;
-    fsync_args_t     fsyncArgs;
-    readlink_args_t  readlinkArgs;
-    pathconf_args_t  pathconfArgs;
-    truncate_args_t  truncateArgs;
-    readdir_args_t   readdirArgs;
-    ioctl_args_t     ioctlArgs;
     vattr_t          vattr;
     off_t            offset;
     struct stat *    pStat;
@@ -1185,11 +1159,13 @@ int vncioIoctl (
              * Get the current file size from the file attributes.
              */
 
-            getAttrArgs.vp  = pFileDesc->fd_vnode;
-            getAttrArgs.vap = &vattr;
-            getAttrArgs.ucp = NULL;   /* Not yet supported. */
             mountLock (mp);
-            error = VOP_GETATTR (pFileDesc->fd_vnode, getAttrArgs);
+            error = VOP_GETATTR (
+                        pFileDesc->fd_vnode,
+                        &vattr,
+                        NULL       /* Not yet supported. */
+                        );
+
             mountUnlock (mp);
             if (error != OK) {
                 break;
@@ -1206,11 +1182,12 @@ int vncioIoctl (
              * Flush any unwritten data to the backing media.
              */
 
-             fsyncArgs.vp    = pFileDesc->fd_vnode;
-             fsyncArgs.ucp   = NULL;  /* Not yet supported. */
-             fsyncArgs.flags = 0;
              mountLock (mp);
-             error = VOP_FSYNC (pFileDesc->fd_vnode, fsyncArgs);
+             error = VOP_FSYNC (
+                         pFileDesc->fd_vnode,
+                         NULL,     /* Not yet supported. */
+                         0
+                         );
              mountUnlock (mp);
              break;
 
@@ -1252,12 +1229,12 @@ int vncioIoctl (
                 break;
             }
 
-            getAttrArgs.vp  = pFileDesc->fd_vnode;
-            getAttrArgs.vap = &vattr;
-            getAttrArgs.ucp = NULL;   /* Not yet supported. */
-
             mountLock (mp);
-            error = VOP_GETATTR (pFileDesc->fd_vnode, getAttrArgs);
+            error = VOP_GETATTR (
+                      pFileDesc->fd_vnode,
+                      &vattr,
+                      NULL     /* Not yet supported. */
+                      );
             mountUnlock (mp);
             if (error != OK) {
                 break;
@@ -1308,11 +1285,11 @@ int vncioIoctl (
              * be necessary to use VFS_TRANS_START().
              */
 
-             pathconfArgs.vp   = pFileDesc->fd_vnode;
-             pathconfArgs.name = (int) arg;
-             pathconfArgs.rv   = &rv;
- 
-             error = VOP_PATHCONF (pFileDesc->fd_vnode, pathconfArgs);
+             error = VOP_PATHCONF (
+                         pFileDesc->fd_vnode,
+                         (int) arg,
+                         &rv
+                         );
              break;
 
         case FIOTRUNCATE:
@@ -1331,13 +1308,13 @@ int vncioIoctl (
                 break;
             }
 
-            truncateArgs.vp    = pFileDesc->fd_vnode;
-            truncateArgs.len   = offset;
-            truncateArgs.flags = 0;   /* Change when writable check added. */
-            truncateArgs.ucp   = NULL;
-
             mountLock (mp);
-            error = VOP_TRUNCATE (pFileDesc->fd_vnode, truncateArgs);
+            error = VOP_TRUNCATE (
+                        pFileDesc->fd_vnode,
+                        offset,
+                        0,     /* Change when writable check added. */
+                        NULL
+                        );
             mountUnlock (mp);
             break;
 
@@ -1353,15 +1330,14 @@ int vncioIoctl (
              */
 
             eof = 0;
-            readdirArgs.dvp = pFileDesc->fd_vnode;
-            readdirArgs.dep = (struct dirent *) arg;
-            readdirArgs.ucp = NULL;
-            readdirArgs.eof = &eof;
-            readdirArgs.nCookies = &pFileDesc->fd_num_cookies;
-            readdirArgs.cookies = pFileDesc->fd_cookie_data;
-
-            error = VOP_READDIR (pFileDesc->fd_vnode, readdirArgs);
-
+            error = VOP_READDIR (
+                        pFileDesc->fd_vnode,
+                        (struct dirent *) arg,
+                        NULL,
+                        &eof,
+                        &pFileDesc->fd_num_cookies,
+                        &pFileDesc->fd_cookie_data
+                        );
             if (error != OK) {
                 errnoSet (error);
                 return (ERROR);
@@ -1372,12 +1348,13 @@ int vncioIoctl (
         default:
             mountLock (mp);
             VFS_TRANS_START (mp, FALSE);   /* transaction does not write */
-            ioctlArgs.vp    = pFileDesc->fd_vnode;
-            ioctlArgs.cmd   = command;
-            ioctlArgs.data  = arg;
-            ioctlArgs.fflag = 0;     /* Eventually will need file flags */
-            ioctlArgs.ucp   = NULL;
-            error = VOP_IOCTL (pFileDesc->fd_vnode, ioctlArgs);
+            error = VOP_IOCTL (
+                        pFileDesc->fd_vnode,
+                        command,
+                        arg,
+                        0,     /* Eventually will need file flags */
+                        NULL
+                        );
             VFS_TRANS_END (mp, error);
             mountUnlock (mp);
             break;

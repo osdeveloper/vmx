@@ -110,7 +110,6 @@ STATUS vnodeLock (
 STATUS vnodeUnlock (
     vnode_t *  pVnode
     ) {
-    inactive_args_t  inactiveArgs;
     int              error = OK;
 
     /*
@@ -120,9 +119,7 @@ STATUS vnodeUnlock (
      */
 
     if (--pVnode->v_count == 0) {
-        inactiveArgs.vp = pVnode;
-
-        error = VOP_INACTIVE (pVnode, inactiveArgs);
+        error = VOP_INACTIVE (pVnode);
 
         /* Not concerned with <error> result yet. */
     }
@@ -147,7 +144,6 @@ int vgetino (
     int  error;
     LIST_NODE *  pNode;
     vnode_t *    pVnode;
-    activate_args_t  activateArgs;
 
     mountLock (pMount);   /* Lock the mount structures' access */
 
@@ -196,8 +192,7 @@ int vgetino (
      * VOP_ACTIVATE() is responsible for setting [v_type] in <pVnode>.
      */
 
-    activateArgs.vp = pVnode;
-    error = VOP_ACTIVATE (pVnode, activateArgs);    /* Activate the vnode */
+    error = VOP_ACTIVATE (pVnode);    /* Activate the vnode */
     if (error != OK) {
         pVnode->v_inode = 0;          /* No FS inode # is ever 0. */
         mountUnlock (pMount);

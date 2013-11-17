@@ -39,43 +39,201 @@
 /* typedefs */
 
 /* forward declarations */
-LOCAL int rt11VopLookup (lookup_args_t args);
-LOCAL int rt11VopCreate (create_args_t  args);
-LOCAL int rt11VopOpen (open_args_t  args);
-LOCAL int rt11VopClose (close_args_t args);
-LOCAL int rt11VopAccess (access_args_t args);
-LOCAL int rt11VopRead (read_args_t args);
-LOCAL int rt11VopWrite (write_args_t args);
-LOCAL int rt11VopIoctl (ioctl_args_t args);
-LOCAL int rt11VopLink (link_args_t args);
-LOCAL int rt11VopUnlink (unlink_args_t args);
-LOCAL int rt11VopSymlink (symlink_args_t args);
-LOCAL int rt11VopReadlink (readlink_args_t args);
-LOCAL int rt11VopMkdir (mkdir_args_t args);
-LOCAL int rt11VopRmdir (rmdir_args_t args);
-LOCAL int rt11VopReaddir (readdir_args_t args);
-LOCAL int rt11VopGetAttr (getattr_args_t args);
-LOCAL int rt11VopSetAttr (setattr_args_t args);
-LOCAL int rt11VopTruncate (truncate_args_t args);
-LOCAL int rt11VopFsync (fsync_args_t args);
-LOCAL int rt11VopActivate (activate_args_t args);
-LOCAL int rt11VopInactive (inactive_args_t args);
-LOCAL int rt11VopPathconf (pathconf_args_t args);
-LOCAL int rt11VopSeek (seek_args_t args);
-LOCAL int rt11VopRename (rename_args_t args);
-LOCAL int rt11VopAbort (abort_args_t args);
-LOCAL int rt11VopStrategy (strategy_args_t args);
-LOCAL int rt11VopPrint (print_args_t args);
+LOCAL int rt11VopLookup (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* retrieved vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
 
-LOCAL int rt11VopDirGetAttr (getattr_args_t args);
-LOCAL int rt11VopDirStrategy (strategy_args_t args);
+LOCAL int rt11VopCreate (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
+    );
 
-LOCAL int rt11VopSyncerStrategy (strategy_args_t args);
+LOCAL int rt11VopOpen (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
 
-LOCAL void rt11VopInternalReadStrategy (struct vnode *pVnode,
-                                        struct buf *pBuf);
-LOCAL void rt11VopInternalWriteStrategy (struct vnode *pVnode,
-                                         struct buf *pBuf);
+LOCAL int rt11VopClose (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopAccess (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopRead (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopWrite (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopIoctl (
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopLink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rt11VopRemove (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rt11VopSymlink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
+    );
+
+LOCAL int rt11VopReadlink (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopMkdir (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
+    );
+
+LOCAL int rt11VopRmdir (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rt11VopReaddir (
+    struct vnode *   vp,           /* directory vnode pointer */
+    struct dirent *  dep,          /* directory entry pointer */
+    struct ucred *   ucp,          /* user credentials pointer */
+    int *            eof,          /* end of file status */
+    int *            ncookies,     /* number of cookies */
+    u_long **        cookies       /* cookies */
+    );
+
+LOCAL int rt11VopGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopSetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopTruncate (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopFsync (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
+    );
+
+LOCAL int rt11VopActivate (
+    struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rt11VopInactive (
+    struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rt11VopPathconf (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
+    );
+
+LOCAL int rt11VopSeek (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopRename (
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
+    );
+
+LOCAL int rt11VopAbort (
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rt11VopStrategy (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
+    );
+
+LOCAL int rt11VopPrint (
+    struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rt11VopDirGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopDirStrategy (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
+    );
+
+LOCAL int rt11VopSyncerStrategy (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
+    );
+
+LOCAL void rt11VopInternalReadStrategy (
+    struct vnode *pVnode,
+    struct buf *pBuf
+    );
+
+LOCAL void rt11VopInternalWriteStrategy (
+    struct vnode *pVnode,
+    struct buf *pBuf
+    );
 
 /* globals */
 
@@ -90,7 +248,7 @@ const vnode_ops_t  rt11Vops =
     rt11VopWrite,
     rt11VopIoctl,
     rt11VopLink,
-    rt11VopUnlink,
+    rt11VopRemove,
     rt11VopSymlink,
     rt11VopReadlink,
     rt11VopMkdir,
@@ -121,7 +279,7 @@ const vnode_ops_t  rt11VopsDir =
     rt11VopWrite,
     rt11VopIoctl,
     rt11VopLink,
-    rt11VopUnlink,
+    rt11VopRemove,
     rt11VopSymlink,
     rt11VopReadlink,
     rt11VopMkdir,
@@ -152,7 +310,7 @@ const vnode_ops_t  rt11VopsSyncer =
     rt11VopWrite,
     rt11VopIoctl,
     rt11VopLink,
-    rt11VopUnlink,
+    rt11VopRemove,
     rt11VopSymlink,
     rt11VopReadlink,
     rt11VopMkdir,
@@ -180,9 +338,10 @@ const vnode_ops_t  rt11VopsSyncer =
  */
 
 LOCAL int rt11VopLookup (
-    lookup_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* retrieved vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
-    vnode_t  *          pDirVnode;
     RT11FS_INODE  *     pDirInode;
     RT11FS_DIR_DESC  *  pDirDesc;
     vnode_t  *          pFileVnode;
@@ -192,14 +351,13 @@ LOCAL int rt11VopLookup (
     int                 entryNum, startBlock;
     int                 error;
 
-    /* Get directory vnode */
-    pDirVnode = args.dvp;
-    if (pDirVnode == NULL) {
+    /* Check directory vnode */
+    if (dvp == NULL) {
         return (EINVAL);
     }
 
     /* Get directory inode */
-    RT11FS_VTOI (pDirInode, pDirVnode);
+    RT11FS_VTOI (pDirInode, dvp);
 
     /* Get directory descriptor */
     pDirDesc = (RT11FS_DIR_DESC *) pDirInode->in_data;
@@ -208,7 +366,7 @@ LOCAL int rt11VopLookup (
     if ((entryNum = rt11fsFindDirEntry (pDirDesc->rdd_pDirSeg,
                                         &dirEntry,
                                         &startBlock,
-                                        args.cnp->cn_nameptr)) == ERROR) {
+                                        cnp->cn_nameptr)) == ERROR) {
         return (ENOENT);
     }
 
@@ -218,7 +376,7 @@ LOCAL int rt11VopLookup (
     }
 
     /* Get file vnode */
-    error = vgetino (args.dvp->v_mount,
+    error = vgetino (dvp->v_mount,
                      (ino_t) (entryNum + RT11FS_FILE_INODE_BASE),
                      (vnode_ops_t *) &rt11Vops, &pFileVnode);
     if (error != OK) {
@@ -236,7 +394,7 @@ LOCAL int rt11VopLookup (
     pFileDesc->rfd_nBlks = dirEntry.de_nblocks;
     memcpy (&pFileDesc->rfd_dirEntry, &dirEntry, sizeof (RT11FS_DIR_ENTRY));
 
-    *args.vpp = pFileVnode;
+    *vpp = pFileVnode;
     return (error);
 }
 
@@ -248,27 +406,27 @@ LOCAL int rt11VopLookup (
  */
 
 LOCAL int  rt11VopCreate (
-    create_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
     ) {
-    vnode_t  *          pDirVnode;
     RT11FS_INODE  *     pDirInode;
     RT11FS_DIR_DESC  *  pDirDesc;
     RT11FS_DIR_ENTRY    dirEntry;
     vnode_t  *          pFileVnode;
     RT11FS_INODE  *     pFileInode;
     RT11FS_FILE_DESC  * pFileDesc;
-    fsync_args_t        syncArgs;
     int                 entryNum, startBlock;
     int                 error;
 
-    /* Get directory vnode */
-    pDirVnode = args.dvp;
-    if (pDirVnode == NULL) {
+    /* Check directory vnode */
+    if (dvp == NULL) {
         return (EINVAL);
     }
 
     /* Get directory inode */
-    RT11FS_VTOI (pDirInode, pDirVnode);
+    RT11FS_VTOI (pDirInode, dvp);
 
     /* Get directory descriptor */
     pDirDesc = (RT11FS_DIR_DESC *) pDirInode->in_data;
@@ -278,12 +436,12 @@ LOCAL int  rt11VopCreate (
                                             pDirDesc->rdd_maxEntries,
                                             &dirEntry,
                                             &startBlock,
-                                            args.cnp->cn_nameptr)) == ERROR) {
+                                            cnp->cn_nameptr)) == ERROR) {
         return (ENOENT);
     }
 
     /* Get file vnode */
-    error = vgetino (args.dvp->v_mount,
+    error = vgetino (dvp->v_mount,
                      (ino_t) (entryNum + RT11FS_FILE_INODE_BASE),
                      (vnode_ops_t *) &rt11Vops, &pFileVnode);
     if (error != OK) {
@@ -305,10 +463,9 @@ LOCAL int  rt11VopCreate (
     rt11fsPutDirEntry (pDirDesc->rdd_pDirSeg, entryNum, &dirEntry);
 
     /* Flush directory */
-    syncArgs.vp = pFileVnode;
-    VOP_FSYNC (pFileVnode, syncArgs);
+    VOP_FSYNC (pFileVnode, NULL, 0);
 
-    *args.vpp = pFileVnode;
+    *vpp = pFileVnode;
     return (error);
 }
 
@@ -320,7 +477,9 @@ LOCAL int  rt11VopCreate (
  */
 
 LOCAL int rt11VopOpen (
-    open_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (OK);
 }
@@ -333,29 +492,28 @@ LOCAL int rt11VopOpen (
  */
 
 LOCAL int  rt11VopClose (
-    close_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
-    vnode_t  *            pFileVnode;
     RT11FS_DEV  *         pFsDev;
     RT11FS_VOLUME_DESC  * pVolDesc;
     RT11FS_INODE  *       pFileInode;
     RT11FS_FILE_DESC  *   pFileDesc;
     RT11FS_DIR_ENTRY  *   pDirEntry;
-    fsync_args_t          syncArgs;
     int                   blksLeft, entryNum;
 
-    /* Get vnode */
-    pFileVnode = args.vp;
-    if (pFileVnode == NULL) {
+    /* Check vnode */
+    if (vp == NULL) {
         return (EINVAL);
     }
 
     /* Get volume descriptor */
-    pFsDev = (RT11FS_DEV *) pFileVnode->v_mount->mnt_data;
+    pFsDev = (RT11FS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &(pFsDev->volDesc);
 
     /* Get inode */
-    RT11FS_VTOI (pFileInode, pFileVnode);
+    RT11FS_VTOI (pFileInode, vp);
 
     /* Get file descriptor */
     pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
@@ -392,8 +550,7 @@ LOCAL int  rt11VopClose (
         }
 
         /* Flush directory */
-        syncArgs.vp = pFileVnode;
-        VOP_FSYNC (pFileVnode, syncArgs);
+        VOP_FSYNC (vp, NULL, 0);
     }
 
     return (OK);
@@ -407,7 +564,9 @@ LOCAL int  rt11VopClose (
  */
 
 LOCAL int  rt11VopAccess (
-    access_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (OK);
 }
@@ -420,9 +579,11 @@ LOCAL int  rt11VopAccess (
  */
 
 LOCAL int  rt11VopRead (
-    read_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
-    vnode_t  *            pFileVnode;
     RT11FS_VOLUME_DESC *  pVolDesc;
     RT11FS_DEV *          pFsDev;
     RT11FS_INODE  *       pFileInode;
@@ -432,46 +593,45 @@ LOCAL int  rt11VopRead (
     lblkno_t  lbn;
     voff_t    off, bytesToRead, bytesToEOF;
 
-    if (args.uio->uio_resid == 0) {    /* If nothing to do, return early. */
+    if (uio->uio_resid == 0) {     /* If nothing to do, return early. */
         return (OK);
     }
 
-    /* Get vnode */
-    pFileVnode = args.vp;
-    if (pFileVnode == NULL) {
+    /* Check vnode */
+    if (vp == NULL) {
         return (EINVAL);
     }
 
-    pFsDev = (RT11FS_DEV *)  pFileVnode->v_mount->mnt_data;
+    pFsDev = (RT11FS_DEV *)  vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
     /* Get inode */
-    RT11FS_VTOI (pFileInode, pFileVnode);
+    RT11FS_VTOI (pFileInode, vp);
 
     /* Get file descriptor */
     pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
 
-    lbn = (args.uio->uio_offset >> pVolDesc->vd_blkSize2);
-    off = (args.uio->uio_offset & (pVolDesc->vd_blkSize - 1));
+    lbn = (uio->uio_offset >> pVolDesc->vd_blkSize2);
+    off = (uio->uio_offset & (pVolDesc->vd_blkSize - 1));
     bytesToRead = pVolDesc->vd_blkSize - off;
     bytesToEOF  = (pFileDesc->rfd_nBlks << pVolDesc->vd_blkSize2) -
-                  args.uio->uio_offset;
+                  uio->uio_offset;
 
-    while (args.uio->uio_resid > 0) {
-        error = bread (pFileVnode, lbn, pVolDesc->vd_blkSize, NULL, &pBuf);
+    while (uio->uio_resid > 0) {
+        error = bread (vp, lbn, pVolDesc->vd_blkSize, NULL, &pBuf);
         if (error != OK) {
             return (error);
         }
 
-        if (bytesToRead > args.uio->uio_resid) {
-            bytesToRead = args.uio->uio_resid;
+        if (bytesToRead > uio->uio_resid) {
+            bytesToRead = uio->uio_resid;
         }
 
         if (bytesToEOF < bytesToRead) {
             bytesToRead = bytesToEOF;
         }
 
-        uiomove ((char *) pBuf->b_data + off, bytesToRead, args.uio);
+        uiomove ((char *) pBuf->b_data + off, bytesToRead, uio);
 
         brelse (pBuf);
 
@@ -499,9 +659,11 @@ LOCAL int  rt11VopRead (
  */
 
 LOCAL int  rt11VopWrite (
-    write_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
-    vnode_t  *            pFileVnode;
     RT11FS_VOLUME_DESC *  pVolDesc;
     RT11FS_DEV *          pFsDev;
     RT11FS_INODE  *       pFileInode;
@@ -511,35 +673,33 @@ LOCAL int  rt11VopWrite (
     lblkno_t  lbn;
     voff_t    off, bytesToWrite, bytesToEOF;
 
-    if (args.uio->uio_resid == 0) {    /* If nothing to do, return early. */
+    if (uio->uio_resid == 0) {     /* If nothing to do, return early. */
         return (OK);
     }
 
-    /* Get vnode */
-    pFileVnode = args.vp;
-    if (pFileVnode == NULL) {
+    /* Check vnode */
+    if (vp == NULL) {
         return (EINVAL);
     }
 
-    pFsDev = (RT11FS_DEV *)  pFileVnode->v_mount->mnt_data;
+    pFsDev = (RT11FS_DEV *)  vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
     /* Get file inode */
-    RT11FS_VTOI (pFileInode, pFileVnode);
+    RT11FS_VTOI (pFileInode, vp);
 
     /* Get file descriptor */
     pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
 
-    lbn = (args.uio->uio_offset >> pVolDesc->vd_blkSize2);
-    off = (args.uio->uio_offset & (pVolDesc->vd_blkSize - 1));
+    lbn = (uio->uio_offset >> pVolDesc->vd_blkSize2);
+    off = (uio->uio_offset & (pVolDesc->vd_blkSize - 1));
     bytesToEOF  = (pFileDesc->rfd_dirEntry.de_nblocks <<
-                   pVolDesc->vd_blkSize2) -
-                  args.uio->uio_offset;
+                   pVolDesc->vd_blkSize2) - uio->uio_offset;
 
-    while (args.uio->uio_resid > 0) {
+    while (uio->uio_resid > 0) {
         bytesToWrite = pVolDesc->vd_blkSize - off;
-        if (bytesToWrite > args.uio->uio_resid) {
-            bytesToWrite = args.uio->uio_resid;
+        if (bytesToWrite > uio->uio_resid) {
+            bytesToWrite = uio->uio_resid;
         }
 
         if (bytesToEOF < bytesToWrite) {
@@ -547,17 +707,17 @@ LOCAL int  rt11VopWrite (
         }
 
         if ((bytesToWrite != pVolDesc->vd_blkSize) && (bytesToWrite != 0)) {
-            error = bread (pFileVnode, lbn, pVolDesc->vd_blkSize, NULL, &pBuf);
+            error = bread (vp, lbn, pVolDesc->vd_blkSize, NULL, &pBuf);
             if (error != OK) {
                 return (error);
             }
         } else if (bytesToWrite != 0) {
-            pBuf = buf_getblk (pFileVnode, lbn, pVolDesc->vd_blkSize);
+            pBuf = buf_getblk (vp, lbn, pVolDesc->vd_blkSize);
         } else {
             return (EFBIG);
         }
 
-        uiomove ((char *) pBuf->b_data + off, bytesToWrite, args.uio);
+        uiomove ((char *) pBuf->b_data + off, bytesToWrite, uio);
 
         error = bwrite (pBuf);
         if (error != OK) {
@@ -592,14 +752,18 @@ LOCAL int  rt11VopWrite (
  */
 
 LOCAL int  rt11VopIoctl (
-    ioctl_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     RT11FS_DEV * pFsDev;
     int  rv;
 
-    pFsDev = (RT11FS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev = (RT11FS_DEV *) vp->v_mount->mnt_data;
 
-    rv = xbdIoctl (pFsDev->volDesc.vd_device, args.cmd, args.data);
+    rv = xbdIoctl (pFsDev->volDesc.vd_device, cmd, data);
 
     return (rv);
 }
@@ -612,20 +776,24 @@ LOCAL int  rt11VopIoctl (
  */
 
 LOCAL int rt11VopLink (
-    link_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
 
 /***************************************************************************
  *
- * rt11VopUnlink -
+ * rt11VopRemove -
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int rt11VopUnlink (
-    unlink_args_t  args
+LOCAL int rt11VopRemove (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -638,7 +806,11 @@ LOCAL int rt11VopUnlink (
  */
 
 LOCAL int  rt11VopSymlink (
-    symlink_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
     ) {
     return (ENOSYS);
 }
@@ -651,7 +823,9 @@ LOCAL int  rt11VopSymlink (
  */
 
 LOCAL int  rt11VopReadlink (
-    readlink_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
 }
@@ -664,7 +838,10 @@ LOCAL int  rt11VopReadlink (
  */
 
 LOCAL int  rt11VopMkdir (
-    mkdir_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
     ) {
     return (ENOSYS);
 }
@@ -677,7 +854,9 @@ LOCAL int  rt11VopMkdir (
  */
 
 LOCAL int  rt11VopRmdir (
-    rmdir_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -690,9 +869,13 @@ LOCAL int  rt11VopRmdir (
  */
 
 LOCAL int  rt11VopReaddir (
-    readdir_args_t  args
+    struct vnode *   vp,           /* directory vnode pointer */
+    struct dirent *  dep,          /* directory entry pointer */
+    struct ucred *   ucp,          /* user credentials pointer */
+    int *            eof,          /* end of file status */
+    int *            ncookies,     /* number of cookies */
+    u_long **        cookies       /* cookies */
     ) {
-    vnode_t  *            pDirVnode;
     RT11FS_INODE  *       pDirInode;
     RT11FS_DIR_DESC  *    pDirDesc;
     RT11FS_DIR_ENTRY  *   pDirEntry;
@@ -700,32 +883,31 @@ LOCAL int  rt11VopReaddir (
     int                   entryNum;
     char  *               pc;
 
-    /* Get directory vnode */
-    pDirVnode = args.dvp;
-    if (pDirVnode == NULL) {
+    /* Check directory vnode */
+    if (vp == NULL) {
         return (ENOENT);
     }
 
     /* Get directory inode */
-    RT11FS_VTOI (pDirInode, pDirVnode);
+    RT11FS_VTOI (pDirInode, vp);
 
     /* Get directory descriptor */
     pDirDesc = (RT11FS_DIR_DESC *) pDirInode->in_data;
 
     /* Get entry number */
-        entryNum = (int) args.dep->d_ino;
+        entryNum = (int) dep->d_ino;
 
         /* Do while dir status is empty */
         do {
         if (entryNum >= pDirDesc->rdd_maxEntries) {
-            *args.eof = 1;
+            *eof = 1;
             return (OK);
         }
 
         /* Get entry */
         pDirEntry = &pDirDesc->rdd_pDirSeg->ds_entries[entryNum];
         if (pDirEntry->de_status == DES_END) {
-            *args.eof = 1;
+            *eof = 1;
                 return (OK);
         }
 
@@ -734,12 +916,12 @@ LOCAL int  rt11VopReaddir (
     } while (pDirEntry->de_status == DES_EMPTY);
 
     /* Copy name to dirent */
-    rt11fsNameString (pDirEntry->de_name, args.dep->d_name);
+    rt11fsNameString (pDirEntry->de_name, dep->d_name);
         
     /* Cancel leading spaces and dots */
-    len = strlen (args.dep->d_name);
+    len = strlen (dep->d_name);
     if (len > 0) {
-        pc = args.dep->d_name + len - 1;
+        pc = dep->d_name + len - 1;
         while ( (*pc == ' ') || (*pc == '.') ) {
             *pc = EOS;
             pc++;
@@ -747,7 +929,7 @@ LOCAL int  rt11VopReaddir (
     }
 
     /* Update entry number */
-    args.dep->d_ino = entryNum;
+    dep->d_ino = entryNum;
  
     return (OK);
 }
@@ -760,50 +942,50 @@ LOCAL int  rt11VopReaddir (
  */
 
 LOCAL int  rt11VopGetAttr (
-    getattr_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
-    vnode_t  *           pFileVnode;
     RT11FS_DEV *         pFsDev;
     RT11FS_VOLUME_DESC * pVolDesc;
     RT11FS_INODE  *      pFileInode;
     RT11FS_FILE_DESC  *  pFileDesc;
 
-    /* Get file vnode */
-    pFileVnode = args.vp;
-    if (pFileVnode == NULL) {
+    /* Check file vnode */
+    if (vp == NULL) {
         return (ENOENT);
     }
 
     /* Get volume descriptor */
-    pFsDev   = (RT11FS_DEV *) pFileVnode->v_mount->mnt_data;
+    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
     /* Get file inode */
-    RT11FS_VTOI (pFileInode, pFileVnode);
+    RT11FS_VTOI (pFileInode, vp);
 
     /* Get file descriptor */
     pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
 
-    args.vap->va_type   = VREG;
-    args.vap->va_mode   = 0666;
-    args.vap->va_nlink  = 1;
-    args.vap->va_uid    = 0;
-    args.vap->va_gid    = 0;
-    args.vap->va_fsid   = 0;           /* Ignored for now. */
-    args.vap->va_fileid = pFileInode->in_inode;
-    args.vap->va_size   = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
-    args.vap->va_blksize = pVolDesc->vd_blkSize;
-    args.vap->va_atime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_mtime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_ctime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    args.vap->va_flags = 0;
+    vap->va_type   = VREG;
+    vap->va_mode   = 0666;
+    vap->va_nlink  = 1;
+    vap->va_uid    = 0;
+    vap->va_gid    = 0;
+    vap->va_fsid   = 0;           /* Ignored for now. */
+    vap->va_fileid = pFileInode->in_inode;
+    vap->va_size   = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
+    vap->va_blksize = pVolDesc->vd_blkSize;
+    vap->va_atime.tv_sec     = 0;  /* dummy value */
+    vap->va_mtime.tv_sec     = 0;  /* dummy value */
+    vap->va_ctime.tv_sec     = 0;  /* dummy value */
+    vap->va_birthtime.tv_sec = 0;  /* dummy value */
+    vap->va_flags = 0;
 #if 0                /* remaining fields are not yet used */
-    args.vap->va_gen = 0;
-    args.vap->va_rdev = 0;
-    args.vap->va_bytes = 0;
-    args.vap->va_filerev = 0;
-    args.vap->va_vaflags = 0;
+    vap->va_gen = 0;
+    vap->va_rdev = 0;
+    vap->va_bytes = 0;
+    vap->va_filerev = 0;
+    vap->va_vaflags = 0;
 #endif
 
     return (OK);
@@ -817,7 +999,9 @@ LOCAL int  rt11VopGetAttr (
  */
 
 LOCAL int rt11VopSetAttr (
-    setattr_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
 }
@@ -830,7 +1014,10 @@ LOCAL int rt11VopSetAttr (
  */
 
 LOCAL int  rt11VopTruncate (
-    truncate_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (OK);
 }
@@ -843,13 +1030,15 @@ LOCAL int  rt11VopTruncate (
  */
 
 LOCAL int  rt11VopFsync (
-    fsync_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
     ) {
     RT11FS_DEV *         pFsDev;
     RT11FS_VOLUME_DESC * pVolDesc;
 
     /* Get volume descriptor */
-    pFsDev   = (RT11FS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
     /* TODO:
@@ -867,35 +1056,35 @@ LOCAL int  rt11VopFsync (
  */
 
 LOCAL int  rt11VopActivate (
-    activate_args_t  args
+    struct vnode *  vp             /* file vnode pointer */
     ) {
     RT11FS_INODE  *       pInode;
     enum vtype            type;
     int                   error;
 
     /* Get inode */
-    error = rt11fsInodeGet (args.vp);
+    error = rt11fsInodeGet (vp);
     if (error != OK) {
         return (error);
     }
 
     /* Get inode */
-    RT11FS_VTOI (pInode, args.vp);
+    RT11FS_VTOI (pInode, vp);
 
     /* Get type */
     type = pInode->in_type;
 
     /* Store type in vnode */
-    args.vp->v_type = type;
+    vp->v_type = type;
 
     /* Select operators for type */
     switch (type) {
         case VDIR:
-            args.vp->v_ops  = (vnode_ops_t *) &rt11VopsDir;
+            vp->v_ops  = (vnode_ops_t *) &rt11VopsDir;
             break;
 
         case VREG:
-            args.vp->v_ops  = (vnode_ops_t *) &rt11Vops;
+            vp->v_ops  = (vnode_ops_t *) &rt11Vops;
             break;
 
         default:
@@ -913,10 +1102,9 @@ LOCAL int  rt11VopActivate (
  */
 
 LOCAL int  rt11VopInactive (
-    inactive_args_t  args
+    struct vnode *  vp             /* file vnode pointer */
     ) {
-
-    return (rt11fsInodeRelease (args.vp));
+    return (rt11fsInodeRelease (vp));
 }
 
 /***************************************************************************
@@ -927,7 +1115,9 @@ LOCAL int  rt11VopInactive (
  */
 
 LOCAL int  rt11VopPathconf (
-    pathconf_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
     ) {
     return (EINVAL);
 }
@@ -940,7 +1130,10 @@ LOCAL int  rt11VopPathconf (
  */
 
 LOCAL int  rt11VopSeek (
-    seek_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (OK);    /* nothing to do for seek operation */
 }
@@ -953,7 +1146,12 @@ LOCAL int  rt11VopSeek (
  */
 
 LOCAL int  rt11VopRename (
-    rename_args_t  args
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -966,7 +1164,8 @@ LOCAL int  rt11VopRename (
  */
 
 LOCAL int  rt11VopAbort (
-    abort_args_t  args
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (OK);
 }
@@ -979,28 +1178,24 @@ LOCAL int  rt11VopAbort (
  */
 
 LOCAL int rt11VopStrategy (
-    strategy_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
     ) {
-    vnode_t  *            pVnode;
-    struct buf *          pBuf;
 
-    /* Get vnode */
-    pVnode = args.vp;
-    if (pVnode == NULL) {
+    /* Check vnode */
+    if (vp == NULL) {
         return (EINVAL);
     }
 
-    /* Get buffer */
-    pBuf = args.bp;
-
     /* If read operation */
-    if (pBuf->b_flags & B_READ) {
-        rt11VopInternalReadStrategy (pVnode, pBuf);
+    if (bp->b_flags & B_READ) {
+        rt11VopInternalReadStrategy (vp, bp);
         return (OK);
     }
 
     /* Must be a write operation */
-    rt11VopInternalWriteStrategy (pVnode, pBuf);
+    rt11VopInternalWriteStrategy (vp, bp);
+
     return (OK);
 }
 
@@ -1012,7 +1207,7 @@ LOCAL int rt11VopStrategy (
  */
 
 LOCAL int rt11VopPrint (
-    print_args_t  args
+    struct vnode *  vp             /* file vnode pointer */
     ) {
     return;
 }
@@ -1025,35 +1220,37 @@ LOCAL int rt11VopPrint (
  */
 
 LOCAL int  rt11VopDirGetAttr (
-    getattr_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     RT11FS_DEV  *         pFsDev;
     RT11FS_VOLUME_DESC  * pVolDesc;
 
     /* Get volume descriptor */
-    pFsDev   = (RT11FS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    args.vap->va_type   = VDIR;
-    args.vap->va_mode   = 0666;
-    args.vap->va_nlink  = 1;
-    args.vap->va_uid    = 0;
-    args.vap->va_gid    = 0;
-    args.vap->va_fsid   = 0;           /* Ignored for now. */
-    args.vap->va_fileid = RT11FS_ROOT_INODE;
-    args.vap->va_size   = pVolDesc->vd_nSegBlks * pVolDesc->vd_blkSize;
-    args.vap->va_blksize = pVolDesc->vd_blkSize;
-    args.vap->va_atime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_mtime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_ctime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    args.vap->va_flags = 0;
+    vap->va_type   = VDIR;
+    vap->va_mode   = 0666;
+    vap->va_nlink  = 1;
+    vap->va_uid    = 0;
+    vap->va_gid    = 0;
+    vap->va_fsid   = 0;            /* Ignored for now. */
+    vap->va_fileid = RT11FS_ROOT_INODE;
+    vap->va_size   = pVolDesc->vd_nSegBlks * pVolDesc->vd_blkSize;
+    vap->va_blksize = pVolDesc->vd_blkSize;
+    vap->va_atime.tv_sec     = 0;  /* dummy value */
+    vap->va_mtime.tv_sec     = 0;  /* dummy value */
+    vap->va_ctime.tv_sec     = 0;  /* dummy value */
+    vap->va_birthtime.tv_sec = 0;  /* dummy value */
+    vap->va_flags = 0;
 #if 0                /* remaining fields are not yet used */
-    args.vap->va_gen = 0;
-    args.vap->va_rdev = 0;
-    args.vap->va_bytes = 0;
-    args.vap->va_filerev = 0;
-    args.vap->va_vaflags = 0;
+    vap->va_gen = 0;
+    vap->va_rdev = 0;
+    vap->va_bytes = 0;
+    vap->va_filerev = 0;
+    vap->va_vaflags = 0;
 #endif
 
     return (OK);
@@ -1067,7 +1264,8 @@ LOCAL int  rt11VopDirGetAttr (
  */
 
 LOCAL int rt11VopDirStrategy (
-    strategy_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
     ) {
     return (EINVAL);
 }
@@ -1080,22 +1278,19 @@ LOCAL int rt11VopDirStrategy (
  */
 
 LOCAL int rt11VopSyncerStrategy (
-    strategy_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
     ) {
     RT11FS_DEV  *         pFsDev;
     RT11FS_VOLUME_DESC  * pVolDesc;
     struct bio *          pBio;
-    struct buf *          pBuf;
 
     /* Get volume descriptor */
-    pFsDev   = (RT11FS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    /* Get buffer */
-    pBuf = args.bp;
-
-    pBio = pBuf->b_bio;
-    pBio->bio_blkno   = (pBuf->b_blkno << pVolDesc->vd_secPerBlk2);
+    pBio = bp->b_bio;
+    pBio->bio_blkno   = (bp->b_blkno << pVolDesc->vd_secPerBlk2);
     pBio->bio_bcount  = pVolDesc->vd_blkSize;
     pBio->bio_error   = OK;
     xbdStrategy (pVolDesc->vd_device, pBio);

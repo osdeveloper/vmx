@@ -40,33 +40,175 @@ the device as well as for reading the contents so as to determine what type of
 #include <fs/rawfsLib.h>
 
 /* forward declarations */
-LOCAL int rawVopLookup (lookup_args_t args);
-LOCAL int rawVopCreate (create_args_t  args);
-LOCAL int rawVopOpen (open_args_t  args);
-LOCAL int rawVopClose (close_args_t args);
-LOCAL int rawVopAccess (access_args_t args);
-LOCAL int rawVopRead (read_args_t args);
-LOCAL int rawVopWrite (write_args_t args);
-LOCAL int rawVopIoctl (ioctl_args_t args);
-LOCAL int rawVopLink (link_args_t args);
-LOCAL int rawVopUnlink (unlink_args_t args);
-LOCAL int rawVopSymlink (symlink_args_t args);
-LOCAL int rawVopReadlink (readlink_args_t args);
-LOCAL int rawVopMkdir (mkdir_args_t args);
-LOCAL int rawVopRmdir (rmdir_args_t args);
-LOCAL int rawVopReaddir (readdir_args_t args);
-LOCAL int rawVopGetAttr (getattr_args_t args);
-LOCAL int rawVopSetAttr (setattr_args_t args);
-LOCAL int rawVopTruncate (truncate_args_t args);
-LOCAL int rawVopFsync (fsync_args_t args);
-LOCAL int rawVopActivate (activate_args_t args);
-LOCAL int rawVopInactive (inactive_args_t args);
-LOCAL int rawVopPathconf (pathconf_args_t args);
-LOCAL int rawVopSeek (seek_args_t args);
-LOCAL int rawVopRename (rename_args_t args);
-LOCAL int rawVopAbort (abort_args_t args);
-LOCAL int rawVopStrategy (strategy_args_t args);
-LOCAL int rawVopPrint (print_args_t args);
+LOCAL int rawVopLookup (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* retrieved vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rawVopCreate (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
+    );
+
+LOCAL int rawVopOpen (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopClose (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopAccess (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopRead (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopWrite (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopIoctl (
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopLink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rawVopRemove (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rawVopSymlink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
+    );
+
+LOCAL int rawVopReadlink (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopMkdir (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
+    );
+
+LOCAL int rawVopRmdir (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rawVopReaddir (
+    struct vnode *   vp,           /* directory vnode pointer */
+    struct dirent *  dep,          /* directory entry pointer */
+    struct ucred *   ucp,          /* user credentials pointer */
+    int *            eof,          /* end of file status */
+    int *            ncookies,     /* number of cookies */
+    u_long **        cookies       /* cookies */
+    );
+
+LOCAL int rawVopGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopSetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopTruncate (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopFsync (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
+    );
+
+LOCAL int rawVopActivate (
+    struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rawVopInactive (
+    struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rawVopPathconf (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
+    );
+
+LOCAL int rawVopSeek (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopRename (
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
+    );
+
+LOCAL int rawVopAbort (
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
+    );
+
+LOCAL int rawVopStrategy (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
+    );
+
+LOCAL int rawVopPrint (
+    struct vnode *  vp             /* file vnode pointer */
+    );
 
 LOCAL void rawBioDone (struct bio *pBio);
 
@@ -83,7 +225,7 @@ const vnode_ops_t  rawVops =
     rawVopWrite,
     rawVopIoctl,
     rawVopLink,
-    rawVopUnlink,
+    rawVopRemove,
     rawVopSymlink,
     rawVopReadlink,
     rawVopMkdir,
@@ -114,7 +256,9 @@ const vnode_ops_t  rawVops =
  */
 
 LOCAL int rawVopLookup (
-    lookup_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* retrieved vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     /* 
      * TODO:
@@ -132,7 +276,10 @@ LOCAL int rawVopLookup (
  */
 
 LOCAL int  rawVopCreate (
-    create_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
     ) {
     return (ENOSYS);
 }
@@ -145,7 +292,9 @@ LOCAL int  rawVopCreate (
  */
 
 LOCAL int rawVopOpen (
-    open_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (OK);
 }
@@ -158,7 +307,9 @@ LOCAL int rawVopOpen (
  */
 
 LOCAL int  rawVopClose (
-    close_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     /* rawFS does not have any timestamps to update */
     return (OK);
@@ -172,7 +323,9 @@ LOCAL int  rawVopClose (
  */
 
 LOCAL int  rawVopAccess (
-    access_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             mode,          /* mode */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     /*
      * rawFS does not have any permission restrictions.  If it did, it would
@@ -190,7 +343,10 @@ LOCAL int  rawVopAccess (
  */
 
 LOCAL int  rawVopRead (
-    read_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     RAWFS_VOLUME_DESC *  pVolDesc;
     RAWFS_DEV *          pFsDev;
@@ -199,33 +355,33 @@ LOCAL int  rawVopRead (
     lblkno_t  lbn;
     voff_t    off, bytesToRead, bytesToEOF;
 
-    if (args.uio->uio_resid == 0) {    /* If nothing to do, return early. */
+    if (uio->uio_resid == 0) {     /* If nothing to do, return early. */
         return (OK);
     }
 
-    pFsDev = (RAWFS_DEV *)  args.vp->v_mount->mnt_data;
+    pFsDev = (RAWFS_DEV *)  vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    lbn = (args.uio->uio_offset >> pVolDesc->blkSize2);
-    off = (args.uio->uio_offset & (pVolDesc->blkSize - 1));
+    lbn = (uio->uio_offset >> pVolDesc->blkSize2);
+    off = (uio->uio_offset & (pVolDesc->blkSize - 1));
     bytesToRead = pVolDesc->blkSize - off;
-    bytesToEOF  = pVolDesc->diskSize - args.uio->uio_offset;
+    bytesToEOF  = pVolDesc->diskSize - uio->uio_offset;
 
-    while (args.uio->uio_resid > 0) {
-        error = bread (args.vp, lbn, pVolDesc->blkSize, NULL, &pBuf);
+    while (uio->uio_resid > 0) {
+        error = bread (vp, lbn, pVolDesc->blkSize, NULL, &pBuf);
         if (error != OK) {
             return (error);
         }
 
-        if (bytesToRead > args.uio->uio_resid) {
-            bytesToRead = args.uio->uio_resid;
+        if (bytesToRead > uio->uio_resid) {
+            bytesToRead = uio->uio_resid;
         }
 
         if (bytesToEOF < bytesToRead) {
             bytesToRead = bytesToEOF;
         }
 
-        uiomove ((char *) pBuf->b_data + off, bytesToRead, args.uio);
+        uiomove ((char *) pBuf->b_data + off, bytesToRead, uio);
 
         brelse (pBuf);
 
@@ -253,7 +409,10 @@ LOCAL int  rawVopRead (
  */
 
 LOCAL int  rawVopWrite (
-    write_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    int             ioflag,        /* IO flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     RAWFS_VOLUME_DESC *  pVolDesc;
     RAWFS_DEV *          pFsDev;
@@ -262,21 +421,21 @@ LOCAL int  rawVopWrite (
     lblkno_t  lbn;
     voff_t    off, bytesToWrite, bytesToEOF;
 
-    if (args.uio->uio_resid == 0) {    /* If nothing to do, return early. */
+    if (uio->uio_resid == 0) {     /* If nothing to do, return early. */
         return (OK);
     }
 
-    pFsDev = (RAWFS_DEV *)  args.vp->v_mount->mnt_data;
+    pFsDev = (RAWFS_DEV *)  vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    lbn = (args.uio->uio_offset >> pVolDesc->blkSize2);
-    off = (args.uio->uio_offset & (pVolDesc->blkSize - 1));
-    bytesToEOF  = pVolDesc->diskSize - args.uio->uio_offset;
+    lbn = (uio->uio_offset >> pVolDesc->blkSize2);
+    off = (uio->uio_offset & (pVolDesc->blkSize - 1));
+    bytesToEOF  = pVolDesc->diskSize - uio->uio_offset;
 
-    while (args.uio->uio_resid > 0) {
+    while (uio->uio_resid > 0) {
         bytesToWrite = pVolDesc->blkSize - off;
-        if (bytesToWrite > args.uio->uio_resid) {
-            bytesToWrite = args.uio->uio_resid;
+        if (bytesToWrite > uio->uio_resid) {
+            bytesToWrite = uio->uio_resid;
         }
 
         if (bytesToEOF < bytesToWrite) {
@@ -284,17 +443,17 @@ LOCAL int  rawVopWrite (
         }
 
         if ((bytesToWrite != pVolDesc->blkSize) && (bytesToWrite != 0)) {
-            error = bread (args.vp, lbn, pVolDesc->blkSize, NULL, &pBuf);
+            error = bread (vp, lbn, pVolDesc->blkSize, NULL, &pBuf);
             if (error != OK) {
                 return (error);
             }
         } else if (bytesToWrite != 0) {
-            pBuf = buf_getblk (args.vp, lbn, pVolDesc->blkSize);
+            pBuf = buf_getblk (vp, lbn, pVolDesc->blkSize);
         } else {
             return (EFBIG);
         }
 
-        uiomove ((char *) pBuf->b_data + off, bytesToWrite, args.uio);
+        uiomove ((char *) pBuf->b_data + off, bytesToWrite, uio);
 
         error = bwrite (pBuf);
         if (error != OK) {
@@ -324,14 +483,18 @@ LOCAL int  rawVopWrite (
  */
 
 LOCAL int  rawVopIoctl (
-    ioctl_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     RAWFS_DEV *  pFsDev;
     int  rv;
 
-    pFsDev = (RAWFS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev = (RAWFS_DEV *) vp->v_mount->mnt_data;
 
-    rv = xbdIoctl (pFsDev->volDesc.device, args.cmd, args.data);
+    rv = xbdIoctl (pFsDev->volDesc.device, cmd, data);
 
     return (rv);
 }
@@ -344,20 +507,24 @@ LOCAL int  rawVopIoctl (
  */
 
 LOCAL int rawVopLink (
-    link_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
 
 /***************************************************************************
  *
- * rawVopUnlink - unlink a file (not supported in rawFS)
+ * rawVopRemove - remove a file (not supported in rawFS)
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int rawVopUnlink (
-    unlink_args_t  args
+LOCAL int rawVopRemove (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -370,7 +537,11 @@ LOCAL int rawVopUnlink (
  */
 
 LOCAL int  rawVopSymlink (
-    symlink_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
     ) {
     return (ENOSYS);
 }
@@ -383,7 +554,9 @@ LOCAL int  rawVopSymlink (
  */
 
 LOCAL int  rawVopReadlink (
-    readlink_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct uio *    uio,           /* user IO pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
 }
@@ -396,7 +569,10 @@ LOCAL int  rawVopReadlink (
  */
 
 LOCAL int  rawVopMkdir (
-    mkdir_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap    /* vnode attributes pointer */
     ) {
     return (ENOSYS);
 }
@@ -409,7 +585,9 @@ LOCAL int  rawVopMkdir (
  */
 
 LOCAL int  rawVopRmdir (
-    rmdir_args_t  args
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -422,7 +600,12 @@ LOCAL int  rawVopRmdir (
  */
 
 LOCAL int  rawVopReaddir (
-    readdir_args_t  args
+    struct vnode *   vp,           /* directory vnode pointer */
+    struct dirent *  dep,          /* directory entry pointer */
+    struct ucred *   ucp,          /* user credentials pointer */
+    int *            eof,          /* end of file status */
+    int *            ncookies,     /* number of cookies */
+    u_long **        cookies       /* cookies */
     ) {
     return (ENOSYS);
 }
@@ -435,34 +618,36 @@ LOCAL int  rawVopReaddir (
  */
 
 LOCAL int  rawVopGetAttr (
-    getattr_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     RAWFS_DEV *  pFsDev;
     RAWFS_VOLUME_DESC *  pVolDesc;
 
-    pFsDev   = (RAWFS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev   = (RAWFS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    args.vap->va_type   = VREG;
-    args.vap->va_mode   = 0666;
-    args.vap->va_nlink  = 1;
-    args.vap->va_uid    = 0;
-    args.vap->va_gid    = 0;
-    args.vap->va_fsid   = 0;           /* Ignored for now. */
-    args.vap->va_fileid = RAWFS_ROOT_INODE;
-    args.vap->va_size   = pVolDesc->diskSize;
-    args.vap->va_blksize = pVolDesc->blkSize;
-    args.vap->va_atime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_mtime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_ctime.tv_sec     = 0;  /* dummy value */
-    args.vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    args.vap->va_flags = 0;
+    vap->va_type   = VREG;
+    vap->va_mode   = 0666;
+    vap->va_nlink  = 1;
+    vap->va_uid    = 0;
+    vap->va_gid    = 0;
+    vap->va_fsid   = 0;            /* Ignored for now. */
+    vap->va_fileid = RAWFS_ROOT_INODE;
+    vap->va_size   = pVolDesc->diskSize;
+    vap->va_blksize = pVolDesc->blkSize;
+    vap->va_atime.tv_sec     = 0;  /* dummy value */
+    vap->va_mtime.tv_sec     = 0;  /* dummy value */
+    vap->va_ctime.tv_sec     = 0;  /* dummy value */
+    vap->va_birthtime.tv_sec = 0;  /* dummy value */
+    vap->va_flags = 0;
 #ifdef notyet                /* remaining fields are not yet used */
-    args.vap->va_gen = 0;
-    args.vap->va_rdev = 0;
-    args.vap->va_bytes = 0;
-    args.vap->va_filerev = 0;
-    args.vap->va_vaflags = 0;
+    vap->va_gen = 0;
+    vap->va_rdev = 0;
+    vap->va_bytes = 0;
+    vap->va_filerev = 0;
+    vap->va_vaflags = 0;
 #endif
 
     return (OK);
@@ -476,7 +661,9 @@ LOCAL int  rawVopGetAttr (
  */
 
 LOCAL int rawVopSetAttr (
-    setattr_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
 }
@@ -489,7 +676,10 @@ LOCAL int rawVopSetAttr (
  */
 
 LOCAL int  rawVopTruncate (
-    truncate_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
 }
@@ -502,7 +692,9 @@ LOCAL int  rawVopTruncate (
  */
 
 LOCAL int  rawVopFsync (
-    fsync_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
     ) {
     return (OK);
 }
@@ -515,10 +707,10 @@ LOCAL int  rawVopFsync (
  */
 
 LOCAL int  rawVopActivate (
-    activate_args_t  args
+    struct vnode *  vp             /* file vnode pointer */
     ) {
-    args.vp->v_type = VREG;
-    args.vp->v_ops  = (vnode_ops_t *) &rawVops;
+    vp->v_type = VREG;
+    vp->v_ops  = (vnode_ops_t *) &rawVops;
 
     return (OK);
 }
@@ -531,7 +723,7 @@ LOCAL int  rawVopActivate (
  */
 
 LOCAL int  rawVopInactive (
-    inactive_args_t  args
+    struct vnode *  vp             /* file vnode pointer */
     ) {
     return (OK);
 }
@@ -544,7 +736,9 @@ LOCAL int  rawVopInactive (
  */
 
 LOCAL int  rawVopPathconf (
-    pathconf_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
     ) {
     return (EINVAL);
 }
@@ -557,7 +751,10 @@ LOCAL int  rawVopPathconf (
  */
 
 LOCAL int  rawVopSeek (
-    seek_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (OK);    /* nothing to do for seek operation */
 }
@@ -570,7 +767,12 @@ LOCAL int  rawVopSeek (
  */
 
 LOCAL int  rawVopRename (
-    rename_args_t  args
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -583,7 +785,8 @@ LOCAL int  rawVopRename (
  */
 
 LOCAL int  rawVopAbort (
-    abort_args_t  args
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (OK);
 }
@@ -596,27 +799,27 @@ LOCAL int  rawVopAbort (
  */
 
 LOCAL int rawVopStrategy (
-    strategy_args_t  args
+    struct vnode *  vp,            /* file vnode pointer */
+    struct buf *    bp             /* buffer pointer */
     ) {
     RAWFS_DEV *          pFsDev;
     RAWFS_VOLUME_DESC *  pVolDesc;
     struct bio *         pBio;
     struct buf *         pBuf;
 
-    pFsDev   = (RAWFS_DEV *) args.vp->v_mount->mnt_data;
+    pFsDev   = (RAWFS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
-    pBuf = args.bp;
 
     /*
      * The logical block number is the same as the physical block number
      * in rawFS.  Thus no translation is required between the two.
      */
 
-    if (pBuf->b_flags & B_READ) {
+    if (bp->b_flags & B_READ) {
     }
 
-    pBio = pBuf->b_bio;
-    pBio->bio_blkno   = (pBuf->b_blkno << pVolDesc->secPerBlk2);
+    pBio = bp->b_bio;
+    pBio->bio_blkno   = (bp->b_blkno << pVolDesc->secPerBlk2);
     pBio->bio_bcount  = pVolDesc->blkSize;
     pBio->bio_error   = OK;
 #ifdef fssync
@@ -628,7 +831,7 @@ LOCAL int rawVopStrategy (
 #ifdef fssync
     semTake (pFsDev->bioSem, WAIT_FOREVER);
 
-    buf_done (pBuf, OK);
+    buf_done (bp, OK);
 #endif
 }
 
@@ -640,7 +843,7 @@ LOCAL int rawVopStrategy (
  */
 
 LOCAL int rawVopPrint (
-    print_args_t  args
+    struct vnode *  vp             /* file vnode pointer */
     ) {
     return;
 }
