@@ -46,7 +46,7 @@
 
 typedef struct buf {
     LIST_NODE        b_node;   /* linked list node */
-    lblkno_t         b_blkno;  /* block number associated with buffer */
+    lblkno_t         b_lblkno; /* block number associated with buffer */
     int              b_flags;  /* buffer flags */
     int              b_count;  /* # of bytes to transfer */
     int              b_size;   /* size of the data area in buffer */

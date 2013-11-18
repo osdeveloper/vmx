@@ -52,7 +52,7 @@ int mountCreate (
     int        size;
     int        i;
     char *     data;
-    u_long *   cookieData;
+    int *      cookieData;
 
     if ((vfsops == NULL) || (devName == NULL) || (ppMount == NULL) ||
         (vfsops->devSize <= 0) || (vfsops->inodeSize <= 0) ||
@@ -81,7 +81,7 @@ int mountCreate (
     }
 
     fdList = malloc ((sizeof (filedesc_t) +
-                      sizeof (u_long) * vfsops->maxCookies) *
+                      sizeof (cookieData) * vfsops->maxCookies) *
                      maxFiles);
     if (fdList == NULL) {
         vnodesDelete (vp, maxFiles);
@@ -89,8 +89,8 @@ int mountCreate (
         free (mp);
     }
 
-    cookieData = (u_long *) &fdList[maxFiles];
-    memset(cookieData, sizeof (u_long) * vfsops->maxCookies * maxFiles);
+    cookieData = (int *) &fdList[maxFiles];
+    memset(cookieData, sizeof (cookieData) * vfsops->maxCookies * maxFiles);
     for (i = 0; i < maxFiles; i++) {
         fdList[i].fd_vnode = NULL;             /* not using any vnode */
         fdList[i].fd_mode  = 0;                /* no mode (yet) */

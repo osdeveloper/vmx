@@ -172,7 +172,7 @@ LOCAL int rt11VopReaddir (
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    u_long *         cookies       /* cookies */
+    int *            cookies       /* cookies */
     );
 
 LOCAL int rt11VopReadlink (
@@ -194,19 +194,19 @@ LOCAL int rt11VopInactive (
     struct vnode *  vp             /* file vnode pointer */
     );
 
-LOCAL int rt11VopStrategy (
+LOCAL void rt11VopStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     );
 
-LOCAL int rt11VopPrint (
+LOCAL void rt11VopPrint (
     struct vnode *  vp             /* file vnode pointer */
     );
 
 LOCAL int rt11VopPathconf (
     struct vnode *  vp,            /* file vnode pointer */
     int             name,          /* type of info to return */
-    int *           rv             /* return value */
+    long *          rv             /* return value */
     );
 
 LOCAL int rt11VopAdvlock (
@@ -230,12 +230,12 @@ LOCAL int rt11VopDirGetAttr (
     struct ucred *  ucp            /* user credentials pointer */
     );
 
-LOCAL int rt11VopDirStrategy (
+LOCAL void rt11VopDirStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     );
 
-LOCAL int rt11VopSyncerStrategy (
+LOCAL void rt11VopSyncerStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     );
@@ -1028,7 +1028,7 @@ LOCAL int  rt11VopReaddir (
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    u_long *         cookies       /* cookies */
+    int *            cookies       /* cookies */
     ) {
     RT11FS_INODE  *       pDirInode;
     RT11FS_DIR_DESC  *    pDirDesc;
@@ -1183,26 +1183,19 @@ LOCAL int  rt11VopInactive (
  * RETURNS: N/A
  */
 
-LOCAL int rt11VopStrategy (
+LOCAL void rt11VopStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     ) {
 
-    /* Check vnode */
-    if (vp == NULL) {
-        return (EINVAL);
-    }
-
     /* If read operation */
     if (bp->b_flags & B_READ) {
         rt11VopInternalReadStrategy (vp, bp);
-        return (OK);
     }
-
-    /* Must be a write operation */
-    rt11VopInternalWriteStrategy (vp, bp);
-
-    return (OK);
+    else {
+        /* Must be a write operation */
+        rt11VopInternalWriteStrategy (vp, bp);
+    }
 }
 
 /***************************************************************************
@@ -1212,7 +1205,7 @@ LOCAL int rt11VopStrategy (
  * RETURNS: N/A
  */
 
-LOCAL int rt11VopPrint (
+LOCAL void rt11VopPrint (
     struct vnode *  vp             /* file vnode pointer */
     ) {
     return;
@@ -1228,7 +1221,7 @@ LOCAL int rt11VopPrint (
 LOCAL int  rt11VopPathconf (
     struct vnode *  vp,            /* file vnode pointer */
     int             name,          /* type of info to return */
-    int *           rv             /* return value */
+    long *          rv             /* return value */
     ) {
     return (EINVAL);
 }
@@ -1317,11 +1310,10 @@ LOCAL int  rt11VopDirGetAttr (
  * RETURNS: N/A
  */
 
-LOCAL int rt11VopDirStrategy (
+LOCAL void rt11VopDirStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     ) {
-    return (EINVAL);
 }
 
 /***************************************************************************
@@ -1331,7 +1323,7 @@ LOCAL int rt11VopDirStrategy (
  * RETURNS: N/A
  */
 
-LOCAL int rt11VopSyncerStrategy (
+LOCAL void rt11VopSyncerStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     ) {
@@ -1344,7 +1336,7 @@ LOCAL int rt11VopSyncerStrategy (
     pVolDesc = &pFsDev->volDesc;
 
     pBio = bp->b_bio;
-    pBio->bio_blkno   = (bp->b_blkno << pVolDesc->vd_secPerBlk2);
+    pBio->bio_blkno   = (bp->b_lblkno << pVolDesc->vd_secPerBlk2);
     pBio->bio_bcount  = pVolDesc->vd_blkSize;
     pBio->bio_error   = OK;
     xbdStrategy (pVolDesc->vd_device, pBio);
@@ -1385,7 +1377,7 @@ LOCAL void rt11VopInternalReadStrategy (
     pVolDesc = &(pFsDev->volDesc);
 
     /* Calculate physical block number */
-    physBlk = (pBuf->b_blkno << pVolDesc->vd_secPerBlk2) +
+    physBlk = (pBuf->b_lblkno << pVolDesc->vd_secPerBlk2) +
                pFileDesc->rfd_startBlock;
 
     /* Read block from disk */
@@ -1436,7 +1428,7 @@ LOCAL void rt11VopInternalWriteStrategy (
     pVolDesc = &(pFsDev->volDesc);
 
     /* Calculate physical block number */
-    physBlk = (pBuf->b_blkno << pVolDesc->vd_secPerBlk2) +
+    physBlk = (pBuf->b_lblkno << pVolDesc->vd_secPerBlk2) +
                pFileDesc->rfd_startBlock;
 
     /* Get a temporary buffer */

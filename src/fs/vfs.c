@@ -1136,7 +1136,7 @@ int vncioIoctl (
     void *       arg           /* additional parameter */
     ) {
     int              error;
-    int              rv;
+    long             rv;
     int              eof;
     int              bytesRead;
     vattr_t          vattr;

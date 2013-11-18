@@ -173,7 +173,7 @@ LOCAL int rawVopReaddir (
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    u_long *         cookies       /* cookies */
+    int *            cookies       /* cookies */
     );
 
 LOCAL int rawVopReadlink (
@@ -195,19 +195,19 @@ LOCAL int rawVopInactive (
     struct vnode *  vp             /* file vnode pointer */
     );
 
-LOCAL int rawVopStrategy (
+LOCAL void rawVopStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     );
 
-LOCAL int rawVopPrint (
+LOCAL void rawVopPrint (
     struct vnode *  vp             /* file vnode pointer */
     );
 
 LOCAL int rawVopPathconf (
     struct vnode *  vp,            /* file vnode pointer */
     int             name,          /* type of info to return */
-    int *           rv             /* return value */
+    long *          rv             /* return value */
     );
 
 LOCAL int rawVopAdvlock(
@@ -730,7 +730,7 @@ LOCAL int  rawVopReaddir (
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    u_long *         cookies       /* cookies */
+    int *            cookies       /* cookies */
     ) {
     return (ENOSYS);
 }
@@ -800,7 +800,7 @@ LOCAL int  rawVopInactive (
  * RETURNS: N/A
  */
 
-LOCAL int rawVopStrategy (
+LOCAL void rawVopStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
     ) {
@@ -821,7 +821,7 @@ LOCAL int rawVopStrategy (
     }
 
     pBio = bp->b_bio;
-    pBio->bio_blkno   = (bp->b_blkno << pVolDesc->secPerBlk2);
+    pBio->bio_blkno   = (bp->b_lblkno << pVolDesc->secPerBlk2);
     pBio->bio_bcount  = pVolDesc->blkSize;
     pBio->bio_error   = OK;
 #ifdef fssync
@@ -844,7 +844,7 @@ LOCAL int rawVopStrategy (
  * RETURNS: N/A
  */
 
-LOCAL int rawVopPrint (
+LOCAL void rawVopPrint (
     struct vnode *  vp             /* file vnode pointer */
     ) {
     return;
@@ -860,7 +860,7 @@ LOCAL int rawVopPrint (
 LOCAL int  rawVopPathconf (
     struct vnode *  vp,            /* file vnode pointer */
     int             name,          /* type of info to return */
-    int *           rv             /* return value */
+    long *          rv             /* return value */
     ) {
     return (EINVAL);
 }

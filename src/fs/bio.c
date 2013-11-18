@@ -246,7 +246,7 @@ struct buf* buf_new (
          bp = (struct buf *) LIST_PREV (&bp->b_node)) {
         if ((bp->b_flags & B_BUSY) == 0) {
             bp->b_flags = B_BUSY;
-            bp->b_blkno = 0;
+            bp->b_lblkno = 0;
             bp->b_count = 0;
             bp->b_dev   = -1;
             bp->b_vp    = NULL;
@@ -281,7 +281,7 @@ struct buf* buf_incore (
          bp != NULL;
          bp = (struct buf *) LIST_NEXT (&bp->b_node)) {
         /* hit */
-        if ((bp->b_blkno == blkno) && (bp->b_vp == vp) &&
+        if ((bp->b_lblkno == blkno) && (bp->b_vp == vp) &&
             ((bp->b_flags & B_INVAL) == 0)) {
             return (bp);
         }
@@ -335,7 +335,7 @@ loop:
             goto loop;
         }
         bp->b_dev = vp->v_mount->mnt_dev;
-        bp->b_blkno = blkno;
+        bp->b_lblkno = blkno;
         bp->b_vp = vp;
         bio_new (bp);
         

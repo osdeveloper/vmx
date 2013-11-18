@@ -41,97 +41,6 @@
 
 #define VNOVAL      -1
 
-/* macros */
-#define VOP_LOOKUP(dvp, vpp, cnp) \
-    (dvp)->v_ops->vop_lookup ((dvp), (vpp), (cnp))
-
-#define VOP_CREATE(dvp, vpp, cnp, vap) \
-    (dvp)->v_ops->vop_create ((dvp), (vpp), (cnp), (vap))
-
-#define VOP_OPEN(vp, mode, ucp) \
-    (vp)->v_ops->vop_open ((vp), (mode), (ucp))
-
-#define VOP_CLOSE(vp, flags, ucp) \
-    (vp)->v_ops->vop_close ((vp), (flags), (ucp))
-
-#define VOP_ACCESS(vp, mode, ucp) \
-    (vp)->v_ops->vop_access ((vp), (mode), (ucp))
-
-#define VOP_GETATTR(vp, vap, ucp) \
-    (vp)->v_ops->vop_getattr ((vp), (vap), (ucp))
-
-#define VOP_SETATTR(vp, vap, ucp) \
-    (vp)->v_ops->setattr ((vp), (vap), (ucp))
-
-#define VOP_READ(vp, uio, ioflag, ucp) \
-    (vp)->v_ops->vop_read ((vp), (uio), (ioflag), (ucp))
-
-#define VOP_WRITE(vp, uio, ioflag, ucp) \
-    (vp)->v_ops->vop_write ((vp), (uio), (ioflag), (ucp))
-
-#define VOP_IOCTL(vp, cmd, data, fflag, ucp) \
-    (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
-
-#define VOP_FCNTL(vp, cmd, data, fflag, ucp) \
-    (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
-
-#define VOP_FSYNC(vp, ucp, flags) \
-    (vp)->v_ops->vop_fsync ((vp), (ucp), (flags))
-
-#define VOP_SEEK(vp, off1, off2, ucp) \
-    (vp)->v_ops->vop_seek ((vp), (off1), (off2), (ucp))
-
-#define VOP_REMOVE(dvp, vp, cnp) \
-    (dvp)->v_ops->vop_remove ((dvp), (vp), (cnp))
-
-#define VOP_LINK(dvp, vp, cnp) \
-    (dvp)->v_ops->vop_link ((dvp), (vp), (cnp))
-
-#define VOP_RENAME(fdvp, fvp, fcnp, tdvp, tvp, tcnp) \
-    (fdvp)->v_ops->vop_rename ((fdvp), (fvp), (fcnp), (tdvp), (tvp), (tcnp))
-
-#define VOP_MKDIR(dvp, vpp, cnp, vap) \
-    (dvp)->v_ops->vop_mkdir ((dvp), (vpp), (cnp), (vap))
-
-#define VOP_RMDIR(dvp, vp, cnp) \
-    (dvp)->v_ops->vop_rmdir ((dvp), (vp), (cnp))
-
-#define VOP_SYMLINK(dvp, vpp, cnp, vap, tgt) \
-    (dvp)->v_ops->vop_symlink((dvp), (vpp), (cnp), (vap), (tgt))
-
-#define VOP_READDIR(vp, dep, ucp, eof, cookies) \
-    (vp)->v_ops->vop_readdir ((vp), (dep), (ucp), (eof), (cookies))
-
-#define VOP_READLINK(vp, uio, ucp) \
-    (vp)->v_ops->vop_readlink ((vp), (uio), (ucp))
-
-#define VOP_ABORTOP(vp, cnp) \
-    (vp)->v_ops->vop_abortop ((vp), (cnp))
-
-#define VOP_ACTIVATE(vp) \
-    (vp)->v_ops->vop_activate ((vp))
-
-#define VOP_INACTIVE(vp) \
-    (vp)->v_ops->vop_inactive ((vp))
-
-#define VOP_STRATEGY(vp, bp) \
-    (vp)->v_ops->vop_strategy ((vp), (bp))
-
-#define VOP_PRINT(vp) \
-    (vp)->v_ops->vop_print ((vp))
-
-#define VOP_PATHCONF(vp, name, rv) \
-    (vp)->v_ops->vop_pathconf ((vp), (name), (rv))
-
-#define VOP_ADVLOCK(vp, id, op, fl, flags) \
-    (vp)->v_ops->vop_advlock ((vp), (id), (op), (fl), (flags))
-
-#define VOP_TRUNCATE(vp, len, flags, ucp) \
-    (vp)->v_ops->vop_truncate ((vp), (len), (flags), (ucp))
-
-#define VTODATA(type, vp) \
-    ((type *) (vp)->v_data)
-
 /* enums */
 
 enum vtype {
@@ -157,6 +66,7 @@ struct flock;
 typedef off_t        voff_t;
 
 typedef struct ucred {
+    int dummy;
     /* Not yet filled */
 } ucred_t;
 
@@ -317,7 +227,7 @@ typedef struct vnode_ops {
         struct dirent *  dep,          /* directory entry pointer */
         struct ucred *   ucp,          /* user credentials pointer */
         int *            eof,          /* end of file status */
-        u_long *         cookies       /* cookies */
+        int *            cookies       /* cookies */
         );
 
     int (*vop_readlink) (
@@ -339,19 +249,19 @@ typedef struct vnode_ops {
         struct vnode *  vp             /* file vnode pointer */
         );
 
-    int (*vop_strategy) (
+    void (*vop_strategy) (
         struct vnode *  vp,            /* file vnode pointer */
         struct buf *    bp             /* buffer pointer */
         );
 
-    int (*vop_print) (
+    void (*vop_print) (
         struct vnode *  vp             /* file vnode pointer */
         );
 
     int (*vop_pathconf) (
         struct vnode *  vp,            /* file vnode pointer */
         int             name,          /* type of info to return */
-        int *           rv             /* return value */
+        long *          rv             /* return value */
         );
 
     int (*vop_advlock) (
@@ -381,6 +291,98 @@ typedef struct vnode {
     ino_t               v_inode;    /* inode number */
     char *              v_data;     /* FS specific data */
 } vnode_t;
+
+/* macros */
+
+#define VOP_LOOKUP(dvp, vpp, cnp) \
+    (dvp)->v_ops->vop_lookup ((dvp), (vpp), (cnp))
+
+#define VOP_CREATE(dvp, vpp, cnp, vap) \
+    (dvp)->v_ops->vop_create ((dvp), (vpp), (cnp), (vap))
+
+#define VOP_OPEN(vp, mode, ucp) \
+    (vp)->v_ops->vop_open ((vp), (mode), (ucp))
+
+#define VOP_CLOSE(vp, flags, ucp) \
+    (vp)->v_ops->vop_close ((vp), (flags), (ucp))
+
+#define VOP_ACCESS(vp, mode, ucp) \
+    (vp)->v_ops->vop_access ((vp), (mode), (ucp))
+
+#define VOP_GETATTR(vp, vap, ucp) \
+    (vp)->v_ops->vop_getattr ((vp), (vap), (ucp))
+
+#define VOP_SETATTR(vp, vap, ucp) \
+    (vp)->v_ops->setattr ((vp), (vap), (ucp))
+
+#define VOP_READ(vp, uio, ioflag, ucp) \
+    (vp)->v_ops->vop_read ((vp), (uio), (ioflag), (ucp))
+
+#define VOP_WRITE(vp, uio, ioflag, ucp) \
+    (vp)->v_ops->vop_write ((vp), (uio), (ioflag), (ucp))
+
+#define VOP_IOCTL(vp, cmd, data, fflag, ucp) \
+    (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
+
+#define VOP_FCNTL(vp, cmd, data, fflag, ucp) \
+    (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
+
+#define VOP_FSYNC(vp, ucp, flags) \
+    (vp)->v_ops->vop_fsync ((vp), (ucp), (flags))
+
+#define VOP_SEEK(vp, off1, off2, ucp) \
+    (vp)->v_ops->vop_seek ((vp), (off1), (off2), (ucp))
+
+#define VOP_REMOVE(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_remove ((dvp), (vp), (cnp))
+
+#define VOP_LINK(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_link ((dvp), (vp), (cnp))
+
+#define VOP_RENAME(fdvp, fvp, fcnp, tdvp, tvp, tcnp) \
+    (fdvp)->v_ops->vop_rename ((fdvp), (fvp), (fcnp), (tdvp), (tvp), (tcnp))
+
+#define VOP_MKDIR(dvp, vpp, cnp, vap) \
+    (dvp)->v_ops->vop_mkdir ((dvp), (vpp), (cnp), (vap))
+
+#define VOP_RMDIR(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_rmdir ((dvp), (vp), (cnp))
+
+#define VOP_SYMLINK(dvp, vpp, cnp, vap, tgt) \
+    (dvp)->v_ops->vop_symlink((dvp), (vpp), (cnp), (vap), (tgt))
+
+#define VOP_READDIR(vp, dep, ucp, eof, cookies) \
+    (vp)->v_ops->vop_readdir ((vp), (dep), (ucp), (eof), (cookies))
+
+#define VOP_READLINK(vp, uio, ucp) \
+    (vp)->v_ops->vop_readlink ((vp), (uio), (ucp))
+
+#define VOP_ABORTOP(vp, cnp) \
+    (vp)->v_ops->vop_abortop ((vp), (cnp))
+
+#define VOP_ACTIVATE(vp) \
+    (vp)->v_ops->vop_activate ((vp))
+
+#define VOP_INACTIVE(vp) \
+    (vp)->v_ops->vop_inactive ((vp))
+
+#define VOP_STRATEGY(vp, bp) \
+    (vp)->v_ops->vop_strategy ((vp), (bp))
+
+#define VOP_PRINT(vp) \
+    (vp)->v_ops->vop_print ((vp))
+
+#define VOP_PATHCONF(vp, name, rv) \
+    (vp)->v_ops->vop_pathconf ((vp), (name), (rv))
+
+#define VOP_ADVLOCK(vp, id, op, fl, flags) \
+    (vp)->v_ops->vop_advlock ((vp), (id), (op), (fl), (flags))
+
+#define VOP_TRUNCATE(vp, len, flags, ucp) \
+    (vp)->v_ops->vop_truncate ((vp), (len), (flags), (ucp))
+
+#define VTODATA(type, vp) \
+    ((type *) (vp)->v_data)
 
 /* functions */
 
