@@ -71,6 +71,18 @@ LOCAL int rawVopAccess (
     struct ucred *  ucp            /* user credentials pointer */
     );
 
+LOCAL int rawVopGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopSetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
 LOCAL int rawVopRead (
     struct vnode *  vp,            /* file vnode pointer */
     struct uio *    uio,           /* user IO pointer */
@@ -93,10 +105,25 @@ LOCAL int rawVopIoctl (
     struct ucred *  ucp            /* user credentials pointer */
     );
 
-LOCAL int rawVopLink (
-    struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
+LOCAL int rawVopFcntl (
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rawVopFsync (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
+    );
+
+LOCAL int rawVopSeek (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
     );
 
 LOCAL int rawVopRemove (
@@ -105,18 +132,19 @@ LOCAL int rawVopRemove (
     struct componentname *  cnp    /* path name component pointer */
     );
 
-LOCAL int rawVopSymlink (
+LOCAL int rawVopLink (
     struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode **         vpp,   /* created vnode pointer */
-    struct componentname *  cnp,   /* path name component pointer */
-    struct vattr *          vap,   /* vnode attributes pointer */
-    char *                  tgt    /* ptr to target path string */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     );
 
-LOCAL int rawVopReadlink (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct uio *    uio,           /* user IO pointer */
-    struct ucred *  ucp            /* user credentials pointer */
+LOCAL int rawVopRename (
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
     );
 
 LOCAL int rawVopMkdir (
@@ -132,38 +160,31 @@ LOCAL int rawVopRmdir (
     struct componentname *  cnp    /* path name component pointer */
     );
 
+LOCAL int rawVopSymlink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
+    );
+
 LOCAL int rawVopReaddir (
     struct vnode *   vp,           /* directory vnode pointer */
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    int *            ncookies,     /* number of cookies */
-    u_long **        cookies       /* cookies */
+    u_long *         cookies       /* cookies */
     );
 
-LOCAL int rawVopGetAttr (
+LOCAL int rawVopReadlink (
     struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
+    struct uio *    uio,           /* user IO pointer */
     struct ucred *  ucp            /* user credentials pointer */
     );
 
-LOCAL int rawVopSetAttr (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
-    struct ucred *  ucp            /* user credentials pointer */
-    );
-
-LOCAL int rawVopTruncate (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           len,           /* new length of the file */
-    int             flags,         /* flags */
-    struct ucred *  ucp            /* user credentials pointer */
-    );
-
-LOCAL int rawVopFsync (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct ucred *  ucp,           /* user credentials pointer */
-    int             flags          /* flags */
+LOCAL int rawVopAbortop (
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     );
 
 LOCAL int rawVopActivate (
@@ -174,33 +195,6 @@ LOCAL int rawVopInactive (
     struct vnode *  vp             /* file vnode pointer */
     );
 
-LOCAL int rawVopPathconf (
-    struct vnode *  vp,            /* file vnode pointer */
-    int             name,          /* type of info to return */
-    int *           rv             /* return value */
-    );
-
-LOCAL int rawVopSeek (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           off1,          /* old offset */
-    off_t           off2,          /* new offset */
-    struct ucred *  ucp            /* user credentials pointer */
-    );
-
-LOCAL int rawVopRename (
-    struct vnode *          fdvp,  /* from directory vnode pointer */
-    struct vnode *          fvp,   /* from file vnode pointer */
-    struct componentname *  fcnp,  /* from path name component pointer */
-    struct vnode *          tdvp,  /* to directory vnode pointer */
-    struct vnode *          tvp,   /* to file vnode pointer */
-    struct componentname *  tcnp   /* to path name component pointer */
-    );
-
-LOCAL int rawVopAbort (
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
-    );
-
 LOCAL int rawVopStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
@@ -208,6 +202,27 @@ LOCAL int rawVopStrategy (
 
 LOCAL int rawVopPrint (
     struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rawVopPathconf (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
+    );
+
+LOCAL int rawVopAdvlock(
+    struct vnode *  vp,            /* file vnode pointer */
+    void *          id,            /* identifier */
+    int             op,            /* operation */
+    struct flock *  fl,            /* file loock */
+    int             flags          /* flags */
+    );
+
+LOCAL int rawVopTruncate (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     );
 
 LOCAL void rawBioDone (struct bio *pBio);
@@ -221,28 +236,30 @@ const vnode_ops_t  rawVops =
     rawVopOpen,
     rawVopClose,
     rawVopAccess,
+    rawVopGetAttr,
+    rawVopSetAttr,
     rawVopRead,
     rawVopWrite,
     rawVopIoctl,
-    rawVopLink,
+    rawVopFcntl,
+    rawVopFsync,
+    rawVopSeek,
     rawVopRemove,
-    rawVopSymlink,
-    rawVopReadlink,
+    rawVopLink,
+    rawVopRename,
     rawVopMkdir,
     rawVopRmdir,
+    rawVopSymlink,
     rawVopReaddir,
-    rawVopGetAttr,
-    rawVopSetAttr,
-    rawVopTruncate,
-    rawVopFsync,
+    rawVopReadlink,
+    rawVopAbortop,
     rawVopActivate,
     rawVopInactive,
-    rawVopPathconf,
-    rawVopSeek,
-    rawVopRename,
-    rawVopAbort,
     rawVopStrategy,
-    rawVopPrint
+    rawVopPrint,
+    rawVopPathconf,
+    rawVopAdvlock,
+    rawVopTruncate
 };
 
 /***************************************************************************
@@ -333,6 +350,64 @@ LOCAL int  rawVopAccess (
      */
 
     return (OK);
+}
+
+/***************************************************************************
+ *
+ * rawGetAttr - get file attributes
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int  rawVopGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    RAWFS_DEV *  pFsDev;
+    RAWFS_VOLUME_DESC *  pVolDesc;
+
+    pFsDev   = (RAWFS_DEV *) vp->v_mount->mnt_data;
+    pVolDesc = &pFsDev->volDesc;
+
+    vap->va_type   = VREG;
+    vap->va_mode   = 0666;
+    vap->va_nlink  = 1;
+    vap->va_uid    = 0;
+    vap->va_gid    = 0;
+    vap->va_fsid   = 0;            /* Ignored for now. */
+    vap->va_fileid = RAWFS_ROOT_INODE;
+    vap->va_size   = pVolDesc->diskSize;
+    vap->va_blksize = pVolDesc->blkSize;
+    vap->va_atime.tv_sec     = 0;  /* dummy value */
+    vap->va_mtime.tv_sec     = 0;  /* dummy value */
+    vap->va_ctime.tv_sec     = 0;  /* dummy value */
+    vap->va_birthtime.tv_sec = 0;  /* dummy value */
+    vap->va_flags = 0;
+#ifdef notyet                /* remaining fields are not yet used */
+    vap->va_gen = 0;
+    vap->va_rdev = 0;
+    vap->va_bytes = 0;
+    vap->va_filerev = 0;
+    vap->va_vaflags = 0;
+#endif
+
+    return (OK);
+}
+
+/***************************************************************************
+ *
+ * rawVopSetAttr - set file attributes (not supported in rawFS)
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int rawVopSetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    return (ENOSYS);
 }
 
 /***************************************************************************
@@ -501,17 +576,50 @@ LOCAL int  rawVopIoctl (
 
 /***************************************************************************
  *
- * rawVopLink - create a hard link (not supported in rawFS)
+ * rawVopFcntl - rawFS specific ioctl() commands
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int rawVopLink (
-    struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
+LOCAL int  rawVopFcntl (
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
+}
+
+/***************************************************************************
+ *
+ * rawVopFsync - fsync (has nothing to do as rawFS is synchronous)
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int  rawVopFsync (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
+    ) {
+    return (OK);
+}
+
+/***************************************************************************
+ *
+ * rawVopSeek - seek (nothing to do as it is handled by VFS layer)
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int  rawVopSeek (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    return (OK);    /* nothing to do for seek operation */
 }
 
 /***************************************************************************
@@ -531,32 +639,33 @@ LOCAL int rawVopRemove (
 
 /***************************************************************************
  *
- * rawVopSymlink - create a symlink (not supported in rawFS)
+ * rawVopLink - create a hard link (not supported in rawFS)
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int  rawVopSymlink (
+LOCAL int rawVopLink (
     struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode **         vpp,   /* created vnode pointer */
-    struct componentname *  cnp,   /* path name component pointer */
-    struct vattr *          vap,   /* vnode attributes pointer */
-    char *                  tgt    /* ptr to target path string */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
 
 /***************************************************************************
  *
- * rawVopReadlink - read a symlink (not supported in rawFS)
+ * rawVopRename - rename file (not supported in rawFS)
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int  rawVopReadlink (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct uio *    uio,           /* user IO pointer */
-    struct ucred *  ucp            /* user credentials pointer */
+LOCAL int  rawVopRename (
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -594,6 +703,23 @@ LOCAL int  rawVopRmdir (
 
 /***************************************************************************
  *
+ * rawVopSymlink - create a symlink (not supported in rawFS)
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int  rawVopSymlink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
+    ) {
+    return (ENOSYS);
+}
+
+/***************************************************************************
+ *
  * rawVopReaddir - read a directory entry (not supported in rawFS)
  *
  * RETURNS: ENOSYS
@@ -604,65 +730,21 @@ LOCAL int  rawVopReaddir (
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    int *            ncookies,     /* number of cookies */
-    u_long **        cookies       /* cookies */
+    u_long *         cookies       /* cookies */
     ) {
     return (ENOSYS);
 }
 
 /***************************************************************************
  *
- * rawGetAttr - get file attributes
- *
- * RETURNS: OK
- */
-
-LOCAL int  rawVopGetAttr (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
-    struct ucred *  ucp            /* user credentials pointer */
-    ) {
-    RAWFS_DEV *  pFsDev;
-    RAWFS_VOLUME_DESC *  pVolDesc;
-
-    pFsDev   = (RAWFS_DEV *) vp->v_mount->mnt_data;
-    pVolDesc = &pFsDev->volDesc;
-
-    vap->va_type   = VREG;
-    vap->va_mode   = 0666;
-    vap->va_nlink  = 1;
-    vap->va_uid    = 0;
-    vap->va_gid    = 0;
-    vap->va_fsid   = 0;            /* Ignored for now. */
-    vap->va_fileid = RAWFS_ROOT_INODE;
-    vap->va_size   = pVolDesc->diskSize;
-    vap->va_blksize = pVolDesc->blkSize;
-    vap->va_atime.tv_sec     = 0;  /* dummy value */
-    vap->va_mtime.tv_sec     = 0;  /* dummy value */
-    vap->va_ctime.tv_sec     = 0;  /* dummy value */
-    vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    vap->va_flags = 0;
-#ifdef notyet                /* remaining fields are not yet used */
-    vap->va_gen = 0;
-    vap->va_rdev = 0;
-    vap->va_bytes = 0;
-    vap->va_filerev = 0;
-    vap->va_vaflags = 0;
-#endif
-
-    return (OK);
-}
-
-/***************************************************************************
- *
- * rawVopSetAttr - set file attributes (not supported in rawFS)
+ * rawVopReadlink - read a symlink (not supported in rawFS)
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int rawVopSetAttr (
+LOCAL int  rawVopReadlink (
     struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
+    struct uio *    uio,           /* user IO pointer */
     struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
@@ -670,31 +752,14 @@ LOCAL int rawVopSetAttr (
 
 /***************************************************************************
  *
- * rawVopTruncate - change file size (not supported in rawFS)
- *
- * RETURNS: ENOSYS
- */
-
-LOCAL int  rawVopTruncate (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           len,           /* new length of the file */
-    int             flags,         /* flags */
-    struct ucred *  ucp            /* user credentials pointer */
-    ) {
-    return (ENOSYS);
-}
-
-/***************************************************************************
- *
- * rawVopFsync - fsync (has nothing to do as rawFS is synchronous)
+ * rawVopAbortop - not yet used by VFS
  *
  * RETURNS: OK
  */
 
-LOCAL int  rawVopFsync (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct ucred *  ucp,           /* user credentials pointer */
-    int             flags          /* flags */
+LOCAL int  rawVopAbortop (
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (OK);
 }
@@ -724,69 +789,6 @@ LOCAL int  rawVopActivate (
 
 LOCAL int  rawVopInactive (
     struct vnode *  vp             /* file vnode pointer */
-    ) {
-    return (OK);
-}
-
-/***************************************************************************
- *
- * rawVopPathconf - pathconf() not applicable to rawFS
- *
- * RETURNS: EINVAL
- */
-
-LOCAL int  rawVopPathconf (
-    struct vnode *  vp,            /* file vnode pointer */
-    int             name,          /* type of info to return */
-    int *           rv             /* return value */
-    ) {
-    return (EINVAL);
-}
-
-/***************************************************************************
- *
- * rawVopSeek - seek (nothing to do as it is handled by VFS layer)
- *
- * RETURNS: OK
- */
-
-LOCAL int  rawVopSeek (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           off1,          /* old offset */
-    off_t           off2,          /* new offset */
-    struct ucred *  ucp            /* user credentials pointer */
-    ) {
-    return (OK);    /* nothing to do for seek operation */
-}
-
-/***************************************************************************
- *
- * rawVopRename - rename file (not supported in rawFS)
- *
- * RETURNS: ENOSYS
- */
-
-LOCAL int  rawVopRename (
-    struct vnode *          fdvp,  /* from directory vnode pointer */
-    struct vnode *          fvp,   /* from file vnode pointer */
-    struct componentname *  fcnp,  /* from path name component pointer */
-    struct vnode *          tdvp,  /* to directory vnode pointer */
-    struct vnode *          tvp,   /* to file vnode pointer */
-    struct componentname *  tcnp   /* to path name component pointer */
-    ) {
-    return (ENOSYS);
-}
-
-/***************************************************************************
- *
- * rawVopAbort - not yet used by VFS
- *
- * RETURNS: OK
- */
-
-LOCAL int  rawVopAbort (
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (OK);
 }
@@ -846,6 +848,54 @@ LOCAL int rawVopPrint (
     struct vnode *  vp             /* file vnode pointer */
     ) {
     return;
+}
+
+/***************************************************************************
+ *
+ * rawVopPathconf - pathconf() not applicable to rawFS
+ *
+ * RETURNS: EINVAL
+ */
+
+LOCAL int  rawVopPathconf (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
+    ) {
+    return (EINVAL);
+}
+
+/***************************************************************************
+ *
+ * rawVopAdvlock - advisory record locking (not supported in rawFS)
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int rawVopAdvlock(
+    struct vnode *  vp,            /* file vnode pointer */
+    void *          id,            /* identifier */
+    int             op,            /* operation */
+    struct flock *  fl,            /* file loock */
+    int             flags          /* flags */
+    ) {
+    return (ENOSYS);
+}
+
+/***************************************************************************
+ *
+ * rawVopTruncate - change file size (not supported in rawFS)
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int  rawVopTruncate (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    return (ENOSYS);
 }
 
 /***************************************************************************

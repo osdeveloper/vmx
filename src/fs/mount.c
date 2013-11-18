@@ -90,13 +90,13 @@ int mountCreate (
     }
 
     cookieData = (u_long *) &fdList[maxFiles];
+    memset(cookieData, sizeof (u_long) * vfsops->maxCookies * maxFiles);
     for (i = 0; i < maxFiles; i++) {
         fdList[i].fd_vnode = NULL;             /* not using any vnode */
         fdList[i].fd_mode  = 0;                /* no mode (yet) */
         fdList[i].fd_off   = 0;                /* current file position */
         fdList[i].fd_inuse = FALSE;            /* filedesc not in use */
-        fdList[i].fd_num_cookies = 0;          /* no cookies used (yet) */
-        fdList[i].fd_cookie_data = cookieData; /* cookie data area */
+        fdList[i].fd_cookies = cookieData;     /* cookie data area */
 
         cookieData += vfsops->maxCookies;
     }

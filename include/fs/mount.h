@@ -95,8 +95,7 @@ typedef struct filedesc {
     struct vnode *  fd_vnode;        /* vnode used by file descriptor */
     int             fd_mode;         /* mode flags with which it was opened */
     off_t           fd_off;          /* position within the file */
-    int             fd_num_cookies;  /* # of 32-bit cookies */
-    u_long *        fd_cookie_data;  /* set of cookie data */
+    u_long *        fd_cookies;      /* set of cookie data */
     BOOL            fd_inuse;        /* TRUE if in use; FALSE otherwise */
 } filedesc_t;
 

@@ -70,6 +70,18 @@ LOCAL int rt11VopAccess (
     struct ucred *  ucp            /* user credentials pointer */
     );
 
+LOCAL int rt11VopGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopSetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
 LOCAL int rt11VopRead (
     struct vnode *  vp,            /* file vnode pointer */
     struct uio *    uio,           /* user IO pointer */
@@ -92,10 +104,25 @@ LOCAL int rt11VopIoctl (
     struct ucred *  ucp            /* user credentials pointer */
     );
 
-LOCAL int rt11VopLink (
-    struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
+LOCAL int rt11VopFcntl (
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    );
+
+LOCAL int rt11VopFsync (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
+    );
+
+LOCAL int rt11VopSeek (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
     );
 
 LOCAL int rt11VopRemove (
@@ -104,18 +131,19 @@ LOCAL int rt11VopRemove (
     struct componentname *  cnp    /* path name component pointer */
     );
 
-LOCAL int rt11VopSymlink (
+LOCAL int rt11VopLink (
     struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode **         vpp,   /* created vnode pointer */
-    struct componentname *  cnp,   /* path name component pointer */
-    struct vattr *          vap,   /* vnode attributes pointer */
-    char *                  tgt    /* ptr to target path string */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     );
 
-LOCAL int rt11VopReadlink (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct uio *    uio,           /* user IO pointer */
-    struct ucred *  ucp            /* user credentials pointer */
+LOCAL int rt11VopRename (
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
     );
 
 LOCAL int rt11VopMkdir (
@@ -131,38 +159,31 @@ LOCAL int rt11VopRmdir (
     struct componentname *  cnp    /* path name component pointer */
     );
 
+LOCAL int rt11VopSymlink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
+    );
+
 LOCAL int rt11VopReaddir (
     struct vnode *   vp,           /* directory vnode pointer */
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    int *            ncookies,     /* number of cookies */
-    u_long **        cookies       /* cookies */
+    u_long *         cookies       /* cookies */
     );
 
-LOCAL int rt11VopGetAttr (
+LOCAL int rt11VopReadlink (
     struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
+    struct uio *    uio,           /* user IO pointer */
     struct ucred *  ucp            /* user credentials pointer */
     );
 
-LOCAL int rt11VopSetAttr (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
-    struct ucred *  ucp            /* user credentials pointer */
-    );
-
-LOCAL int rt11VopTruncate (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           len,           /* new length of the file */
-    int             flags,         /* flags */
-    struct ucred *  ucp            /* user credentials pointer */
-    );
-
-LOCAL int rt11VopFsync (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct ucred *  ucp,           /* user credentials pointer */
-    int             flags          /* flags */
+LOCAL int rt11VopAbortop (
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     );
 
 LOCAL int rt11VopActivate (
@@ -173,33 +194,6 @@ LOCAL int rt11VopInactive (
     struct vnode *  vp             /* file vnode pointer */
     );
 
-LOCAL int rt11VopPathconf (
-    struct vnode *  vp,            /* file vnode pointer */
-    int             name,          /* type of info to return */
-    int *           rv             /* return value */
-    );
-
-LOCAL int rt11VopSeek (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           off1,          /* old offset */
-    off_t           off2,          /* new offset */
-    struct ucred *  ucp            /* user credentials pointer */
-    );
-
-LOCAL int rt11VopRename (
-    struct vnode *          fdvp,  /* from directory vnode pointer */
-    struct vnode *          fvp,   /* from file vnode pointer */
-    struct componentname *  fcnp,  /* from path name component pointer */
-    struct vnode *          tdvp,  /* to directory vnode pointer */
-    struct vnode *          tvp,   /* to file vnode pointer */
-    struct componentname *  tcnp   /* to path name component pointer */
-    );
-
-LOCAL int rt11VopAbort (
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
-    );
-
 LOCAL int rt11VopStrategy (
     struct vnode *  vp,            /* file vnode pointer */
     struct buf *    bp             /* buffer pointer */
@@ -207,6 +201,27 @@ LOCAL int rt11VopStrategy (
 
 LOCAL int rt11VopPrint (
     struct vnode *  vp             /* file vnode pointer */
+    );
+
+LOCAL int rt11VopPathconf (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
+    );
+
+LOCAL int rt11VopAdvlock (
+    struct vnode *  vp,            /* file vnode pointer */
+    void *          id,            /* identifier */
+    int             op,            /* operation */
+    struct flock *  fl,            /* file loock */
+    int             flags          /* flags */
+    );
+
+LOCAL int rt11VopTruncate (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     );
 
 LOCAL int rt11VopDirGetAttr (
@@ -244,28 +259,30 @@ const vnode_ops_t  rt11Vops =
     rt11VopOpen,
     rt11VopClose,
     rt11VopAccess,
+    rt11VopGetAttr,
+    rt11VopSetAttr,
     rt11VopRead,
     rt11VopWrite,
     rt11VopIoctl,
-    rt11VopLink,
+    rt11VopFcntl,
+    rt11VopFsync,
+    rt11VopSeek,
     rt11VopRemove,
-    rt11VopSymlink,
-    rt11VopReadlink,
+    rt11VopLink,
+    rt11VopRename,
     rt11VopMkdir,
     rt11VopRmdir,
+    rt11VopSymlink,
     rt11VopReaddir,
-    rt11VopGetAttr,
-    rt11VopSetAttr,
-    rt11VopTruncate,
-    rt11VopFsync,
+    rt11VopReadlink,
+    rt11VopAbortop,
     rt11VopActivate,
     rt11VopInactive,
-    rt11VopPathconf,
-    rt11VopSeek,
-    rt11VopRename,
-    rt11VopAbort,
     rt11VopStrategy,
-    rt11VopPrint
+    rt11VopPrint,
+    rt11VopPathconf,
+    rt11VopAdvlock,
+    rt11VopTruncate
 };
 
 const vnode_ops_t  rt11VopsDir =
@@ -275,28 +292,30 @@ const vnode_ops_t  rt11VopsDir =
     rt11VopOpen,
     rt11VopClose,
     rt11VopAccess,
+    rt11VopDirGetAttr,
+    rt11VopSetAttr,
     rt11VopRead,
     rt11VopWrite,
     rt11VopIoctl,
-    rt11VopLink,
+    rt11VopFcntl,
+    rt11VopFsync,
+    rt11VopSeek,
     rt11VopRemove,
-    rt11VopSymlink,
-    rt11VopReadlink,
+    rt11VopLink,
+    rt11VopRename,
     rt11VopMkdir,
     rt11VopRmdir,
+    rt11VopSymlink,
     rt11VopReaddir,
-    rt11VopDirGetAttr,
-    rt11VopSetAttr,
-    rt11VopTruncate,
-    rt11VopFsync,
+    rt11VopReadlink,
+    rt11VopAbortop,
     rt11VopActivate,
     rt11VopInactive,
-    rt11VopPathconf,
-    rt11VopSeek,
-    rt11VopRename,
-    rt11VopAbort,
     rt11VopDirStrategy,
-    rt11VopPrint
+    rt11VopPrint,
+    rt11VopPathconf,
+    rt11VopAdvlock,
+    rt11VopTruncate
 };
 
 const vnode_ops_t  rt11VopsSyncer =
@@ -306,28 +325,30 @@ const vnode_ops_t  rt11VopsSyncer =
     rt11VopOpen,
     rt11VopClose,
     rt11VopAccess,
+    rt11VopGetAttr,
+    rt11VopSetAttr,
     rt11VopRead,
     rt11VopWrite,
     rt11VopIoctl,
-    rt11VopLink,
+    rt11VopFcntl,
+    rt11VopFsync,
+    rt11VopSeek,
     rt11VopRemove,
-    rt11VopSymlink,
-    rt11VopReadlink,
+    rt11VopLink,
+    rt11VopRename,
     rt11VopMkdir,
     rt11VopRmdir,
+    rt11VopSymlink,
     rt11VopReaddir,
-    rt11VopGetAttr,
-    rt11VopSetAttr,
-    rt11VopTruncate,
-    rt11VopFsync,
+    rt11VopReadlink,
+    rt11VopAbortop,
     rt11VopActivate,
     rt11VopInactive,
-    rt11VopPathconf,
-    rt11VopSeek,
-    rt11VopRename,
-    rt11VopAbort,
     rt11VopSyncerStrategy,
-    rt11VopPrint
+    rt11VopPrint,
+    rt11VopPathconf,
+    rt11VopAdvlock,
+    rt11VopTruncate
 };
 
 /***************************************************************************
@@ -573,6 +594,78 @@ LOCAL int  rt11VopAccess (
 
 /***************************************************************************
  *
+ * rt11GetAttr -
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int  rt11VopGetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    RT11FS_DEV *         pFsDev;
+    RT11FS_VOLUME_DESC * pVolDesc;
+    RT11FS_INODE  *      pFileInode;
+    RT11FS_FILE_DESC  *  pFileDesc;
+
+    /* Check file vnode */
+    if (vp == NULL) {
+        return (ENOENT);
+    }
+
+    /* Get volume descriptor */
+    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
+    pVolDesc = &pFsDev->volDesc;
+
+    /* Get file inode */
+    RT11FS_VTOI (pFileInode, vp);
+
+    /* Get file descriptor */
+    pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
+
+    vap->va_type   = VREG;
+    vap->va_mode   = 0666;
+    vap->va_nlink  = 1;
+    vap->va_uid    = 0;
+    vap->va_gid    = 0;
+    vap->va_fsid   = 0;           /* Ignored for now. */
+    vap->va_fileid = pFileInode->in_inode;
+    vap->va_size   = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
+    vap->va_blksize = pVolDesc->vd_blkSize;
+    vap->va_atime.tv_sec     = 0;  /* dummy value */
+    vap->va_mtime.tv_sec     = 0;  /* dummy value */
+    vap->va_ctime.tv_sec     = 0;  /* dummy value */
+    vap->va_birthtime.tv_sec = 0;  /* dummy value */
+    vap->va_flags = 0;
+#if 0                /* remaining fields are not yet used */
+    vap->va_gen = 0;
+    vap->va_rdev = 0;
+    vap->va_bytes = 0;
+    vap->va_filerev = 0;
+    vap->va_vaflags = 0;
+#endif
+
+    return (OK);
+}
+
+/***************************************************************************
+ *
+ * rt11VopSetAttr -
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int rt11VopSetAttr (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct vattr *  vap,           /* vnode attributes pointer */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    return (ENOSYS);
+}
+
+/***************************************************************************
+ *
  * rt11VopRead -
  *
  * RETURNS: OK on success, errno otherwise
@@ -770,17 +863,61 @@ LOCAL int  rt11VopIoctl (
 
 /***************************************************************************
  *
- * rt11VopLink -
+ * rt11VopFcntl -
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int rt11VopLink (
-    struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
+LOCAL int  rt11VopFcntl (
+    struct vnode *  vp,            /* file vnode pointer */
+    u_long          cmd,           /* device specific command */
+    void *          data,          /* extra data */
+    int             fflag,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
+}
+
+/***************************************************************************
+ *
+ * rt11VopFsync - fsync (has nothing to do as rt11FS is synchronous)
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int  rt11VopFsync (
+    struct vnode *  vp,            /* file vnode pointer */
+    struct ucred *  ucp,           /* user credentials pointer */
+    int             flags          /* flags */
+    ) {
+    RT11FS_DEV *         pFsDev;
+    RT11FS_VOLUME_DESC * pVolDesc;
+
+    /* Get volume descriptor */
+    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
+    pVolDesc = &pFsDev->volDesc;
+
+    /* TODO:
+     * Write directory segment to disk here
+     */
+
+    return (OK);
+}
+
+/***************************************************************************
+ *
+ * rt11VopSeek - seek (nothing to do as it is handled by VFS layer)
+ *
+ * RETURNS: OK
+ */
+
+LOCAL int  rt11VopSeek (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           off1,          /* old offset */
+    off_t           off2,          /* new offset */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    return (OK);    /* nothing to do for seek operation */
 }
 
 /***************************************************************************
@@ -800,32 +937,33 @@ LOCAL int rt11VopRemove (
 
 /***************************************************************************
  *
- * rt11VopSymlink -
+ * rt11VopLink -
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int  rt11VopSymlink (
+LOCAL int rt11VopLink (
     struct vnode *          dvp,   /* directory vnode pointer */
-    struct vnode **         vpp,   /* created vnode pointer */
-    struct componentname *  cnp,   /* path name component pointer */
-    struct vattr *          vap,   /* vnode attributes pointer */
-    char *                  tgt    /* ptr to target path string */
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
     return (ENOSYS);
 }
 
 /***************************************************************************
  *
- * rt11VopReadlink -
+ * rt11VopRename -
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int  rt11VopReadlink (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct uio *    uio,           /* user IO pointer */
-    struct ucred *  ucp            /* user credentials pointer */
+LOCAL int  rt11VopRename (
+    struct vnode *          fdvp,  /* from directory vnode pointer */
+    struct vnode *          fvp,   /* from file vnode pointer */
+    struct componentname *  fcnp,  /* from path name component pointer */
+    struct vnode *          tdvp,  /* to directory vnode pointer */
+    struct vnode *          tvp,   /* to file vnode pointer */
+    struct componentname *  tcnp   /* to path name component pointer */
     ) {
     return (ENOSYS);
 }
@@ -863,6 +1001,23 @@ LOCAL int  rt11VopRmdir (
 
 /***************************************************************************
  *
+ * rt11VopSymlink -
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int  rt11VopSymlink (
+    struct vnode *          dvp,   /* directory vnode pointer */
+    struct vnode **         vpp,   /* created vnode pointer */
+    struct componentname *  cnp,   /* path name component pointer */
+    struct vattr *          vap,   /* vnode attributes pointer */
+    char *                  tgt    /* ptr to target path string */
+    ) {
+    return (ENOSYS);
+}
+
+/***************************************************************************
+ *
  * rt11VopReaddir -
  *
  * RETURNS: ENOSYS
@@ -873,8 +1028,7 @@ LOCAL int  rt11VopReaddir (
     struct dirent *  dep,          /* directory entry pointer */
     struct ucred *   ucp,          /* user credentials pointer */
     int *            eof,          /* end of file status */
-    int *            ncookies,     /* number of cookies */
-    u_long **        cookies       /* cookies */
+    u_long *         cookies       /* cookies */
     ) {
     RT11FS_INODE  *       pDirInode;
     RT11FS_DIR_DESC  *    pDirDesc;
@@ -936,71 +1090,14 @@ LOCAL int  rt11VopReaddir (
 
 /***************************************************************************
  *
- * rt11GetAttr -
- *
- * RETURNS: OK
- */
-
-LOCAL int  rt11VopGetAttr (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
-    struct ucred *  ucp            /* user credentials pointer */
-    ) {
-    RT11FS_DEV *         pFsDev;
-    RT11FS_VOLUME_DESC * pVolDesc;
-    RT11FS_INODE  *      pFileInode;
-    RT11FS_FILE_DESC  *  pFileDesc;
-
-    /* Check file vnode */
-    if (vp == NULL) {
-        return (ENOENT);
-    }
-
-    /* Get volume descriptor */
-    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
-    pVolDesc = &pFsDev->volDesc;
-
-    /* Get file inode */
-    RT11FS_VTOI (pFileInode, vp);
-
-    /* Get file descriptor */
-    pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
-
-    vap->va_type   = VREG;
-    vap->va_mode   = 0666;
-    vap->va_nlink  = 1;
-    vap->va_uid    = 0;
-    vap->va_gid    = 0;
-    vap->va_fsid   = 0;           /* Ignored for now. */
-    vap->va_fileid = pFileInode->in_inode;
-    vap->va_size   = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
-    vap->va_blksize = pVolDesc->vd_blkSize;
-    vap->va_atime.tv_sec     = 0;  /* dummy value */
-    vap->va_mtime.tv_sec     = 0;  /* dummy value */
-    vap->va_ctime.tv_sec     = 0;  /* dummy value */
-    vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    vap->va_flags = 0;
-#if 0                /* remaining fields are not yet used */
-    vap->va_gen = 0;
-    vap->va_rdev = 0;
-    vap->va_bytes = 0;
-    vap->va_filerev = 0;
-    vap->va_vaflags = 0;
-#endif
-
-    return (OK);
-}
-
-/***************************************************************************
- *
- * rt11VopSetAttr -
+ * rt11VopReadlink -
  *
  * RETURNS: ENOSYS
  */
 
-LOCAL int rt11VopSetAttr (
+LOCAL int  rt11VopReadlink (
     struct vnode *  vp,            /* file vnode pointer */
-    struct vattr *  vap,           /* vnode attributes pointer */
+    struct uio *    uio,           /* user IO pointer */
     struct ucred *  ucp            /* user credentials pointer */
     ) {
     return (ENOSYS);
@@ -1008,43 +1105,15 @@ LOCAL int rt11VopSetAttr (
 
 /***************************************************************************
  *
- * rt11VopTruncate -
- *
- * RETURNS: OK on success, otherwise error
- */
-
-LOCAL int  rt11VopTruncate (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           len,           /* new length of the file */
-    int             flags,         /* flags */
-    struct ucred *  ucp            /* user credentials pointer */
-    ) {
-    return (OK);
-}
-
-/***************************************************************************
- *
- * rt11VopFsync - fsync (has nothing to do as rt11FS is synchronous)
+ * rt11VopAbortop - not yet used by VFS
  *
  * RETURNS: OK
  */
 
-LOCAL int  rt11VopFsync (
-    struct vnode *  vp,            /* file vnode pointer */
-    struct ucred *  ucp,           /* user credentials pointer */
-    int             flags          /* flags */
+LOCAL int  rt11VopAbortop (
+    struct vnode *          vp,    /* file vnode pointer */
+    struct componentname *  cnp    /* path name component pointer */
     ) {
-    RT11FS_DEV *         pFsDev;
-    RT11FS_VOLUME_DESC * pVolDesc;
-
-    /* Get volume descriptor */
-    pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
-    pVolDesc = &pFsDev->volDesc;
-
-    /* TODO:
-     * Write directory segment to disk here
-     */
-
     return (OK);
 }
 
@@ -1109,69 +1178,6 @@ LOCAL int  rt11VopInactive (
 
 /***************************************************************************
  *
- * rt11VopPathconf -
- *
- * RETURNS: EINVAL
- */
-
-LOCAL int  rt11VopPathconf (
-    struct vnode *  vp,            /* file vnode pointer */
-    int             name,          /* type of info to return */
-    int *           rv             /* return value */
-    ) {
-    return (EINVAL);
-}
-
-/***************************************************************************
- *
- * rt11VopSeek - seek (nothing to do as it is handled by VFS layer)
- *
- * RETURNS: OK
- */
-
-LOCAL int  rt11VopSeek (
-    struct vnode *  vp,            /* file vnode pointer */
-    off_t           off1,          /* old offset */
-    off_t           off2,          /* new offset */
-    struct ucred *  ucp            /* user credentials pointer */
-    ) {
-    return (OK);    /* nothing to do for seek operation */
-}
-
-/***************************************************************************
- *
- * rt11VopRename -
- *
- * RETURNS: ENOSYS
- */
-
-LOCAL int  rt11VopRename (
-    struct vnode *          fdvp,  /* from directory vnode pointer */
-    struct vnode *          fvp,   /* from file vnode pointer */
-    struct componentname *  fcnp,  /* from path name component pointer */
-    struct vnode *          tdvp,  /* to directory vnode pointer */
-    struct vnode *          tvp,   /* to file vnode pointer */
-    struct componentname *  tcnp   /* to path name component pointer */
-    ) {
-    return (ENOSYS);
-}
-
-/***************************************************************************
- *
- * rt11VopAbort - not yet used by VFS
- *
- * RETURNS: OK
- */
-
-LOCAL int  rt11VopAbort (
-    struct vnode *          vp,    /* file vnode pointer */
-    struct componentname *  cnp    /* path name component pointer */
-    ) {
-    return (OK);
-}
-
-/***************************************************************************
- *
  * rt11VopStrategy -
  *
  * RETURNS: N/A
@@ -1210,6 +1216,54 @@ LOCAL int rt11VopPrint (
     struct vnode *  vp             /* file vnode pointer */
     ) {
     return;
+}
+
+/***************************************************************************
+ *
+ * rt11VopPathconf -
+ *
+ * RETURNS: EINVAL
+ */
+
+LOCAL int  rt11VopPathconf (
+    struct vnode *  vp,            /* file vnode pointer */
+    int             name,          /* type of info to return */
+    int *           rv             /* return value */
+    ) {
+    return (EINVAL);
+}
+
+/***************************************************************************
+ *
+ * rt11VopAdvlock -
+ *
+ * RETURNS: ENOSYS
+ */
+
+LOCAL int rt11VopAdvlock (
+    struct vnode *  vp,            /* file vnode pointer */
+    void *          id,            /* identifier */
+    int             op,            /* operation */
+    struct flock *  fl,            /* file loock */
+    int             flags          /* flags */
+    ) {
+    return (ENOSYS);
+}
+
+/***************************************************************************
+ *
+ * rt11VopTruncate -
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+LOCAL int  rt11VopTruncate (
+    struct vnode *  vp,            /* file vnode pointer */
+    off_t           len,           /* new length of the file */
+    int             flags,         /* flags */
+    struct ucred *  ucp            /* user credentials pointer */
+    ) {
+    return (OK);
 }
 
 /***************************************************************************

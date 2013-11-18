@@ -57,6 +57,12 @@
 #define VOP_ACCESS(vp, mode, ucp) \
     (vp)->v_ops->vop_access ((vp), (mode), (ucp))
 
+#define VOP_GETATTR(vp, vap, ucp) \
+    (vp)->v_ops->vop_getattr ((vp), (vap), (ucp))
+
+#define VOP_SETATTR(vp, vap, ucp) \
+    (vp)->v_ops->setattr ((vp), (vap), (ucp))
+
 #define VOP_READ(vp, uio, ioflag, ucp) \
     (vp)->v_ops->vop_read ((vp), (uio), (ioflag), (ucp))
 
@@ -66,17 +72,23 @@
 #define VOP_IOCTL(vp, cmd, data, fflag, ucp) \
     (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
 
-#define VOP_LINK(dvp, vp, cnp) \
-    (dvp)->v_ops->vop_link ((dvp), (vp), (cnp))
+#define VOP_FCNTL(vp, cmd, data, fflag, ucp) \
+    (vp)->v_ops->vop_ioctl ((vp), (cmd), (data), (fflag), (ucp))
+
+#define VOP_FSYNC(vp, ucp, flags) \
+    (vp)->v_ops->vop_fsync ((vp), (ucp), (flags))
+
+#define VOP_SEEK(vp, off1, off2, ucp) \
+    (vp)->v_ops->vop_seek ((vp), (off1), (off2), (ucp))
 
 #define VOP_REMOVE(dvp, vp, cnp) \
     (dvp)->v_ops->vop_remove ((dvp), (vp), (cnp))
 
-#define VOP_SYMLINK(dvp, vpp, cnp, vap, tgt) \
-    (dvp)->v_ops->vop_symlink((dvp), (vpp), (cnp), (vap), (tgt))
+#define VOP_LINK(dvp, vp, cnp) \
+    (dvp)->v_ops->vop_link ((dvp), (vp), (cnp))
 
-#define VOP_READLINK(vp, uio, ucp) \
-    (vp)->v_ops->vop_readlink ((vp), (uio), (ucp))
+#define VOP_RENAME(fdvp, fvp, fcnp, tdvp, tvp, tcnp) \
+    (fdvp)->v_ops->vop_rename ((fdvp), (fvp), (fcnp), (tdvp), (tvp), (tcnp))
 
 #define VOP_MKDIR(dvp, vpp, cnp, vap) \
     (dvp)->v_ops->vop_mkdir ((dvp), (vpp), (cnp), (vap))
@@ -84,20 +96,17 @@
 #define VOP_RMDIR(dvp, vp, cnp) \
     (dvp)->v_ops->vop_rmdir ((dvp), (vp), (cnp))
 
-#define VOP_READDIR(vp, dep, ucp, eof, ncookies, cookies) \
-    (vp)->v_ops->vop_readdir ((vp), (dep), (ucp), (eof), (ncookies), (cookies))
+#define VOP_SYMLINK(dvp, vpp, cnp, vap, tgt) \
+    (dvp)->v_ops->vop_symlink((dvp), (vpp), (cnp), (vap), (tgt))
 
-#define VOP_GETATTR(vp, vap, ucp) \
-    (vp)->v_ops->vop_getattr ((vp), (vap), (ucp))
+#define VOP_READDIR(vp, dep, ucp, eof, cookies) \
+    (vp)->v_ops->vop_readdir ((vp), (dep), (ucp), (eof), (cookies))
 
-#define VOP_SETATTR(vp, vap, ucp) \
-    (vp)->v_ops->setattr ((vp), (vap), (ucp))
+#define VOP_READLINK(vp, uio, ucp) \
+    (vp)->v_ops->vop_readlink ((vp), (uio), (ucp))
 
-#define VOP_TRUNCATE(vp, len, flags, ucp) \
-    (vp)->v_ops->vop_truncate ((vp), (len), (flags), (ucp))
-
-#define VOP_FSYNC(vp, ucp, flags) \
-    (vp)->v_ops->vop_fsync ((vp), (ucp), (flags))
+#define VOP_ABORTOP(vp, cnp) \
+    (vp)->v_ops->vop_abortop ((vp), (cnp))
 
 #define VOP_ACTIVATE(vp) \
     (vp)->v_ops->vop_activate ((vp))
@@ -105,23 +114,20 @@
 #define VOP_INACTIVE(vp) \
     (vp)->v_ops->vop_inactive ((vp))
 
-#define VOP_PATHCONF(vp, name, rv) \
-    (vp)->v_ops->vop_pathconf ((vp), (name), (rv))
-
-#define VOP_SEEK(vp, off1, off2, ucp) \
-    (vp)->v_ops->vop_seek ((vp), (off1), (off2), (ucp))
-
-#define VOP_RENAME(fdvp, fvp, fcnp, tdvp, tvp, tcnp) \
-    (fdvp)->v_ops->vop_rename ((fdvp), (fvp), (fcnp), (tdvp), (tvp), (tcnp))
-
-#define VOP_ABORT(vp, cnp) \
-    (vp)->v_ops->vop_abort ((vp), (cnp))
-
 #define VOP_STRATEGY(vp, bp) \
     (vp)->v_ops->vop_strategy ((vp), (bp))
 
 #define VOP_PRINT(vp) \
     (vp)->v_ops->vop_print ((vp))
+
+#define VOP_PATHCONF(vp, name, rv) \
+    (vp)->v_ops->vop_pathconf ((vp), (name), (rv))
+
+#define VOP_ADVLOCK(vp, id, op, fl, flags) \
+    (vp)->v_ops->vop_advlock ((vp), (id), (op), (fl), (flags))
+
+#define VOP_TRUNCATE(vp, len, flags, ucp) \
+    (vp)->v_ops->vop_truncate ((vp), (len), (flags), (ucp))
 
 #define VTODATA(type, vp) \
     ((type *) (vp)->v_data)
@@ -144,6 +150,7 @@ enum vtype {
 struct mount;
 struct dirent;
 struct buf;
+struct flock;
 
 /* typedefs */
 
@@ -208,6 +215,18 @@ typedef struct vnode_ops {
         struct ucred *  ucp            /* user credentials pointer */
         );
 
+    int (*vop_getattr) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct vattr *  vap,           /* vnode attributes pointer */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_setattr) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct vattr *  vap,           /* vnode attributes pointer */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
     int (*vop_read) (
         struct vnode *  vp,            /* file vnode pointer */
         struct uio *    uio,           /* user IO pointer */
@@ -230,10 +249,25 @@ typedef struct vnode_ops {
         struct ucred *  ucp            /* user credentials pointer */
         );
 
-    int (*vop_link) (
-        struct vnode *          dvp,   /* directory vnode pointer */
-        struct vnode *          vp,    /* file vnode pointer */
-        struct componentname *  cnp    /* path name component pointer */
+    int (*vop_fcntl) (
+        struct vnode *  vp,            /* file vnode pointer */
+        u_long          cmd,           /* device specific command */
+        void *          data,          /* extra data */
+        int             fflag,         /* flags */
+        struct ucred *  ucp            /* user credentials pointer */
+        );
+
+    int (*vop_fsync) (
+        struct vnode *  vp,            /* file vnode pointer */
+        struct ucred *  ucp,           /* user credentials pointer */
+        int             flags          /* flags */
+        );
+
+    int (*vop_seek) (
+        struct vnode *  vp,            /* file vnode pointer */
+        off_t           off1,          /* old offset */
+        off_t           off2,          /* new offset */
+        struct ucred *  ucp            /* user credentials pointer */
         );
 
     int (*vop_remove) (
@@ -242,18 +276,19 @@ typedef struct vnode_ops {
         struct componentname *  cnp    /* path name component pointer */
         );
 
-    int (*vop_symlink) (
+    int (*vop_link) (
         struct vnode *          dvp,   /* directory vnode pointer */
-        struct vnode **         vpp,   /* created vnode pointer */
-        struct componentname *  cnp,   /* path name component pointer */
-        struct vattr *          vap,   /* vnode attributes pointer */
-        char *                  tgt    /* ptr to target path string */
+        struct vnode *          vp,    /* file vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
         );
 
-    int (*vop_readlink) (
-        struct vnode *  vp,            /* file vnode pointer */
-        struct uio *    uio,           /* user IO pointer */
-        struct ucred *  ucp            /* user credentials pointer */
+    int (*vop_rename) (
+        struct vnode *          fdvp,  /* from directory vnode pointer */
+        struct vnode *          fvp,   /* from file vnode pointer */
+        struct componentname *  fcnp,  /* from path name component pointer */
+        struct vnode *          tdvp,  /* to directory vnode pointer */
+        struct vnode *          tvp,   /* to file vnode pointer */
+        struct componentname *  tcnp   /* to path name component pointer */
         );
 
     int (*vop_mkdir) (
@@ -269,38 +304,31 @@ typedef struct vnode_ops {
         struct componentname *  cnp    /* path name component pointer */
         );
 
+    int (*vop_symlink) (
+        struct vnode *          dvp,   /* directory vnode pointer */
+        struct vnode **         vpp,   /* created vnode pointer */
+        struct componentname *  cnp,   /* path name component pointer */
+        struct vattr *          vap,   /* vnode attributes pointer */
+        char *                  tgt    /* ptr to target path string */
+        );
+
     int (*vop_readdir) (
         struct vnode *   vp,           /* directory vnode pointer */
         struct dirent *  dep,          /* directory entry pointer */
         struct ucred *   ucp,          /* user credentials pointer */
         int *            eof,          /* end of file status */
-        int *            ncookies,     /* number of cookies */
-        u_long **        cookies       /* cookies */
+        u_long *         cookies       /* cookies */
         );
 
-    int (*vop_getattr) (
+    int (*vop_readlink) (
         struct vnode *  vp,            /* file vnode pointer */
-        struct vattr *  vap,           /* vnode attributes pointer */
+        struct uio *    uio,           /* user IO pointer */
         struct ucred *  ucp            /* user credentials pointer */
         );
 
-    int (*vop_setattr) (
-        struct vnode *  vp,            /* file vnode pointer */
-        struct vattr *  vap,           /* vnode attributes pointer */
-        struct ucred *  ucp            /* user credentials pointer */
-        );
-
-    int (*vop_truncate) (
-        struct vnode *  vp,            /* file vnode pointer */
-        off_t           len,           /* new length of the file */
-        int             flags,         /* flags */
-        struct ucred *  ucp            /* user credentials pointer */
-        );
-
-    int (*vop_fsync) (
-        struct vnode *  vp,            /* file vnode pointer */
-        struct ucred *  ucp,           /* user credentials pointer */
-        int             flags          /* flags */
+    int (*vop_abortop) (
+        struct vnode *          vp,    /* file vnode pointer */
+        struct componentname *  cnp    /* path name component pointer */
         );
 
     int (*vop_activate) (
@@ -311,33 +339,6 @@ typedef struct vnode_ops {
         struct vnode *  vp             /* file vnode pointer */
         );
 
-    int (*vop_pathconf) (
-        struct vnode *  vp,            /* file vnode pointer */
-        int             name,          /* type of info to return */
-        int *           rv             /* return value */
-        );
-
-    int (*vop_seek) (
-        struct vnode *  vp,            /* file vnode pointer */
-        off_t           off1,          /* old offset */
-        off_t           off2,          /* new offset */
-        struct ucred *  ucp            /* user credentials pointer */
-        );
-
-    int (*vop_rename) (
-        struct vnode *          fdvp,  /* from directory vnode pointer */
-        struct vnode *          fvp,   /* from file vnode pointer */
-        struct componentname *  fcnp,  /* from path name component pointer */
-        struct vnode *          tdvp,  /* to directory vnode pointer */
-        struct vnode *          tvp,   /* to file vnode pointer */
-        struct componentname *  tcnp   /* to path name component pointer */
-        );
-
-    int (*vop_abort) (
-        struct vnode *          vp,    /* file vnode pointer */
-        struct componentname *  cnp    /* path name component pointer */
-        );
-
     int (*vop_strategy) (
         struct vnode *  vp,            /* file vnode pointer */
         struct buf *    bp             /* buffer pointer */
@@ -345,6 +346,27 @@ typedef struct vnode_ops {
 
     int (*vop_print) (
         struct vnode *  vp             /* file vnode pointer */
+        );
+
+    int (*vop_pathconf) (
+        struct vnode *  vp,            /* file vnode pointer */
+        int             name,          /* type of info to return */
+        int *           rv             /* return value */
+        );
+
+    int (*vop_advlock) (
+        struct vnode *  vp,            /* file vnode pointer */
+        void *          id,            /* identifier */
+        int             op,            /* operation */
+        struct flock *  fl,            /* file loock */
+        int             flags          /* flags */
+        );
+
+    int (*vop_truncate) (
+        struct vnode *  vp,            /* file vnode pointer */
+        off_t           len,           /* new length of the file */
+        int             flags,         /* flags */
+        struct ucred *  ucp            /* user credentials pointer */
         );
 } vnode_ops_t;
 

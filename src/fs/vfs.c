@@ -1335,8 +1335,7 @@ int vncioIoctl (
                         (struct dirent *) arg,
                         NULL,
                         &eof,
-                        &pFileDesc->fd_num_cookies,
-                        &pFileDesc->fd_cookie_data
+                        pFileDesc->fd_cookies
                         );
             if (error != OK) {
                 errnoSet (error);
