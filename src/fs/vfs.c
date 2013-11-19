@@ -1155,7 +1155,7 @@ int vncioIoctl (
             }
 
             /*
-             * XXX TODO: eventually add VFS_TRANS_START().
+             * XXX TODO: eventually add VFS_STARTTRANSACTION().
              * Get the current file size from the file attributes.
              */
 
@@ -1178,7 +1178,7 @@ int vncioIoctl (
 
         case FIOFLUSH:
             /*
-             * XXX TODO: eventually add VFS_TRANS_START().
+             * XXX TODO: eventually add VFS_STARTTRANSACTION().
              * Flush any unwritten data to the backing media.
              */
 
@@ -1193,7 +1193,7 @@ int vncioIoctl (
 
         case FIOSEEK:
             /*
-             * VFS_TRANS_START() not needed here as only the VFS
+             * VFS_STARTTRANSACTION() not needed here as only the VFS
              * file descriptor is used.
              */
 
@@ -1211,7 +1211,7 @@ int vncioIoctl (
 
         case FIOWHERE:
             /*
-             * VFS_TRANS_START() not needed here as only the VFS
+             * VFS_STARTTRANSACTION() not needed here as only the VFS
              * file descriptor is used.
              */
 
@@ -1263,7 +1263,7 @@ int vncioIoctl (
             }
 
             /*
-             * XXX TODO: eventually add VFS_TRANS_START().
+             * XXX TODO: eventually add VFS_STARTTRANSACTION().
              * Before we can obtain the target from the symlink, we
              * must ascertain the length of the symlink.
              */
@@ -1282,7 +1282,7 @@ int vncioIoctl (
         case FIOPATHCONF:
             /*
              * Although pathconf() makes a VOP_xxx() call, it should not
-             * be necessary to use VFS_TRANS_START().
+             * be necessary to use VFS_STARTTRANSACTION().
              */
 
              error = VOP_PATHCONF (
@@ -1294,7 +1294,7 @@ int vncioIoctl (
 
         case FIOTRUNCATE:
             /*
-             * XXX TODO: eventually add VFS_TRANS_START().
+             * XXX TODO: eventually add VFS_STARTTRANSACTION().
              * Grow or shrink the file.
              * XXX TODO: There ought to be a check that the file is writable.
              */
@@ -1346,7 +1346,7 @@ int vncioIoctl (
 
         default:
             mountLock (mp);
-            VFS_TRANS_START (mp, FALSE);   /* transaction does not write */
+            VFS_STARTTRANSACTION (mp, FALSE);   /* transaction does not write */
             error = VOP_IOCTL (
                         pFileDesc->fd_vnode,
                         command,
@@ -1354,7 +1354,7 @@ int vncioIoctl (
                         0,     /* Eventually will need file flags */
                         NULL
                         );
-            VFS_TRANS_END (mp, error);
+            VFS_ENDTRANSACTION (mp, error);
             mountUnlock (mp);
             break;
     }

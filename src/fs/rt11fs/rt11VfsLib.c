@@ -29,16 +29,16 @@
 #include <fs/mount.h>
 #include <fs/rt11fsLib.h>
 
-LOCAL int rt11VfsStart       (mount_t * pMount, int flags);
-LOCAL int rt11VfsUnmount     (mount_t * pMount, int flags);
-LOCAL int rt11VfsRoot        (mount_t * pMount, vnode_t ** ppVnode);
-LOCAL int rt11VfsStatVfs     (mount_t * pMount, struct statvfs *);
-LOCAL int rt11VfsVget        (mount_t * pMount, ino_t inode, vnode_t ** ppVnode);
-LOCAL int rt11VfsInit        (void);
-LOCAL int rt11VfsReInit      (void);
-LOCAL int rt11VfsDone        (void);
-LOCAL int rt11VfsTransStart  (mount_t * pMount, BOOL writeFlag);
-LOCAL int rt11VfsTransEnd    (mount_t * pMount, int error);
+LOCAL int  rt11VfsStart      (mount_t * pMount, int flags);
+LOCAL int  rt11VfsUnmount    (mount_t * pMount, int flags);
+LOCAL int  rt11VfsRoot       (mount_t * pMount, vnode_t ** ppVnode);
+LOCAL int  rt11VfsStatVfs    (mount_t * pMount, struct statvfs *);
+LOCAL int  rt11VfsVget       (mount_t * pMount, ino_t inode, vnode_t ** ppVnode);
+LOCAL void rt11VfsInit       (void);
+LOCAL void rt11VfsReInit     (void);
+LOCAL void rt11VfsDone       (void);
+LOCAL int  rt11VfsTransStart (mount_t * pMount, BOOL writeFlag);
+LOCAL int  rt11VfsTransEnd   (mount_t * pMount, int error);
 
 const vfsops_t rt11VfsOps =
     {
@@ -179,7 +179,7 @@ int rt11VfsStatVfs
  * RETURNS: N/A
  */
 
-int rt11VfsInit (void)
+void rt11VfsInit (void)
     {
     return;
     }
@@ -191,7 +191,7 @@ int rt11VfsInit (void)
  * RETURNS: N/A
  */
 
-int rt11VfsReInit (void)
+void rt11VfsReInit (void)
     {
     return;
     }
@@ -203,7 +203,7 @@ int rt11VfsReInit (void)
  * RETURNS: N/A
  */
 
-int rt11VfsDone (void)
+void rt11VfsDone (void)
     {
     return;
     }

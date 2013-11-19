@@ -48,17 +48,6 @@
 #define S_vfsLib_NOT_ENOUGH_VNODES  (M_vfsLib | 0x0002)
 #define S_vfsLib_FILEDESC_EXHAUSTED (M_vfsLib | 0x0003)
 
-#define VFS_START(mp, flags)        (mp)->mnt_ops->start (mp, flags)
-#define VFS_UNMOUNT(mp, flags)      (mp)->mnt_ops->unmount (mp, flags)
-#define VFS_ROOT(mp, vpp)           (mp)->mnt_ops->root (mp, vpp)
-#define VFS_STAT_VFS(mp, statvfs)   (mp)->mnt_ops->statvfs (mp, statvfs)
-#define VFS_VGET(mp, inode, vpp)    (mp)->mnt_ops->vget (mp, inode, vpp)
-#define VFS_INIT(mp)                (mp)->mnt_ops->init (void)
-#define VFS_REINIT(mp)              (mp)->mnt_ops->reinit (void)
-#define VFS_DONE(mp)                (mp)->mnt_ops->done (void)
-#define VFS_TRANS_START(mp, write)  (mp)->mnt_ops->trans_start (mp, write)
-#define VFS_TRANS_END(mp, error)    (mp)->mnt_ops->trans_end (mp, error)
-
 /* structs */
 
 struct vnode;
@@ -71,17 +60,54 @@ typedef struct vfsops {
     int     devSize;
     int     inodeSize;
     int     maxCookies;
-    int     (*start)       (struct mount * pMount, int flags);
-    int     (*unmount)     (struct mount * pMount, int flags);
-    int     (*root)        (struct mount * pMount, struct vnode ** ppVnode);
-    int     (*statvfs)     (struct mount * pMount, struct statvfs *);
-    int     (*vget)        (struct mount * pMount, ino_t inode,
-                            struct vnode ** ppVnode);
-    int     (*init)        (void);
-    int     (*reinit)      (void);
-    int     (*done)        (void);
-    int     (*trans_start) (struct mount * pMount, BOOL writeFlag);
-    int     (*trans_end)   (struct mount * pMount, int error);
+
+    int (*vfs_start) (
+        struct mount * pMount,
+        int            flags
+        );
+
+    int (*vfs_unmount) (
+        struct mount * pMount,
+        int            flags
+        );
+
+    int (*vfs_root) (
+        struct mount *  pMount,
+        struct vnode ** ppVnode
+        );
+
+    int (*vfs_statvfs) (
+        struct mount *   pMount,
+        struct statvfs * pStatVfs
+        );
+
+    int (*vfs_vget) (
+        struct mount *  pMount,
+        ino_t           inode,
+        struct vnode ** ppVnode
+        );
+
+    void (*vfs_init) (
+        void
+        );
+
+    void (*vfs_reinit) (
+        void
+        );
+
+    void (*vfs_done) (
+        void
+        );
+
+    int (*vfs_starttransaction) (
+        struct mount * pMount,
+        BOOL           writeFlag
+        );
+
+    int (*vfs_endtransaction) (
+        struct mount * pMount,
+        int            error
+        );
 } vfsops_t;
 
 
@@ -116,6 +142,38 @@ typedef struct mount {
 } mount_t;
 
 /* externs */
+
+/* macros */
+
+#define VFS_START(mp, flags) \
+    (mp)->mnt_ops->vfs_start ((mp), (flags))
+
+#define VFS_UNMOUNT(mp, flags) \
+    (mp)->mnt_ops->vfs_unmount ((mp), (flags))
+
+#define VFS_ROOT(mp, vpp) \
+    (mp)->mnt_ops->vfs_root ((mp), (vpp))
+
+#define VFS_STATVFS(mp, statvfs) \
+    (mp)->mnt_ops->vfs_statvfs ((mp), (statvfs))
+
+#define VFS_VGET(mp, inode, vpp) \
+    (mp)->mnt_ops->vfs_vget ((mp), (inode), (vpp))
+
+#define VFS_INIT(mp) \
+    (mp)->mnt_ops->vfs_init (void)
+
+#define VFS_REINIT(mp) \
+    (mp)->mnt_ops->vfs_reinit (void)
+
+#define VFS_DONE(mp) \
+    (mp)->mnt_ops->vfs_done (void)
+
+#define VFS_STARTTRANSACTION(mp, write) \
+    (mp)->mnt_ops->vfs_starttransaction ((mp), (write))
+
+#define VFS_ENDTRANSACTION(mp, error) \
+    (mp)->mnt_ops->vfs_endtransaction ((mp), (error))
 
 /* functions */
 

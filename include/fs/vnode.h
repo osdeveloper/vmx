@@ -39,7 +39,10 @@
 #define V_ROOT      0x0001
 #define V_DELETED   0x0002
 
-#define VNOVAL      -1
+#define VNOVAL          -1
+#define VREAD         0004
+#define VWRITE        0002
+#define VEXEC         0001
 
 /* enums */
 
@@ -384,6 +387,227 @@ typedef struct vnode {
 #define VTODATA(type, vp) \
     ((type *) (vp)->v_data)
 
+#define vop_error_lookup                                                      \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode **,                                                      \
+        struct componentname *                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_lookup_enotdir                                              \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode **,                                                      \
+        struct componentname *                                                \
+        )) vopErrorENOTDIR)
+
+#define vop_error_create                                                      \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode **,                                                      \
+        struct componentname *,                                               \
+        struct vattr *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_open                                                        \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_close                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_access                                                      \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_getattr                                                     \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vattr *,                                                       \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_setattr                                                     \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vattr *,                                                       \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_read                                                        \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct uio *,                                                         \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_write                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct uio *,                                                         \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_ioctl                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        u_long, void *,                                                       \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_fcntl                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        u_long,                                                               \
+        void *,                                                               \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_fsync                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct ucred *,                                                       \
+        int                                                                   \
+        )) vopErrorENOSYS)
+
+#define vop_error_seek                                                        \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        voff_t,                                                               \
+        voff_t,                                                               \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_remove                                                      \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode *,                                                       \
+        struct componentname *                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_link                                                        \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode *,                                                       \
+        struct componentname *                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_rename                                                      \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode *,                                                       \
+        struct componentname *,                                               \
+        struct vnode *,                                                       \
+        struct vnode *,                                                       \
+        struct componentname *                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_mkdir                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode **,                                                      \
+        struct componentname *,                                               \
+        struct vattr *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_rmdir                                                       \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode *,                                                       \
+        struct componentname *                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_rmdir_enotdir                                               \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode *,                                                       \
+        struct componentname *                                                \
+        )) vopErrorENOTDIR)
+
+#define vop_error_symlink                                                     \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct vnode **,                                                      \
+        struct componentname *,                                               \
+        struct vattr *,                                                       \
+        char *                                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_readdir                                                     \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct dirent *,                                                      \
+        struct ucred *,                                                       \
+        int *,                                                                \
+        int *                                                                 \
+        )) vopErrorENOSYS)
+
+#define vop_error_readdir_enotdir                                             \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct dirent *,                                                      \
+        struct ucred *,                                                       \
+        int *,                                                                \
+        int *                                                                 \
+        )) vopErrorENOTDIR)
+
+#define vop_error_readlink                                                    \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct uio *,                                                         \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
+#define vop_error_abortop                                                     \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        struct componentname *                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_strategy                                                    \
+    ((void (*) (                                                              \
+        struct vnode *,                                                       \
+        struct buf *                                                          \
+        )) vopErrorVOID)
+
+#define vop_error_pathconf                                                    \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        int,                                                                  \
+        long *                                                                \
+        )) vopErrorENOSYS)
+
+#define vop_error_advlock                                                     \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        void *,                                                               \
+        int,                                                                  \
+        struct flock *,                                                       \
+        int                                                                   \
+        )) vopErrorENOSYS)
+
+#define vop_error_truncate                                                    \
+    ((int (*) (                                                               \
+        struct vnode *,                                                       \
+        voff_t,                                                               \
+        int,                                                                  \
+        struct ucred *                                                        \
+        )) vopErrorENOSYS)
+
 /* functions */
 
 /***************************************************************************
@@ -453,9 +677,44 @@ int vgetino (
  *
  * RETURNS: OK on success, error otherwise
  */
+
 int vflushbuf (
     vnode_t  * vp,
     BOOL       sync
+    );
+
+/***************************************************************************
+ *
+ * vopErrorENOSYS - error default operator for ENOSYS
+ *
+ * RETURNS: ENOSYS
+ */
+
+
+int vopErrorENOSYS(
+    void
+    );
+
+/***************************************************************************
+ *
+ * vopErrorENOTDIR - error default operator
+ *
+ * RETURNS: ENOTDIR
+ */
+
+int vopErrorENOTDIR(
+    void
+    );
+
+/***************************************************************************
+ *
+ * vopErrorVOID - error default operator
+ *
+ * RETURNS: N/A
+ */
+
+void vopErrorVOID(
+    void
     );
 
 #endif

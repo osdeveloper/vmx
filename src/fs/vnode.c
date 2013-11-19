@@ -215,6 +215,7 @@ int vgetino (
  *
  * RETURNS: OK on success, error otherwise
  */
+
 int vflushbuf (
     vnode_t  * vp,
     BOOL       sync
@@ -235,5 +236,44 @@ int vflushbuf (
     }
 
     return (OK);
+}
+
+/***************************************************************************
+ *
+ * vopErrorENOSYS - error default operator for ENOSYS
+ *
+ * RETURNS: ENOSYS
+ */
+
+int vopErrorENOSYS(
+    void
+    ) {
+    return (ENOSYS);
+}
+
+/***************************************************************************
+ *
+ * vopErrorENOTDIR - error default operator
+ *
+ * RETURNS: ENOTDIR
+ */
+
+int vopErrorENOTDIR(
+    void
+    ) {
+    return (ENOTDIR);
+}
+
+/***************************************************************************
+ *
+ * vopErrorVOID - error default operator
+ *
+ * RETURNS: N/A
+ */
+
+void vopErrorVOID(
+    void
+    ) {
+    return;
 }
 

@@ -36,16 +36,16 @@
 #include <fs/mount.h>
 #include <fs/rawfsLib.h>
 
-LOCAL int rawVfsStart       (mount_t * pMount, int flags);
-LOCAL int rawVfsUnmount     (mount_t * pMount, int flags);
-LOCAL int rawVfsRoot        (mount_t * pMount, vnode_t ** ppVnode);
-LOCAL int rawVfsStatVfs     (mount_t * pMount, struct statvfs *);
-LOCAL int rawVfsVget        (mount_t * pMount, ino_t inode, vnode_t ** ppVnode);
-LOCAL int rawVfsInit        (void);
-LOCAL int rawVfsReInit      (void);
-LOCAL int rawVfsDone        (void);
-LOCAL int rawVfsTransStart (mount_t * pMount, BOOL writeFlag);
-LOCAL int rawVfsTransEnd   (mount_t * pMount, int error);
+LOCAL int  rawVfsStart      (mount_t * pMount, int flags);
+LOCAL int  rawVfsUnmount    (mount_t * pMount, int flags);
+LOCAL int  rawVfsRoot       (mount_t * pMount, vnode_t ** ppVnode);
+LOCAL int  rawVfsStatVfs    (mount_t * pMount, struct statvfs *);
+LOCAL int  rawVfsVget       (mount_t * pMount, ino_t inode, vnode_t ** ppVnode);
+LOCAL void rawVfsInit       (void);
+LOCAL void rawVfsReInit     (void);
+LOCAL void rawVfsDone       (void);
+LOCAL int  rawVfsTransStart (mount_t * pMount, BOOL writeFlag);
+LOCAL int  rawVfsTransEnd   (mount_t * pMount, int error);
 
 const vfsops_t rawVfsOps =
     {
@@ -193,7 +193,7 @@ int rawVfsStatVfs
  * RETURNS: N/A
  */
 
-int rawVfsInit (void)
+void rawVfsInit (void)
     {
     return;
     }
@@ -205,7 +205,7 @@ int rawVfsInit (void)
  * RETURNS: N/A
  */
 
-int rawVfsReInit (void)
+void rawVfsReInit (void)
     {
     return;
     }
@@ -217,7 +217,7 @@ int rawVfsReInit (void)
  * RETURNS: N/A
  */
 
-int rawVfsDone (void)
+void rawVfsDone (void)
     {
     return;
     }
