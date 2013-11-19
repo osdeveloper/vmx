@@ -1339,6 +1339,7 @@ LOCAL void rt11VopSyncerStrategy (
     pBio->bio_blkno   = (bp->b_lblkno << pVolDesc->vd_secPerBlk2);
     pBio->bio_bcount  = pVolDesc->vd_blkSize;
     pBio->bio_error   = OK;
+
     xbdStrategy (pVolDesc->vd_device, pBio);
 }
 
@@ -1383,6 +1384,7 @@ LOCAL void rt11VopInternalReadStrategy (
     /* Read block from disk */
     error = bread (pSyncer, physBlk, pVolDesc->vd_blkSize, NULL, &pTmpBuf);
     if (error) {
+        buf_done (pBuf, error);
         return;
     }
 
@@ -1390,7 +1392,7 @@ LOCAL void rt11VopInternalReadStrategy (
     pTmpBuf->b_flags |= B_INVAL;
     brelse (pTmpBuf);
 
-    buf_done (pBuf, error);
+    buf_done (pBuf, OK);
 }
 
 /***************************************************************************
@@ -1433,16 +1435,11 @@ LOCAL void rt11VopInternalWriteStrategy (
 
     /* Get a temporary buffer */
     pTmpBuf = buf_getblk (pSyncer, physBlk, pVolDesc->vd_blkSize);
-
     buf_swapdata (pBuf, pTmpBuf);
     buf_startwrite (pTmpBuf);
     error = buf_wait (pTmpBuf);
     buf_swapdata (pBuf, pTmpBuf);
     pTmpBuf->b_flags |= B_INVAL;
-    /*
-     * Done by: buf_done()
-     * Is this correct?
-     */
     brelse (pTmpBuf);
 
     buf_done (pBuf, error);

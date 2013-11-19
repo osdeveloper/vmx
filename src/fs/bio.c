@@ -428,18 +428,24 @@ void buf_swapdata (
     struct buf *  b1,
     struct buf *  b2
     ) {
-    int b_size;
-    unsigned char  * b_data;
+    int              b_size;
+    unsigned char *  b_data;
+    struct bio *     b_bio;
 
     /* Swap data buffers */
-    b_data = b2->b_data;
+    b_data     = b2->b_data;
     b2->b_data = b1->b_data;
     b1->b_data = b_data;
 
     /* Swap sizes */
-    b_size = b2->b_size;
+    b_size     = b2->b_size;
     b2->b_size = b1->b_size;
     b1->b_size = b_size;
+
+    /* Swap bio */
+    b_bio     = b2->b_bio;
+    b2->b_bio = b1->b_bio;
+    b1->b_bio = b_bio;
 }
 
 /***************************************************************************
