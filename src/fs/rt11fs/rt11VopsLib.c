@@ -432,19 +432,25 @@ LOCAL int  rt11VopCreate (
     struct componentname *  cnp,   /* path name component pointer */
     struct vattr *          vap    /* vnode attributes pointer */
     ) {
-    RT11FS_INODE  *     pDirInode;
-    RT11FS_DIR_DESC  *  pDirDesc;
-    RT11FS_DIR_ENTRY    dirEntry;
-    vnode_t  *          pFileVnode;
-    RT11FS_INODE  *     pFileInode;
-    RT11FS_FILE_DESC  * pFileDesc;
-    int                 entryNum, startBlock;
-    int                 error;
+    RT11FS_INODE *       pDirInode;
+    RT11FS_DIR_DESC *    pDirDesc;
+    RT11FS_DIR_ENTRY     dirEntry;
+    vnode_t *            pFileVnode;
+    RT11FS_INODE *       pFileInode;
+    RT11FS_FILE_DESC *   pFileDesc;
+    RT11FS_DEV  *        pFsDev;
+    RT11FS_VOLUME_DESC * pVolDesc;
+    int                  entryNum, startBlock;
+    int                  error;
 
     /* Check directory vnode */
     if (dvp == NULL) {
         return (EINVAL);
     }
+
+    /* Get volume descriptor */
+    pFsDev = (RT11FS_DEV *) dvp->v_mount->mnt_data;
+    pVolDesc = &(pFsDev->volDesc);
 
     /* Get directory inode */
     RT11FS_VTOI (pDirInode, dvp);
@@ -485,6 +491,7 @@ LOCAL int  rt11VopCreate (
 
     /* Flush directory */
     VOP_FSYNC (pFileVnode, NULL, 0);
+    rt11fsVolFlush(pVolDesc);
 
     *vpp = pFileVnode;
     return (error);
@@ -572,6 +579,7 @@ LOCAL int  rt11VopClose (
 
         /* Flush directory */
         VOP_FSYNC (vp, NULL, 0);
+        rt11fsVolFlush(pVolDesc);
     }
 
     return (OK);

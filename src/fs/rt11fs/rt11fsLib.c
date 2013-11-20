@@ -39,9 +39,9 @@
 
 /* Forward declarations */
 LOCAL int rt11fsDirSegBlocks (unsigned blkSize, int maxEntries);
-LOCAL int rt11fsSectorRead (device_t  device, lblkno_t sector,
-    unsigned sectorSize, char *data);
-LOCAL void rt11fsSectorReadDone (struct bio *bio);
+LOCAL int rt11fsSectorRW (device_t  device, lblkno_t sector,
+    unsigned sectorSize, unsigned flags, char *data);
+LOCAL void rt11fsSectorRWDone (struct bio *bio);
 LOCAL int rt11fsR50out (char *string);
 LOCAL void rt11fsR50in (unsigned int r50, char *string);
 LOCAL void rt11fsSwapBytes (char *pSrc, char *pDest, size_t nBytes);
@@ -161,8 +161,8 @@ STATUS rt11fsDiskProbe (
     }
 
     /* Read super-block */
-    if ((error = rt11fsSectorRead (device, RT11FS_DIR_BLOCK, len,
-                                   (char *) pDirSeg)) != OK) {
+    if ((error = rt11fsSectorRW (device, RT11FS_DIR_BLOCK, len,
+                                 BIO_READ, (char *) pDirSeg)) != OK) {
         errnoSet (error);
         bio_free (pDirSeg);
         return (ERROR);
@@ -340,8 +340,9 @@ int rt11fsMount (
     }
 
     /* Read super-block */
-    if ((error = rt11fsSectorRead (pVolDesc->vd_device, RT11FS_DIR_BLOCK, len,
-                                   (char *) pVolDesc->vd_pDirSeg)) != OK) {
+    if ((error = rt11fsSectorRW (pVolDesc->vd_device, RT11FS_DIR_BLOCK, len,
+                                 BIO_READ,
+                                 (char *) pVolDesc->vd_pDirSeg)) != OK) {
         free (pVolDesc->vd_pDirSeg);
         return (error);
     }
@@ -845,6 +846,52 @@ int rt11fsFindDirEntry (
     return (ERROR);
 }
 
+/******************************************************************************
+ *
+ * rt11fsVolFlush - Flush volume
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS rt11fsVolFlush(
+    RT11FS_VOLUME_DESC * pVolDesc
+    )
+{
+    int               error;
+    int               len;
+    char *            pSegTop;
+    RT11FS_DIR_SEG  * pDirSeg;
+
+    /* Initialize locals */
+    len = pVolDesc->vd_nSegBlks * pVolDesc->vd_blkSize;
+    pSegTop = (char *) pVolDesc->vd_pDirSeg;
+
+    /* Allocate memory for directory block */
+    pDirSeg = (RT11FS_DIR_SEG *) bio_alloc (pVolDesc->vd_device,
+                                            pVolDesc->vd_nSegBlks);
+    if (pDirSeg == NULL) {
+        return (ERROR);
+    }
+
+    /* Copy current superblock */
+    memcpy (pDirSeg, pSegTop, len);
+
+    /* Swap bytes */
+    rt11fsSwapBytes ((char *) pDirSeg, (char *) pDirSeg, len);
+
+    /* Write superblock to device */
+    if ((error = rt11fsSectorRW (pVolDesc->vd_device, RT11FS_DIR_BLOCK, len,
+                                 BIO_WRITE, (char *) pDirSeg)) != OK) {
+        errnoSet (error);
+        bio_free (pDirSeg);
+        return (ERROR);
+    }
+
+    bio_free (pDirSeg);
+
+    return (OK);
+}
+
 /***************************************************************************
  *
  * rt11fsDirSegBlock - calculate number of blocks that root dir occupies
@@ -870,15 +917,16 @@ LOCAL int rt11fsDirSegBlocks (
 
 /***************************************************************************
  *
- * rt11fsSectorRead - read a sector from the underlying XBD device
+ * rt11fsSectorRW - read or write sector from the underlying XBD device
  *
  * RETURNS: OK on success, error otherwise
  */
 
-LOCAL int rt11fsSectorRead (
+LOCAL int rt11fsSectorRW (
     device_t  device,       /* lower layer XBD device */
     lblkno_t  sector,       /* sector number to read */
     unsigned  sectorSize,   /* # of bytes in the sector */
+    unsigned  flags,        /* BIO_READ or BIO_WRITE */
     char *    data          /* pointer to data to read */
     ) {
     SEMAPHORE  sem;
@@ -888,11 +936,11 @@ LOCAL int rt11fsSectorRead (
 
     bio.bio_dev     = device;               /* device to read */
     bio.bio_data    = data;                 /* data buffer */
-    bio.bio_flags   = BIO_READ;             /* flag it as a read operation */
+    bio.bio_flags   = flags;                /* flag it as a read operation */
     bio.bio_chain   = NULL;                 /* no subsequent bios */
     bio.bio_bcount  = sectorSize;           /* sector size (bytes to read) */
     bio.bio_blkno   = sector;               /* sector # to read */
-    bio.bio_done    = rt11fsSectorReadDone; /* rtn to call when done reading */
+    bio.bio_done    = rt11fsSectorRWDone;   /* rtn to call when done reading */
     bio.bio_caller1 = &sem;                 /* semaphore on which to wait */
     bio.bio_error   = OK;
     bio.bio_resid   = 0;
@@ -903,15 +951,14 @@ LOCAL int rt11fsSectorRead (
     return (bio.bio_error);
 }
 
-
 /***************************************************************************
  *
- * rt11fsSectorReadDone -
+ * rt11fsSectorRWDone -
  *
  * RETURNS: N/A
  */
 
-LOCAL void rt11fsSectorReadDone (
+LOCAL void rt11fsSectorRWDone (
     struct bio *  bio
     ) {
     semGive ((SEM_ID) bio->bio_caller1);
@@ -920,7 +967,6 @@ LOCAL void rt11fsSectorReadDone (
 /*******************************************************************************
  *
  * rt11fsR50out - Convert up to 3 ASCII chars to radix-50
- *
  *
  * RETURNS: Radix-50 number
  */
@@ -958,7 +1004,6 @@ LOCAL int rt11fsR50out (
 /*******************************************************************************
  *
  * rt11fsR50in - Convert radix-50 to 3 ASCII chars
- *
  *
  * RETURNS: N/A
  */

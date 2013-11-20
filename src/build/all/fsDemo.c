@@ -223,12 +223,15 @@ int eject(
 }
 
 int insert(
-    int dev_id
+    int dev_id,
+    BOOL partFlag
     )
 {
     device_t device = (device_t) dev_id;
 
-    if (erfEventRaise (xbdEventCategory, xbdEventPrimaryInsert,
+    if (erfEventRaise (xbdEventCategory,
+                       (partFlag == TRUE) ? xbdEventPrimaryInsert :
+                                            xbdEventSecondaryInsert,
                        ERF_ASYNC_PROCESS, (void *) device, NULL) != OK) {
         return (ERROR);
     }

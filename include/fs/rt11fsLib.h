@@ -341,6 +341,17 @@ int rt11fsFindDirEntry (
     char  *             name
     );
 
+/******************************************************************************
+ *
+ * rt11fsVolFlush - Flush volume
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS rt11fsVolFlush(
+    RT11FS_VOLUME_DESC * pVolDesc
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
