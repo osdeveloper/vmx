@@ -35,6 +35,7 @@
 #include <os/pathLib.h>
 #include <os/pipeDrv.h>
 #include <os/symLib.h>
+#include <os/erfLib.h>
 #include <fs/xbd.h>
 #include <fs/xbdRamDisk.h>
 #include <fs/fsMonitor.h>
@@ -198,50 +199,39 @@ STATUS format(
 }
 
 int eject(
-    char *name,
-    BOOL partFlag
+    char *name
     )
 {
-    char partName[10];
     int fd;
-    FS_PATH_WAIT_STRUCT pathWait;
 
-    strcpy(partName, name);
-    if (partFlag == TRUE)
-    {
-        strcat(partName, ":0");
-    }
-
-    if (fsPathAddedEventSetup(&pathWait, partName) != OK)
-    {
-        fprintf(stderr, "ERROR: Unable to setup path wait for %s\n", partName);
-        return (ERROR);
-    }
-
-    fd = open(partName, O_RDWR, 0777);
+    fd = open(name, O_RDWR, 0777);
     if (fd == ERROR)
     {
-        fprintf(stderr, "ERROR: Unable to open file: %s\n", partName);
+        fprintf(stderr, "ERROR: Unable to open file: %s\n", name);
         return (ERROR);
     }
 
-    if (ioctl(fd, XBD_SOFT_EJECT, 0) != OK)
+    if (ioctl(fd, XBD_HARD_EJECT, 0) != OK)
     {
-        fprintf(stderr, "ERROR: Unable to soft eject device\n");
+        fprintf(stderr, "ERROR: Unable to eject device\n");
         return (ERROR);
     }
 
     close(fd);
 
-    printf("Waiting for path: %s...", partName);
+    return (OK);
+}
 
-    if (fsWaitForPath(&pathWait) != OK)
-    {
-        fprintf(stderr, "ERROR: Path wait failed for: %s\n", partName);
+int insert(
+    int dev_id
+    )
+{
+    device_t device = (device_t) dev_id;
+
+    if (erfEventRaise (xbdEventCategory, xbdEventPrimaryInsert,
+                       ERF_ASYNC_PROCESS, (void *) device, NULL) != OK) {
         return (ERROR);
     }
-
-    printf("Path %s got available.\n", name);
 
     return (OK);
 }
@@ -320,6 +310,7 @@ void fsDemoInit(
         {NULL, "_filestat", filestat, 0, N_TEXT | N_EXT},
         {NULL, "_format", format, 0, N_TEXT | N_EXT},
         {NULL, "_eject", eject, 0, N_TEXT | N_EXT},
+        {NULL, "_insert", insert, 0, N_TEXT | N_EXT},
         {NULL, "_fsTest1", fsTest1, 0, N_TEXT | N_EXT}
     };
 
