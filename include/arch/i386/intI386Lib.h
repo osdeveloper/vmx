@@ -98,42 +98,6 @@ IMPORT VOIDFUNCPTR  intEoi;
     __asm__ __volatile__ ("testl $0x00000200, %0; jz 0f; sti; 0:" \
                           : /* no output */ : "rm" (oldLevel) : "memory")
 
-#ifdef NEW_INTALIB
-extern int intLevelSet(int level);
-extern int intLock(void);
-extern void intUnlock(int level);
-#endif
-
-/******************************************************************************
- * intLevelSet - Setup interrupt lockout level
- *
- * RETURNS: Zero
- */
-
-int intLevelSet(
-    int level
-    );
-
-/******************************************************************************
- * intLock - Lock interrupts
- *
- * RETURNS: Interrupt lock level
- */
-
-int intLock(
-    void
-    );
-
-/******************************************************************************
- * intUnlock - Unlock interrupts
- *
- * RETURNS: N/A
- */
-
-void intUnlock(
-    int level
-    );
-
 /******************************************************************************
  * intVBRSet - Setup interrupt table descriptor
  *
@@ -142,37 +106,6 @@ void intUnlock(
 
 void intVBRSet(
     FUNCPTR *baseAddr
-    );
-
-/******************************************************************************
- * intVecBaseSet - Set interrupt vector base address
- *
- * RETURNS: N/A
- */
-
-void intVecBaseSet(
-    FUNCPTR *baseAddr
-    );
-
-/******************************************************************************
- * intVecBaseGet - Get interrupt vector base address
- *
- * RETURNS: Current vector base address
- */
-
-FUNCPTR* intVecBaseGet(
-    void
-    );
-
-/******************************************************************************
- * intVecSet - Setup a CPU vector for interrupt/exception
- *
- * RETURNS: N/A
- */
-
-void intVecSet(
-    FUNCPTR *vector,
-    FUNCPTR function
     );
 
 /******************************************************************************
@@ -199,49 +132,6 @@ void intIntHandle(
     ESF0 *pEsf,
     REG_SET *pRegs,
     BOOL error
-    );
-
-/******************************************************************************
- * intHandleCreate - Create an interrupt handler
- *
- * RETURNS: Pointer to handler or NULL
- */
-
-FUNCPTR intHandlerCreate(
-    FUNCPTR routine,
-    int param
-    );
-
-/******************************************************************************
- * intConnect - Connect an interrupt handler
- *
- * RETURNS: OK or ERROR
- */
-
-STATUS intConnect(
-    VOIDFUNCPTR *vec,
-    VOIDFUNCPTR routine,
-    int param
-    );
-
-/******************************************************************************
- * intLockLevelSet - Set interrupt lock out level
- *
- * RETURNS: N/A
- */
-
-void intLockLevelSet(
-    int level
-    );
-
-/******************************************************************************
- * intLockLevelGet - Get interrupt lock out level
- *
- * RETURNS: Interrupt lock mask
- */
-
-int intLockLevelGet(
-    void
     );
 
 /******************************************************************************

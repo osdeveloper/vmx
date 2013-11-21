@@ -24,8 +24,8 @@
 #define _vmx_h
 
 #include <types/vmxCpu.h>
-#include <types/vmxArch.h>
 #include <types/vmxTypes.h>
+#include <types/vmxArch.h>
 
 #ifndef _ASMLANGUAGE
 

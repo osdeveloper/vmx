@@ -31,9 +31,6 @@ u_int32_t sysCsSuper;
 u_int32_t sysCsExc;
 u_int32_t sysCsInt;
 
-/* Extern sysGdt flush funtion in segALib.s */
-IMPORT sysGDTSet(GDT *baseAddr);
-
 /* Local segment base holder */
 LOCAL GDT *segBase = 0;
 
@@ -43,7 +40,7 @@ LOCAL GDT *segBase = 0;
  * RETURNS: N/A
  */
 
-void segEntryInit(
+LOCAL void segEntryInit(
     int num,
     u_int32_t base,
     u_int32_t limit,

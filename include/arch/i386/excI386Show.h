@@ -34,16 +34,6 @@ extern "C" {
 /* Functions */
 
 /******************************************************************************
- * excShowInit - Initialize exception info show library
- *
- * RETURNS: OK
- */
-
-STATUS excShowInit(
-    void
-    );
-
-/******************************************************************************
  * excInfoShow - Show exception info
  *
  * RETURNS: N/A

@@ -70,7 +70,7 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* _ASMLANGUAGE */
 
 #endif /* _esfI386_h */
 

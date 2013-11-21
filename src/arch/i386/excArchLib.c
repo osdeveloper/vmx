@@ -29,6 +29,7 @@
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
 #include <util/qLib.h>
+#include <arch/arch.h>
 #include <arch/regs.h>
 #include <arch/iv.h>
 #include <arch/esf.h>
@@ -38,11 +39,7 @@
 #include <arch/excArchLib.h>
 
 /* Imports */
-IMPORT u_int8_t         excCallTbl[];
-IMPORT VOIDFUNCPTR      intCallTbl[];
 IMPORT u_int32_t        sysIntIdtType;
-IMPORT u_int32_t        sysCsExc;
-IMPORT u_int32_t        sysCsInt;
 
 /* Locals */
 LOCAL FUNCPTR     excBaseHook    = NULL;

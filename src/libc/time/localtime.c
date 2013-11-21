@@ -28,9 +28,6 @@
 
 /* Defines */
 
-/* Imports */
-IMPORT TIMELOCALE *__loctime;
-
 /* Locals */
 
 /* Globals */

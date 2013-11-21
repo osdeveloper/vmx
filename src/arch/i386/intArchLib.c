@@ -24,6 +24,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <vmx.h>
+#include <arch/arch.h>
 #include <arch/regs.h>
 #include <arch/iv.h>
 #include <arch/esf.h>
@@ -34,7 +35,6 @@
 
 /* Imports */
 IMPORT u_int32_t        sysIntIdtType;
-IMPORT u_int32_t        sysCsInt;
 
 /* Globals */
 u_int32_t               intLockMask     = 0x0;

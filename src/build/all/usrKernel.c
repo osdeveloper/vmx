@@ -34,6 +34,7 @@
 #include <vmx/msgQShow.h>
 #include <vmx/workQLib.h>
 #include <vmx/tickLib.h>
+#include <vmx/private/kernelLibP.h>
 #include <os/classLib.h>
 #include <os/classShow.h>
 #include <os/taskHookLib.h>
@@ -42,11 +43,6 @@
 #include "config.h"
 
 /* Defines */
-
-/* Imports */
-IMPORT Q_HEAD activeQHead;
-IMPORT Q_HEAD tickQHead;
-IMPORT Q_HEAD readyQHead;
 
 /* Locals */
 

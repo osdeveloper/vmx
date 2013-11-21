@@ -54,54 +54,6 @@
 extern "C" {
 #endif
 
-#include <vmx/taskLib.h>
-
-/******************************************************************************
- * taskRegsInit - Initialize architecture depedant tcb data
- *
- * RETURNS: N/A
- */
-
-void taskRegsInit(
-    TCB_ID tcbId,
-    char *pStackBase
-    );
-
-/******************************************************************************
- * taskRetValueSet - Set task return value
- *
- * RETURNS: N/A
- */
-
-void taskRetValueSet(
-    TCB_ID tcbId,
-    int val
-    );
-
-/******************************************************************************
- * taskArgSet - Setup task arguments
- *
- * RETURNS: N/A
- */
-
-void taskArgSet(
-    TCB_ID tcbId,
-    char *pStackBase,
-    ARG args[]
-    );
-
-/******************************************************************************
- * taskArgGet - Read task arguments
- *
- * RETURNS: N/A
- */
-
-void taskArgGet(
-    TCB_ID tcbId,
-    char *pStackBase,
-    ARG args[]
-    );
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

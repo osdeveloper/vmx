@@ -75,15 +75,11 @@ typedef struct
     u_int32_t  reserved3;
 } __attribute__((packed)) EXC_INFO;
 
-/******************************************************************************
- * excVecInit - Setup exception interrupt vector
- *
- * RETURNS: OK
- */
+/* Exception call tables */
+IMPORT u_int8_t         excCallTbl[];
+IMPORT VOIDFUNCPTR      intCallTbl[];
 
-STATUS excVecInit(
-    void
-    );
+/* Functions */
 
 /******************************************************************************
  * excExcHandle - Default exception handler
@@ -109,26 +105,6 @@ void excIntHandle(
     ESF0 *pEsf,
     REG_SET *pRegs,
     BOOL error
-    );
-
-/******************************************************************************
- * excBaseHookSet - Set exception base hook
- *
- * RETURNS: N/A
- */
-
-void excBaseHookSet(
-    FUNCPTR func
-    );
-
-/******************************************************************************
- * excSigKillHookSet - Set exception signal kill hook
- *
- * RETURNS: N/A
- */
-
-void excSigKillHookSet(
-    VOIDFUNCPTR func
     );
 
 #ifdef __cplusplus
