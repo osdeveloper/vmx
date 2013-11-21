@@ -2,7 +2,7 @@
  *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  *   This file is part of Real VMX.
- *   Copyright (C) 2013 Surplus Users Ham Society
+ *   Copyright (C) 2008 Surplus Users Ham Society
  *
  *   Real VMX is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,17 +18,16 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* vmxArch.h - Architecture specific */
+/* types.h - Architecture dependet types */
 
-#ifndef _vmxArch_h
-#define _vmxArch_h
+#ifndef _types_h
+#define _types_h
 
-#define _BIG_ENDIAN                     1234
-#define _LITTLE_ENDIAN                  4321
-#define _STACK_GROWS_DOWN               (-1)
-#define _STACK_GROWS_UP                 ( 1)
+#include <types/vmxCpu.h>
 
-#include <arch/arch.h>
+#if     CPU_FAMILY==I386
+#include <arch/i386/typesI386.h>
+#endif
 
 #ifndef _ASMLANGUAGE
 
@@ -42,5 +41,5 @@ extern "C" {
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _vmxArch_h */
+#endif /* _types_h */
 

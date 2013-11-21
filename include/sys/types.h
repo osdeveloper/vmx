@@ -29,11 +29,7 @@
 extern "C" {
 #endif
 
-#include <types/vmxCpu.h>
-
-#if     CPU_FAMILY==I386
-#include <arch/i386/typesI386.h>
-#endif /* I386 */
+#include <arch/types.h>
 
 /* Filesystem size */
 typedef long fsize_t;
