@@ -2,7 +2,7 @@
  *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  *   This file is part of Real VMX.
- *   Copyright (C) 2013 Surplus Users Ham Society
+ *   Copyright (C) 2008 Surplus Users Ham Society
  *
  *   Real VMX is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,16 +18,17 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* archI386.h - Architecture specific stuff */
+/* cacheArchLib.h - Architecture dependent cache library header */
 
-#ifndef _archI386_h_
-#define _archI386_h_
+#ifndef _cacheArchLib_h
+#define _cacheArchLib_h
 
-#define _BYTE_ORDER             _LITTLE_ENDIAN
-#define _ALLOC_ALIGN_SIZE       4
-#define _STACK_ALIGN_SIZE       4
-#define _STACK_DIR              _STACK_GROWS_DOWN
-#define _CACHE_ALIGN_SIZE       32
+#include <types/vmxCpu.h>
+#include <vmx.h>
+
+#if      CPU_FAMILY==I386
+#include <arch/i386/taskI386Lib.h>
+#endif
 
 #ifndef _ASMLANGUAGE
 
@@ -35,25 +36,24 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
+/* Functions */
 
-typedef struct
-{
-    u_int32_t reserved0;
-    u_int32_t reserved1;
-    u_int32_t reserved2;
-    u_int32_t reserved3;
-    u_int32_t reserved4;
-    u_int32_t reserved5;
-    u_int32_t reserved6;
-    u_int32_t reserved7;
-} __attribute__((packed)) X86_EXT;
-        
+/******************************************************************************
+ * cacheArchInit - Initalize architecture dependent cache library
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS cacheArchLibInit(
+    CACHE_MODE textMode,
+    CACHE_MODE dataMode
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* _ASMLANGUAGE */
 
-#endif
+#endif /* _cacheArchLib_h */
 

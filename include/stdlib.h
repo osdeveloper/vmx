@@ -193,6 +193,17 @@ void* realloc(
     );
 
 /******************************************************************************
+ * memalign - Allocate memory aligned to specified size
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* memalign(
+    size_t alignment,
+    size_t size
+    );
+
+/******************************************************************************
  * free - Free allocate memory to heap
  *
  * RETURNS: N/A

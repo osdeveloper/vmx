@@ -55,6 +55,7 @@
 #include <os/memLib.h>
 #include <os/memShow.h>
 #include <os/taskHookLib.h>
+#include <os/taskVarLib.h>
 #include <os/selectLib.h>
 #include <os/private/timerLibP.h>
 #include <os/unixLib.h>
@@ -210,6 +211,7 @@ LOCAL void usrRoot(
   excLibInit();
   excShowInit();
 
+  taskVarLibInit();
   selectLibInit();
   unixLibInit();
 

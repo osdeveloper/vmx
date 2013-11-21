@@ -412,6 +412,9 @@ STATUS taskInit(
             tcbId->pSignalInfo = NULL;
 #endif
 
+            /* Task variables */
+            tcbId->pTaskVar = NULL;
+
             /* Exception info */
             tcbId->pExcRegSet    = NULL;
             tcbId->excInfo.valid = 0;

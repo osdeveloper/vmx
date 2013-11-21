@@ -18,42 +18,22 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* archI386.h - Architecture specific stuff */
+/* memalign.c - Allocate aligned memory block */
 
-#ifndef _archI386_h_
-#define _archI386_h_
 
-#define _BYTE_ORDER             _LITTLE_ENDIAN
-#define _ALLOC_ALIGN_SIZE       4
-#define _STACK_ALIGN_SIZE       4
-#define _STACK_DIR              _STACK_GROWS_DOWN
-#define _CACHE_ALIGN_SIZE       32
+#include <os/memPartLib.h>
 
-#ifndef _ASMLANGUAGE
+/******************************************************************************
+ * memalign - Allocate memory aligned to specified size
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <sys/types.h>
-
-typedef struct
+void* memalign(
+    size_t alignment,
+    size_t size
+    )
 {
-    u_int32_t reserved0;
-    u_int32_t reserved1;
-    u_int32_t reserved2;
-    u_int32_t reserved3;
-    u_int32_t reserved4;
-    u_int32_t reserved5;
-    u_int32_t reserved6;
-    u_int32_t reserved7;
-} __attribute__((packed)) X86_EXT;
-        
-#ifdef __cplusplus
+    return memPartAlignedAlloc(memSysPartId, size, alignment);
 }
-#endif /* __cplusplus */
-
-#endif
-
-#endif
 

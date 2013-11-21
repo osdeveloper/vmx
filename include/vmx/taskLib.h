@@ -34,6 +34,7 @@
 #define S_taskLib_TASK_SWAP_HOOK_REFERENCED     (M_taskLib | 0x0007)
 #define S_taskLib_TASK_SWAP_HOOK_SET            (M_taskLib | 0x0008)
 #define S_taskLib_TASK_SWAP_HOOK_CLEAR          (M_taskLib | 0x0009)
+#define S_taskLib_TASK_VAR_NOT_FOUND            (M_taskLib | 0x000a)
 
 #define TASK_READY                      0x00
 #define TASK_SUSPEND                    0x01
@@ -62,6 +63,7 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include <arch/regs.h>
 #include <arch/excArchLib.h>
 #include <util/qLib.h>
@@ -69,7 +71,9 @@ extern "C" {
 #include <os/classLib.h>
 #include <os/objLib.h>
 #include <os/selectLib.h>
-#include <stdio.h>
+
+/* Structs */
+struct taskVar;
 
 /* Task control block */
 typedef struct taskTCB
@@ -130,6 +134,9 @@ typedef struct taskTCB
     /* Error codes */
     int errorStatus;
     int exitCode;
+
+    /* Task variables */
+    struct taskVar *pTaskVar;
 
     /* Exception info */
     REG_SET *pExcRegSet;
