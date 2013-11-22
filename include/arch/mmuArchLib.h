@@ -27,8 +27,8 @@
 
 #include <types/vmxCpu.h>
 
-#if      CPU_FAMILY==I386
-#include <arch/i386/mmuI386Lib.h>
+#if      CPU==PENTIUM2
+#include <arch/i386/mmuPro32Lib.h>
 #endif
 
 #define S_mmuLib_NOT_INSTALLED           (M_mmuLib | 0x0001)

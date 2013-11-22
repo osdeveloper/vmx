@@ -18,35 +18,38 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* mmuALib.s - Memory mapping unit for 386+ assmebler routines */
+/* mmuALib.s - Memory mapping unit for Pentium Pro (II) assmebler routines */
 
 #define _ASMLANGUAGE
 #include <vmx.h>
 #include <arch/asm.h>
 
+        /* Imports */
+        .globl  DATA(mmuPro32Enabled)
+
         /* Internals */
-        .globl  GTEXT(mmuI386Enable)
-        .globl  GTEXT(mmuI386PdbrSet)
-        .globl  GTEXT(mmuI386PdbrGet)
-        .globl  GTEXT(mmuI386TlbFlush)
+        .globl  GTEXT(mmuPro32Enable)
+        .globl  GTEXT(mmuPro32PdbrSet)
+        .globl  GTEXT(mmuPro32PdbrGet)
+        .globl  GTEXT(mmuPro32TlbFlush)
 
         .text
         .balign 16
 
 /******************************************************************************
- * mmuI386Enable - Enable/Disable MMU
+ * mmuPro32Enable - Enable/Disable MMU
  *
  * RETURNS TRUE or FALSE
  */
 
         .balign 16, 0x90
 
-FUNC_LABEL(mmuI386Enable)
+FUNC_LABEL(mmuPro32Enable)
         pushfl                          /* Store flags */
         cli                             /* Disable interrupts */
         movl    SP_ARG1+4(%esp), %edx
         movl    %cr0, %eax
-        movl    %edx, FUNC(mmuEnabled)
+        movl    %edx, FUNC(mmuPro32Enabled)
         cmpl    $0, %edx
         je      mmuDisable
         orl     $0x80010000, %eax       /* Set PG/WP */
@@ -60,19 +63,57 @@ mmuEnable0:
         jmp     mmuEnable1
 
 mmuEnable1:
-        movl    $0, %eax
+        movl    $FALSE, %eax
         popfl                           /* Enable interrupts */
         ret
 
 /******************************************************************************
- * mmuI386PdbrSet - Setup page directory register
+ * mmuPro32On - Turn on memory mapping unit
+ * 
+ * Assumes that interrupts are looked out
  *
  * RETURNS N/A
  */
 
         .balign 16, 0x90
 
-FUNC_LABEL(mmuI386PdbrSet)
+FUNC_LABEL(mmuPro32On)
+        movl    %cr0, %eax
+        orl     $0x80010000, %eax
+        movl    %eax, %cr0
+        jmp     mmuOn0
+
+mmuOn0:
+        ret
+
+/******************************************************************************
+ * mmuPro32Off - Turn off memory mapping unit
+ * 
+ * Assumes that interrupts are looked out
+ *
+ * RETURNS N/A
+ */
+
+        .balign 16, 0x90
+
+FUNC_LABEL(mmuPro32Off)
+        movl    %cr0, %eax
+        orl     $0x7ffeffff, %eax
+        movl    %eax, %cr0
+        jmp     mmuOff0
+
+mmuOff0:
+        ret
+
+/******************************************************************************
+ * mmuPro32PdbrSet - Setup page directory register
+ *
+ * RETURNS N/A
+ */
+
+        .balign 16, 0x90
+
+FUNC_LABEL(mmuPro32PdbrSet)
         pushfl                          /* Store flags */
         cli                             /* Disable interrupts */
         movl    SP_ARG1+4(%esp), %eax
@@ -99,14 +140,14 @@ mmuPdbrSet1:
         ret
 
 /******************************************************************************
- * mmuI386PdbrGet - Get page directory register
+ * mmuPro32PdbrGet - Get page directory register
  *
  * RETURNS Pointer to mmu translation table
  */
 
         .balign 16, 0x90
 
-FUNC_LABEL(mmuI386PdbrGet)
+FUNC_LABEL(mmuPro32PdbrGet)
         movl    %cr3, %eax
         movl    $0xfffff000, %edx
 
@@ -121,21 +162,21 @@ mmuPdbrGet0:
         ret
 
 /******************************************************************************
- * mmuI386TlbFlush - Flush MMU translation table
+ * mmuPro32TlbFlush - Flush MMU translation table
  *
  * RETURNS N/A
  */
 
         .balign 16, 0x90
 
-FUNC_LABEL(mmuI386TlbFlush)
+FUNC_LABEL(mmuPro32TlbFlush)
         pushfl                          /* Store flags */
         cli                             /* Disable interrputs */
         movl    %cr3, %eax
         movl    %eax, %cr3               /* Flush */
-        jmp     mmuTlbFlushEnd
+        jmp     mmuTlbFlush0
 
-mmuTlbFlushEnd:
+mmuTlbFlush0:
         popfl                           /* Enable interrupts */
         ret
 
