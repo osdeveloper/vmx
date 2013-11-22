@@ -215,6 +215,16 @@ void* memalign(
     );
 
 /******************************************************************************
+ * valloc - Allocate memory that begins at page boundary
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* valloc(
+    size_t size
+    );
+
+/******************************************************************************
  * free - Free allocate memory to heap
  *
  * RETURNS: N/A

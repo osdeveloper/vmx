@@ -278,13 +278,13 @@ void* cacheArchDmaMalloc(
     )
 {
     void *buf;
-#ifdef VMLIB
     int   pageSize;
 
     /* Get page size */
-    pageSize = VM_PAGE_SIZE_GET();
+    pageSize = vmPageSizeGet();
     if (pageSize == ERROR)
     {
+        errnoSet(S_vmLib_NOT_INSTALLED);
         buf = NULL;
     }
     else
@@ -296,20 +296,15 @@ void* cacheArchDmaMalloc(
         buf = valloc(bytes);
         if (buf != NULL)
         {
-            /* If vm library installed */
-            if (vmLibInfo.vmLibInstalled == TRUE)
-            {
-                VM_STATE_SET(
-                    NULL,
-                    buf,
-                    bytes,
-                    VM_STATE_MASK_CACHEABLE,
-                    VM_STATE_NOT_CACHEABLE
-                    );
-            }
+            vmStateSet(
+                NULL,
+                buf,
+                bytes,
+                VM_STATE_MASK_CACHEABLE,
+                VM_STATE_NOT_CACHEABLE
+                );
         }
     }
-#endif
 
     return buf;
 }
@@ -327,20 +322,14 @@ STATUS cacheArchDmaFree(
     STATUS        status;
     BLOCK_HEADER *pHeader;
 
-#ifdef VMLIB
-    /* If vm library installed */
-    if (vmLibInfo.vmLibInstalled == TRUE)
-    {
-        pHeader = BLOCK_TO_HEADER((char *) buf);
-        VM_STATE_SET(
-            NULL,
-            buf,
-            (pHeader->nWords * 2) - sizeof(BLOCK_HEADER),
-            VM_STATE_MASK_CACHEABLE,
-            VM_STATE_CACHEABLE
-            );
-    }
-#endif
+    pHeader = BLOCK_TO_HEADER((char *) buf);
+    vmStateSet(
+        NULL,
+        buf,
+        (pHeader->nWords * 2) - sizeof(BLOCK_HEADER),
+        VM_STATE_MASK_CACHEABLE,
+        VM_STATE_CACHEABLE
+        );
 
     /* Free memory */
     free(buf);
