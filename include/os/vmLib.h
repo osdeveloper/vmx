@@ -26,17 +26,13 @@
 #include <ostool/moduleNumber.h>
 
 #include <vmx.h>
-#include <os/objLib.h>
-#include <os/classLib.h>
-#include <os/private/vmLibP.h>
 
 #define S_vmLib_NOT_INSTALLED          (M_vmLib | 0x0001)
 #define S_vmLib_ZERO_PAGE_SIZE         (M_vmLib | 0x0002)
-#define S_vmLib_NULL_CONTEXT_ID        (M_vmLib | 0x0003)
+#define S_vmLib_NOT_PAGE_ALIGNED       (M_vmLib | 0x0003)
 #define S_vmLib_INVALID_STATE          (M_vmLib | 0x0004)
 #define S_vmLib_INVALID_STATE_MASK     (M_vmLib | 0x0005)
-#define S_vmLib_VIRT_ADDR_NOT_ALIGNED  (M_vmLib | 0x0006)
-#define S_vmLib_PAGE_SIZE_NOT_ALIGNED  (M_vmLib | 0x0006)
+#define S_vmLib_ADDR_IN_GLOBAL_SPACE   (M_vmLib | 0x0006)
 
 /* State masks */
 #define VM_STATE_MASK_VALID             0x03
@@ -63,6 +59,11 @@
 extern "C" {
 #endif
 
+#include <arch/mmuArchLib.h>
+#include <vmx/semLib.h>
+#include <os/objLib.h>
+#include <os/classLib.h>
+
 typedef struct
 {
     void     *vAddr;
@@ -76,81 +77,14 @@ typedef struct
 {
     OBJ_CORE           objCore;
     MMU_TRANS_TABLE_ID mmuTransTable;
+    SEMAPHORE          sem;
 } VM_CONTEXT;
 
 typedef struct
 {
     BOOL    vmLibInstalled;
     BOOL    protectTextSegs;
-    FUNCPTR vmStateSetFunc;
-    FUNCPTR vmStateGetFunc;
-    FUNCPTR vmEnableFunc;
-    FUNCPTR vmPageSizeGetFunc;
-    FUNCPTR vmTranslateFunc;
-    FUNCPTR vmTextProtectFunc;
 } VM_LIB_INFO;
-
-/* Macros */
-
-/******************************************************************************
- * VM_STATE_SET - Set virtual memory state
- *
- * RETURNS: OK or ERROR
- */
-
-#define VM_STATE_SET(context, addr, len, stateMask, state)                    \
-  ( (vmLibInfo.vmStateSetFunc == NULL) ? (ERROR) :                            \
-    ( (*vmLibInfo.vmStateSetFunc) ((context), (addr), (len), (state)) ) )
-
-/******************************************************************************
- * VM_STATE_GET - Get virtual memory state
- *
- * RETURNS: OK or ERROR
- */
-
-#define VM_STATE_GET(context, addr, state)                                    \
-  ( (vmLibInfo.vmStateGetFunc == NULL) ? (ERROR) :                            \
-    ( (*vmLibInfo.vmStateGetFunc) ((context), (addr), (state)) ) )
-
-/******************************************************************************
- * VM_ENABLE - Enable virtual memory
- *
- * RETURNS: OK or ERROR
- */
-
-#define VM_ENABLE(enable)                                                     \
-  ( (vmLibInfo.vmEnableFunc == NULL) ? (ERROR) :                              \
-    ( (*vmLibInfo.vmEnableFunc) ((enable)) ) )
-
-/******************************************************************************
- * VM_PAGE_SIZE_GET - Get virtual memory page size
- *
- * RETURNS: Page size or ERROR
- */
-
-#define VM_PAGE_SIZE_GET()                                                    \
-  ( (vmLibInfo.vmPageSizeGetFunc == NULL) ? (ERROR) :                         \
-    ( (*vmLibInfo.vmPageSizeGetFunc) () ) )
-
-/******************************************************************************
- * VM_TRANSLATE - Translate between virtual and physical address
- *
- * RETURNS: OK or ERROR
- */
-
-#define VM_TRANSLATE(context, vAddr, pAddr)                                   \
-  ( (vmLibInfo.vmTranslateFunc == NULL) ? (ERROR) :                           \
-    ( (*vmLibInfo.vmTranslateFunc) ((context), (vAddr), (pAddr)) ) )
-
-/******************************************************************************
- * VM_TEXT_PAGE_PROTECT - Write protext text page
- *
- * RETURNS: OK or ERROR
- */
-
-#define VM_TEXT_PAGE_PROTECT(addr, protect)                                   \
-  ( (vmLibInfo.vmTextProtectFunc == NULL) ? (ERROR) :                         \
-    ( (*vmLibInfo.vmTextProtectFunc) ((addr), (protect)) ) )
 
 /* Types */
 
@@ -162,6 +96,181 @@ IMPORT CLASS_ID vmContextClassId;
 IMPORT VM_LIB_INFO vmLibInfo;
 
 /* Functions */
+
+/******************************************************************************
+ * vmLibInit - Initialize virtual memory library
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmLibInit(
+    int pageSize
+    );
+
+/******************************************************************************
+ * vmGlobalMapInit - Initialize global page map
+ *
+ * RETURNS: VM_CONTEXT_ID for global vmContext or NULL
+ */
+
+VM_CONTEXT_ID vmGlobalMapInit(
+    PHYS_MEM_DESC *pMemDescTable,
+    int            numElements,
+    BOOL           enable
+    );
+
+/******************************************************************************
+ * vmContextCreate - Create virtual memory context
+ *
+ * RETURNS: VM_CONTEXT_ID virtual memory context or NULL
+ */
+
+VM_CONTEXT_ID vmContextCreate(
+    void
+    );
+
+/******************************************************************************
+ * vmContextInit - Initialize virtual memory context
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmContextInit(
+    VM_CONTEXT_ID context
+    );
+
+/******************************************************************************
+ * vmContextDestroy - Destroy virtual memory context
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmContextDestroy(
+    VM_CONTEXT_ID context
+    );
+
+/******************************************************************************
+ * vmStateSet - Setup pages states
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmStateSet(
+    VM_CONTEXT_ID  context,
+    void          *vAddr,
+    int            len,
+    unsigned       mask,
+    unsigned       state
+    );
+
+/******************************************************************************
+ * vmStateGet - Get pages states
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmStateGet(
+    VM_CONTEXT_ID  context,
+    void          *vAddr,
+    unsigned      *pState
+    );
+
+/******************************************************************************
+ * vmMap - Map physical page(s)
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmMap(
+    VM_CONTEXT_ID  context,
+    void          *vAddr,
+    void          *pAddr,
+    unsigned       len
+    );
+
+/******************************************************************************
+ * vmGlobalMap - Map physical page(s) to global page map
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmGlobalMap(
+    void     *vAddr,
+    void     *pAddr,
+    unsigned  len
+    );
+
+/******************************************************************************
+ * vmGlobalInfoGet - Get global page block table
+ *
+ * RETURNS: Pointer to page block table
+ */
+
+char* vmGlobalInfoGet(
+    void
+    );
+
+/******************************************************************************
+ * vmPageBlockSizeGet - Get page block size
+ *
+ * RETURNS: Global page block size
+ */
+
+int vmPageBlockSizeGet(
+    void
+    );
+
+/******************************************************************************
+ * vmCurrentSet - Set current page map
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmCurrentSet(
+    VM_CONTEXT_ID context
+    );
+
+/******************************************************************************
+ * vmCurrentGet - Get current page map
+ *
+ * RETURNS: Pointer to current page map
+ */
+
+VM_CONTEXT_ID vmCurrentGet(
+    void
+    );
+
+/******************************************************************************
+ * vmEnable - Enable MMU
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmEnable(
+    BOOL enable
+    );
+
+/******************************************************************************
+ * vmPageSizeGet - Get virual memory page size
+ *
+ * RETURNS: Page size
+ */
+
+int vmPageSizeGet(
+    void
+    );
+
+/******************************************************************************
+ * vmTranslate - Translate from virtual to physical memory address
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS vmTranslate(
+    VM_CONTEXT_ID   context,
+    void           *vAddr,
+    void          **pAddr
+    );
 
 #ifdef __cplusplus
 }

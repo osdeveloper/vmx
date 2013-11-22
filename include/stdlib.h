@@ -193,6 +193,17 @@ void* realloc(
     );
 
 /******************************************************************************
+ * calloc - Allocate numeber of objects with zeroes
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* calloc(
+    size_t num,
+    size_t size
+    );
+
+/******************************************************************************
  * memalign - Allocate memory aligned to specified size
  *
  * RETURNS: Pointer to memory or NULL

@@ -20,7 +20,7 @@
 
 # Makefile - I/O library for Real VMX
 
-OBJS = objLib.o classLib.o classShow.o memPartLib.o memLib.o memShow.o \
+OBJS = objLib.o classLib.o classShow.o memPartLib.o memLib.o memShow.o vmLib.o \
        errnoLib.o ffsLib.o taskHookLib.o taskHookShow.o taskVarLib.o pathLib.o \
        iosLib.o iosShow.o ioLib.o dirLib.o tyLib.o logLib.o excLib.o symLib.o \
        symShow.o uioLib.o unixLib.o selectLib.o erfLib.o envLib.o envShow.o \

@@ -18,46 +18,36 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* vmLibP.h.h - Private virual memory header */
+/* calloc.c - Allocate number of objects */
 
-#ifndef _vmLibP_h
-#define _vmLibP_h
+#include <os/memPartLib.h>
+#include <stdlib.h>
 
-#include <arch/mmuArchLib.h>
+/******************************************************************************
+ * calloc - Allocate numeber of objects with zeroes
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
 
-#ifndef _ASMLANGUAGE
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef struct
+void* calloc(
+    size_t num,
+    size_t size
+    )
 {
-    unsigned vmMask;
-    unsigned mmuMask;
-    unsigned vmState;
-    unsigned mmuState;
-} VM2MMU_STATE_TRANS;
+    void   *buf;
+    size_t  nBytes;
 
-typedef struct
-{
-    FUNCPTR            mmuLibInit;
-    MMU_TRANS_TABLE_ID (*mmuTransTableCreate)();
-    FUNCPTR            mmuTransTableDestroy;
-    FUNCPTR            mmuEnable;
-    FUNCPTR            mmuStateSet;
-    FUNCPTR            mmuStateGet;
-    FUNCPTR            mmuPageMap;
-    FUNCPTR            mmuGlobalPageMap;
-    FUNCPTR            mmuTranslate;
-    VOIDFUNCPTR        mmuCurrentSet;
-} MMU_LIB_FUNCTIONS;
+    /* Calculate size */
+    nBytes = num * size;
 
-#ifdef __cplusplus
+    /* Allocate memory */
+    buf = memPartAlloc(memSysPartId, nBytes);
+    if (buf != NULL)
+    {
+        /* Clear memory */
+        memset(buf, 0, nBytes);
+    }
+
+    return buf;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _vmLibP_h */
 

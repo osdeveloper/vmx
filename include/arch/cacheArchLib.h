@@ -36,6 +36,12 @@
 extern "C" {
 #endif
 
+#include <os/cacheLib.h>
+
+/* Imports */
+
+IMPORT BOOL cacheMmuAvailable;
+
 /* Functions */
 
 /******************************************************************************

@@ -28,18 +28,18 @@
 #include <vmx/memPartLib.h>
 #include <vmx/memLib.h>
 #include <os/vmLib.h>
+#include <os/private/vmLibP.h>
 #include <arch/intArchLib.h>
 #include <arch/cacheArchLib.h>
 #include <arch/mmuArchLib.h>
 
-/* Imports from vmLib */
-IMPORT VM2MMU_STATE_TRANS *mmuStateTransTable;
-IMPORT int                 mmuStateTransTableSize;
-IMPORT int                 mmuPageBlockSize;
-IMPORT MMU_LIB_FUNCTIONS   mmuLibFunctions;
-
 /* Globals */
-BOOL mmuPro32Enabled = FALSE;
+BOOL                mmuPro32Enabled = FALSE;
+VM2MMU_STATE_TRANS *mmuStateTransTable;
+int                 mmuStateTransTableSize;
+int                 mmuPageBlockSize;
+MMU_LIB_FUNCTIONS   mmuLibFunctions;
+
 
 /* Locals */
 LOCAL BOOL             firstTime = TRUE;
@@ -103,10 +103,6 @@ LOCAL VM2MMU_STATE_TRANS mmuStateTransTableLocal[] =
 };
 
 /* Forward declare library functions */
-STATUS mmuLibInit(
-    int pageSize
-    );
-
 LOCAL STATUS mmuPteGet(
     MMU_TRANS_TABLE  *transTable,
     void             *vAddr,
