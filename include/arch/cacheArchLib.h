@@ -49,6 +49,125 @@ STATUS cacheArchLibInit(
     CACHE_MODE dataMode
     );
 
+/******************************************************************************
+ * cacheArchEnable - Enable cache
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchEnable(
+    CACHE_TYPE cache
+    );
+
+/******************************************************************************
+ * cacheArchDisable - Disable cache
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchDisable(
+    CACHE_TYPE cache
+    );
+
+/******************************************************************************
+ * cacheArchLock - Lock cache
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchLock(
+    CACHE_TYPE  cache,
+    void       *addr,
+    size_t      bytes
+    );
+
+/******************************************************************************
+ * cacheArchUnlock - Unlock cache
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchUnlock(
+    CACHE_TYPE  cache,
+    void       *addr,
+    size_t      bytes
+    );
+
+/******************************************************************************
+ * cacheArchClear - Clear cache
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchClear(
+    CACHE_TYPE  cache,
+    void       *addr,
+    size_t      bytes
+    );
+
+/******************************************************************************
+ * cacheArchFlush - Unlock cache
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchFlush(
+    CACHE_TYPE  cache,
+    void       *addr,
+    size_t      bytes
+    );
+
+/******************************************************************************
+ * cacheArchClearEntry - Clear cache entry
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchClearEntry(
+    CACHE_TYPE  cache,
+    void       *address
+    );
+
+/******************************************************************************
+ * cacheArchDmaMalloc - Allocate dma memory
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* cacheArchDmaMalloc(
+    size_t bytes
+    );
+
+/******************************************************************************
+ * cacheArchDmaFree - Free allocated dma memory
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS cacheArchDmaFree(
+    void *buf
+    );
+
+/******************************************************************************
+ * cacheArchDmaMallocSnoop - Allocate cache line aligen buffer
+ *
+ * RETURNS: Pointer to memory or NULL
+ */
+
+void* cacheArchDmaMallocSnoop(
+    size_t bytes
+    );
+
+/******************************************************************************
+ * cacheArchDmaFreeSnoop - Free cache line aligned allocated memory
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS cacheArchDmaFreeSnoop(
+    void *buf
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

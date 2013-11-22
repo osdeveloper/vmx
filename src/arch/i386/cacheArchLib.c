@@ -25,63 +25,14 @@
 #include <vmx.h>
 #include <arch/regs.h>
 #include <os/memPartLib.h>
-#ifdef VMLIB
 #include <os/vmLib.h>
-#endif
 #include <os/cacheLib.h>
+#include <arch/cacheArchLib.h>
 
 /* Defines */
 
 /* Locals */
 LOCAL BOOL cacheArchLibInstalled = FALSE;
-
-LOCAL STATUS cacheArchEnable(
-    CACHE_TYPE cache
-    );
-
-LOCAL STATUS cacheArchDisable(
-    CACHE_TYPE cache
-    );
-
-LOCAL STATUS cacheArchLock(
-    CACHE_TYPE  cache,
-    void        *addr,
-    size_t       bytes
-    );
-
-LOCAL STATUS cacheArchUnlock(
-    CACHE_TYPE  cache,
-    void       *addr,
-    size_t      bytes
-    );
-
-LOCAL STATUS cacheArchClear(
-    CACHE_TYPE  cache,
-    void       *addr,
-    size_t      bytes
-    );
-
-LOCAL STATUS cacheArchFlush(
-    CACHE_TYPE  cache,
-    void       *addr,
-    size_t      bytes
-    );
-
-LOCAL void* cacheArchDmaMalloc(
-    size_t bytes
-    );
-
-LOCAL STATUS cacheArchDmaFree(
-    void *buf
-    );
-
-LOCAL void* cacheArchDmaMallocSnoop(
-    size_t bytes
-    );
-
-LOCAL STATUS cacheArchDmaFreeSnoop(
-    void *buf
-    );
 
 /* Globals */
 
@@ -184,7 +135,7 @@ STATUS cacheArchLibInit(
  * RETURNS: OK
  */
 
-LOCAL STATUS cacheArchEnable(
+STATUS cacheArchEnable(
     CACHE_TYPE cache
     )
 {
@@ -208,7 +159,7 @@ LOCAL STATUS cacheArchEnable(
  * RETURNS: OK
  */
 
-LOCAL STATUS cacheArchDisable(
+STATUS cacheArchDisable(
     CACHE_TYPE cache
     )
 {
@@ -232,13 +183,12 @@ LOCAL STATUS cacheArchDisable(
  * RETURNS: OK
  */
 
-LOCAL STATUS cacheArchLock(
+STATUS cacheArchLock(
     CACHE_TYPE  cache,
     void       *addr,
     size_t      bytes
     )
 {
-
     /* Call low-level cache lock */
     cacheI386Lock();
 
@@ -251,13 +201,12 @@ LOCAL STATUS cacheArchLock(
  * RETURNS: OK
  */
 
-LOCAL STATUS cacheArchUnlock(
+STATUS cacheArchUnlock(
     CACHE_TYPE  cache,
     void       *addr,
     size_t      bytes
     )
 {
-
     /* Call low-level cache unlock */
     cacheI386Unlock();
 
@@ -270,7 +219,7 @@ LOCAL STATUS cacheArchUnlock(
  * RETURNS: OK
  */
 
-LOCAL STATUS cacheArchClear(
+STATUS cacheArchClear(
     CACHE_TYPE  cache,
     void       *addr,
     size_t      bytes
@@ -288,7 +237,7 @@ LOCAL STATUS cacheArchClear(
  * RETURNS: OK
  */
 
-LOCAL STATUS cacheArchFlush(
+STATUS cacheArchFlush(
     CACHE_TYPE  cache,
     void       *addr,
     size_t      bytes
@@ -301,12 +250,30 @@ LOCAL STATUS cacheArchFlush(
 }
 
 /******************************************************************************
+ * cacheArchClearEntry - Clear cache entry
+ *
+ * RETURNS: OK
+ */
+
+STATUS cacheArchClearEntry(
+    CACHE_TYPE  cache,
+    void       *address
+    )
+{
+#if (CPU != I80386)
+    __asm__ __volatile__("wbinvd");
+#endif
+
+    return OK;
+}
+
+/******************************************************************************
  * cacheArchDmaMalloc - Allocate dma memory
  *
  * RETURNS: Pointer to memory or NULL
  */
 
-LOCAL void* cacheArchDmaMalloc(
+void* cacheArchDmaMalloc(
     size_t bytes
     )
 {
@@ -353,7 +320,7 @@ LOCAL void* cacheArchDmaMalloc(
  * RETURNS: OK or ERROR
  */
 
-LOCAL STATUS cacheArchDmaFree(
+STATUS cacheArchDmaFree(
     void *buf
     )
 {
@@ -387,7 +354,7 @@ LOCAL STATUS cacheArchDmaFree(
  * RETURNS: Pointer to memory or NULL
  */
 
-LOCAL void* cacheArchDmaMallocSnoop(
+void* cacheArchDmaMallocSnoop(
     size_t bytes
     )
 {
@@ -408,7 +375,7 @@ LOCAL void* cacheArchDmaMallocSnoop(
  * RETURNS: OK or ERROR
  */
 
-LOCAL STATUS cacheArchDmaFreeSnoop(
+STATUS cacheArchDmaFreeSnoop(
     void *buf
     )
 {
