@@ -119,6 +119,10 @@ void usrInit(
 {
     sysHwInit0();
 
+#ifdef INCLUDE_CACHE_SUPPORT
+    cacheLibInit(USER_I_CACHE_MODE, USER_D_CACHE_MODE);
+#endif /* INCLUDE_CACHE_SUPPORT */
+
     /* Set exception base vector */
     intVecBaseSet((FUNCPTR *) VEC_BASE_ADRS);
 
@@ -129,6 +133,16 @@ void usrInit(
 
     /* Initialize kernel libraries */
     usrKernelInit();
+
+#ifdef INCLUDE_CACHE_SUPPORT
+#ifdef USER_I_CACHE_ENABLE
+    cacheEnable(INSTRUCTION_CACHE);
+#endif /* USER_I_CACHE_ENABLE */
+
+#ifdef USER_D_CACHE_ENABLE
+    cacheEnable(DATA_CACHE);
+#endif /* USER_D_CACHE_ENABLE */
+#endif /* INCLUDE_CACHE_SUPPORT */
 
     kernelInit(
         (FUNCPTR) usrRoot,
@@ -151,10 +165,6 @@ LOCAL void usrRoot(
   int i;
   int len;
   int consoleFd;
-
-#ifdef INCLUDE_CACHE_SUPPORT
-  cacheLibInit(USER_I_CACHE_MODE, USER_D_CACHE_MODE);
-#endif /* INCLUDE_CACHE_SUPPORT */
 
   intStackEnable(TRUE);
 
