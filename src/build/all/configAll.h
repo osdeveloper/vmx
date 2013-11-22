@@ -35,6 +35,11 @@
 #define MAX_LOG_MSGS                    50      /* Maximum of log messages */
 #define SYM_TABLE_HASH_SIZE_LOG2        8       /* Symbol table log 2 size  */
 
+#define USER_I_CACHE_MODE               CACHE_WRITETROUGH
+#define USER_D_CACHE_MODE               CACHE_WRITETROUGH
+#define USER_I_CACHE_ENABLE
+#define USER_D_CACHE_ENABLE
+
 #ifdef __cplusplus
 extern "C" {
 #endif

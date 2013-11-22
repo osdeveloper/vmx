@@ -25,7 +25,7 @@
 #include <arch/asm.h>
 
         /* Imports */
-        .globl  DATA(mmuPro32Enabled)
+        .globl  GDATA(mmuPro32Enabled)
 
         /* Internals */
         .globl  GTEXT(mmuPro32Enable)

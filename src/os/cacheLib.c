@@ -27,15 +27,55 @@
 
 /* Defines */
 
-/* Locals */
+/* Function tables */
+CACHE_LIB cacheLib =
+{
+    NULL,                                         /* cacheEnable */
+    NULL,                                         /* cacheDisable */
+    NULL,                                         /* cacheLock */
+    NULL,                                         /* cacheUnlock */
+    NULL,                                         /* cacheFlush */
+    NULL,                                         /* cacheInvalidate */
+    NULL,                                         /* cacheClear */
+    NULL,                                         /* cacheTextUpdate */
+    NULL,                                         /* cachePipeFlush */
+    NULL,                                         /* dmaMalloc */
+    NULL,                                         /* dmaFree */
+    NULL,                                         /* dmaVirtToPhys */
+    NULL                                          /* dmaPhysToVirt */
+};
+
+CACHE_FUNCS cacheNullFunc =
+{
+    NULL,                                         /* cacheFlush */
+    NULL,                                         /* cacheInvalidate */
+    NULL,                                         /* cacheVirtToPhys */
+    NULL                                          /* cachePhysToVirt */
+};
+
+CACHE_FUNCS cacheDmaFunc =
+{
+    NULL,                                         /* cacheFlush */
+    NULL,                                         /* cacheInvalidate */
+    NULL,                                         /* cacheVirtToPhys */
+    NULL                                          /* cachePhysToVirt */
+};
+
+CACHE_FUNCS cacheUsrFunc =
+{
+    NULL,                                         /* cacheFlush */
+    NULL,                                         /* cacheInvalidate */
+    NULL,                                         /* cacheVirtToPhys */
+    NULL                                          /* cachePhysToVirt */
+};
 
 /* Globals */
-BOOL cacheLibInstalled     = FALSE;
-CACHE_MODE cacheDataMode   = CACHE_DISABLED;
-BOOL cacheDataEnabled      = FALSE;
-BOOL cacheMmuAvailable     = FALSE;
-FUNCPTR cacheDmaMallocFunc = NULL;
-FUNCPTR cacheDmaFreeFunc   = NULL;
+BOOL       cacheLibInstalled  = FALSE;
+CACHE_MODE cacheDataMode      = CACHE_DISABLED;
+BOOL       cacheDataEnabled   = FALSE;
+BOOL       cacheMmuAvailable  = FALSE;
+FUNCPTR    cacheDmaMallocFunc = NULL;
+FUNCPTR    cacheDmaFreeFunc   = NULL;
 
 /* Functions */
 
@@ -53,7 +93,7 @@ STATUS cacheLibInit(
     STATUS status;
 
     /* If installed */
-    if (cacheLibInstalled)
+    if (cacheLibInstalled == TRUE)
     {
         status = OK;
     }

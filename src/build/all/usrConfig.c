@@ -69,6 +69,7 @@
 #include <os/envLib.h>
 #include <os/envShow.h>
 #include <os/erfLib.h>
+#include <os/cacheLib.h>
 #include <os/pipeDrv.h>
 #include <ostool/shellLib.h>
 #include <fs/xbd.h>
@@ -151,6 +152,10 @@ LOCAL void usrRoot(
   int len;
   int consoleFd;
 
+#ifdef INCLUDE_CACHE_SUPPORT
+  cacheLibInit(USER_I_CACHE_MODE, USER_D_CACHE_MODE);
+#endif /* INCLUDE_CACHE_SUPPORT */
+
   intStackEnable(TRUE);
 
   memPartLibInit(pMemPoolStart, memPoolSize);
@@ -226,6 +231,10 @@ LOCAL void usrRoot(
 
   memLibInit();
   memShowInit();
+
+#ifdef INCLUDE_MMU
+  usrMmuInit();
+#endif /* INCLUDE_MMU */
 
   pipeDrvInit();
 

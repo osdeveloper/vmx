@@ -53,6 +53,14 @@
 #define VM_STATE_GUARDED                0x80
 #define VM_STATE_NOT_GUARDED            0x00
 
+/* Additional states */
+#define VM_STATE_MASK_WBACK                     VM_STATE_MASK_MEM_COHERENCY
+#define VM_STATE_MASK_GLOBAL                    VM_STATE_MASK_GUARDED
+#define VM_STATE_WBACK                          VM_STATE_MEM_COHERENCY
+#define VM_STATE_NOT_WBACK                      VM_STATE_NOT_MEM_COHERENCY
+#define VM_STATE_GLOBAL                         VM_STATE_GUARDED
+#define VM_STATE_NOT_GLOBAL                     VM_STATE_NOT_GUARDED
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

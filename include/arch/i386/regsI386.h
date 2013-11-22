@@ -43,6 +43,33 @@
 
 #define spReg                        esp
 
+/* Control registers */
+#define CR0                            1
+#define CR1                            2
+#define CR2                            3
+#define CR3                            4
+
+/* Test registers */
+#define TR3                            5
+#define TR4                            6
+#define TR5                            7
+#define TR6                            8
+#define TR7                            9
+
+/* CR0 bits */
+#define CR0_PE                  0x00000001      /* Protection enable */
+#define CR0_MP                  0x00000002      /* Math present */
+#define CR0_EM                  0x00000004      /* Emulation */
+#define CR0_TS                  0x00000008      /* Task switch */
+#define CR0_NE                  0x00000020      /* Numeric error */
+#define CR0_WP                  0x00010000      /* Write protected */
+#define CR0_AM                  0x00040000      /* Alignment mask */
+#define CR0_NW                  0x20000000      /* No write trough */
+#define CR0_CD                  0x40000000      /* Cache disable */
+#define CR0_PG                  0x80000000      /* Paging */
+#define CR0_NW_NOT              0xdfffffff      /* Write trought */
+#define CR0_CD_NOT              0xbfffffff      /* Cache enable */
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

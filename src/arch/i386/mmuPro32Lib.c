@@ -25,10 +25,9 @@
 #include <string.h>
 #include <vmx.h>
 #include <sys/types.h>
-#include <vmx/memPartLib.h>
-#include <vmx/memLib.h>
+#include <os/memPartLib.h>
+#include <os/memLib.h>
 #include <os/vmLib.h>
-#include <os/private/vmLibP.h>
 #include <arch/intArchLib.h>
 #include <arch/cacheArchLib.h>
 #include <arch/mmuArchLib.h>
@@ -39,7 +38,6 @@ VM2MMU_STATE_TRANS *mmuStateTransTable;
 int                 mmuStateTransTableSize;
 int                 mmuPageBlockSize;
 MMU_LIB_FUNCTIONS   mmuLibFunctions;
-
 
 /* Locals */
 LOCAL BOOL             firstTime = TRUE;
@@ -88,7 +86,7 @@ LOCAL VM2MMU_STATE_TRANS mmuStateTransTableLocal[] =
     },
     {
         VM_STATE_MASK_WBACK, MMU_STATE_MASK_WBACK,
-        VM_STATE_WBACK_NOT,  MMU_STATE_WBACK_NOT
+        VM_STATE_NOT_WBACK,  MMU_STATE_NOT_WBACK
     },
 
     /* Global */
@@ -98,7 +96,7 @@ LOCAL VM2MMU_STATE_TRANS mmuStateTransTableLocal[] =
     },
     {
         VM_STATE_MASK_GLOBAL, MMU_STATE_MASK_GLOBAL,
-        VM_STATE_GLOBAL_NOT,   MMU_STATE_GLOBAL_NOT
+        VM_STATE_NOT_GLOBAL,  MMU_STATE_NOT_GLOBAL
     }
 };
 
@@ -885,10 +883,10 @@ LOCAL void mmuCurrentSet(
     mmuCurrentTransTable = transTable;
 
     /* Setup mmu register */
-    mmuPdbrSet(transTable);
+    mmuPro32PdbrSet(transTable);
 
     /* Enable interrupts */
-    INT_UNLOCK(oldIntLev);
+    INT_UNLOCK(level);
 }
 
 /******************************************************************************
