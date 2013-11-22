@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* mmuArchLib.c - Memory mapping unit for Intel 386+ */
+/* mmuArchLib.c - Memory mapping unit for Pentium Pro (II) */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,12 +34,12 @@
 
 /* Imports from vmLib */
 IMPORT VM2MMU_STATE_TRANS *mmuStateTransTable;
-IMPORT int mmuStateTransTableSize;
-IMPORT int mmuPageBlockSize;
-IMPORT MMU_LIB_FUNCTIONS mmuLibFunctions;
+IMPORT int                 mmuStateTransTableSize;
+IMPORT int                 mmuPageBlockSize;
+IMPORT MMU_LIB_FUNCTIONS   mmuLibFunctions;
 
 /* Globals */
-BOOL mmuEnabled = FALSE;
+BOOL mmuPro32Enabled = FALSE;
 
 /* Locals */
 LOCAL BOOL             firstTime = TRUE;
@@ -79,6 +79,26 @@ LOCAL VM2MMU_STATE_TRANS mmuStateTransTableLocal[] =
     {
         VM_STATE_MASK_CACHEABLE, MMU_STATE_MASK_CACHEABLE,
         VM_STATE_NOT_CACHEABLE,  MMU_STATE_NOT_CACHEABLE
+    },
+
+    /* Writeback */
+    {
+        VM_STATE_MASK_WBACK, MMU_STATE_MASK_WBACK,
+        VM_STATE_WBACK,      MMU_STATE_WBACK
+    },
+    {
+        VM_STATE_MASK_WBACK, MMU_STATE_MASK_WBACK,
+        VM_STATE_WBACK_NOT,  MMU_STATE_WBACK_NOT
+    },
+
+    /* Global */
+    {
+        VM_STATE_MASK_GLOBAL, MMU_STATE_MASK_GLOBAL,
+        VM_STATE_GLOBAL,      MMU_STATE_GLOBAL
+    },
+    {
+        VM_STATE_MASK_GLOBAL, MMU_STATE_MASK_GLOBAL,
+        VM_STATE_GLOBAL_NOT,   MMU_STATE_GLOBAL_NOT
     }
 };
 
@@ -150,10 +170,10 @@ LOCAL void mmuMemPagesWriteDisable(
 
 LOCAL MMU_LIB_FUNCTIONS mmuLibFunctionsLocal =
 {
-    mmuLibInit,
+    mmuPro32LibInit,
     mmuTransTableCreate,
     mmuTransTableDestroy,
-    mmuI386Enable,
+    mmuPro32Enable,
     mmuStateSet,
     mmuStateGet,
     mmuPageMap,
@@ -177,7 +197,7 @@ LOCAL MMU_LIB_FUNCTIONS mmuLibFunctionsLocal =
   } while (0)
 
 #define MMU_UNLOCK(wasEnabled, oldLevel) \
-  do { if (((wasEnabled) = mmuEnabled) == TRUE) \
+  do { if (((wasEnabled) = mmuPro32Enabled) == TRUE) \
       {INT_LOCK (oldLevel); MMU_OFF (); } \
   } while(0)
 
@@ -187,12 +207,12 @@ LOCAL MMU_LIB_FUNCTIONS mmuLibFunctionsLocal =
   } while (0)
 
 /******************************************************************************
- * mmuI386LibInit - Intialize mmu library
+ * mmuPro32LibInit - Intialize mmu library
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS mmuI386LibInit(
+STATUS mmuPro32LibInit(
     int pageSize
     )
 {
@@ -216,7 +236,7 @@ STATUS mmuI386LibInit(
         mmuLibFunctions  = mmuLibFunctionsLocal;
 
         /* Initialy disable mmu */
-        mmuEnabled = FALSE;
+        mmuPro32Enabled = FALSE;
 
         /* Store page size */
         mmuPageSize = pageSize;
@@ -230,7 +250,7 @@ STATUS mmuI386LibInit(
         else
         {
             /* Clear page block */
-            memset((char *) globalPageBlock, 0, pageSize);
+            memset(globalPageBlock, 0, pageSize);
 
             /* Allocate one page to hold directory table */
             pDirTable = memalign(pageSize, pageSize);
@@ -261,6 +281,7 @@ STATUS mmuI386LibInit(
                     pDirTable[i].entry.page     = -1;
                 }
 
+                /* TODO: Set CR4 register PAE = 0, PSE = 1 */
                 status = OK;
             }
         }
@@ -402,8 +423,6 @@ LOCAL STATUS mmuTransTableDestroy(
     PTE    *pDte;
     PTE    *pPageTable;
 
-    pDte = transTable->pDirTable;
-
     /* Unlock page for writing */
     if (mmuStateSet(
             &mmuGlobalTransTable,
@@ -421,9 +440,11 @@ LOCAL STATUS mmuTransTableDestroy(
         /* Free non global page memory */
         if (mmuPageSize == PAGE_SIZE_4KB)
         {
+            pDte = transTable->pDirTable;
+
             for (i = 0; i < (PT_SIZE / sizeof(PTE)); i++, pDte++)
             {
-                if ((pDte->entry.present == 1) && !globalPageBlock[i])
+                if ((pDte->entry.present == 1) && (!globalPageBlock[i]))
                 {
                     pPageTable = (PTE *) (pDte->bits & PTE_TO_ADDR_4KB);
 

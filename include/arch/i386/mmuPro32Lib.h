@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* mmuI386Lib.h - Memory mapping unit for Interl 386+ */
+/* mmuPro32Lib.h - Memory mapping unit for Pentium Pro (II) */
 
-#ifndef _mmuI386Lib_h
-#define _mmuI386Lib_h
+#ifndef _mmuPro32Lib_h
+#define _mmuPro32Lib_h
 
 /* MMU definitions */
 #define PAGE_SIZE_4KB           0x1000
@@ -97,55 +97,83 @@ typedef struct mmuTransTable
 
 typedef MMU_TRANS_TABLE *MMU_TRANS_TABLE_ID;
 
+/* Imports */
+
+IMPORT BOOL mmuPro32Enabled;
+
 /* Functions */
 
 /******************************************************************************
- * mmuI386LibInit - Intialize mmu library
+ * mmuPro32LibInit - Intialize mmu library
  *
  * RETURNS: OK or ERROR
  */
 
-STATUS mmuI386LibInit(
+STATUS mmuPro32LibInit(
     int pageSize
     );
 
 /******************************************************************************
- * mmuI386Enable - Enable/Disable MMU
+ * mmuPro32Enable - Enable/Disable MMU
  *
  * RETURNS TRUE or FALSE
  */
 
-BOOL mmuI386Enable(
+BOOL mmuPro32Enable(
     BOOL enable
     );
 
 /******************************************************************************
- * mmuI386PdbrSet - Setup page directory register
+ * mmuPro32On - Turn on memory mapping unit
+ * 
+ * Assumes that interrupts are looked out
  *
  * RETURNS N/A
  */
 
-void mmuI386PdbrSet(
-    void *transTable
-    );
-
-/******************************************************************************
- * mmuI386PdbrGet - Get page directory register
- *
- * RETURNS Pointer to mmu translation table
- */
-
-MMU_TRANS_TABLE* mmuI386PdbrGet(
+void mmuPro32On(
     void
     );
 
 /******************************************************************************
- * mmuI386TlbFlush - Flush MMU translation table
+ * mmuPro32Off - Turn off memory mapping unit
+ *
+ * Assumes that interrupts are looked out
  *
  * RETURNS N/A
  */
 
-void mmuI386TlbFlush(
+void mmuPro32Off(
+    void
+    );
+
+/******************************************************************************
+ * mmuPro32PdbrSet - Setup page directory register
+ *
+ * RETURNS N/A
+ */
+
+void mmuPro32PdbrSet(
+    void *transTable
+    );
+
+/******************************************************************************
+ * mmuPro32PdbrGet - Get page directory register
+ *
+ * RETURNS Pointer to mmu translation table
+ */
+
+MMU_TRANS_TABLE* mmuPro32PdbrGet(
+    void
+    );
+
+/******************************************************************************
+ * mmuPro32TlbFlush - Flush MMU translation table
+ *
+ * RETURNS N/A
+ */
+
+void mmuPro32TlbFlush(
     void
     );
 
@@ -155,5 +183,5 @@ void mmuI386TlbFlush(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _mmuI386Lib_h */
+#endif /* _mmuPro32Lib_h */
 
