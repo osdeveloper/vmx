@@ -205,13 +205,11 @@ void sysHwInit2(
     void
     )
 {
-  /* Connect system timer interrupt handler */
-  intConnectDefault(0x20, sysClockInt, NULL);
+    /* Connect system timer interrupt handler */
+    intConnectDefault(0x20, sysClockInt, NULL);
 
 #ifdef INCLUDE_PC_CONSOLE
-
     intConnectDefault(0x21, kbdIntr, (void *) 0);
-
 #endif /* INCLUDE_PC_CONSOLE */
 }
 
