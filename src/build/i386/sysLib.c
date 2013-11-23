@@ -166,7 +166,7 @@ void sysHwInit0(
     void
     )
 {
-    segBaseSet(sysGdt);
+    regsGdtInit(sysGdt);
 }
 
 void sysHwInit(

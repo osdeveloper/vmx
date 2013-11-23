@@ -22,7 +22,7 @@
 
 AR = ar
 OBJS = excALib.o excArchLib.o excArchShow.o intALib.o intArchLib.o \
-       segALib.o segArchLib.o vmxALib.o sysALib.o taskArchLib.o \
+       regsALib.o regsArchLib.o vmxALib.o sysALib.o taskArchLib.o \
        mmuPro32ALib.o mmuPro32Lib.o cacheALib.o cacheArchLib.o
 LIB_TGT = arch
 

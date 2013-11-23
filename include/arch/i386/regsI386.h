@@ -70,6 +70,19 @@
 #define CR0_NW_NOT              0xdfffffff      /* Write trought */
 #define CR0_CD_NOT              0xbfffffff      /* Cache enable */
 
+/* CR4 bits */
+#define CR4_VME                 0x00000001      /* Virtual 8086 mode */
+#define CR4_PVI                 0x00000002      /* Prot. virtual interrupts */
+#define CR4_TSD                 0x00000004      /* Timestamp disable */
+#define CR4_DE                  0x00000008      /* Debugging extension */
+#define CR4_PSE                 0x00000010      /* Page size extension */
+#define CR4_PAE                 0x00000020      /* Physical addr. extension */
+#define CR4_MCE                 0x00000040      /* Machine check enable */
+#define CR4_PGE                 0x00000080      /* Global page enable */
+#define CR4_PCE                 0x00000100      /* Perf. monitoring enable */
+#define CR_OSFXSR               0x00000200      /* Fxsave/fxstor instructions */
+#define CR4_OSXMMEXCEPT         0x00000400      /* Streaming SIMD exception */
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
@@ -123,6 +136,52 @@ typedef struct
 #define G_REG_OFFSET(n)         (G_REG_BASE + (n) * sizeof(u_int32_t))
 #define SR_OFFSET               G_REG_OFFSET(GREG_NUM)
 #define PC_OFFSET               (SR_OFFSET + sizeof(u_int32_t))
+
+/* Imports */
+
+IMPORT u_int32_t sysCsSuper;
+IMPORT u_int32_t sysCsExc;
+IMPORT u_int32_t sysCsInt;
+
+/******************************************************************************
+ * regsGdtSet - Set global descriptor table
+ *
+ * RETURNS: N/A
+ */
+
+void regsGdtSet(
+    GDT *baseAddr
+    );
+
+/******************************************************************************
+ * regsGdtInit - Initialize global descriptor table
+ *
+ * RETURNS: OK
+ */
+
+STATUS regsGdtInit(
+    GDT *baseAddr
+    );
+
+/******************************************************************************
+ * regsCr4Get - Get contents of CR4 register
+ *
+ * RETURNS: Contents in CR4 register
+ */
+
+u_int32_t regsCr4Get(
+    void
+    );
+
+/******************************************************************************
+ * regsCr4Set - Set contents of CR4 register
+ *
+ * RETURNS: N/A
+ */
+
+void regsCr4Set(
+    u_int32_t value
+    );
 
 #ifdef __cplusplus
 }

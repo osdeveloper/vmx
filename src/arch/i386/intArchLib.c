@@ -24,7 +24,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <vmx.h>
-#include <arch/arch.h>
 #include <arch/regs.h>
 #include <arch/iv.h>
 #include <arch/esf.h>

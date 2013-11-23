@@ -51,33 +51,6 @@ typedef struct
     u_int32_t reserved7;
 } __attribute__((packed)) X86_EXT;
         
-/* Global variables to hold segment pointers */
-IMPORT u_int32_t sysCsSuper;
-IMPORT u_int32_t sysCsExc;
-IMPORT u_int32_t sysCsInt;
-
-/* Functions */
-
-/******************************************************************************
- * sysGDTSet - Routine to be called by C program to setup GDT Segment table
- *
- * RETURNS:   N/A
- */
-
-void sysGDTSet(
-    GDT *baseAddr
-    );
-
-/******************************************************************************
- * segBaseSet - Setup special GDT pointer and Segments
- *
- * RETURNS: OK
- */
-
-STATUS segBaseSet(
-    GDT *baseAddr
-    );
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

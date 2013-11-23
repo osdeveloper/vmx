@@ -122,7 +122,7 @@ FUNC_LABEL(mmuPro32PdbrSet)
         movl    $0xfffff000, %ecx
         andl    $0x00000fff, %edx
 
-#if     (CPU==I80386)
+#if     (CPU == I80386)
         jmp     mmuPdbrSet0
 #endif
 
@@ -151,7 +151,7 @@ FUNC_LABEL(mmuPro32PdbrGet)
         movl    %cr3, %eax
         movl    $0xfffff000, %edx
 
-#if     (CPU==I80386)
+#if     (CPU == I80386)
         jmp     mmuPdbrGet0
 #endif
 

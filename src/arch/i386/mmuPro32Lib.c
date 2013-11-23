@@ -28,6 +28,7 @@
 #include <os/memPartLib.h>
 #include <os/memLib.h>
 #include <os/vmLib.h>
+#include <arch/regs.h>
 #include <arch/intArchLib.h>
 #include <arch/cacheArchLib.h>
 #include <arch/mmuArchLib.h>
@@ -275,7 +276,8 @@ STATUS mmuPro32LibInit(
                     pDirTable[i].entry.page     = -1;
                 }
 
-                /* TODO: Set CR4 register PAE = 0, PSE = 1 */
+                /* Set CR4 register to PAE = 0, PSE = 1 */
+                regsCr4Set((regsCr4Get() & ~CR4_PAE) | CR4_PSE);
                 status = OK;
             }
         }
