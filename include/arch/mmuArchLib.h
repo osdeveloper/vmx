@@ -24,7 +24,6 @@
 #define _mmuArchLib_h
 
 #include <ostool/moduleNumber.h>
-
 #include <types/vmxCpu.h>
 
 #if      CPU==PENTIUM2

@@ -23,6 +23,8 @@
 #ifndef _sysArchLib_h
 #define _sysArchLib_h
 
+#include <sys/types.h>
+
 #define GDT_ENTRIES              5
 #define	IDT_ENTRIES            256
 
@@ -32,14 +34,7 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
-
-/* System initialization */
-void sysHwInit(
-    void
-    );
-
-/* I/O functions */
+/* Functions */
 
 /******************************************************************************
  * sysInByte - Read one byte from I/O space

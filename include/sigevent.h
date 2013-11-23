@@ -18,16 +18,28 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* iv.h - Interrupte vector defines */
+/* sigevent.h - Signal events header */
 
-#ifndef _iv_h
-#define _iv_h
+#ifndef _sigevent_h
+#define _sigevent_h
 
-#include <types/vmxCpu.h>
+#ifndef _ASMLANGUAGE
 
-#if      CPU_FAMILY==I386
-#include <arch/i386/ivI386.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif /* _iv_h */
+union sigval
+{
+    int                    sival_int;
+    void                  *sival_ptr;
+};
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _sigevent_h */
 

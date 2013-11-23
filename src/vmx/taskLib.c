@@ -402,16 +402,6 @@ STATUS taskInit(
             tcbId->errorStatus = OK;
             tcbId->exitCode    = 0;
 
-#ifdef TASKVAR
-            /* Zero task extensions */
-            tcbId->pTaskVar = NULL;
-#endif
-
-#ifdef SIGNAL
-            /* Zero signals and exception info */
-            tcbId->pSignalInfo = NULL;
-#endif
-
             /* Task variables */
             tcbId->pTaskVar = NULL;
 
@@ -439,6 +429,10 @@ STATUS taskInit(
                 tcbId->taskStd[i]   = i;
                 tcbId->taskStdFp[i] = NULL;
             }
+
+            /* Initialize posix related fields */
+            tcbId->pSignalInfo     = NULL;
+            tcbId->selectContextId = NULL;
 
             /* Environment */
             tcbId->ppEnviron = NULL;

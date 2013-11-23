@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+/* Functions */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

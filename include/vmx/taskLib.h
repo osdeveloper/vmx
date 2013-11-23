@@ -59,11 +59,8 @@
 
 #ifndef _ASMLANGUAGE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
+#include <signal.h>
 #include <arch/regs.h>
 #include <arch/excArchLib.h>
 #include <util/qLib.h>
@@ -71,6 +68,10 @@ extern "C" {
 #include <os/classLib.h>
 #include <os/objLib.h>
 #include <os/selectLib.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Structs */
 struct taskVar;
@@ -146,8 +147,9 @@ typedef struct taskTCB
     int   taskStd[3];
     FILE *taskStdFp[3];
 
-    /* Select context */
-    SEL_CONTEXT_ID selectContextId;
+    /* Posix related */
+    struct sigtcb  *pSignalInfo;
+    SEL_CONTEXT_ID  selectContextId;
 
     /* Environment */
     char **ppEnviron;

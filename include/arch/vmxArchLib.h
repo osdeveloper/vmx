@@ -23,6 +23,8 @@
 #ifndef _vmxArchLib_h
 #define _vmxArchLib_h
 
+#include <vmx.h>
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

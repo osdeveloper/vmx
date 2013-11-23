@@ -31,12 +31,14 @@
 #include <dirent.h>
 #include <a.out.h>
 #include <time.h>
+#include <setjmp.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <private/stdioP.h>
 #include <vmx.h>
 #include <arch/vmxArchLib.h>
+#include <arch/sigArchLib.h>
 #include <os/objLib.h>
 #include <os/classLib.h>
 #include <os/classShow.h>
@@ -199,6 +201,13 @@ SYMBOL standTable[] =
   {NULL, "_localtime", localtime, 0, N_TEXT | N_EXT},
   {NULL, "_localtime_r", localtime_r, 0, N_TEXT | N_EXT},
   {NULL, "_strftime", strftime, 0, N_TEXT | N_EXT},
+
+  /* setjmp */
+  {NULL, "_longjmp", longjmp, 0, N_TEXT | N_EXT},
+  {NULL, "_sigCtxSave", _sigCtxSave, 0, N_TEXT | N_EXT},
+  {NULL, "_sigCtxLoad", _sigCtxLoad, 0, N_TEXT | N_EXT},
+  {NULL, "_sigCtxStackEnd", _sigCtxStackEnd, 0, N_TEXT | N_EXT},
+  {NULL, "_sigCtxSetup", _sigCtxSetup, 0, N_TEXT | N_EXT},
 
   /* fcntl */
   {NULL, "_open", open, 0, N_TEXT | N_EXT},

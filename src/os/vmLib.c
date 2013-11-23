@@ -44,10 +44,10 @@
 /* Locals */
 LOCAL unsigned    vmStateTransTable[NUM_PAGE_STATES];
 LOCAL unsigned    vmMaskTransTable[NUM_PAGE_STATES];
-LOCAL int         vmPageSize;
 LOCAL VM_CONTEXT  vmSysContext;
 LOCAL OBJ_CLASS   vmContextClass;
 LOCAL SEMAPHORE   globalMemMutex;
+LOCAL int         vmPageSize     = ERROR;
 LOCAL VM_CONTEXT *vmCurrContext  = NULL;
 LOCAL BOOL        vmLibInstalled = FALSE;
 

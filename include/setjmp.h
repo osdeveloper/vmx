@@ -18,16 +18,51 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* iv.h - Interrupte vector defines */
+/* setjmp.h - Non-local goto */
 
-#ifndef _iv_h
-#define _iv_h
+#ifndef _SETJMP_H
+#define _SETJMP_H
 
-#include <types/vmxCpu.h>
+#include <arch/regs.h>
 
-#if      CPU_FAMILY==I386
-#include <arch/i386/ivI386.h>
+#ifndef _ASMLANGUAGE
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif /* _iv_h */
+/* Types */
+
+typedef struct _jmp_buf
+{
+    REG_SET reg;
+    int     extra[3];
+} jmp_buf[1];
+
+typedef struct _sigjmp_buf
+{
+    REG_SET regs;
+    int     extra[3];
+} sigjmp_buf[1];
+
+/* Functions */
+
+/******************************************************************************
+ * longjmp - Do a long goto
+ *
+ * RETURNS: N/A
+ */
+
+void longjmp(
+    jmp_buf env,
+    int     val
+    );
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _SETJMP_H */
 

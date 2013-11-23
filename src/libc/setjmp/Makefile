@@ -18,13 +18,11 @@
  #   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  #
 
-# Makefile - i386 architecture specific stuff
+# Makefile - Longjump library for C
 
-AR = ar
-OBJS = excALib.o excArchLib.o excArchShow.o intALib.o intArchLib.o regsALib.o \
-       regsArchLib.o vmxALib.o sysALib.o taskArchLib.o sigALib.o sigArchLib.o \
-       mmuPro32ALib.o mmuPro32Lib.o cacheALib.o cacheArchLib.o
-LIB_TGT = arch
+OBJS = longjmp.o
+SUBDIRS =
+LIB_TGT = stdc
 
 include $(VMX_BASE)/include/make/build.defaults
 

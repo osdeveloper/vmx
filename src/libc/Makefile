@@ -21,7 +21,7 @@
 # Makefile - Standard C library
 
 OBJS =
-SUBDIRS = common stdio stdlib string ctype assert time
+SUBDIRS = common stdio stdlib string ctype assert time setjmp
 LIB_TGT =
 
 include $(VMX_BASE)/include/make/build.defaults
