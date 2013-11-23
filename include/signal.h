@@ -123,6 +123,16 @@ struct sigaction
 /* Functions */
 
 /******************************************************************************
+ * sigreturn - Return from signal handler
+ *
+ * RETURNS: N/A
+ */
+
+void sigreturn(
+    struct sigcontext *scp
+    );
+
+/******************************************************************************
  * sigaction - Specify action associated with a signal
  *
  * RETURNS: OK or ERROR

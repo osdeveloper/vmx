@@ -170,7 +170,7 @@ STATUS sigqueueInit(
                 {
                     /* Set buffer */
                     *(struct sigpend **) pSigPend = pSigQueueFreeHead;
-                    pSigQueueFreeHead             = pSigPend;
+                    pSigQueueFreeHead = pSigPend;
 
                     /* Advance to next node */
                     pSigPend++;
@@ -186,176 +186,204 @@ STATUS sigqueueInit(
     return status;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigDeleteHook - Task delete hook for signal library
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-LOCAL void sigDeleteHook(TCB_ID tcbId)
+LOCAL void sigDeleteHook(
+    TCB_ID tcbId
+    )
 {
-  struct sigtcb *pSigTcb;
-  struct sigpend *pSigPend;
-  struct sigq *pSigQueue;
-  int i;
+    struct sigtcb  *pSigTcb;
+    struct sigpend *pSigPend;
+    struct sigq    *pSigQueue;
+    int             i;
 
-  /* Get signal info from tcb */
-  pSigTcb = tcbId->pSignalInfo;
-  if (pSigTcb == NULL)
-    return;
+    /* Get signal info from tcb */
+    pSigTcb = tcbId->pSignalInfo;
+    if (pSigTcb != NULL)
+    {
+        /* Enter kernel mode */
+        kernelState = TRUE;
 
-  /* Enter kernel mode */
-  kernelState = TRUE;
+        /* For all signal types */
+        for (i = 0; i <= _NSIGS; i++)
+        {
+            /* Get next node from signal queue */
+            pSigQueue = pSigTcb->sigt_qhead[i].sigq_next;
 
-  /* For all signal types */
-  for (i = 0; i <= _NSIGS; i++) {
+            /* While not head node */
+            while (pSigQueue != &pSigTcb->sigt_qhead[i])
+            {
+                /* Get next pending signal from task queue */
+                pSigPend = structbase(struct sigpend, sigp_q, pSigQueue);
+                pSigQueue = pSigQueue->sigq_next;
 
-    /* Get next node from signal queue */
-    pSigQueue = pSigTcb->sigt_qhead[i].sigq_next;
+                /* Set prev and next nodes to zero */
+                pSigPend->sigp_q.sigq_prev = NULL;
+                pSigPend->sigp_q.sigq_next = NULL;
 
-    /* While not head node */
-    while (pSigQueue != &pSigTcb->sigt_qhead[i]) {
+                /* Check if signal is on queue */
+                if (pSigPend->sigp_info.si_code == SI_QUEUE)
+                {
+                    /* Release buffer */
+                    *(struct sigpend **) pSigPend = pSigQueueFreeHead;
+                    pSigQueueFreeHead = pSigPend;
+                }
+            }
+        }
 
-      /* Get next pending signal from task queue */
-      pSigPend = structbase(struct sigpend, sigp_q, pSigQueue);
-      pSigQueue = pSigQueue->sigq_next;
-
-      /* Set prev and next nodes to zero */
-      pSigPend->sigp_q.sigq_prev = NULL;
-      pSigPend->sigp_q.sigq_next = NULL;
-
-      /* Check if signal is on queue */
-      if (pSigPend->sigp_info.si_code == SI_QUEUE) {
-
-        /* Release buffer */
-        *(struct sigpend **) pSigPend = pSigQueueFreeHead;
-        pSigQueueFreeHead = pSigPend;
-
-      }
-
-    } /* End while not head node */
-
-  } /* End for all signals */
-
-  /* Exit kernel */
-  vmxExit();
+        /* Exit kernel */
+        vmxExit();
+    }
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigTcbGet - Get signal tcb pointer for current task
  *
  * RETURNS: Signal tcb pointer
- ******************************************************************************/
+ */
 
-LOCAL struct sigtcb* sigTcbGet(void)
+LOCAL struct sigtcb* sigTcbGet(
+    void
+    )
 {
-  TCB_ID tcbId;
-  struct sigtcb *pSigTcb;
-  int i;
+    TCB_ID         tcbId;
+    struct sigtcb *pSigTcb;
+    int            i;
 
-  /* Not callable from interrupt */
-  if (INT_RESTRICT() != OK)
-    return NULL;
+    /* Not callable from interrupt */
+    if (INT_RESTRICT() != OK)
+    {
+        pSigTcb = NULL;
+    }
+    else
+    {
+        /* Get current task id */
+        tcbId = taskIdCurrent;
 
-  /* Get current task id */
-  tcbId = taskIdCurrent;
+        /* Check if signal info for the current task already exists */
+        if (tcbId->pSignalInfo != NULL)
+        {
+            pSigTcb = tcbId->pSignalInfo;
+        }
+        else
+        {
+            /* Allocate signal info for task */
+            pSigTcb = (struct sigtcb *) taskStackAllot(
+                                            (int) taskIdCurrent,
+                                            sizeof(struct sigtcb)
+                                            );
+            if (pSigTcb == NULL)
+            {
+                errnoSet(ENOMEM);
+            }
+            else
+            {
+                /* Initialize signal info */
+                tcbId->pSignalInfo = pSigTcb;
+                memset(pSigTcb, 0, sizeof(struct sigtcb));
+                for (i = 0; i <= _NSIGS; i++)
+                {
+                    pSigTcb->sigt_qhead[i].sigq_next = &pSigTcb->sigt_qhead[i];
+                    pSigTcb->sigt_qhead[i].sigq_prev = &pSigTcb->sigt_qhead[i];
+                }
+            }
+        }
+    }
 
-  /* Check if signal info for the current task already exists */
-  if (tcbId->pSignalInfo != NULL)
-    return tcbId->pSignalInfo;
-
-  /* Allocate signal info for task */
-  pSigTcb = (struct sigtcb *) taskStackAllot((int) taskIdCurrent,
-                                             sizeof(struct sigtcb));
-  if (pSigTcb == NULL) {
-    errnoSet(ENOMEM);
-    return NULL;
-  }
-
-  /* Initialize signal info */
-  tcbId->pSignalInfo = pSigTcb;
-  memset(pSigTcb, 0, sizeof(struct sigtcb));
-  for (i = 0; i <= _NSIGS; i++) {
-    pSigTcb->sigt_qhead[i].sigq_next = &pSigTcb->sigt_qhead[i];
-    pSigTcb->sigt_qhead[i].sigq_prev = &pSigTcb->sigt_qhead[i];
-  }
-
-  return pSigTcb;
+    return pSigTcb;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigPendGet - Get a pending signal
  *
- * RETURNS: Signal number
- ******************************************************************************/
+ * RETURNS: Signal number or OK
+ */
 
-LOCAL int sigPendGet(struct sigtcb *pSigTcb, const sigset_t *sigset,
-                    struct siginfo *pSigInfo)
+LOCAL int sigPendGet(
+    struct sigtcb  *pSigTcb,
+    const sigset_t *sigset,
+    struct siginfo *pSigInfo
+    )
 {
-  long signo, sigmsk;
-  struct sigpend *pSigPend;
+    long            signo;
+    long            sigmsk;
+    struct sigpend *pSigPend;
 
-  /* Get signal mask sigset and tcb pending signals */
-  sigmsk = *sigset & pSigTcb->sigt_pending;
+    /* Get signal mask sigset and tcb pending signals */
+    sigmsk = *sigset & pSigTcb->sigt_pending;
 
-  /* If zero, just return */
-  if (!sigmsk)
-    return OK;
+    /* If zero, just return */
+    if (!sigmsk)
+    {
+        signo = OK;
+    }
+    else
+    {
+        /* Extract lowest bits */
+        sigmsk &= -sigmsk;
+        signo = ffsMsb(sigmsk);
 
-  /* Extract lowest bits */
-  sigmsk &= -sigmsk;
-  signo = ffsMsb(sigmsk);
+        /* If kill signal */
+        if (sigmsk & pSigTcb->sigt_kilsigs)
+        {
+            pSigTcb->sigt_kilsigs &= ~sigmsk;
 
-  /* If kill signal */
-  if (sigmsk & pSigTcb->sigt_kilsigs) {
+            pSigInfo->si_signo           = signo;
+            pSigInfo->si_code            = SI_KILL;
+            pSigInfo->si_value.sival_int = 0;
+        }
+        else
+        {
+            pSigPend = structbase(
+                           struct sigpend,
+                           sigp_q,
+                           pSigTcb->sigt_qhead[signo].sigq_next
+                           );
 
-    pSigTcb->sigt_kilsigs &= ~sigmsk;
-    pSigInfo->si_signo = signo;
-    pSigInfo->si_code = SI_KILL;
-    pSigInfo->si_value.sival_int = 0;
+            pSigPend->sigp_q.sigq_prev->sigq_next = pSigPend->sigp_q.sigq_next;
+            pSigPend->sigp_q.sigq_next->sigq_prev = pSigPend->sigp_q.sigq_prev;
+            pSigPend->sigp_q.sigq_prev            = NULL;
+            pSigPend->sigp_q.sigq_next            = NULL;
 
-  } /* End if kill signal */
+            *pSigInfo = pSigPend->sigp_info;
 
-  /* Else no kill signal */
-  else {
+            pSigPend->sigp_overruns           = pSigPend->sigp_active_overruns;
+            pSigPend->sigp_active_overruns    = 0;
 
-    pSigPend = structbase(struct sigpend, sigp_q,
-                          pSigTcb->sigt_qhead[signo].sigq_next);
+            /* If on queue, remove it */
+            if (pSigPend->sigp_info.si_code == SI_QUEUE)
+            {
+                *(struct sigpend **) pSigPend = pSigQueueFreeHead;
+                pSigQueueFreeHead = pSigPend;
+            }
+        }
 
-    pSigPend->sigp_q.sigq_prev->sigq_next = pSigPend->sigp_q.sigq_next;
-    pSigPend->sigp_q.sigq_next->sigq_prev = pSigPend->sigp_q.sigq_prev;
-    pSigPend->sigp_q.sigq_prev = NULL;
-    pSigPend->sigp_q.sigq_next = NULL;
-    *pSigInfo = pSigPend->sigp_info;
-    pSigPend->sigp_overruns = pSigPend->sigp_active_overruns;
-    pSigPend->sigp_active_overruns = 0;
+        if (pSigTcb->sigt_qhead[signo].sigq_next ==
+            &pSigTcb->sigt_qhead[signo])
+        {
+            pSigTcb->sigt_pending &= ~sigmsk;
+        }
+    }
 
-    /* If on queue, remove it */
-    if (pSigPend->sigp_info.si_code == SI_QUEUE) {
-
-      *(struct sigpend **) pSigPend = pSigQueueFreeHead;
-      pSigQueueFreeHead = pSigPend;
-
-    } /* End if on queue */
-
-  } /* End else no kill signal */
-
-  if (pSigTcb->sigt_qhead[signo].sigq_next == &pSigTcb->sigt_qhead[signo])
-    pSigTcb->sigt_pending &= ~sigmsk;
-
-  return signo;
+    return signo;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigreturn - Return from signal handler
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-void sigreturn(struct sigcontext *scp)
+void sigreturn(
+    struct sigcontext *scp
+    )
 {
-  sigprocmask(SIG_SETMASK, &scp->sc_mask, 0);
-  _sigCtxLoad(&scp->sc_regs);
+    sigprocmask(SIG_SETMASK, &scp->sc_mask, 0);
+    _sigCtxLoad(&scp->sc_regs);
 }
 
 /*******************************************************************************
