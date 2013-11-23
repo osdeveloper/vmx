@@ -88,6 +88,9 @@ extern "C" {
 #define SIG_DFL         (void(*) (int)) 0
 #define SIG_IGN         (void(*) (int)) 1
 
+/* Structs */
+struct sigcontext;
+
 /* Types */
 
 typedef unsigned long sigset_t;
@@ -100,9 +103,6 @@ typedef struct siginfo
     union sigval          si_value;
 } siginfo_t;
 
-/* Structs */
-struct sigcontext;
-
 struct sigaction
 {
     union
@@ -113,6 +113,8 @@ struct sigaction
     sigset_t              sa_mask;
     int                   sa_flags;
 };
+
+typedef void (*sighandler_t)(int);
 
 /* Macros */
 
@@ -133,6 +135,29 @@ void sigreturn(
     );
 
 /******************************************************************************
+ * sigprocmask - Examine, change signal mask
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigprocmask(
+    int             what,
+    const sigset_t *set,
+    sigset_t       *oldset
+    );
+
+/******************************************************************************
+ * signal - Specify handler associated with signal
+ *
+ * RETURNS: Old signal handler
+ */
+
+sighandler_t signal(
+    int          signo,
+    sighandler_t handler
+    );
+
+/******************************************************************************
  * sigaction - Specify action associated with a signal
  *
  * RETURNS: OK or ERROR
@@ -142,6 +167,79 @@ int sigaction(
     int               signo,
     struct sigaction *act,
     struct sigaction *oact
+    );
+
+/******************************************************************************
+ * sigemptyset - Initialize empty signal set
+ *
+ * RETURNS: OK
+ */
+
+int sigemptyset(
+    sigset_t *set
+    );
+
+/******************************************************************************
+ * sigfillset - Initialize full signal set
+ *
+ * RETURNS: OK
+ */
+
+int sigfillset(
+    sigset_t *set
+    );
+
+/******************************************************************************
+ * sigaddset - Add signal from signal set
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigaddset(
+    sigset_t *set,
+    int       signo
+    );
+
+/******************************************************************************
+ * sigdelset - Delete signal from signal set
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigdelset(
+    sigset_t *set,
+    int       signo
+    );
+
+/******************************************************************************
+ * sigismember - Check if signal is in set
+ *
+ * RETURNS: TRUE, FALSE or ERROR
+ */
+
+int sigismember(
+    sigset_t *set,
+    int       signo
+    );
+
+/******************************************************************************
+ * sigpending - Get pending signals from set blocked from delivery
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigpending(
+    sigset_t *set
+    );
+
+/******************************************************************************
+ * sigpsuspend - Suspend task until it signals delivery, with signal set arg
+ *
+ * RETURNS: ERROR
+ */
+
+int sigsuspend(
+    sigset_t *set
     );
 
 /******************************************************************************
@@ -162,6 +260,16 @@ int pause(
 
 int kill(
     int taskId,
+    int signo
+    );
+
+/******************************************************************************
+ * raise - Send signal current task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int raise( 
     int signo
     );
 

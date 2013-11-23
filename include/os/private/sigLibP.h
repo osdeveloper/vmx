@@ -97,6 +97,37 @@ struct sigcontext
 
 /* Functions */
 
+/******************************************************************************
+ * sigPendInit - Initialize queue signal
+ *
+ * RETURNS: N/A
+ */
+
+void sigPendInit(
+    struct sigpend *pSigPend
+    );
+
+/******************************************************************************
+ * sigPendDestroy - Destroy queue signal
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS sigPendDestroy(
+    struct sigpend *pSigPend
+    );
+
+/******************************************************************************
+ * sigPendKill - Send a queued kill signal
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS sigPendKill(
+    TCB_ID          tcbId,
+    struct sigpend *pSigPend
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -53,6 +53,16 @@ STATUS sigqueueInit(
     int nQueues
     );
 
+/******************************************************************************
+ * sigTimeoutRecalc - Calculate new timeout when functions restarts
+ *
+ * RETURNS: Timeout value
+ */
+
+int sigTimeoutRecalc(
+    int timeout
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -587,11 +587,9 @@ taskDestroyLoop:
     return ERROR;
   }
 
-#ifdef SIGNAL
   /* Mask all signals */
   if (tcbId->pSignalInfo != NULL)
     tcbId->pSignalInfo->sigt_blocked = 0xffffffff;
-#endif
 
   /* Block here for safe and running locked tasks */
   while ( (tcbId->safeCount > 0) ||
@@ -640,15 +638,8 @@ taskDestroyLoop:
       /* Check for restart */
       if (status == SIG_RESTART)
       {
-#ifdef SIGNAL
-        /* If singnal recalc function exists */
-        if (_func_sigTimeoutRecalc != NULL) {
-
-          timeout = ( *_func_sigTimeoutRecalc) (timeout);
-          goto taskDestroyLoop;
-
-        } /* End if signal recalc function exists */
-#endif
+        timeout = (sigTimeoutRecalc)(timeout);
+        goto taskDestroyLoop;
       }
 
       /* Check if unsuccessful */

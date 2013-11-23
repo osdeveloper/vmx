@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <setjmp.h>
+#include <signal.h>
 #include <vmx.h>
 #include <vmx/taskLib.h>
 #include <vmx/private/kernelLibP.h>
@@ -78,7 +79,8 @@ void longjmp(
     int     val
     )
 {
-    int *ptr;
+    int      *ptr;
+    sigset_t *sigset;
 
     /* Set ptr to jmp_buf extra area */
     ptr = JMP_DATA(env);
@@ -89,13 +91,12 @@ void longjmp(
         taskSuspend(0);
     }
 
-#ifdef SIGPROCMASK
-    /* Call sigprocmask() if needed and function is set */
-    if ((ptr[0] & 1) && (_func_sigprocmask != NULL))
+    /* Call sigprocmask() if needed */
+    if (ptr[0] & 1)
     {
-        _func_sigprocmask(SIG_SETMASK, &ptr[1], 0);
+        sigset = (sigset_t *) &ptr[1];
+        sigprocmask(SIG_SETMASK, sigset, 0);
     }
-#endif
 
     /* Set return value */
     if (val == 0)

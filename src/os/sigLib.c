@@ -26,6 +26,7 @@
 #include <vmx.h>
 #include <arch/intArchLib.h>
 #include <arch/taskArchLib.h>
+#include <arch/excArchLib.h>
 #include <arch/sigArchLib.h>
 #include <util/qLib.h>
 #include <util/qFifoLib.h>
@@ -76,6 +77,12 @@ LOCAL void sigExcSend(
     REG_SET *pRegSet
     );
 
+LOCAL void sigExcKill(
+    int      type,
+    int      code,
+    REG_SET *pRegSet
+    );
+
 LOCAL int sigVmxRestart(
     TCB_ID tcbId
     );
@@ -89,11 +96,6 @@ LOCAL void sigVmxKill(
     TCB_ID tcbId,
     int    signo
     );
-
-/* TODO: REMOVE */
-void ( *signal(int signo, void (*handler)()) ) ();
-void sigPendInit(struct sigpend *pSigPend);
-/*** END: REMOVE ***/
 
 /******************************************************************************
  * sigLibInit - Initialize signal library
@@ -120,6 +122,9 @@ STATUS sigLibInit(
         }
         else
         {
+            /* Setup exception kill hook */
+            excSigKillHookSet(sigExcKill);
+
             /* Mark as installed */
             sigLibInstalled = TRUE;
             status = OK;
@@ -386,243 +391,310 @@ void sigreturn(
     _sigCtxLoad(&scp->sc_regs);
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigWrapper - Goto signal hanlder from kernel
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-LOCAL void sigWrapper(struct sigcontext *pSigContext)
+LOCAL void sigWrapper(
+    struct sigcontext *pSigContext
+    )
 {
-  int signo;
-  struct sigaction *pSigAction;
-  void (*handler)();
+    int                signo;
+    struct sigaction  *pSigAction;
+    void             (*handler)();
 
-  /* Setup local variables */
-  signo = pSigContext->sc_info.si_signo;
-  pSigAction = &(taskIdCurrent->pSignalInfo)->sigt_vec[signo];
-  handler = pSigAction->sa_handler;
+    /* Setup local variables */
+    signo      = pSigContext->sc_info.si_signo;
+    pSigAction = &(taskIdCurrent->pSignalInfo)->sigt_vec[signo];
+    handler    = pSigAction->sa_handler;
 
-  /* Reset handler option set? */
-  if (pSigAction->sa_flags & SA_RESETHAND)
-    signal(signo, SIG_DFL);
+    /* If reset handler option set */
+    if (pSigAction->sa_flags & SA_RESETHAND)
+    {
+        signal(signo, SIG_DFL);
+    }
 
-  /* Run if not default type of signal handler */
-  if (handler != SIG_DFL && handler != SIG_IGN && handler != SIG_ERR) {
+    /* Run if not default type of signal handler */
+    if ((handler != SIG_DFL) && (handler != SIG_IGN) && (handler != SIG_ERR))
+    {
+        /* Check if extra info should be sent */
+        if (pSigAction->sa_flags & SA_SIGINFO)
+        {
+            (*handler)(
+                signo,
+                &pSigContext->sc_info,
+                pSigContext
+                );
+        }
+        else
+        {
+            (*handler)(
+                signo,
+                pSigContext->sc_info.si_value.sival_int,
+                pSigContext
+                );
+        }
+    }
 
-    /* Check if extra info should be sent */
-    if (pSigAction->sa_flags & SA_SIGINFO)
-      (*handler) (signo, &pSigContext->sc_info, pSigContext);
-    else
-      (*handler) (signo, pSigContext->sc_info.si_value.sival_int, pSigContext);
-  }
-
-  /* Retrun from signal handler */
-  sigreturn(pSigContext);
+    /* Return from signal handler */
+    sigreturn(pSigContext);
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigPendRun - Get a pending signal and run it (Asume we are in kernel mode)
  *
  * RETURNS: TRUE or FALSE
- ******************************************************************************/
+ */
 
-LOCAL BOOL sigPendRun(struct sigtcb *pSigTcb)
+LOCAL BOOL sigPendRun(
+    struct sigtcb *pSigTcb
+    )
 {
-  sigset_t sigSet;
-  struct sigcontext sigContext;
-  int signo;
+    BOOL              ret;
+    sigset_t          sigSet;
+    struct sigcontext sigContext;
+    int               signo;
 
-  /* Get Negation of blocked siggnals */
-  sigSet = ~pSigTcb->sigt_blocked;
+    /* Get Negation of blocked signals */
+    sigSet = ~pSigTcb->sigt_blocked;
 
-  /* Get pending signal */
-  signo = sigPendGet(pSigTcb, &sigSet, &sigContext.sc_info);
+    /* Get pending signal */
+    signo = sigPendGet(pSigTcb, &sigSet, &sigContext.sc_info);
 
-  /* If pending signal */
-  if (signo > 0) {
+    /* If pending signal */
+    if (signo > 0)
+    {
+        sigContext.sc_onstack = 0;
+        sigContext.sc_restart = 0;
+        sigContext.sc_mask    = pSigTcb->sigt_blocked;
+        pSigTcb->sigt_blocked != (pSigTcb->sigt_vec[signo].sa_mask |
+                                  sigmask(signo));
 
-    sigContext.sc_onstack = 0;
-    sigContext.sc_restart = 0;
-    sigContext.sc_mask = pSigTcb->sigt_blocked;
-    pSigTcb->sigt_blocked != ( pSigTcb->sigt_vec[signo].sa_mask |
-                               sigmask(signo) );
+        /* Exit kernel */
+        vmxExit();
 
-    /* Exit kernel */
-    vmxExit();
+        /* Save regs */
+        if (_sigCtxSave(&sigContext.sc_regs) == 0)
+        {
+            /* Set return value to 1 if sucessfull */
+            _sigCtxRetValueSet(&sigContext.sc_regs, 1);
 
-    /* Save regs */
-    if (_sigCtxSave(&sigContext.sc_regs) == 0) {
+            /* Run signal handler */
+            sigWrapper(&sigContext);
+        }
 
-      /* Set return value to 1 if sucessfull */
-      _sigCtxRetValueSet(&sigContext.sc_regs, 1);
-
-      /* Run signal handler */
-      sigWrapper(&sigContext);
-
+        ret = TRUE;
+    }
+    else
+    {
+        ret = FALSE;
     }
 
-    return TRUE;
-
-  } /* End if pending signal */
-
-  return FALSE;
+    return ret;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigprocmask - Examine, change signal mask
  *
  * RETURNS: OK or ERROR
- ******************************************************************************/
+ */
 
-int sigprocmask(int what, const sigset_t *set, sigset_t *oldset)
+int sigprocmask(
+    int             what,
+    const sigset_t *set,
+    sigset_t       *oldset
+    )
 {
-  struct sigtcb *pSigTcb;
+    struct sigtcb *pSigTcb;
+    int            status = OK;
+    BOOL           done   = FALSE;
 
-  /* Get signal info for current task */
-  pSigTcb = sigTcbGet();
-  if (pSigTcb == NULL)
-    return ERROR;
+    /* Get signal info for current task */
+    pSigTcb = sigTcbGet();
+    if (pSigTcb == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        /* Enter kernel */
+        kernelState = TRUE;
 
-  /* Enter kernel */
-  kernelState = TRUE;
+        /* If oldset not null, store old signal mask */
+        if (oldset != NULL)
+        {
+            *oldset = pSigTcb->sigt_blocked;
+        }
 
-  /* If oldset not null, store old signal mask */
-  if (oldset != NULL)
-    *oldset = pSigTcb->sigt_blocked;
+        /* If set is non null */
+        if (set != NULL)
+        {
+            /* Select method */
+            switch (what)
+            {
+                /* Block signal, exit kernel and return ok */
+                case SIG_BLOCK:
+                    pSigTcb->sigt_blocked |= *set;
+                    vmxExit();
+                    done = TRUE;
+                    break;
 
-  /* If set is non null */
-  if (set != NULL) {
+                /* Unblock signal and exit switch */
+                case SIG_UNBLOCK:
+                    pSigTcb->sigt_blocked &= ~*set;
+                    break;
 
-    /* Select method */
-    switch (what) {
+                /* Setmask and exit switch */
+                case SIG_SETMASK:
+                    pSigTcb->sigt_blocked = *set;
+                    break;
 
-      /* Block signal, exit kernel and return ok */
-      case SIG_BLOCK:
-        pSigTcb->sigt_blocked |= *set;
-        vmxExit();
-        return OK;
+                /* Unknown method, exit kernel and return error */
+                default:
+                    vmxExit();
+                    errnoSet(EINVAL);
+                    status = ERROR;
+                    done = TRUE;
+                    break;
+            }
+        }
 
-      /* Unblock signal and exit switch */
-      case SIG_UNBLOCK:
-        pSigTcb->sigt_blocked &= ~*set;
-        break;
+        if (done != TRUE)
+        {
+            /* Check for pending signal and try to run it */
+            if (sigPendRun(pSigTcb) == FALSE)
+            {
+                vmxExit();
+                status = OK;
+            }
+        }
+    }
 
-      /* Setmask and exit switch */
-      case SIG_SETMASK:
-        pSigTcb->sigt_blocked = *set;
-        break;
-
-      /* Unknown method, exit kernel and return error */
-      default:
-        vmxExit();
-        errnoSet(EINVAL);
-        return ERROR;
-
-    } /* End select method */
-
-  } /* End if set not null */
-
-  /* Check for pending signal and try to run it */
-  if (sigPendRun(pSigTcb) == FALSE)
-    vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigTimeoutRecalc - Calculate new timeout when functions restarts
  *
  * RETURNS: Timeout value
- ******************************************************************************/
+ */
 
-int sigTimeoutRecalc(int timeout)
+int sigTimeoutRecalc(
+    int timeout
+    )
 {
-  return(timeout);
+    return timeout;
 }
 
 
-/*******************************************************************************
+/******************************************************************************
  * sigExcSend - Signal task exception
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-LOCAL void sigExcSend(int signo, int code, REG_SET *pRegSet)
+LOCAL void sigExcSend(
+    int      signo,
+    int      code,
+    REG_SET *pRegSet
+    )
 {
-  struct sigpend pendSignal;
-  REG_SET *pStoreRegSet;
+    struct sigpend pendSignal;
+    REG_SET *pStoreRegSet;
 
-  /* Store current reg set */
-  pStoreRegSet = taskIdCurrent->pExcRegSet;
-  taskIdCurrent->pExcRegSet = NULL;
+    /* Store current reg set */
+    pStoreRegSet = taskIdCurrent->pExcRegSet;
+    taskIdCurrent->pExcRegSet = NULL;
 
-  /* Initialize pending signal */
-  sigPendInit(&pendSignal);
+    /* Initialize pending signal */
+    sigPendInit(&pendSignal);
 
-  /* Initialize structure */
-  pendSignal.sigp_info.si_signo = signo;
-  pendSignal.sigp_info.si_code = SI_SYNC;
-  pendSignal.sigp_info.si_value.sival_int = code;
-  pendSignal.sigp_pregs = pStoreRegSet;
+    /* Initialize structure */
+    pendSignal.sigp_info.si_signo           = signo;
+    pendSignal.sigp_info.si_code            = SI_SYNC;
+    pendSignal.sigp_info.si_value.sival_int = code;
+    pendSignal.sigp_pregs                   = pStoreRegSet;
 
-  /* Kill and destroy */
-  sigPendKill(taskIdCurrent, &pendSignal);
-  sigPendDestroy(&pendSignal);
+    /* Kill and destroy */
+    sigPendKill(taskIdCurrent, &pendSignal);
+    sigPendDestroy(&pendSignal);
 
-  /* Update exception reg set in current task */
-  taskIdCurrent->pExcRegSet = pStoreRegSet;
+    /* Update exception reg set in current task */
+    taskIdCurrent->pExcRegSet = pStoreRegSet;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigExcKill - Signal exception
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-void sigExcKill(int type, int code, REG_SET *pRegSet)
+LOCAL void sigExcKill(
+    int      type,
+    int      code,
+    REG_SET *pRegSet
+    )
 {
-  struct sigfaulttable *pFaultTable;
+    struct sigfaulttable *pFaultTable;
+    BOOL                  done = FALSE;
 
-  /* For all in fault table */
-  for (pFaultTable = &_sigfaulttable[0];
-       !( (pFaultTable->sigf_fault == 0) && (pFaultTable->sigf_signo == 0) );
-       pFaultTable++) {
-
-    /* Signal found */
-    if (pFaultTable->sigf_fault == type) {
-
-      sigExcSend(pFaultTable->sigf_signo, code, pRegSet);
-      return;
+    /* For all in fault table */
+    for (pFaultTable = &_sigfaulttable[0];
+         !((pFaultTable->sigf_fault == 0) && (pFaultTable->sigf_signo == 0));
+         pFaultTable++)
+    {
+        /* Signal found */
+        if (pFaultTable->sigf_fault == type)
+        {
+            sigExcSend(pFaultTable->sigf_signo, code, pRegSet);
+            done = TRUE;
+            break;
+        }
 
     }
 
-  } /* End for all in fault table */
-
-  /* Not in fault table */
-  if (pFaultTable->sigf_signo != 0)
-    sigExcSend(pFaultTable->sigf_signo, code, pRegSet);
+    /* Not in fault table */
+    if (done != TRUE)
+    {
+        if (pFaultTable->sigf_signo != 0)
+        {
+            sigExcSend(pFaultTable->sigf_signo, code, pRegSet);
+        }
+    }
 }
 
-/*******************************************************************************
+/******************************************************************************
  * signal - Specify handler associated with signal
  *
  * RETURNS: Old signal handler
- ******************************************************************************/
+ */
 
-void ( *signal(int signo, void (*handler)()) ) ()
+sighandler_t signal(
+    int          signo,
+    sighandler_t handler
+    )
 {
-  struct sigaction ins, outs;
+    sighandler_t     ret;
+    struct sigaction ins;
+    struct sigaction outs;
 
-  ins.sa_handler = handler;
-  ins.sa_flags = 0;
-  sigemptyset(&ins.sa_mask);
+    ins.sa_handler = handler;
+    ins.sa_flags   = 0;
+    sigemptyset(&ins.sa_mask);
 
-  /* Return old signal handler */
-  if (sigaction(signo, &ins, &outs) == ERROR)
-    return SIG_ERR;
+    /* Return old signal handler */
+    if (sigaction(signo, &ins, &outs) != OK)
+    {
+        ret = SIG_ERR;
+    }
+    else
+    {
+        ret = outs.sa_handler;
+    }
 
-  return outs.sa_handler;
+    return ret;
 }
 
 /******************************************************************************
@@ -637,224 +709,277 @@ int sigaction(
     struct sigaction *oact
     )
 {
-  struct sigtcb *pSigTcb;
-  struct sigaction *pSigAction;
-  struct sigpend *pSigPend;
-  struct sigq *pSigQueue;
+    struct sigtcb    *pSigTcb;
+    struct sigaction *pSigAction;
+    struct sigpend   *pSigPend;
+    struct sigq      *pSigQueue;
+    int               status = OK;
 
-  /* Check signo */
-  if ( !issig(signo) ) {
+    /* Check signo */
+    if (!issig(signo))
+    {
+        errnoSet(EINVAL);
+        status = ERROR;
+    }
+    else
+    {
+        /* Get signal tcb for current task */
+        pSigTcb = sigTcbGet();
+        if (pSigTcb == NULL)
+        {
+            status = ERROR;
+        }
+        else
+        {
+            /* Get current action */
+            pSigAction = &pSigTcb->sigt_vec[signo];
 
-    errnoSet(EINVAL);
-    return ERROR;
+            /* Store old if argument contains valid pointer */
+            if (oact != NULL)
+            {
+                *oact = *pSigAction;
+            }
 
-  }
+            /* Set action if act is non null */
+            if (act != NULL)
+            {
+                /* Enter kernel */
+                kernelState = TRUE;
 
-  /* Get signal tcb for current task */
-  pSigTcb = sigTcbGet();
-  if (pSigTcb == NULL)
-    return ERROR;
+                /* Store action in local variable */
+                *pSigAction = *act;
 
-  /* Get current action */
-  pSigAction = &pSigTcb->sigt_vec[signo];
+                /* If action is ignore */
+                if (pSigAction->sa_handler == SIG_IGN)
+                {
+                    /* Delete signal from pendign and kill sets */
+                    sigdelset(&pSigTcb->sigt_pending, signo);
+                    sigdelset(&pSigTcb->sigt_kilsigs, signo);
 
-  /* Store old if argument contains valid pointer */
-  if (oact != NULL)
-    *oact = *pSigAction;
+                    /* Destroy queued signals */
+                    pSigQueue = pSigTcb->sigt_qhead[signo].sigq_next;
+                    while (pSigQueue != &pSigTcb->sigt_qhead[signo])
+                    {
+                        pSigPend = structbase(
+                                       struct sigpend,
+                                       sigp_q,
+                                       pSigQueue
+                                       );
+                        pSigQueue = pSigQueue->sigq_next;
+                        pSigPend->sigp_q.sigq_prev = NULL;
+                        pSigPend->sigp_q.sigq_next = NULL;
 
-  /* Set action if act is non null */
-  if (act != NULL) {
+                        /* Put free on queue */
+                        if (pSigPend->sigp_info.si_code == SI_QUEUE)
+                        {
+                            *(struct sigpend **) pSigPend = pSigQueueFreeHead;
+                            pSigQueueFreeHead = pSigPend;
+                        }
+                    }
+                }
 
-    /* Enter kernel */
+                /* Exit kernel */
+                vmxExit();
+            }
+        }
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * sigemptyset - Initialize empty signal set
+ *
+ * RETURNS: OK
+ */
+
+int sigemptyset(
+    sigset_t *set
+    )
+{
+    *set = 0;
+
+    return OK;
+}
+
+/******************************************************************************
+ * sigfillset - Initialize full signal set
+ *
+ * RETURNS: OK
+ */
+
+int sigfillset(
+    sigset_t *set
+    )
+{
+    *set = 0xffffffff;
+
+    return OK;
+}
+
+/******************************************************************************
+ * sigaddset - Add signal from signal set
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigaddset(
+    sigset_t *set,
+    int       signo
+    )
+{
+    int status;
+
+    /* Check signo */
+    if (!issig(signo))
+    {
+        errnoSet(EINVAL);
+        status = ERROR;
+    }
+    else
+    {
+        *set |= sigmask(signo);
+        status = OK;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * sigdelset - Delete signal from signal set
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigdelset(
+    sigset_t *set,
+    int       signo
+    )
+{
+    int status;
+
+    /* Check signo */
+    if (!issig(signo))
+    {
+        errnoSet(EINVAL);
+        status = ERROR;
+    }
+    else
+    {
+        *set &= ~sigmask(signo);
+        status = OK;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * sigismember - Check if signal is in set
+ *
+ * RETURNS: TRUE, FALSE or ERROR
+ */
+
+int sigismember(
+    sigset_t *set,
+    int       signo
+    )
+{
+    int ret;
+
+    /* Check signo */
+    if (!issig(signo))
+    {
+        errnoSet(EINVAL);
+        ret =  ERROR;
+    }
+    else
+    {
+        ret =  ((*set & sigmask(signo)) != 0) ? TRUE : FALSE;
+    }
+
+    return ret;
+}
+
+/******************************************************************************
+ * sigpending - Get pending signals from set blocked from delivery
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigpending(
+    sigset_t *set
+    )
+{
+    int            status;
+    struct sigtcb *pSigTcb;
+
+    /* Get signal tcb */
+    pSigTcb = sigTcbGet();
+    if (pSigTcb == NULL)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        *set = pSigTcb->sigt_pending;
+        status = OK;
+    }
+
+    return status;
+}
+
+/******************************************************************************
+ * sigpsuspend - Suspend task until it signals delivery, with signal set arg
+ *
+ * RETURNS: ERROR
+ */
+
+int sigsuspend(
+    sigset_t *set
+    )
+{
+    Q_HEAD         qHead;
+    sigset_t       oset;
+    struct sigtcb *pSigTcb;
+
+    /* Get signal tcb */
+    pSigTcb = sigTcbGet();
+    if (pSigTcb == NULL)
+    {
+        return ERROR;
+    }
+
+    /* Enter kenrnel */
     kernelState = TRUE;
 
-    /* Store action in local variable */
-    *pSigAction = *act;
+    /* Save old signal set */
+    oset = pSigTcb->sigt_blocked;
+    pSigTcb->sigt_blocked = *set;
 
-    /* If action is ignore */
-    if (pSigAction->sa_handler == SIG_IGN) {
+    /* If pending signals */
+    if (sigPendRun(pSigTcb) == TRUE)
+    {
+        sigprocmask(SIG_SETMASK, &oset, NULL);
+        errnoSet(EINTR);
+        return ERROR;
+    }
 
-      /* Delete signal from pendign and kill sets */
-      sigdelset(&pSigTcb->sigt_pending, signo);
-      sigdelset(&pSigTcb->sigt_kilsigs, signo);
-
-      /* Destroy queued signals */
-      pSigQueue = pSigTcb->sigt_qhead[signo].sigq_next;
-      while( pSigQueue != &pSigTcb->sigt_qhead[signo]) {
-
-        pSigPend = structbase(struct sigpend, sigp_q, pSigQueue);
-        pSigQueue = pSigQueue->sigq_next;
-        pSigPend->sigp_q.sigq_prev = NULL;
-        pSigPend->sigp_q.sigq_next = NULL;
-
-        /* Free in on queue */
-        if (pSigPend->sigp_info.si_code == SI_QUEUE) {
-          *(struct sigpend **) pSigPend = pSigQueueFreeHead;
-          pSigQueueFreeHead = pSigPend;
-        }
-
-      }
-
-    } /* End if action is ignore */
+    /* Sleep until signal arrives */
+    qInit(&qHead, qFifoClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    if (vmxPendQPut(&qHead, WAIT_FOREVER) != OK)
+    {
+        vmxExit();
+        return ERROR;
+    }
 
     /* Exit kernel */
     vmxExit();
 
-  } /* End if act is non null */
-
-  return OK;
-}
-
-/*******************************************************************************
- * sigemptyset - Initialize empty signal set
- *
- * RETURNS: OK
- ******************************************************************************/
-
-int sigemptyset(sigset_t *set)
-{
-  *set = 0;
-
-  return OK;
-}
-
-/*******************************************************************************
- * sigfillset - Initialize full signal set
- *
- * RETURNS: OK
- ******************************************************************************/
-
-int sigfillset(sigset_t *set)
-{
-  *set = 0xffffffff;
-
-  return OK;
-}
-
-/*******************************************************************************
- * sigaddset - Add signal from signal set
- *
- * RETURNS: OK or ERROR
- ******************************************************************************/
-
-int sigaddset(sigset_t *set, int signo)
-{
-  /* Check signo */
-  if ( !issig(signo) ) {
-
-    errnoSet(EINVAL);
-    return ERROR;
-  }
-
-  *set |= sigmask(signo);
-
-  return OK;
-}
-
-/*******************************************************************************
- * sigdelset - Delete signal from signal set
- *
- * RETURNS: OK or ERROR
- ******************************************************************************/
-
-int sigdelset(sigset_t *set, int signo)
-{
-
-  /* Check signo */
-  if ( !issig(signo) ) {
-
-    errnoSet(EINVAL);
-    return ERROR;
-  }
-
-  *set &= ~sigmask(signo);
-
-  return OK;
-}
-
-/*******************************************************************************
- * sigismember - Check if signal is in set
- *
- * RETURNS: TRUE, FALSE or ERROR
- ******************************************************************************/
-
-int sigismember(sigset_t *set, int signo)
-{
-  /* Check signo */
-  if ( !issig(signo) ) {
-
-    errnoSet(EINVAL);
-    return ERROR;
-  }
-
-  return ( (*set & sigmask(signo)) != 0);
-}
-
-/*******************************************************************************
- * sigpending - Get pending signals from set blocked from delivery
- *
- * RETURNS: OK or ERROR
- ******************************************************************************/
-
-int sigpending(sigset_t *set)
-{
-  struct sigtcb *pSigTcb;
-
-  /* Get signal tcb */
-  pSigTcb = sigTcbGet();
-  if (pSigTcb == NULL)
-    return ERROR;
-
-  *set = pSigTcb->sigt_pending;
-
-  return OK;
-}
-
-/*******************************************************************************
- * sigpsuspend - Suspend task until it signals delivery, with signal set arg
- *
- * RETURNS: ERROR
- ******************************************************************************/
-
-int sigsuspend(sigset_t *set)
-{
-  Q_HEAD qHead;
-  sigset_t oset;
-  struct sigtcb *pSigTcb;
-
-  /* Get signal tcb */
-  pSigTcb = sigTcbGet();
-  if (pSigTcb == NULL)
-    return ERROR;
-
-  /* Enter kenrnel */
-  kernelState = TRUE;
-
-  /* Save old signal set */
-  oset = pSigTcb->sigt_blocked;
-
-  /* If pending signals */
-  if (sigPendRun(pSigTcb) == TRUE) {
-
+    /* Restore old signal mask */
     sigprocmask(SIG_SETMASK, &oset, NULL);
+
     errnoSet(EINTR);
     return ERROR;
-
-  } /* End if pending signals */
-
-  /* Sleep until signal arrives */
-  qInit(&qHead, qFifoClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  if (vmxPendQPut(&qHead, WAIT_FOREVER) != OK)
-    return ERROR;
-
-  /* Exit kernel */
-  vmxExit();
-
-  /* Restore old signal mask */
-  sigprocmask(SIG_SETMASK, &oset, NULL);
-
-  errnoSet(EINTR);
-  return ERROR;
 }
 
 /******************************************************************************
@@ -867,25 +992,26 @@ int pause(
     void
     )
 {
-  Q_HEAD qHead;
+    Q_HEAD qHead;
 
-  /* Initialize fifo queue */
-  qInit(&qHead, qFifoClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    /* Initialize fifo queue */
+    qInit(&qHead, qFifoClassId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-  /* Enter kenrnel */
-  kernelState = TRUE;
+    /* Enter kenrnel */
+    kernelState = TRUE;
 
-  /* Sleep until signal arrives */
-  if (vmxPendQPut(&qHead, WAIT_FOREVER) != OK) {
+    /* Sleep until signal arrives */
+    if (vmxPendQPut(&qHead, WAIT_FOREVER) != OK)
+    {
+        vmxExit();
+        return ERROR;
+    }
+
+    /* Exit kernel */
     vmxExit();
+
+    errnoSet(EINTR);
     return ERROR;
-  }
-
-  /* Exit kernel */
-  vmxExit();
-
-  errnoSet(EINTR);
-  return ERROR;
 }
 
 /******************************************************************************
@@ -899,61 +1025,80 @@ int kill(
     int signo
     )
 {
-  TCB_ID tcbId;
+    int    status;
+    TCB_ID tcbId = (TCB_ID) taskId;
 
-  /* Get task Id */
-  tcbId = (TCB_ID) taskId;
+    /* Check signo */
+    if (!issig(signo))
+    {
+        errnoSet(EINVAL);
+        status = ERROR;
+    }
+    else
+    {
+        /* If in kernel or in interrupt and task is current */
+        if ((kernelState == TRUE) ||
+            ((INT_CONTEXT() == TRUE) && (taskIdCurrent == tcbId)))
+        {
+            /* Check task id */
+            if (TASK_ID_VERIFY(tcbId) != OK)
+            {
+                errnoSet(EINVAL);
+                status = ERROR;
+            }
+            else
+            {
+                /* Send kill exception */
+                excJobAdd(
+                    (VOIDFUNCPTR) kill,
+                    tcbId,
+                    (ARG) signo,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0
+                    );
+                status = OK;
+            }
+        }
+        else
+        {
+            /* Enter kernel */
+            kernelState = TRUE;
 
-  /* Check signo */
-  if ( !issig(signo) ) {
-    errnoSet(EINVAL);
-    return ERROR;
-  }
+            /* Check task id */
+            if (TASK_ID_VERIFY(tcbId) != OK)
+            {
+                vmxExit();
+                errnoSet(EINVAL);
+                status = ERROR;
+            }
+            else
+            {
+                /* Send kill signal */
+                sigVmxKill(tcbId, signo);
 
-  /* If in kernel or in interrupt and task is current */
-  if (kernelState || ( INT_CONTEXT() && (taskIdCurrent == tcbId) ) ) {
-
-    /* Check task id */
-    if (TASK_ID_VERIFY(tcbId) != OK) {
-      errnoSet(EINVAL);
-      return ERROR;
+                /* Exit kernel */
+                vmxExit();
+                status = OK;
+            }
+        }
     }
 
-    /* Send kill exception */
-    excJobAdd( (VOIDFUNCPTR) kill, tcbId, (ARG) signo,
-               (ARG) 0, (ARG) 0, (ARG) 0, (ARG) 0);
-
-    return OK;
-  }
-
-  /* Enter kernel */
-  kernelState = TRUE;
-
-  /* Check task id */
-  if (TASK_ID_VERIFY(tcbId) != OK) {
-    vmxExit();
-    errnoSet(EINVAL);
-    return ERROR;
-  }
-
-  /* Send kill signal */
-  sigVmxKill(tcbId, signo);
-
-  /* Exit kernel */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * raise - Send signal current task
  *
  * RETURNS: OK or ERROR
- ******************************************************************************/
+ */
 
-int raise(int signo)
+int raise(
+    int signo
+    )
 {
-  return kill( (int) taskIdCurrent, signo );
+    return kill((int) taskIdCurrent, signo);
 }
 
 /******************************************************************************
@@ -968,422 +1113,452 @@ int sigqueue(
     const union sigval value
     )
 {
-  TCB_ID tcbId;
-  struct sigpend sigPend;
+    int            status;
+    struct sigpend sigPend;
+    TCB_ID         tcbId = (TCB_ID) taskId;
 
+    /* If invalid signal number */
+    if (!issig(signo))
+    {
+        errnoSet(EINVAL);
+        status = ERROR;
+    }
+    else
+    {
+        /* If in kernel or in interrupt and task is current */
+        if ((kernelState == TRUE) ||
+            ((INT_CONTEXT() == TRUE) && (taskIdCurrent == tcbId)))
+        {
+            /* If invalid task id */
+            if (TASK_ID_VERIFY(tcbId) != OK)
+            {
+                errnoSet(EINVAL);
+                status = ERROR;
+            }
+            else if (pSigQueueFreeHead == NULL)
+            {
+                errnoSet(EAGAIN);
+                status = ERROR;
+            }
+            else
+            {
+                /* Call again in exception task */
+                excJobAdd(
+                    (VOIDFUNCPTR) sigqueue,
+                    (ARG) taskId,
+                    (ARG) signo,
+                    (ARG) value.sival_int,
+                    (ARG) 0,
+                    (ARG) 0,
+                    (ARG) 0
+                    );
+                status = OK;
+            }
+        }
+        else
+        {
+            /* Enter kernel */
+            kernelState = TRUE;
 
-  /* Get task context */
-  tcbId = (TCB_ID) taskId;
+            /* If invalid task id */
+            if (TASK_ID_VERIFY(tcbId) != OK)
+            {
+                vmxExit();
+                errnoSet(EINVAL);
+                status = ERROR;
+            }
+            else if (pSigQueueFreeHead == NULL)
+            {
+                vmxExit();
+                errnoSet(EAGAIN);
+                status = ERROR;
+            }
+            else
+            {
+                /* Initialize pendig signal */
+                sigPendInit(&sigPend);
+                sigPend.sigp_info.si_signo = signo;
+                sigPend.sigp_info.si_code  = SI_QUEUE;
+                sigPend.sigp_info.si_value = value;
 
-  /* If invalid signal number */
-  if ( !issig(signo) ) {
+                /* Send signal tru general kill function */
+                sigVmxPendKill((TCB_ID) taskId, &sigPend);
 
-    errnoSet(EINVAL);
-    return ERROR;
+                /* Exit kernel */
+                vmxExit();
+                status = OK;
+            }
+        }
+    }
 
-  } /* End if invalid signal number */
-
-  /* If in kernel or in interrupt and task is current */
-  if (kernelState || ( INT_CONTEXT() && (taskIdCurrent == tcbId) ) ) {
-
-    /* If invalid task id */
-    if (TASK_ID_VERIFY(tcbId) != OK) {
-
-      errnoSet(EINVAL);
-      return ERROR;
-
-    } /* End if invalid task id */
-
-    /* If queue not initalized */
-    if (pSigQueueFreeHead == NULL) {
-
-      errnoSet(EAGAIN);
-      return ERROR;
-
-    } /* End if queue not initialized */
-
-    /* Call again in exception task */
-    excJobAdd((VOIDFUNCPTR) sigqueue,
-              (ARG) taskId,
-              (ARG) signo,
-              (ARG) value.sival_int,
-              (ARG) 0, (ARG) 0, (ARG) 0);
-
-  } /* End if in kernel or in interrupt and task is current */
-
-  /* Enter kernel */
-  kernelState = TRUE;
-
-  /* If invalid task id */
-  if (TASK_ID_VERIFY(tcbId) != OK) {
-
-    vmxExit();
-    errnoSet(EINVAL);
-    return ERROR;
-
-  } /* End if invalid task id */
-
-  /* If queue not initalized */
-  if (pSigQueueFreeHead == NULL) {
-
-    vmxExit();
-    errnoSet(EAGAIN);
-    return ERROR;
-
-  } /* End if queue not initialized */
-
-  /* Initialize pendig signal */
-  sigPendInit(&sigPend);
-  sigPend.sigp_info.si_signo = signo;
-  sigPend.sigp_info.si_code = SI_QUEUE;
-  sigPend.sigp_info.si_value = value;
-
-  /* Send signal tru general kill function */
-  sigVmxPendKill((TCB_ID) taskId, &sigPend);
-
-  /* Exit kernel */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigPendInit - Initialize queue signal
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-void sigPendInit(struct sigpend *pSigPend)
+void sigPendInit(
+    struct sigpend *pSigPend
+    )
 {
-  pSigPend->sigp_q.sigq_prev = NULL;
-  pSigPend->sigp_q.sigq_next = NULL;
-  pSigPend->sigp_overruns = 0;
-  pSigPend->sigp_pregs = NULL;
+    pSigPend->sigp_q.sigq_prev = NULL;
+    pSigPend->sigp_q.sigq_next = NULL;
+    pSigPend->sigp_overruns = 0;
+    pSigPend->sigp_pregs = NULL;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigPendDestroy - Destroy queue signal
  *
  * RETURNS: OK or ERROR
- ******************************************************************************/
+ */
 
-STATUS sigPendDestroy(struct sigpend *pSigPend)
+STATUS sigPendDestroy(
+    struct sigpend *pSigPend
+    )
 {
-  /* Not callable inside interrupts */
-  if (INT_RESTRICT() != OK)
-    return ERROR;
+    STATUS status;
 
-  pSigPend->sigp_overruns = 0;
+    /* Not callable inside interrupts */
+    if (INT_RESTRICT() != OK)
+    {
+        status = ERROR;
+    }
+    else
+    {
+        pSigPend->sigp_overruns = 0;
 
-  /* Enter kernel */
-  kernelState = TRUE;
+        /* Enter kernel */
+        kernelState = TRUE;
 
-  /* If on queue */
-  if (pSigPend->sigp_q.sigq_next != NULL) {
+        /* If on queue */
+        if (pSigPend->sigp_q.sigq_next != NULL)
+        {
+            if (pSigPend->sigp_q.sigq_next == pSigPend->sigp_q.sigq_prev)
+            {
+                pSigPend->sigp_tcb->sigt_pending &=
+                    (pSigPend->sigp_tcb->sigt_kilsigs |
+                     ~sigmask(pSigPend->sigp_info.si_signo));
+            }
 
-    if (pSigPend->sigp_q.sigq_next == pSigPend->sigp_q.sigq_prev) {
-      pSigPend->sigp_tcb->sigt_pending &=
-                ( pSigPend->sigp_tcb->sigt_kilsigs |
-                  ~sigmask(pSigPend->sigp_info.si_signo) );
+            pSigPend->sigp_q.sigq_next->sigq_prev = pSigPend->sigp_q.sigq_prev;
+            pSigPend->sigp_q.sigq_prev->sigq_next = pSigPend->sigp_q.sigq_next;
+            pSigPend->sigp_q.sigq_prev            = NULL;
+            pSigPend->sigp_q.sigq_next            = NULL;
+        }
+
+        /* Exit kernel */
+        vmxExit();
+        status = OK;
     }
 
-    pSigPend->sigp_q.sigq_next->sigq_prev = pSigPend->sigp_q.sigq_prev;
-    pSigPend->sigp_q.sigq_prev->sigq_next = pSigPend->sigp_q.sigq_next;
-    pSigPend->sigp_q.sigq_prev = NULL;
-    pSigPend->sigp_q.sigq_next = NULL;
-
-  } /* End if on queue */
-
-  /* Exit kernel */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigPendKill - Send a queued kill signal
  *
  * RETURNS: OK or ERROR
- ******************************************************************************/
+ */
 
-STATUS sigPendKill(TCB_ID tcbId, struct sigpend *pSigPend)
+STATUS sigPendKill(
+    TCB_ID          tcbId,
+    struct sigpend *pSigPend
+    )
 {
-  /* Verify task id */
-  if (TASK_ID_VERIFY(tcbId) != OK) {
-    errnoSet(EINVAL);
-    return ERROR;
-  }
+    STATUS status;
 
-  /* If in kernel or in interrupt and tcbId in the running task */
-  if ( kernelState || ( INT_CONTEXT() && (taskIdCurrent == tcbId) ) ) {
+    /* Verify task id */
+    if (TASK_ID_VERIFY(tcbId) != OK)
+    {
+        errnoSet(EINVAL);
+        status = ERROR;
+    }
+    else
+    {
+        /* If in kernel or in interrupt and tcbId in the running task */
+        if ((kernelState == TRUE) ||
+            ((INT_CONTEXT() == TRUE) && (taskIdCurrent == tcbId)))
+        {
+            /* Add job to exception task */
+            excJobAdd(
+                (VOIDFUNCPTR) sigPendKill,
+                (ARG) tcbId,
+                (ARG) pSigPend,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0,
+                (ARG) 0
+                );
+            status = OK;
+        }
+        else
+        {
+            /* Enter kernel */
+            kernelState = TRUE;
 
-    /* Add job to exception task */
-    excJobAdd(
-        (VOIDFUNCPTR) sigPendKill,
-        (ARG) tcbId,
-        (ARG) pSigPend,
-        (ARG) 0,
-        (ARG) 0,
-        (ARG) 0,
-        (ARG) 0
-        );
+            /* Signal task */
+            sigVmxPendKill(tcbId, pSigPend);
 
-  } /* End if kernel or in interrupt and tcbId is running */
+            /* Exit kernel */
+            vmxExit();
+            status = OK;
+        }
+    }
 
-  /* Enter kernel */
-  kernelState = TRUE;
-
-  /* Signal task */
-  sigVmxPendKill(tcbId, pSigPend);
-
-  /* Exit kernel */
-  vmxExit();
-
-  return OK;
+    return status;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigVmxRestart - Test state of task for signal sending
  *
  * RETURNS: Delay value
- ******************************************************************************/
+ */
 
-LOCAL int sigVmxRestart(TCB_ID tcbId)
+LOCAL int sigVmxRestart(
+    TCB_ID tcbId
+    )
 {
-  int delayValue;
-  int status;
+    int delayValue = WAIT_FOREVER;
 
-  /* Set locals */
-  delayValue = WAIT_FOREVER;
+    /* If task is pending of delayed */
+    if ((tcbId->status & (TASK_PEND | TASK_DELAY)) != 0)
+    {
+        /* If task is delayed */
+        if ((tcbId->status & TASK_DELAY) != 0)
+        {
+            /* Set return value to restart */
+            taskRetValueSet(tcbId, SIG_RESTART);
 
-  /* If task is pending of delayed */
-  if ( (tcbId->status & (TASK_PEND | TASK_DELAY)) != 0) {
+            /* Remove from delay queue */
+            tcbId->status &= ~TASK_DELAY;
+            Q_REMOVE(&tickQHead, &tcbId->tickNode);
 
-    /* If task is delayed */
-    if ( (tcbId->status & TASK_DELAY) != 0) {
+            /* Get delay value */
+            delayValue = Q_KEY(&tickQHead, &tcbId->tickNode, 1);
+        }
 
-      /* Set return value to restart */
-      taskRetValueSet(tcbId, SIG_RESTART);
+        /* If task is pending */
+        if ((tcbId->status & TASK_PEND) != 0)
+        {
+            /* Unpend task */
+            tcbId->status &= ~TASK_PEND;
+            if (Q_REMOVE(tcbId->pPendQ, tcbId) != OK)
+            {
+                taskRetValueSet(tcbId, ERROR);
+            }
+        }
 
-      /* Remove from delay queue */
-      tcbId->status &= ~TASK_DELAY;
-      Q_REMOVE(&tickQHead, &tcbId->tickNode);
+        /* If task is ready now */
+        if (tcbId->status == TASK_READY)
+        {
+            Q_PUT(&readyQHead, tcbId, tcbId->priority);
+        }
+    }
 
-      /* Get delay value */
-      delayValue = Q_KEY(&tickQHead, &tcbId->tickNode, 1);
-
-    } /* End if task is delayed */
-
-    /* If task is pending */
-    if ( (tcbId->status & TASK_PEND) != 0) {
-
-      /* Unpend task */
-      tcbId->status &= ~TASK_PEND;
-      status = Q_REMOVE(tcbId->pPendQ, tcbId);
-
-      /* Check status */
-      if (status == ERROR) {
-        taskRetValueSet(tcbId, ERROR);
-      }
-
-    } /* End if task is pending */
-
-    /* If task is ready now */
-    if (tcbId->status == TASK_READY)
-      Q_PUT(&readyQHead, tcbId, tcbId->priority);
-
-  } /* End if task is pending or delayed */
-
-  return delayValue;
+    return delayValue;
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigVmxPendKill - Send kill kernel signal
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-LOCAL void sigVmxPendKill(TCB_ID tcbId, struct sigpend *pSigPend)
+LOCAL void sigVmxPendKill(
+    TCB_ID          tcbId,
+    struct sigpend *pSigPend
+    )
 {
-  int signo;
-  struct sigtcb *pSigTcb;
-  struct sigq *qHead;
-  struct sigpend *pTmpPend;
-  struct sigcontext sigContext, *pSigContext;
-  long sigmsk;
-  int args[2];
-  void (*handler)();
+    int signo;
+    struct sigtcb     *pSigTcb;
+    struct sigq       *qHead;
+    struct sigpend    *pTmpPend;
+    struct sigcontext  sigContext;
+    struct sigcontext *pSigContext;
+    long               sigmsk;
+    int                args[2];
+    sighandler_t       handler;
 
-  /* Get locals */
-  signo = pSigPend->sigp_info.si_signo;
-  pSigTcb = tcbId->pSignalInfo;
+    /* Get locals */
+    signo = pSigPend->sigp_info.si_signo;
+    pSigTcb = tcbId->pSignalInfo;
 
-  /* Ignore tasks with zero signal info */
-  if (pSigTcb == NULL)
-    return;
-
-  /* If task is waiting for signal, wake it up */
-  if ( (pSigTcb->sigt_wait != NULL) &&
-       (Q_FIRST(&pSigTcb->sigt_wait->sigw_wait) != NULL) ) {
-
-    pSigTcb->sigt_wait->sigw_info = pSigPend->sigp_info;
-
-    /* Get task from pending queue */
-    vmxPendQGet(&pSigTcb->sigt_wait->sigw_wait);
-
-    /* Make wait end and return */
-    pSigTcb->sigt_wait = NULL;
-    return;
-  }
-
-  /* Get signal handler function and mask */
-  handler = pSigTcb->sigt_vec[signo].sa_handler;
-  sigmsk = sigmask(signo);
-
-  /* Ignore */
-  if (handler == SIG_IGN)
-    return;
-
-  /* Default */
-  if (handler == SIG_DFL)
-    return;
-
-  /* Get signal mask */
-  sigmsk = sigmask(signo);
-
-  /* If signal is among blocked */
-  if (pSigTcb->sigt_blocked & sigmsk) {
-
-    /* If it is a kill signal */
-    if (pSigPend->sigp_info.si_code == SI_KILL) {
-      pSigTcb->sigt_kilsigs |= sigmsk;
-      pSigTcb->sigt_pending |= sigmsk;
+    /* Ignore tasks with zero signal info */
+    if (pSigTcb == NULL)
+    {
+        return;
     }
 
-    /* Else if overruns exists */
-    else if (pSigPend->sigp_q.sigq_next != NULL)
-      pSigPend->sigp_active_overruns++;
+    /* If task is waiting for signal, wake it up */
+    if ((pSigTcb->sigt_wait != NULL) &&
+        (Q_FIRST(&pSigTcb->sigt_wait->sigw_wait) != NULL))
+    {
+        pSigTcb->sigt_wait->sigw_info = pSigPend->sigp_info;
 
-    /* Else it must be a signal to queue */
-    else {
-      qHead = &pSigTcb->sigt_qhead[signo];
+        /* Get task from pending queue */
+        vmxPendQGet(&pSigTcb->sigt_wait->sigw_wait);
 
-      /* Allocate buffer */
-      if (pSigPend->sigp_info.si_code == SI_QUEUE) {
-
-        pTmpPend = pSigQueueFreeHead;
-        pSigQueueFreeHead = *(struct sigpend **) pSigQueueFreeHead;
-        *pTmpPend = *pSigPend;
-        pSigPend = pTmpPend;
-
-      }
-
-      pSigPend->sigp_q.sigq_prev = qHead->sigq_prev;
-      pSigPend->sigp_q.sigq_next = qHead;
-      pSigPend->sigp_q.sigq_prev->sigq_next = & pSigPend->sigp_q;
-      qHead->sigq_prev = &pSigPend->sigp_q;
-      pSigTcb->sigt_pending |= sigmsk;
-      pSigPend->sigp_tcb = pSigTcb;
-
+        /* Make wait end and return */
+        pSigTcb->sigt_wait = NULL;
+        return;
     }
 
-    return;
+    /* Get signal handler function and mask */
+    handler = pSigTcb->sigt_vec[signo].sa_handler;
+    sigmsk = sigmask(signo);
 
-  } /* End if signal is among blocked */
-
-  /* Forced develiviry of signal */
-
-  /* If current task */
-  if (tcbId == taskIdCurrent) {
-
-    sigContext.sc_onstack = 0;
-    sigContext.sc_restart = 0;
-    sigContext.sc_mask = pSigTcb->sigt_blocked;
-    pSigTcb->sigt_blocked |= (pSigTcb->sigt_vec[signo].sa_mask | sigmsk);
-    sigContext.sc_info = pSigPend->sigp_info;
-    sigContext.sc_pregs = pSigPend->sigp_pregs;
-
-    /* Exit kernel */
-    vmxExit();
-
-    if (_sigCtxSave(&sigContext.sc_regs) == 0) {
-      _sigCtxRetValueSet(&sigContext.sc_regs, 1);
-      sigWrapper(&sigContext);
+    /* Ignore */
+    if (handler == SIG_IGN)
+    {
+        return;
     }
 
-    /* Enter kernel */
-    kernelState = TRUE;
+    /* Default */
+    if (handler == SIG_DFL)
+    {
+        return;
+    }
 
-  } /* End if current task */
+    /* Get signal mask */
+    sigmsk = sigmask(signo);
 
-  /* Else not current task */
-  else {
+    /* If signal is among blocked */
+    if (pSigTcb->sigt_blocked & sigmsk)
+    {
+        /* If it is a kill signal */
+        if (pSigPend->sigp_info.si_code == SI_KILL)
+        {
+            pSigTcb->sigt_kilsigs |= sigmsk;
+            pSigTcb->sigt_pending |= sigmsk;
+        }
+        else if (pSigPend->sigp_q.sigq_next != NULL)
+        {
+            pSigPend->sigp_active_overruns++;
+        }
+        else
+        {
+            qHead = &pSigTcb->sigt_qhead[signo];
 
+            /* Allocate buffer */
+            if (pSigPend->sigp_info.si_code == SI_QUEUE)
+            {
+                pTmpPend = pSigQueueFreeHead;
+                pSigQueueFreeHead = *(struct sigpend **) pSigQueueFreeHead;
+                *pTmpPend = *pSigPend;
+                pSigPend = pTmpPend;
+            }
+
+            pSigPend->sigp_q.sigq_prev            = qHead->sigq_prev;
+            pSigPend->sigp_q.sigq_next            = qHead;
+            pSigPend->sigp_q.sigq_prev->sigq_next = &pSigPend->sigp_q;
+
+            qHead->sigq_prev = &pSigPend->sigp_q;
+
+            pSigTcb->sigt_pending |= sigmsk;
+
+            pSigPend->sigp_tcb = pSigTcb;
+        }
+
+        return;
+    }
+
+    /* Forced develivery of signal */
+
+    /* If current task */
+    if (tcbId == taskIdCurrent)
+    {
+        sigContext.sc_onstack = 0;
+        sigContext.sc_restart = 0;
+        sigContext.sc_mask    = pSigTcb->sigt_blocked;
+
+        pSigTcb->sigt_blocked |= (pSigTcb->sigt_vec[signo].sa_mask | sigmsk);
+
+        sigContext.sc_info  = pSigPend->sigp_info;
+        sigContext.sc_pregs = pSigPend->sigp_pregs;
+
+        /* Exit kernel */
+        vmxExit();
+
+        if (_sigCtxSave(&sigContext.sc_regs) == 0)
+        {
+            _sigCtxRetValueSet(&sigContext.sc_regs, 1);
+            sigWrapper(&sigContext);
+        }
+
+        /* Enter kernel */
+        kernelState = TRUE;
+    }
+    else
+    {
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
-
-    /* Get stack storage for signal context */
-    pSigContext = (struct sigcontext *) MEM_ROUND_DOWN(
-        ((struct sigcontext *) _sigCtxStackEnd(&tcbId->regs)) - 1 );
-
+        /* Get stack storage for signal context */
+        pSigContext = (struct sigcontext *) MEM_ROUND_DOWN(
+            ((struct sigcontext *) _sigCtxStackEnd(&tcbId->regs)) - 1);
 #else /* _STACK_GROWS_UP */
-
-    /* Get stack storage for signal context */
-    pSigContext = (struct sigcontext *) MEM_ROUND_UP(
-        _sigCtxStackEnd(&tcbId->regs) );
-
+        /* Get stack storage for signal context */
+        pSigContext = (struct sigcontext *) MEM_ROUND_UP(
+                                                _sigCtxStackEnd(&tcbId->regs)
+                                                );
 #endif /* _STACK_DIR */
 
-    /* Arguments count to store on stack */
-    args[0] = 1;
+        /* Arguments count to store on stack */
+        args[0] = 1;
+        args[1] = (int) pSigContext;
 
-    /* Arguments to store on stack */
-    args[1] = (int) pSigContext;
+        /* Wake up task */
+        pSigTcb->sigt_wait = NULL;
 
-    /* Wake up task */
-    pSigTcb->sigt_wait = NULL;
-    pSigContext->sc_onstack = 0;
-    pSigContext->sc_restart = sigVmxRestart(tcbId);
-    pSigContext->sc_mask = pSigTcb->sigt_blocked;
-    pSigTcb->sigt_blocked |= (pSigTcb->sigt_vec[signo].sa_mask | sigmsk);
-    pSigContext->sc_info = pSigPend->sigp_info;
-    pSigContext->sc_regs = tcbId->regs;
-    pSigContext->sc_pregs = pSigPend->sigp_pregs;
+        pSigContext->sc_onstack = 0;
+        pSigContext->sc_restart = sigVmxRestart(tcbId);
+        pSigContext->sc_mask    = pSigTcb->sigt_blocked;
+
+        pSigTcb->sigt_blocked |= (pSigTcb->sigt_vec[signo].sa_mask | sigmsk);
+
+        pSigContext->sc_info  = pSigPend->sigp_info;
+        pSigContext->sc_regs  = tcbId->regs;
+        pSigContext->sc_pregs = pSigPend->sigp_pregs;
 
 #if (_STACK_DIR == _STACK_GROWS_DOWN)
-
-    /* Setup task stack with signal context */
-    _sigCtxSetup(&tcbId->regs,
-                 (void *) STACK_ROUND_DOWN(pSigContext),
-                 sigWrapper,
-                 args);
-
+        /* Setup task stack with signal context */
+        _sigCtxSetup(
+            &tcbId->regs,
+            (void *) STACK_ROUND_DOWN(pSigContext),
+            sigWrapper,
+            args
+            );
 #else /* _STACK_DOWNS_UP */
-
-    /* Setup task stack with signal context */
-    _sigCtxSetup(&tcbId->regs,
-                 (void *) STACK_ROUND_UP(pSigContext + 1),
-                 sigWrapper,
-                 args);
-
+        /* Setup task stack with signal context */
+        _sigCtxSetup(
+            &tcbId->regs,
+            (void *) STACK_ROUND_UP(pSigContext + 1),
+            sigWrapper,
+            args
+            );
 #endif /* _STACK_DIR */
-
-  } /* End else not current task */
+    }
 }
 
-/*******************************************************************************
+/******************************************************************************
  * sigVmxKill - Send signal
  *
  * RETURNS: N/A
- ******************************************************************************/
+ */
 
-LOCAL void sigVmxKill(TCB_ID tcbId, int signo)
+LOCAL void sigVmxKill(
+    TCB_ID tcbId,
+    int    signo
+    )
 {
-  struct sigpend sigPend;
+    struct sigpend sigPend;
 
-  sigPend.sigp_info.si_signo = signo;
-  sigPend.sigp_info.si_code = SI_KILL;
-  sigPend.sigp_info.si_value.sival_int = 0;
+    sigPend.sigp_info.si_signo           = signo;
+    sigPend.sigp_info.si_code            = SI_KILL;
+    sigPend.sigp_info.si_value.sival_int = 0;
 
-  sigVmxPendKill(tcbId, &sigPend);
+    sigVmxPendKill(tcbId, &sigPend);
 }
 
