@@ -33,6 +33,7 @@
 #define NUM_DRIVERS                     20      /* Maximum drivers */
 #define NUM_FILES                       50      /* Maximum open files */
 #define MAX_LOG_MSGS                    50      /* Maximum of log messages */
+#define NUM_SIGNAL_QUEUES               16      /* Numboer of signal queues */
 #define SYM_TABLE_HASH_SIZE_LOG2        8       /* Symbol table log 2 size  */
 
 #define USER_I_CACHE_MODE               CACHE_WRITETROUGH

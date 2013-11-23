@@ -33,6 +33,26 @@ extern "C" {
 
 /* Functions */
 
+/******************************************************************************
+ * sigLibInit - Initialize signal library
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS sigLibInit(
+    void
+    );
+
+/******************************************************************************
+ * sigqueueInit - Initialize signal queue
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS sigqueueInit(
+    int nQueues
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

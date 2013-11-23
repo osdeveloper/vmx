@@ -65,6 +65,7 @@
 #include <os/iosShow.h>
 #include <os/pathLib.h>
 #include <os/logLib.h>
+#include <os/sigLib.h>
 #include <os/excLib.h>
 #include <os/envLib.h>
 #include <os/envShow.h>
@@ -170,8 +171,15 @@ LOCAL void usrRoot(
 
   memPartLibInit(pMemPoolStart, memPoolSize);
 
+  memLibInit();
+  memShowInit();
+
   wdLibInit();
   wdShowInit();
+
+#ifdef INCLUDE_MMU
+  usrMmuInit();
+#endif /* INCLUDE_MMU */
 
   /* Install and start system clock interrupt */
   sysClockConnect((FUNCPTR) usrClock, 0);
@@ -232,6 +240,8 @@ LOCAL void usrRoot(
 
   logLibInit(STDERR_FILENO, MAX_LOG_MSGS);
 
+  sigLibInit();
+
 #ifdef INCLUDE_LOG_STARTUP
   logMsg("logging started to %s [%d], queue size %d\n",
          (ARG) consoleName, (ARG) consoleFd, (ARG) MAX_LOG_MSGS,
@@ -239,14 +249,9 @@ LOCAL void usrRoot(
   taskDelay(2);
 #endif /* INCLUDE_LOG_STARTUP */
 
-  memLibInit();
-  memShowInit();
-
-#ifdef INCLUDE_MMU
-  usrMmuInit();
-#endif /* INCLUDE_MMU */
-
   pipeDrvInit();
+
+  sigqueueInit(NUM_SIGNAL_QUEUES);
 
 #ifdef INCLUDE_LOG_STARTUP
   logMsg("before symTableCreate()\n",

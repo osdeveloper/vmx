@@ -122,6 +122,51 @@ struct sigaction
 
 /* Functions */
 
+/******************************************************************************
+ * sigaction - Specify action associated with a signal
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigaction(
+    int               signo,
+    struct sigaction *act,
+    struct sigaction *oact
+    );
+
+/******************************************************************************
+ * pause - Suspend task until it signals delivery, without signal set arg
+ *
+ * RETURNS: ERROR
+ */
+
+int pause(
+    void
+    );
+
+/******************************************************************************
+ * kill - Send signal to task
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int kill(
+    int taskId,
+    int signo
+    );
+
+/******************************************************************************
+ * sigqueue - Send a queue signal
+ *
+ * RETURNS: OK or ERROR
+ */
+
+int sigqueue(
+    int                taskId,
+    int                signo,
+    const union sigval value
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
