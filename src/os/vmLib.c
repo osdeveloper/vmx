@@ -659,7 +659,6 @@ STATUS vmGlobalMap(
     }
     else
     {
-
         if (NOT_PAGE_ALIGNED(thisVirtPage))
         {
             errnoSet(S_vmLib_NOT_PAGE_ALIGNED);

@@ -516,6 +516,8 @@ LOCAL STATUS mmuPageCreate(
                            MMU_STATE_MASK_WRITABLE,
                            MMU_STATE_NOT_WRITABLE
                            );
+                /* Ignore status from mmuStateSet for now */
+                status = OK;
             }
         }
         else
@@ -746,6 +748,8 @@ LOCAL STATUS mmuGlobalPageMap(
                            MMU_STATE_MASK_WRITABLE,
                            MMU_STATE_NOT_WRITABLE
                            );
+                /* Ignore status from mmuStateSet for now */
+                status = OK;
             }
         }
     }
