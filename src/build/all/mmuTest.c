@@ -75,22 +75,62 @@ int mmuInit(void)
 int mmuGlobalMapTest(
     void *vAddr,
     void *pAddr,
-    unsigned len
+    unsigned rwlen,
+    unsigned rdlen,
+    unsigned ivlen
     )
 {
-    PHYS_MEM_DESC memDesc[1];
+    PHYS_MEM_DESC  memDesc[3];
+    int            num = 1;
+    char          *virtAddr = (char *) vAddr;
+    char          *physAddr = (char *) pAddr;
 
-    memDesc[0].vAddr       = vAddr;
-    memDesc[0].pAddr       = pAddr;
-    memDesc[0].len         = len;
-    memDesc[0].initialMask = VM_STATE_MASK_VALID|
-                             VM_STATE_MASK_WRITABLE|
-                             VM_STATE_MASK_CACHEABLE;
+    /* Read/write area */
+    memDesc[0].vAddr        = virtAddr;
+    memDesc[0].pAddr        = physAddr;
+    memDesc[0].len          = rwlen;
+    memDesc[0].initialMask  = VM_STATE_MASK_VALID|
+                              VM_STATE_MASK_WRITABLE|
+                              VM_STATE_MASK_CACHEABLE;
     memDesc[0].initialState = VM_STATE_VALID|
                               VM_STATE_WRITABLE|
                               VM_STATE_CACHEABLE;
 
-    return (int) vmGlobalMapInit(memDesc, 1, TRUE);
+    virtAddr += rwlen;
+    physAddr += rwlen;
+
+    /* Read-only area */
+    memDesc[1].vAddr        = virtAddr;
+    memDesc[1].pAddr        = physAddr;
+    memDesc[1].len          = rdlen;
+    memDesc[1].initialMask  = VM_STATE_MASK_VALID|
+                              VM_STATE_MASK_WRITABLE|
+                              VM_STATE_MASK_CACHEABLE;
+    memDesc[1].initialState = VM_STATE_VALID|
+                              VM_STATE_NOT_WRITABLE|
+                              VM_STATE_CACHEABLE;
+
+    virtAddr += rdlen;
+    physAddr += rdlen;
+
+    /* Read-only area */
+    memDesc[2].vAddr        = virtAddr;
+    memDesc[2].pAddr        = physAddr;
+    memDesc[2].len          = ivlen;
+    memDesc[2].initialMask  = VM_STATE_MASK_VALID;
+    memDesc[2].initialState = VM_STATE_NOT_VALID;
+
+    if (rdlen > 0)
+    {
+        num++;
+    }
+
+    if (ivlen > 0)
+    {
+        num++;
+    }
+
+    return (int) vmGlobalMapInit(memDesc, num, TRUE);
 }
 
 int mmuTestInit(
