@@ -56,6 +56,8 @@
 #include <os/symLib.h>
 #include <os/envShow.h>
 #include <os/erfLib.h>
+#include <os/vmLib.h>
+#include <os/vmShow.h>
 #include <util/listLib.h>
 #include <util/dllLib.h>
 #include <util/sllLib.h>
@@ -76,6 +78,8 @@
 #include <vmx/wdShow.h>
 #include <usr/usrLib.h>
 #include <usr/usrFsLib.h>
+
+STATUS mmuPro32LibInit(int);
 
 /* Gloabals */
 int standTableSize = 0;
@@ -504,7 +508,29 @@ SYMBOL standTable[] =
   {NULL, "_vmxTaskEntry", vmxTaskEntry, 0, N_TEXT | N_EXT},
   {NULL, "_vmxTaskEntry", vmxTaskEntry, 0, N_TEXT | N_EXT},
   {NULL, "_intStackSet", intStackSet, 0, N_TEXT | N_EXT},
-  {NULL, "_intStackEnable", intStackEnable, 0, N_TEXT | N_EXT}
+  {NULL, "_intStackEnable", intStackEnable, 0, N_TEXT | N_EXT},
+
+  /* vmLib */
+  {NULL, "_vmContextClassId", NULL, 0, N_DATA | N_EXT},
+  {NULL, "_vmLibInit", vmLibInit, 0, N_TEXT | N_EXT},
+  {NULL, "_vmGlobalMapInit", vmGlobalMapInit, 0, N_TEXT | N_EXT},
+  {NULL, "_vmContextCreate", vmContextCreate, 0, N_TEXT | N_EXT},
+  {NULL, "_vmContextInit", vmContextInit, 0, N_TEXT | N_EXT},
+  {NULL, "_vmContextDestroy", vmContextDestroy, 0, N_TEXT | N_EXT},
+  {NULL, "_vmStateSet", vmStateSet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmStateGet", vmStateGet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmMap", vmMap, 0, N_TEXT | N_EXT},
+  {NULL, "_vmGlobalMap", vmGlobalMap, 0, N_TEXT | N_EXT},
+  {NULL, "_vmGlobalInfoGet", vmGlobalInfoGet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmPageBlockSizeGet", vmPageBlockSizeGet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmCurrentSet", vmCurrentSet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmCurrentGet", vmCurrentGet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmEnable", vmEnable, 0, N_TEXT | N_EXT},
+  {NULL, "_vmPageSizeGet", vmPageSizeGet, 0, N_TEXT | N_EXT},
+  {NULL, "_vmTranslate", vmTranslate, 0, N_TEXT | N_EXT},
+  {NULL, "_vmShowInit", vmShowInit, 0, N_TEXT | N_EXT},
+  {NULL, "_vmContextShow", vmContextShow, 0, N_TEXT | N_EXT},
+  {NULL, "_mmuPro32LibInit", mmuPro32LibInit, 0, N_TEXT | N_EXT}
 };
 
 /* Locals */
@@ -537,6 +563,7 @@ void standTableInit(
     standTableAddData("_semClassId", semClassId);
     standTableAddData("_msgQClassId", msgQClassId);
     standTableAddData("_hashClassId", hashClassId);
+    standTableAddData("_vmContextClassId", vmContextClassId);
     standTableAddData("_symTableClassId", symTableClassId);
 }
 

@@ -282,7 +282,7 @@ void* cacheArchDmaMalloc(
 
     /* Get page size */
     pageSize = vmPageSizeGet();
-    if (pageSize == ERROR)
+    if (pageSize == 0)
     {
         errnoSet(S_vmLib_NOT_INSTALLED);
         buf = NULL;

@@ -2,7 +2,7 @@
  *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  *   This file is part of Real VMX.
- *   Copyright (C) 2013 Surplus Users Ham Society
+ *   Copyright (C) 2008 Surplus Users Ham Society
  *
  *   Real VMX is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,37 +18,44 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* valloc.c - Allocate page aligned memory block */
+/* vmShow.h - Virtual memory show facilities */
 
-#include <stdlib.h>
-#include <os/memPartLib.h>
-#include <os/vmLib.h>
+#ifndef _vmShow_h
+#define _vmShow_h
+
+#ifndef _ASMLANGUAGE
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Functions */
 
 /******************************************************************************
- * valloc - Allocate memory that begins at page boundary
+ * vmShowInit - Initialize virtual memory show facilities
  *
- * RETURNS: Pointer to memory or NULL
+ * RETURNS: N/A
  */
 
-void* valloc(
-    size_t size
-    )
-{
-    int   pageSize;
-    void *pData;
+void vmShowInit(
+    void
+    );
 
-    /* Get page size */
-    pageSize = vmPageSizeGet();
-    if (pageSize == 0)
-    {
-        errnoSet(S_vmLib_NOT_INSTALLED);
-        pData = NULL;
-    }
-    else
-    {
-        pData = memalign(pageSize, size);
-    }
+/******************************************************************************
+ * vmContextShow - Display virtual memory translation table for context
+ *
+ * RETURNS: OK or ERROR
+ */
 
-    return pData;
+STATUS vmContextShow(
+    VM_CONTEXT_ID context
+    );
+
+#ifdef __cplusplus
 }
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _vmShow_h */
 

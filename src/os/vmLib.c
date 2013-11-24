@@ -32,7 +32,7 @@
 #include <os/cacheLib.h>
 #include <os/vmLib.h>
 
-/* Mactos */
+/* Macros */
 #define NUM_PAGE_STATES 256
 
 #define NOT_PAGE_ALIGNED(addr) \
@@ -47,7 +47,7 @@ LOCAL unsigned    vmMaskTransTable[NUM_PAGE_STATES];
 LOCAL VM_CONTEXT  vmSysContext;
 LOCAL OBJ_CLASS   vmContextClass;
 LOCAL SEMAPHORE   globalMemMutex;
-LOCAL int         vmPageSize     = ERROR;
+LOCAL int         vmPageSize     = 0;
 LOCAL VM_CONTEXT *vmCurrContext  = NULL;
 LOCAL BOOL        vmLibInstalled = FALSE;
 
