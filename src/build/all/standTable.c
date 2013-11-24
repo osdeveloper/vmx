@@ -64,6 +64,7 @@
 #include <util/qLib.h>
 #include <util/hashLib.h>
 #include <util/rngLib.h>
+#include <util/cksumLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/taskInfo.h>
 #include <vmx/taskShow.h>
@@ -350,6 +351,9 @@ SYMBOL standTable[] =
   {NULL, "_rngMoveAhead", rngMoveAhead, 0, N_TEXT | N_EXT},
   {NULL, "_rngElemGet", rngElemGet, 0, N_TEXT | N_EXT},
   {NULL, "_rngElemPut", rngElemPut, 0, N_TEXT | N_EXT},
+
+  /* cksumLib */
+  {NULL, "_checksum", checksum, 0, N_TEXT | N_EXT},
 
   /* errnoLib */
   {NULL, "_errnoSet", errnoSet, 0, N_TEXT | N_EXT},

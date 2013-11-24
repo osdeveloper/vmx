@@ -18,21 +18,37 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* arch.h - Architecutre specific stuff */
+/* cksumLib.h - Checksum library header */
 
-#ifndef _arch_h_
-#define _arch_h_
+#ifndef _cksumLib_h
+#define _cksumLib_h
 
-#define _BIG_ENDIAN                     1234
-#define _LITTLE_ENDIAN                  4321
-#define _STACK_GROWS_DOWN               (-1)
-#define _STACK_GROWS_UP                 ( 1)
+#include <vmx.h>
 
-#include <types/vmxCpu.h>
+#ifndef _ASMLANGUAGE
 
-#if	 CPU_FAMILY==I386
-#include <arch/i386/archI386.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif
+/* Functions */
+
+/******************************************************************************
+ * checksum - Calculate checksum
+ *
+ * RETURNS: Checksum
+ */
+
+unsigned short checksum(
+    unsigned short *addr,
+    int             len
+    );
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _ASMLANGUAGE */
+
+#endif /* _cksumLib_h */
 

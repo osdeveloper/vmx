@@ -43,6 +43,56 @@ STATUS unixLibInit(
     void
     );
 
+/******************************************************************************
+ * splnet - Get network processor level
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+int splnet(
+    void
+    );
+
+/******************************************************************************
+ * splimp - Set imp processor level
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+int splimp(
+    void
+    );
+
+/******************************************************************************
+ * splx - Set processor level
+ *
+ * RETURNS: N/A
+ */
+
+void splx(
+    int x
+    );
+
+/******************************************************************************
+ * ksleep - Got to sleep
+ *
+ * RETURNS: N/A
+ */
+
+void ksleep(
+    SEM_ID semId
+    );
+
+/******************************************************************************
+ * wakeup - Wakeup
+ *
+ * RETURNS: N/A
+ */
+
+void wakeup(
+    SEM_ID semId
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

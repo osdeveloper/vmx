@@ -23,11 +23,6 @@
 #ifndef _vmxArch_h
 #define _vmxArch_h
 
-#define _BIG_ENDIAN                     1234
-#define _LITTLE_ENDIAN                  4321
-#define _STACK_GROWS_DOWN               (-1)
-#define _STACK_GROWS_UP                 ( 1)
-
 #include <arch/arch.h>
 
 #ifndef _ASMLANGUAGE

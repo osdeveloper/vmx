@@ -25,15 +25,22 @@
 #include <errno.h>
 #include <vmx.h>
 #include <arch/intArchLib.h>
+#include <vmx/private/kernelLibP.h>
 #include <os/logLib.h>
+#include <os/unixLib.h>
 
 /* Defines */
 
 /* Locals */
+LOCAL SEM_ID splSemId;
+LOCAL BOOL   unixLibInstalled = FALSE;
 
 /* Globals */
-BOOL    panicSuspend = TRUE;
-FUNCPTR panicHook    = NULL;
+int     splTaskId;
+int     splMutexOptions = SEM_Q_PRIORITY | SEM_DELETE_SAFE;
+BOOL    panicSuspend    = TRUE;
+FUNCPTR panicHook       = NULL;
+
 
 /* Functions */
 
@@ -47,7 +54,28 @@ STATUS unixLibInit(
     void
     )
 {
-    return OK;
+    STATUS status;
+
+    if (unixLibInstalled == TRUE)
+    {
+        status = OK;
+    }
+    else
+    {
+        splSemId = semMCreate(splMutexOptions);
+        if (splSemId == NULL)
+        {
+            status = ERROR;
+        }
+        else
+        {
+            /* Mark as installed */
+            unixLibInstalled = TRUE;
+            status = OK;
+        }
+    }
+
+    return status;
 }
 
 /******************************************************************************
@@ -83,5 +111,126 @@ void panic(
               taskSuspend(0);
           }
     }
+}
+
+/******************************************************************************
+ * splnet - Get network processor level
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+int splnet(
+    void
+    )
+{
+    int ret;
+
+    if (splTaskId == ((int) taskIdCurrent))
+    {
+        ret = TRUE;
+    }
+    else
+    {
+        semTake(splSemId, WAIT_FOREVER);
+        splTaskId = (int) taskIdCurrent;
+        ret = FALSE;
+    }
+
+    return ret;
+}
+
+/******************************************************************************
+ * splimp - Set imp processor level
+ *
+ * RETURNS: TRUE or FALSE
+ */
+
+int splimp(
+    void
+    )
+{
+    int ret;
+
+    if (splTaskId == ((int) taskIdCurrent))
+    {
+        ret = TRUE;
+    }
+    else
+    {
+        semTake(splSemId, WAIT_FOREVER);
+        splTaskId = (int) taskIdCurrent;
+        ret = FALSE;
+    }
+
+    return ret;
+}
+
+/******************************************************************************
+ * splx - Set processor level
+ *
+ * RETURNS: N/A
+ */
+
+void splx(
+    int x
+    )
+{
+    if (!x)
+    {
+        splTaskId = 0;
+        semGive(splSemId);
+    }
+}
+
+/******************************************************************************
+ * ksleep - Got to sleep
+ *
+ * RETURNS: N/A
+ */
+
+void ksleep(
+    SEM_ID semId
+    )
+{
+    BOOL gotSplSem;
+
+    /* Check if current task is spl task */
+    if (splTaskId == (int) taskIdCurrent)
+    {
+        gotSplSem = TRUE;
+    }
+    else
+    {
+        gotSplSem = FALSE;
+    }
+
+    /* If had spl semaphore */
+    if (gotSplSem == TRUE)
+    {
+        splTaskId = 0;
+        semGive(splSemId);
+    }
+
+    semTake(semId, WAIT_FOREVER);
+
+    /* If had spl semaphore */
+    if (gotSplSem == TRUE)
+    {
+        semTake(splSemId, WAIT_FOREVER);
+        splTaskId = (int) taskIdCurrent;
+    }
+}
+
+/******************************************************************************
+ * wakeup - Wakeup
+ *
+ * RETURNS: N/A
+ */
+
+void wakeup(
+    SEM_ID semId
+    )
+{
+    semGive(semId);
 }
 
