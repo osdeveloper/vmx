@@ -72,8 +72,8 @@ STATUS vmContextShow(
     void     *blockStart;
     void     *physAddr;
     int       pageSize;
+    int       numPages;
     int       pageCount       = 0;
-    int       numPages        = (unsigned) 0x80000000 / pageSize * 2;
     BOOL      endBlock        = FALSE;
     void     *blockPhysAddr   = NULL;
     BOOL      prevPageInvalid = TRUE;
@@ -107,6 +107,7 @@ STATUS vmContextShow(
 
             vmStateGet(context, NULL, &blockState);
 
+            numPages = (unsigned) 0x80000000 / pageSize * 2;
             for (blockStart = NULL;
                  pageCount < numPages;
                  pageCount++, virtPage += pageSize, physPage += pageSize)

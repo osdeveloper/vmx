@@ -67,6 +67,8 @@ int mmuInit(void)
         return ERROR;
     }
 
+    vmShowInit();
+
     return OK;
 }
 

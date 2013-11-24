@@ -393,12 +393,15 @@ LOCAL STATUS mmuTransTableInit(
         memcpy(pDirTable, mmuGlobalTransTable.pDirTable, PD_SIZE);
 
         /* Write protect directory table */
-        status = mmuStateSet(
-                     &mmuGlobalTransTable,
-                     pDirTable,
-                     MMU_STATE_MASK_WRITABLE,
-                     MMU_STATE_NOT_WRITABLE
-                     );
+        (void) mmuStateSet(
+                   &mmuGlobalTransTable,
+                   pDirTable,
+                   MMU_STATE_MASK_WRITABLE,
+                   MMU_STATE_NOT_WRITABLE
+                   );
+
+        /* Ignore status from mmuStateSet */
+        status = OK;
     }
 
     return status;
@@ -414,63 +417,46 @@ LOCAL STATUS mmuTransTableDestroy(
     MMU_TRANS_TABLE *transTable
     )
 {
-    STATUS  status;
     int     i;
     PTE    *pDte;
     PTE    *pPageTable;
 
     /* Unlock page for writing */
-    if (mmuStateSet(
-            &mmuGlobalTransTable,
-            transTable->pDirTable,
-            MMU_STATE_MASK_WRITABLE,
-            MMU_STATE_WRITABLE
-            ) != OK)
-    {
-        status = ERROR;
-    }
-    else
-    {
-        status = OK;
+    (void) mmuStateSet(
+               &mmuGlobalTransTable,
+               transTable->pDirTable,
+               MMU_STATE_MASK_WRITABLE,
+               MMU_STATE_WRITABLE
+               );
 
-        /* Free non global page memory */
-        if (mmuPageSize == PAGE_SIZE_4KB)
+    /* Free non global page memory */
+    if (mmuPageSize == PAGE_SIZE_4KB)
+    {
+        pDte = transTable->pDirTable;
+
+        for (i = 0; i < (PT_SIZE / sizeof(PTE)); i++, pDte++)
         {
-            pDte = transTable->pDirTable;
-
-            for (i = 0; i < (PT_SIZE / sizeof(PTE)); i++, pDte++)
+            if ((pDte->entry.present == 1) && (!globalPageBlock[i]))
             {
-                if ((pDte->entry.present == 1) && (!globalPageBlock[i]))
-                {
-                    pPageTable = (PTE *) (pDte->bits & PTE_TO_ADDR_4KB);
+                pPageTable = (PTE *) (pDte->bits & PTE_TO_ADDR_4KB);
 
-                    /* Unlock page to table writing */
-                    if (mmuStateSet(
-                            &mmuGlobalTransTable,
-                            pPageTable,
-                            MMU_STATE_MASK_WRITABLE,
-                            MMU_STATE_WRITABLE
-                            ) != OK)
-                    {
-                        status = ERROR;
-                        break;
-                    }
-
-                    free(pPageTable);
-                  
-                }
+                /* Unlock page to table writing */
+                (void) mmuStateSet(
+                           &mmuGlobalTransTable,
+                           pPageTable,
+                           MMU_STATE_MASK_WRITABLE,
+                           MMU_STATE_WRITABLE
+                           );
+                free(pPageTable);
             }
         }
-
-        /* Free page with directory table and storage */
-        if (status == OK)
-        {
-            free(transTable->pDirTable);
-            free(transTable);
-        }
     }
 
-    return status;
+    /* Free page with directory table and storage */
+    free(transTable->pDirTable);
+    free(transTable);
+
+    return OK;
 }
 
 /******************************************************************************
@@ -524,12 +510,12 @@ LOCAL STATUS mmuPageCreate(
                 }
 
                 /* Write protect page table */
-                status = mmuStateSet(
-                             &mmuGlobalTransTable,
-                             pPageTable,
-                             MMU_STATE_MASK_WRITABLE,
-                             MMU_STATE_NOT_WRITABLE
-                             );
+                (void) mmuStateSet(
+                           &mmuGlobalTransTable,
+                           pPageTable,
+                           MMU_STATE_MASK_WRITABLE,
+                           MMU_STATE_NOT_WRITABLE
+                           );
             }
         }
         else
@@ -541,43 +527,33 @@ LOCAL STATUS mmuPageCreate(
         if (status == OK)
         {
             /* Unlock directory table page for writing */
-            if (mmuStateSet(
-                    &mmuGlobalTransTable,
-                    thisTable->pDirTable,
-                    MMU_STATE_MASK_WRITABLE,
-                    MMU_STATE_WRITABLE
-                    ) != OK)
-            {
-                status = ERROR;
-            }
-            else
-            {
-                pDte = &thisTable->pDirTable[
-                           ((u_int32_t) vPageAddr & DIR_BITS) >> DIR_INDEX
-                           ];
+            (void) mmuStateSet(
+                       &mmuGlobalTransTable,
+                       thisTable->pDirTable,
+                       MMU_STATE_MASK_WRITABLE,
+                       MMU_STATE_WRITABLE
+                       );
 
-                /* Set directory table entry to new page table */
-                pDte->entry.page    = (u_int32_t) pPageTable >> ADDR_TO_PAGE;
-                pDte->entry.present = 1;
-                pDte->entry.rw = 1;
+            pDte = &thisTable->pDirTable[
+                       ((u_int32_t) vPageAddr & DIR_BITS) >> DIR_INDEX
+                       ];
 
-                /* Write protect directory table page again, after update */
-                if (mmuStateSet(
-                        &mmuGlobalTransTable,
-                        thisTable->pDirTable,
-                        MMU_STATE_MASK_WRITABLE,
-                        MMU_STATE_NOT_WRITABLE
-                        ) != OK)
-                {
-                    status = ERROR;
-                }
-                else
-                {
-                    if (firstTime == FALSE)
-                    {
-                        MMU_TLB_FLUSH();
-                    }
-                }
+            /* Set directory table entry to new page table */
+            pDte->entry.page    = (u_int32_t) pPageTable >> ADDR_TO_PAGE;
+            pDte->entry.present = 1;
+            pDte->entry.rw = 1;
+
+            /* Write protect directory table page again, after update */
+            (void) mmuStateSet(
+                       &mmuGlobalTransTable,
+                       thisTable->pDirTable,
+                       MMU_STATE_MASK_WRITABLE,
+                       MMU_STATE_NOT_WRITABLE
+                       );
+
+            if (firstTime == FALSE)
+            {
+                MMU_TLB_FLUSH();
             }
         }
     }
@@ -751,30 +727,25 @@ LOCAL STATUS mmuGlobalPageMap(
             else
             {
                 /* Unlock global page block for writing */
-                if (mmuStateSet(
-                        &mmuGlobalTransTable,
-                        globalPageBlock,
-                        MMU_STATE_MASK_WRITABLE,
-                        MMU_STATE_WRITABLE
-                        ) != OK)
-                {
-                    status = ERROR;
-                }
-                else
-                {
-                    /* Mark page as used */
-                    globalPageBlock[
-                        ((u_int32_t) vAddr & DIR_BITS) >> DIR_INDEX
-                        ] = TRUE;
+                (void) mmuStateSet(
+                           &mmuGlobalTransTable,
+                           globalPageBlock,
+                           MMU_STATE_MASK_WRITABLE,
+                           MMU_STATE_WRITABLE
+                           );
 
-                    /* Write protect global page block again */
-                    status = mmuStateSet(
-                                 &mmuGlobalTransTable,
-                                 globalPageBlock,
-                                 MMU_STATE_MASK_WRITABLE,
-                                 MMU_STATE_NOT_WRITABLE
-                                 );
-                }
+                /* Mark page as used */
+                globalPageBlock[
+                    ((u_int32_t) vAddr & DIR_BITS) >> DIR_INDEX
+                    ] = TRUE;
+
+                /* Write protect global page block again */
+                (void) mmuStateSet(
+                           &mmuGlobalTransTable,
+                           globalPageBlock,
+                           MMU_STATE_MASK_WRITABLE,
+                           MMU_STATE_NOT_WRITABLE
+                           );
             }
         }
     }
@@ -903,7 +874,6 @@ LOCAL void mmuMemPagesWriteDisable(
 {
     void   *thisPage;
     int     i;
-    STATUS  status = OK;
 
     if (mmuPageSize == PAGE_SIZE_4KB)
     {
@@ -912,31 +882,25 @@ LOCAL void mmuMemPagesWriteDisable(
             /* Write protect individual pages */
             thisPage = (void *) (transTable->pDirTable[i].bits &
                                  PTE_TO_ADDR_4KB);
+
             if ((u_int32_t) thisPage != (0xffffffff & PTE_TO_ADDR_4KB))
             {
-                if (mmuStateSet(
-                        transTable,
-                        thisPage,
-                        MMU_STATE_MASK_WRITABLE,
-                        MMU_STATE_NOT_WRITABLE
-                        ) != OK)
-                {
-                    status = ERROR;
-                    break;
-                }
+                (void) mmuStateSet(
+                           transTable,
+                           thisPage,
+                           MMU_STATE_MASK_WRITABLE,
+                           MMU_STATE_NOT_WRITABLE
+                           );
             }
         }
     }
 
-    if (status == OK)
-    {
-        /* Write protect translation table */
-        mmuStateSet(
-            transTable,
-            transTable->pDirTable,
-            MMU_STATE_MASK_WRITABLE,
-            MMU_STATE_NOT_WRITABLE
-            );
-    }
+    /* Write protect translation table */
+    (void) mmuStateSet(
+               transTable,
+               transTable->pDirTable,
+               MMU_STATE_MASK_WRITABLE,
+               MMU_STATE_NOT_WRITABLE
+               );
 }
 
