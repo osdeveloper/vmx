@@ -72,6 +72,8 @@
 #include <os/erfLib.h>
 #include <os/cacheLib.h>
 #include <os/pipeDrv.h>
+#include <os/vmLib.h>
+#include <os/vmShow.h>
 #include <ostool/shellLib.h>
 #include <fs/xbd.h>
 #include <fs/xbdRamDisk.h>
@@ -179,6 +181,7 @@ LOCAL void usrRoot(
 
 #ifdef INCLUDE_MMU
   usrMmuInit();
+  vmShowInit();
 #endif /* INCLUDE_MMU */
 
   /* Install and start system clock interrupt */
@@ -299,7 +302,6 @@ LOCAL void usrRoot(
   printLogo();
 
   usrTestInit();
-  mmuTestInit();
   fsDemoInit();
 
   shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);

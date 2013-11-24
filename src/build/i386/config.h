@@ -103,7 +103,7 @@
 
 #define INCLUDE_CONSTANT_RDY_Q
 #define INCLUDE_CACHE_SUPPORT
-//#define INCLUDE_MMU
+#define INCLUDE_MMU
 #define INCLUDE_PC_CONSOLE
 
 #endif
