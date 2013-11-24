@@ -79,8 +79,6 @@
 #include <usr/usrLib.h>
 #include <usr/usrFsLib.h>
 
-STATUS mmuPro32LibInit(int);
-
 /* Gloabals */
 int standTableSize = 0;
 SYMBOL standTable[] =
@@ -529,8 +527,7 @@ SYMBOL standTable[] =
   {NULL, "_vmPageSizeGet", vmPageSizeGet, 0, N_TEXT | N_EXT},
   {NULL, "_vmTranslate", vmTranslate, 0, N_TEXT | N_EXT},
   {NULL, "_vmShowInit", vmShowInit, 0, N_TEXT | N_EXT},
-  {NULL, "_vmContextShow", vmContextShow, 0, N_TEXT | N_EXT},
-  {NULL, "_mmuPro32LibInit", mmuPro32LibInit, 0, N_TEXT | N_EXT}
+  {NULL, "_vmContextShow", vmContextShow, 0, N_TEXT | N_EXT}
 };
 
 /* Locals */

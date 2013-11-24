@@ -299,6 +299,7 @@ LOCAL void usrRoot(
   printLogo();
 
   usrTestInit();
+  mmuTestInit();
   fsDemoInit();
 
   shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);

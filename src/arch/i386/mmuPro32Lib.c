@@ -390,7 +390,7 @@ LOCAL STATUS mmuTransTableInit(
         transTable->pDirTable = pDirTable;
 
         /* Copy global directory table */
-        memcpy (pDirTable, mmuGlobalTransTable.pDirTable, PD_SIZE);
+        memcpy(pDirTable, mmuGlobalTransTable.pDirTable, PD_SIZE);
 
         /* Write protect directory table */
         status = mmuStateSet(

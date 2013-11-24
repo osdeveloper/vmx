@@ -27,6 +27,8 @@
 #include <vmx.h>
 #include <arch/sysArchLib.h>
 #include <arch/mmuArchLib.h>
+#include <os/errnoLib.h>
+#include <os/logLib.h>
 #include <os/vmLib.h>
 
 /* Defines */
@@ -53,7 +55,8 @@ void usrMmuInit(void)
     if (mmuPro32LibInit(VM_PAGE_SIZE) != OK)
     {
         printExc(
-            "usrRoot: MMU configuration failed, errno = %#x", errno,
+            "usrRoot: MMU configuration failed, errno = %#x",
+            (ARG) errno,
             (ARG) 0,
             (ARG) 0,
             (ARG) 0,
@@ -71,7 +74,8 @@ void usrMmuInit(void)
              ) == NULL))
     {
         printExc(
-            "usrRoot: MMU configuration failed, errno = %#x", errno,
+            "usrRoot: MMU configuration failed, errno = %#x",
+            (ARG) errno,
             (ARG) 0,
             (ARG) 0,
             (ARG) 0,
