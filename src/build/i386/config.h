@@ -91,8 +91,11 @@
 #define STATUS_8048             COMMAND_8048
 
 /* For sysDelay */
-
 #define UNUSED_ISA_IO_ADDRESS   0x84
+
+/* Pc floppy related */
+#define FD_DMA_BUF_ADDR         (0x2000 + (VM_PAGE_OFFSET * 2))
+#define FD_DMA_BUF_SIZE         (0x1000)
 
 /* For console */
 #define PC_CONSOLE              0
@@ -112,6 +115,7 @@
 #define INCLUDE_MMU
 #define INCLUDE_PC_CONSOLE
 #define INCLUDE_RAM_DRV
+#define INCLUDE_FD_DRV
 
 #endif
 

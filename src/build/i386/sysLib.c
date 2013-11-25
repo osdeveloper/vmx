@@ -47,12 +47,19 @@ CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 PC_CON_DEV pcConDev[N_VIRTUAL_CONSOLES];
 #endif   /* INCLUDE_PC_CONSOLE */
 
-/* Dma driver */
-#include <drv/dma/i8237Dma.c>
-
 #ifdef INCLUDE_RAM_DRV
 #include <drv/disk/ramDrv.c>
 #endif /* INCLUDE_RAM_DRV */
+
+/* Dma driver */
+#include <drv/dma/i8237Dma.c>
+
+/* Floppy driver */
+#ifdef INCLUDE_FD_DRV
+unsigned int sysFdBuf     = FD_DMA_BUF_ADDR;
+unsigned int sysFdBufSize = FD_DMA_BUF_SIZE;
+#include <drv/fdisk/nec765Fd.c>
+#endif /* INCLUDE_FD_DRV */
 
 int sysPhysMemDescNumEntries   = 0;
 PHYS_MEM_DESC sysPhysMemDesc[] =
