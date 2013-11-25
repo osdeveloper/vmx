@@ -47,6 +47,10 @@ CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 PC_CON_DEV pcConDev[N_VIRTUAL_CONSOLES];
 #endif   /* INCLUDE_PC_CONSOLE */
 
+#ifdef INCLUDE_RAM_DRV
+#include <drv/disk/ramDrv.c>
+#endif /* INCLUDE_RAM_DRV */
+
 int sysPhysMemDescNumEntries   = 0;
 PHYS_MEM_DESC sysPhysMemDesc[] =
 {
@@ -62,21 +66,17 @@ PHYS_MEM_DESC sysPhysMemDesc[] =
         VM_PAGE_OFFSET,
 
 #ifdef DEBUG_NULL_ACCESS
-
         /* Initial mask */
         VM_STATE_MASK_VALID | VM_STATE_MASK_WRITABLE | VM_STATE_MASK_CACHEABLE,
 
         /* Initial state */
         VM_STATE_NOT_VALID  | VM_STATE_NOT_WRITABLE  | VM_STATE_NOT_CACHEABLE
-
 #else
-
         /* Initial mask */
         VM_STATE_MASK_FOR_ALL,
 
         /* Initial state */
         VM_STATE_FOR_MEM_OS
-
 #endif /* DEBUG_NULL_ACCESS */
 
     },

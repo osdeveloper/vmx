@@ -94,7 +94,7 @@ int waitForDev(
     return (fd);
 }
 
-int ramDevCreate(
+int ramDiskCreate(
     char *name,
     BOOL partFlag
     )
@@ -307,7 +307,7 @@ void fsDemoInit(
     static SYMBOL symTableDemo[] =
     {
         {NULL, "_waitForDev", waitForDev, 0, N_TEXT | N_EXT},
-        {NULL, "_ramDevCreate", ramDevCreate, 0, N_TEXT | N_EXT},
+        {NULL, "_ramDiskCreate", ramDiskCreate, 0, N_TEXT | N_EXT},
         {NULL, "_partition", partition, 0, N_TEXT | N_EXT},
         {NULL, "_geometry", geometry, 0, N_TEXT | N_EXT},
         {NULL, "_filestat", filestat, 0, N_TEXT | N_EXT},

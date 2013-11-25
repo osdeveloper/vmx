@@ -105,6 +105,7 @@
 #define INCLUDE_CACHE_SUPPORT
 #define INCLUDE_MMU
 #define INCLUDE_PC_CONSOLE
+#define INCLUDE_RAM_DRV
 
 #endif
 
