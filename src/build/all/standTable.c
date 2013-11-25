@@ -77,6 +77,7 @@
 #include <vmx/tickLib.h>
 #include <vmx/wdLib.h>
 #include <vmx/wdShow.h>
+#include <fs/xbdBlkDev.h>
 #include <usr/usrLib.h>
 #include <usr/usrFsLib.h>
 
@@ -531,7 +532,9 @@ SYMBOL standTable[] =
   {NULL, "_vmPageSizeGet", vmPageSizeGet, 0, N_TEXT | N_EXT},
   {NULL, "_vmTranslate", vmTranslate, 0, N_TEXT | N_EXT},
   {NULL, "_vmShowInit", vmShowInit, 0, N_TEXT | N_EXT},
-  {NULL, "_vmContextShow", vmContextShow, 0, N_TEXT | N_EXT}
+  {NULL, "_vmContextShow", vmContextShow, 0, N_TEXT | N_EXT},
+
+  {NULL, "_xbdBlkDevCreate", xbdBlkDevCreate, 0, N_TEXT | N_EXT}
 };
 
 /* Locals */

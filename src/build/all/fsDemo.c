@@ -43,6 +43,7 @@
 #include <fs/fsMonitor.h>
 #include <fs/rawfsLib.h>
 #include <fs/rt11fsLib.h>
+#include <drv/disk/ramDrv.h>
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
@@ -308,6 +309,7 @@ void fsDemoInit(
     {
         {NULL, "_waitForDev", waitForDev, 0, N_TEXT | N_EXT},
         {NULL, "_ramDiskCreate", ramDiskCreate, 0, N_TEXT | N_EXT},
+        {NULL, "_ramDevCreate", ramDevCreate, 0, N_TEXT | N_EXT},
         {NULL, "_partition", partition, 0, N_TEXT | N_EXT},
         {NULL, "_geometry", geometry, 0, N_TEXT | N_EXT},
         {NULL, "_filestat", filestat, 0, N_TEXT | N_EXT},

@@ -21,7 +21,7 @@
 # Makefile - Filesystem library for Real VMX
 
 OBJS = bio.o mount.o vnode.o vfs.o fsEventUtilLib.o fsMonitor.o \
-       xbdLib.o xbdPartition.o xbdRamDisk.o
+       xbdLib.o xbdPartition.o xbdRamDisk.o xbdBlkDev.o
 SUBDIRS = rawfs rt11fs
 LIB_TGT = fs
 
