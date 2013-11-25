@@ -47,6 +47,9 @@ CALL_GATE *sysIdt	= (CALL_GATE *) (VEC_BASE_ADRS);
 PC_CON_DEV pcConDev[N_VIRTUAL_CONSOLES];
 #endif   /* INCLUDE_PC_CONSOLE */
 
+/* Dma driver */
+#include <drv/dma/i8237Dma.c>
+
 #ifdef INCLUDE_RAM_DRV
 #include <drv/disk/ramDrv.c>
 #endif /* INCLUDE_RAM_DRV */
@@ -211,5 +214,18 @@ void sysHwInit2(
 #ifdef INCLUDE_PC_CONSOLE
     intConnectDefault(0x21, kbdIntr, (void *) 0);
 #endif /* INCLUDE_PC_CONSOLE */
+}
+
+/******************************************************************************
+ * sysDelay - Delay routine
+ *
+ * RETURNS: N/A
+ */
+
+void sysDelay(
+    void
+    )
+{
+    (void) sysInByte(UNUSED_ISA_IO_ADDRESS);
 }
 

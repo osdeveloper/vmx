@@ -90,9 +90,15 @@
 #define DATA_8048               0x60
 #define STATUS_8048             COMMAND_8048
 
+/* For sysDelay */
+
+#define UNUSED_ISA_IO_ADDRESS   0x84
+
+/* For console */
 #define PC_CONSOLE              0
 #define N_VIRTUAL_CONSOLES      3
 
+/* Configuration */
 #define MAX_EVENT_CATEGORIES    20
 #define MAX_EVENT_TYPES         20
 #define MAX_XBD_DEVICES         64

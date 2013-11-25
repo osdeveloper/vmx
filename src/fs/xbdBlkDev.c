@@ -20,7 +20,6 @@
 
 /* xbdBlkDev.c - BLK_DEV to XBD interface converter */
 
-#define DIAGNOSTIC
 #include <stdlib.h>
 #include <vmx.h>
 #include <vmx/semLib.h>
