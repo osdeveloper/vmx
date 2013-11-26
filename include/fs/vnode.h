@@ -30,7 +30,6 @@
 #include <sys/uio.h>
 #include <vmx.h>
 #include <util/listLib.h>
-#include <vmx/semLib.h>
 #include <fs/namei.h>
 #include <fs/mount.h>
 
@@ -655,6 +654,19 @@ STATUS vnodeLock (
 
 STATUS vnodeUnlock (
     vnode_t *  pVnode
+    );
+
+/***************************************************************************
+ *
+ * getnewvnode - initialize a new vnode with operations passed as argument
+ *
+ * RETURNS: OK on success, error otherwise
+ */
+
+int getnewvnode(
+    struct mount *       pMount,
+    const vnode_ops_t *  pVnodeOps,
+    vnode_t **           ppVnode
     );
 
 /***************************************************************************

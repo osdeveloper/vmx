@@ -129,6 +129,39 @@ STATUS vnodeUnlock (
 
 /***************************************************************************
  *
+ * getnewvnode - initialize a new vnode with operations passed as argument
+ *
+ * RETURNS: OK on success, error otherwise
+ */
+
+int getnewvnode(
+    struct mount *       pMount,
+    const vnode_ops_t *  pVnodeOps,
+    vnode_t **           ppVnode
+    ) {
+    vnode_t * pVnode;
+    int       vsize;
+
+    vsize = sizeof(vnode_t) + pMount->mnt_ops->inodeSize;
+    pVnode = (vnode_t *) malloc(vsize);
+    if (pVnode == NULL) {
+        return (ERROR);
+    }
+
+    memset (pVnode, 0, vsize);
+
+    pVnode->v_mount = pMount;
+    pVnode->v_ops   = pVnodeOps;
+    pVnode->v_data  = (char *) &pVnode[1];
+
+    listInit (&pVnode->v_buflist);
+
+    *ppVnode = pVnode;
+    return (OK);
+}
+
+/***************************************************************************
+ *
  * vgetino - get the vnode for the given inode
  *
  * RETURNS: OK on success, error otherwise
