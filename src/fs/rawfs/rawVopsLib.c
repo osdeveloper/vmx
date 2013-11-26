@@ -370,26 +370,26 @@ LOCAL int  rawVopGetAttr (
     pFsDev   = (RAWFS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    vap->va_type   = VREG;
-    vap->va_mode   = 0666;
-    vap->va_nlink  = 1;
-    vap->va_uid    = 0;
-    vap->va_gid    = 0;
-    vap->va_fsid   = 0;            /* Ignored for now. */
-    vap->va_fileid = RAWFS_ROOT_INODE;
-    vap->va_size   = pVolDesc->diskSize;
-    vap->va_blksize = pVolDesc->blkSize;
+    vap->va_type             = VREG;
+    vap->va_mode             = 0666;
+    vap->va_nlink            = 1;
+    vap->va_uid              = 0;
+    vap->va_gid              = 0;
+    vap->va_fsid             = 0;            /* Ignored for now. */
+    vap->va_fileid           = RAWFS_ROOT_INODE;
+    vap->va_size             = pVolDesc->diskSize;
+    vap->va_blocksize        = pVolDesc->blkSize;
     vap->va_atime.tv_sec     = 0;  /* dummy value */
     vap->va_mtime.tv_sec     = 0;  /* dummy value */
     vap->va_ctime.tv_sec     = 0;  /* dummy value */
     vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    vap->va_flags = 0;
+    vap->va_flags            = 0;
 #ifdef notyet                /* remaining fields are not yet used */
-    vap->va_gen = 0;
-    vap->va_rdev = 0;
-    vap->va_bytes = 0;
-    vap->va_filerev = 0;
-    vap->va_vaflags = 0;
+    vap->va_gen              = 0;
+    vap->va_rdev             = 0;
+    vap->va_bytes            = 0;
+    vap->va_filerev          = 0;
+    vap->va_vaflags          = 0;
 #endif
 
     return (OK);

@@ -81,7 +81,7 @@ typedef struct vattr {
     gid_t            va_gid;          /* group ID */
     ino_t            va_fileid;       /* inode number */
     off_t            va_size;         /* file size in bytes */
-    blksize_t        va_blksize;      /* device block size */
+    blksize_t        va_blocksize;    /* device block size */
     struct timespec  va_atime;        /* time of last access */
     struct timespec  va_mtime;        /* time of last data modification */
     struct timespec  va_ctime;        /* time of last modification */
@@ -284,15 +284,15 @@ typedef struct vnode_ops {
 } vnode_ops_t;
 
 typedef struct vnode {
-    LIST_NODE           v_node;     /* linked list node */
-    struct vnode_ops *  v_ops;      /* ptr to vnode operators */
-    struct mount *      v_mount;    /* ptr to mount structure */
-    int                 v_count;    /* use count (# of FDs using it) */
-    int                 v_flags;    /* various flags such as V_ROOT */
-    unsigned            v_type;     /* vnode type */
-    LIST                v_buflist;  /* buffers in use by this vnode */
-    ino_t               v_inode;    /* inode number */
-    char *              v_data;     /* FS specific data */
+    LIST_NODE                 v_node;     /* linked list node */
+    const struct vnode_ops *  v_ops;      /* ptr to vnode operators */
+    struct mount *            v_mount;    /* ptr to mount structure */
+    int                       v_count;    /* use count (# of FDs using it) */
+    int                       v_flags;    /* various flags such as V_ROOT */
+    unsigned                  v_type;     /* vnode type */
+    LIST                      v_buflist;  /* buffers in use by this vnode */
+    ino_t                     v_inode;    /* inode number */
+    char *                    v_data;     /* FS specific data */
 } vnode_t;
 
 /* macros */
@@ -665,10 +665,10 @@ STATUS vnodeUnlock (
  */
 
 int vgetino (
-    struct mount * pMount,     /* ptr to file system mount */
-    ino_t          inode,      /* inode for which to get vnode */
-    vnode_ops_t *  pVnodeOps,  /* ptr to vnode operators */
-    vnode_t **     ppVnode     /* double ptr to vnode : output */
+    struct mount *       pMount,     /* ptr to file system mount */
+    ino_t                inode,      /* inode for which to get vnode */
+    const vnode_ops_t *  pVnodeOps,  /* ptr to vnode operators */
+    vnode_t **           ppVnode     /* double ptr to vnode : output */
     );
 
 /***************************************************************************

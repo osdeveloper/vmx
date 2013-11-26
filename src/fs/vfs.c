@@ -135,8 +135,8 @@ int  lookup (
     cnp = &nidp->ni_cn;
     increment = 1;
 
-    if (cnp->cn_flags & CN_ISDOT) {
-        if ((cnp->cn_flags & CN_ISLAST) && (cnp->cn_op == CN_CREATE)) {
+    if (cnp->cn_flags & ISDOT) {
+        if ((cnp->cn_flags & ISLASTCN) && (cnp->cn_nameiop == CREATE)) {
             /*
              * Can not create current directory ... entry already exists.
              */
@@ -147,8 +147,8 @@ int  lookup (
          * vnode's use count.  The caller (namei) will decrement ni_dvp's
          * use count thereby resulting in an convoluted no-op.
          */
-    } else if (cnp->cn_flags & CN_ISDOTDOT) {
-        if ((cnp->cn_flags & CN_ISLAST) && (cnp->cn_op != CN_LOOKUP)) {
+    } else if (cnp->cn_flags & ISDOTDOT) {
+        if ((cnp->cn_flags & ISLASTCN) && (cnp->cn_nameiop != LOOKUP)) {
             /*
              * Deleting, creating, or renaming the parent directory is
              * not allowed.
@@ -180,7 +180,7 @@ int  lookup (
                 );
 
 #ifdef optional
-    if (cnp->cn_flags & CN_ISDOTDOT) {
+    if (cnp->cn_flags & ISDOTDOT) {
         /*
          * Add code to remove ".." and current directory from the path.
          * 1.  This helps keep the path "clean" and could be used for a
@@ -269,7 +269,7 @@ int  namei (
 
     for (;;) {
         cnp->cn_nameptr = cp;
-        cnp->cn_flags &= ~(CN_SLASH | CN_ISLAST | CN_ISDOT | CN_ISDOTDOT);
+        cnp->cn_flags &= ~(CNSLASH | ISLASTCN | ISDOT | ISDOTDOT);
 
         while ((*cp != '\0') && (*cp != '/')) {   /* Determine the length */
             cp++;                                 /* of the path component. */
@@ -282,20 +282,20 @@ int  namei (
 
         /* Did a '/' follow this path component? */
         if ((int) (cp - cnp->cn_nameptr) != cnp->cn_namelen) {
-            cnp->cn_flags |= CN_SLASH;
+            cnp->cn_flags |= CNSLASH;
         }
 
         /* Is this the last path compnonent? */
         if (*cp == '\0') {
-            cnp->cn_flags |= CN_ISLAST;
+            cnp->cn_flags |= ISLASTCN;
         }
 
         /* Check for DOT and DOTDOT path components */
         if (*cnp->cn_nameptr == '.') {
             if (cnp->cn_namelen == 1) {
-                cnp->cn_flags |= CN_ISDOT;
+                cnp->cn_flags |= ISDOT;
             } else if ((cnp->cn_nameptr[1] == '.') && (cnp->cn_namelen == 2)) {
-                cnp->cn_flags |= CN_ISDOTDOT;
+                cnp->cn_flags |= ISDOTDOT;
             }
         }
 
@@ -310,7 +310,7 @@ int  namei (
         }
 
         /* lookup() succeeded. */
-        if (cnp->cn_flags & CN_ISLAST) {
+        if (cnp->cn_flags & ISLASTCN) {
             break;
         }
 
@@ -332,14 +332,14 @@ int  namei (
 void vattrInit (
     vattr_t *  vap
     ) {
-    vap->va_type      = VNOVAL;
-    vap->va_mode      = VNOVAL;
-    vap->va_nlink     = VNOVAL;
-    vap->va_uid       = VNOVAL;
-    vap->va_gid       = VNOVAL;
-    vap->va_fileid    = VNOVAL;
-    vap->va_size      = VNOVAL;
-    vap->va_blksize   = VNOVAL;
+    vap->va_type              = VNOVAL;
+    vap->va_mode              = VNOVAL;
+    vap->va_nlink             = VNOVAL;
+    vap->va_uid               = VNOVAL;
+    vap->va_gid               = VNOVAL;
+    vap->va_fileid            = VNOVAL;
+    vap->va_size              = VNOVAL;
+    vap->va_blocksize         = VNOVAL;
     vap->va_atime.tv_sec      = VNOVAL;
     vap->va_atime.tv_nsec     = VNOVAL;
     vap->va_mtime.tv_sec      = VNOVAL;
@@ -348,7 +348,7 @@ void vattrInit (
     vap->va_ctime.tv_nsec     = VNOVAL;
     vap->va_birthtime.tv_sec  = VNOVAL;
     vap->va_birthtime.tv_nsec = VNOVAL;
-    vap->va_flags     = VNOVAL;
+    vap->va_flags             = VNOVAL;
 
     /* The following fields are not yet used */
     vap->va_fsid      = VNOVAL;
@@ -875,7 +875,7 @@ int  vncioOpen (
             return (ERROR);
         }
         return (vnioConnect (pDevHeader, filename, NULL, oflags, mode,
-                             CN_CREATE, CN_NOFOLLOW, vnioCreate));
+                             CREATE, NOFOLLOW, vnioCreate));
     }
 
     /* Open a regular file, directory or symlink. */
@@ -886,7 +886,7 @@ int  vncioOpen (
     }
 
     error = vnioConnect (pDevHeader, filename, NULL, oflags, mode,
-                         CN_LOOKUP, CN_NOFOLLOW, vnioOpen);
+                         LOOKUP, NOFOLLOW, vnioOpen);
 
     return (error);
 }
@@ -959,15 +959,15 @@ int  vncioCreate (
 
     if (S_ISREG (mode)) {
         error = vnioConnect (pDevHeader, filename, NULL, mode,
-                             flags & S_IFMT, CN_CREATE, CN_NOFOLLOW,
+                             flags & S_IFMT, CREATE, NOFOLLOW,
                              vnioCreate);
     } else if (S_ISDIR (mode)) {
         error = vnioConnect (pDevHeader, filename, NULL, mode,
-                             flags & S_IFMT, CN_CREATE, CN_NOFOLLOW,
+                             flags & S_IFMT, CREATE, NOFOLLOW,
                              vnioMkdir);
     } else if (S_ISLNK (mode)) {
         error = vnioConnect (pDevHeader, filename, symlink, mode,
-                             flags & S_IFMT, CN_CREATE, CN_NOFOLLOW,
+                             flags & S_IFMT, CREATE, NOFOLLOW,
                              vnioSymlink);
     } else {
         errnoSet (EINVAL);        /* Don't know what to create. */
@@ -995,10 +995,10 @@ int  vncioDelete (
 
     if (S_ISDIR (mode)) {
         error = vnioConnect (pDevHeader, filename, NULL, O_RDWR, mode,
-                             CN_DELETE, CN_NOFOLLOW, vnioRmdir);
+                             DELETE, NOFOLLOW, vnioRmdir);
     } else if (mode == 0) {
         error = vnioConnect (pDevHeader, filename, NULL, O_RDWR, mode,
-                             CN_DELETE, CN_NOFOLLOW, vnioRemove);
+                             DELETE, NOFOLLOW, vnioRemove);
     } else {
         error = EINVAL;    /* Don't know what to do. */
     }
@@ -1252,8 +1252,8 @@ int vncioIoctl (
             pStat->st_atime   = vattr.va_atime.tv_sec;
             pStat->st_mtime   = vattr.va_mtime.tv_sec;
             pStat->st_ctime   = vattr.va_ctime.tv_sec;
-            pStat->st_blksize = vattr.va_blksize;
-            pStat->st_blocks  = vattr.va_size / vattr.va_blksize;
+            pStat->st_blksize = vattr.va_blocksize;
+            pStat->st_blocks  = vattr.va_size / vattr.va_blocksize;
             break;
 
         case FIOREADLINK:

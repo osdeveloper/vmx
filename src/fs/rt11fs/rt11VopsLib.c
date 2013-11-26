@@ -646,7 +646,7 @@ LOCAL int  rt11VopGetAttr (
     vap->va_fsid             = 0;           /* Ignored for now. */
     vap->va_fileid           = pFileInode->in_inode;
     vap->va_size             = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
-    vap->va_blksize          = pVolDesc->vd_blkSize;
+    vap->va_blocksize        = pVolDesc->vd_blkSize;
     vap->va_atime.tv_sec     = timer;
     vap->va_mtime.tv_sec     = timer;
     vap->va_ctime.tv_sec     = timer;
@@ -1292,26 +1292,26 @@ LOCAL int  rt11VopDirGetAttr (
     pFsDev   = (RT11FS_DEV *) vp->v_mount->mnt_data;
     pVolDesc = &pFsDev->volDesc;
 
-    vap->va_type   = VDIR;
-    vap->va_mode   = 0666;
-    vap->va_nlink  = 1;
-    vap->va_uid    = 0;
-    vap->va_gid    = 0;
-    vap->va_fsid   = 0;            /* Ignored for now. */
-    vap->va_fileid = RT11FS_ROOT_INODE;
-    vap->va_size   = pVolDesc->vd_nSegBlks * pVolDesc->vd_blkSize;
-    vap->va_blksize = pVolDesc->vd_blkSize;
+    vap->va_type             = VDIR;
+    vap->va_mode             = 0666;
+    vap->va_nlink            = 1;
+    vap->va_uid              = 0;
+    vap->va_gid              = 0;
+    vap->va_fsid             = 0;            /* Ignored for now. */
+    vap->va_fileid           = RT11FS_ROOT_INODE;
+    vap->va_size             = pVolDesc->vd_nSegBlks * pVolDesc->vd_blkSize;
+    vap->va_blocksize        = pVolDesc->vd_blkSize;
     vap->va_atime.tv_sec     = 0;  /* dummy value */
     vap->va_mtime.tv_sec     = 0;  /* dummy value */
     vap->va_ctime.tv_sec     = 0;  /* dummy value */
     vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    vap->va_flags = 0;
+    vap->va_flags            = 0;
 #if 0                /* remaining fields are not yet used */
-    vap->va_gen = 0;
-    vap->va_rdev = 0;
-    vap->va_bytes = 0;
-    vap->va_filerev = 0;
-    vap->va_vaflags = 0;
+    vap->va_gen              = 0;
+    vap->va_rdev             = 0;
+    vap->va_bytes            = 0;
+    vap->va_filerev          = 0;
+    vap->va_vaflags          = 0;
 #endif
 
     return (OK);

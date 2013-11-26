@@ -23,6 +23,26 @@
 #ifndef _LIMITS_H
 #define _LIMITS_H
 
+#define _POSIX_AIO_LISTIO_MAX	2
+#define _POSIX_AIO_MAX		1
+#define _POSIX_ARG_MAX		4096
+#define _POSIX_CHILD_MAX	6
+#define	_POSIX_CLOCKRES_MIN	20
+#define	_POSIX_DELAYTIMER_MAX	32
+#define _POSIX_LINK_MAX		8
+#define _POSIX_MAX_CANON	255
+#define _POSIX_MAX_INPUT	255
+#define _POSIX_NAME_MAX		14
+#define _POSIX_NGROUPS_MAX	0
+#define _POSIX_OPEN_MAX		16
+#define _POSIX_PATH_MAX		255
+#define _POSIX_PIPE_BUF		512
+#define _POSIX_SSIZE_MAX	32767
+#define _POSIX_STREAM_MAX	8
+#define	_POSIX_TIMER_MAX	32
+#define _POSIX_TZNAME_MAX	3
+#define _POSIX_DATAKEYS_MAX	16
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

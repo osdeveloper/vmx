@@ -135,10 +135,10 @@ STATUS vnodeUnlock (
  */
 
 int vgetino (
-    struct mount * pMount,     /* ptr to file system mount */
-    ino_t          inode,      /* inode for which to get vnode */
-    vnode_ops_t *  pVnodeOps,  /* ptr to vnode operators */
-    vnode_t **     ppVnode     /* double ptr to vnode : output */
+    struct mount *       pMount,     /* ptr to file system mount */
+    ino_t                inode,      /* inode for which to get vnode */
+    const vnode_ops_t *  pVnodeOps,  /* ptr to vnode operators */
+    vnode_t **           ppVnode     /* double ptr to vnode : output */
     ) {
     int  i;
     int  error;

@@ -36,6 +36,28 @@
 #define STDOUT_FILENO   1       /* Standard output */
 #define STDERR_FILENO   2       /* Standard error output */
 
+/* Command names for pathconf and fpathconf */
+#define _PC_2_SYMLINKS          1
+#define _PC_ALLOC_SIZE_MIN      2
+#define _PC_ASYNC_IO            3
+#define _PC_CHOWN_RESTRICTED    4
+#define _PC_FILESIZEBITS        5
+#define _PC_LINK_MAX            6
+#define _PC_MAX_CANON           7
+#define _PC_MAX_INPUT           8
+#define _PC_NAME_MAX            9
+#define _PC_NO_TRUNC            10
+#define _PC_PATH_MAX            11
+#define _PC_PIPE_BUF            12
+#define _PC_PRIO_IO             13
+#define _PC_REC_INCR_XFER_SIZE  14
+#define _PC_REC_MAX_XFER_SIZE   15
+#define _PC_REC_MIN_XFER_SIZE   16
+#define _PC_REC_XFER_ALIGN      17
+#define _PC_SYMLINK_MAX         18
+#define _PC_SYNC_IO             19
+#define _PC_VDISABLE            20
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

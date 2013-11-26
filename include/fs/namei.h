@@ -27,18 +27,19 @@
 
 /* defines */
 
-#define CN_ISLAST   0x0001     /* set if component is last in path */
-#define CN_SLASH    0x0002     /* set if '/' follows component */
-#define CN_ISDOT    0x0004     /* "." path component */
-#define CN_ISDOTDOT 0x0008     /* ".." path component */
-#define CN_NOFOLLOW 0x0010     /* do not follow symlink on last component */
+#define ISLASTCN    0x0001     /* set if component is last in path */
+#define CNSLASH     0x0002     /* set if '/' follows component */
+#define ISDOT       0x0004     /* "." path component */
+#define ISDOTDOT    0x0008     /* ".." path component */
+#define NOFOLLOW    0x0010     /* do not follow symlink on last component */
+#define PDIRUNLOCK  0x0020     /* TODO */
 
 #define ND_INIT(nidp, path, pathlen, dvp, cnop, cnflags)   \
                do {                                        \
                (nidp)->ni_path = (path);                   \
                (nidp)->ni_pathlen = (pathlen);             \
                (nidp)->ni_dvp = (dvp);                     \
-               (nidp)->ni_cn.cn_op = (cnop);               \
+               (nidp)->ni_cn.cn_nameiop = (cnop);          \
                (nidp)->ni_cn.cn_flags = (cnflags);         \
                } while (0)
 
@@ -49,17 +50,18 @@ struct vnode;
 /* typedefs */
 
 typedef enum {
-    CN_LOOKUP,
-    CN_DELETE,
-    CN_CREATE,
-    CN_RENAME
+    LOOKUP,
+    DELETE,
+    CREATE,
+    RENAME
 } cn_op_t;
 
 typedef struct componentname {
-    cn_op_t  cn_op;         /* operation identifier */
-    char *   cn_nameptr;    /* ptr to the component */
-    int      cn_namelen;    /* length of the path name component */
-    int      cn_flags;      /* flags */
+    cn_op_t        cn_nameiop;  /* operation identifier */
+    char *         cn_nameptr;  /* ptr to the component */
+    int            cn_namelen;  /* length of the path name component */
+    int            cn_flags;    /* flags */
+    struct ucred * cn_cred;     /* credentials */
 }  componentname_t;
 
 typedef struct nameidata {
