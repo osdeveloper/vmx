@@ -210,7 +210,6 @@ LOCAL int xbdBlkDevStrategy (
     lblkno_t       lblkno;
     struct bio     *bio;
     char *         pData;
-    int            nBlks;
 
     /* LATER: Add BIO parameter to checks. */
     
@@ -218,49 +217,37 @@ LOCAL int xbdBlkDevStrategy (
 
     if (pBio->bio_flags == BIO_READ) {
         for (bio = pBio; bio != NULL; bio = bio->bio_chain) {
-            nBlks = bio->bio_bcount / xbdBlkDev->xbd.blkSize;
-            if (bio->bio_bcount % xbdBlkDev->xbd.blkSize) {
-                nBlks++;
-            }
-
 #ifdef DIAGNOSTIC
             logMsg("Rd:\t%d\t%d\t%x\n",
                    (ARG) (int) bio->bio_blkno,
                    (ARG) (int) bio->bio_bcount,
-                   (ARG) nBlks,
+                   (ARG) (int) (bio->bio_bcount / xbdBlkDev->xbd.blkSize),
                    (ARG) 0,
                    (ARG) 0,
                    (ARG) 0);
 #endif
-
             xbdBlkDev->bd->bd_blkRd(
                 xbdBlkDev->bd,
                 (int) bio->bio_blkno,
-                nBlks,
+                (int) (bio->bio_bcount / xbdBlkDev->xbd.blkSize),
                 bio->bio_data
                 );
         }
     } else {
         for (bio = pBio; bio != NULL; bio = bio->bio_chain) {
-            nBlks = bio->bio_bcount / xbdBlkDev->xbd.blkSize;
-            if (bio->bio_bcount % xbdBlkDev->xbd.blkSize) {
-                nBlks++;
-            }
-
 #ifdef DIAGNOSTIC
             logMsg("Rw:\t%d\t%d\t%x\n",
                    (ARG) (int) bio->bio_blkno,
                    (ARG) (int) bio->bio_bcount,
-                   (ARG) nBlks,
+                   (ARG) (int) (bio->bio_bcount / xbdBlkDev->xbd.blkSize),
                    (ARG) 0,
                    (ARG) 0,
                    (ARG) 0);
 #endif
-
             xbdBlkDev->bd->bd_blkWrt(
                 xbdBlkDev->bd,
                 (int) bio->bio_blkno,
-                nBlks,
+                (int) (bio->bio_bcount / xbdBlkDev->xbd.blkSize),
                 bio->bio_data
                 );
         }
@@ -288,7 +275,6 @@ LOCAL int xbdBlkDevDump (
     size_t      nBytes
     ) {
     XBD_BLK_DEV *  xbdBlkDev = (XBD_BLK_DEV *) xbd;
-    int            nBlks;
     char *         pData;
 
     /*
@@ -298,12 +284,12 @@ LOCAL int xbdBlkDevDump (
      * semTake() or semGive().
      */
 
-    nBlks = nBytes / xbdBlkDev->xbd.blkSize;
-    if (nBytes % xbdBlkDev->xbd.blkSize) {
-        nBlks++;
-    }
-
-    xbdBlkDev->bd->bd_blkRd(xbdBlkDev->bd, (int) lblkno, nBlks, pData);
+    xbdBlkDev->bd->bd_blkRd(
+        xbdBlkDev->bd,
+        (int) lblkno,
+        (int) (nBytes / xbdBlkDev->xbd.blkSize),
+        pData
+        );
 
     return (OK);
 }

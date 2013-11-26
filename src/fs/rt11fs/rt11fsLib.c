@@ -24,6 +24,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <vmx.h>
 #include <vmx/semLib.h>
@@ -137,7 +138,8 @@ STATUS rt11fsDiskProbe (
     size_t            len;
     long long         totalSize;
     unsigned          sectorSize;
-    int               i, nSegBlks;
+    int               i;
+    int               nSegBlks;
     int               error;
 
     /* Get setup from device */
@@ -371,7 +373,10 @@ STATUS rt11fsVolFormat (
     size_t            len;
     devname_t         devname;
     device_t          device;
-    int               fd, i, nSegBlks, freeBlks;
+    int               fd;
+    int               i;
+    int               nSegBlks;
+    int               freeBlks;
     STATUS            status;
 
     if (!rt11fsLibInstalled) {
@@ -644,6 +649,87 @@ void rt11fsNameString (
     *(pString + 3) = EOS;
 }
 
+/******************************************************************************
+ *
+ * rt11fsCurrDate - Get current date encoded for file stamp
+ *
+ * RETURNS: Encoded date for file stamp
+ */
+
+int rt11fsCurrDate(
+    BOOL now
+    )
+{
+    time_t     currTime;
+    struct tm  currDate;
+    int        year;
+    int        month;
+    int        day;
+
+    /* Get current date here */
+    if (now)
+    {
+        currTime = time(NULL);
+        if (currTime == ERROR)
+        {
+            year  = 72;
+            month = 0;
+            day   = 1;
+        }
+        else
+        {
+            localtime_r(&currTime, &currDate);
+            year  = currDate.tm_year;
+            month = currDate.tm_mon;
+            day   = currDate.tm_mday;
+        }
+    }
+    else
+    {
+        year  = 72;
+        month = 0;
+        year  = 0;
+    }
+
+    /* Year 72 is year 0 */
+    year -= 72;
+    if (year < 0)
+    {
+        year += 100;
+    }
+
+    return ((month << 10) | (day << 5) | (year & 0x1f));
+}
+
+/******************************************************************************
+ *
+ * rt11fsFileDate - Get file modification date
+ *
+ * RETURNS: File modification date
+ */
+
+void rt11fsFileDate(
+    RT11FS_FILE_DESC *  pFd,
+    struct tm *     pDate
+    )
+{
+    /* Clear tm struct */
+    memset(pDate, 0, sizeof(struct tm));
+
+    /* Get day */
+    pDate->tm_mday = (pFd->rfd_dirEntry.de_date >> 5) & 0x001f;
+    if (pDate->tm_mday == 0)
+    {
+        pDate->tm_mday = 1;
+    }
+
+    /* Get month */
+    pDate->tm_mon = (pFd->rfd_dirEntry.de_date >> 10) & 0x000f;
+
+    /* Get year */
+    pDate->tm_year = (pFd->rfd_dirEntry.de_date & 0x001f) + 72;
+}
+
 /*******************************************************************************
  *
  * rt11fsAllocDirEntry - allocate a new directory entry
@@ -658,8 +744,12 @@ int rt11fsAllocNewDirEntry (
     int               * pStartBlock,
     char  *             name
     ) {
-    RT11FS_DIR_ENTRY  dirEntry, dirEntryMax;
-    int               i, iMax, startBlock, startBlockMax;
+    RT11FS_DIR_ENTRY   dirEntry;
+    RT11FS_DIR_ENTRY   dirEntryMax;
+    int                i;
+    int                iMax;
+    int                startBlock;
+    int                startBlockMax;
 
     startBlock = pDirSeg->ds_start;
 
@@ -696,6 +786,7 @@ int rt11fsAllocNewDirEntry (
     /* Inititalize entry */
     memcpy (pNewDirEntry, &dirEntryMax, sizeof(RT11FS_DIR_ENTRY));
     pNewDirEntry->de_status = DES_TENTATIVE;
+    pNewDirEntry->de_date   = rt11fsCurrDate(TRUE);
     rt11fsNameR50 (name, &pNewDirEntry->de_name);
 
     /* Set start block */
@@ -716,7 +807,8 @@ void rt11fsInsertDirEntry (
     int                 entryNum,
     RT11FS_DIR_ENTRY  * pDirEntry
     ) {
-    RT11FS_DIR_ENTRY currEntry, prevEntry;
+    RT11FS_DIR_ENTRY  currEntry;
+    RT11FS_DIR_ENTRY  prevEntry;
 
     /* Replace current entry with new */
     rt11fsGetDirEntry (pDirSeg, entryNum, &currEntry);
@@ -804,9 +896,9 @@ int rt11fsFindDirEntry (
     int  *              pStartBlock,
     char  *             name
     ) {
-    RT11FS_DIR_ENTRY dirEntry;
-    RT11FS_NAME      rname;
-    int              i;
+    RT11FS_DIR_ENTRY  dirEntry;
+    RT11FS_NAME       rname;
+    int               i;
 
     /* Remove leading slashes */
     while ((*name == '/') || (*name == '\\')) {
@@ -903,7 +995,8 @@ LOCAL int rt11fsDirSegBlocks (
     unsigned blkSize,
     int      maxEntries
     ) {
-    int i, seglen;
+    int  i;
+    int  seglen;
 
     /* Calculate root directory size */
     seglen = sizeof(RT11FS_DIR_SEG) +
@@ -974,9 +1067,10 @@ LOCAL void rt11fsSectorRWDone (
 LOCAL int rt11fsR50out (
     char  * string
     ) {
-    unsigned int r50 = 0;
-    int          i, r;
-    char         ch;
+    unsigned int  r50 = 0;
+    int           i;
+    int           r;
+    char          ch;
 
     for (i = 0; i < 3; i++) {
         if (*string == EOS) {
@@ -1012,7 +1106,7 @@ LOCAL void rt11fsR50in (
     unsigned int r50,
     char  *      string
     ) {
-    int i;
+    int  i;
 
     for (i = 2; i >= 0; i--) {
         string[i] = rad50[r50 % 50];
@@ -1031,7 +1125,9 @@ LOCAL void rt11fsSwapBytes (
     char  * pSrc,
     char  * pDest,
     size_t  nBytes) {
-    short *src, *dst, *dst_end;
+    short  * src;
+    short  * dst;
+    short  * dst_end;
 
     /* Initialize locals */
     src = (short *) pSrc;

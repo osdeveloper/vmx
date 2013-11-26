@@ -483,7 +483,7 @@ LOCAL int  rt11VopCreate (
 
     /* Inititalize file descriptor */
     pFileDesc->rfd_startBlock = startBlock;
-    pFileDesc->rfd_nBlks = 0;
+    pFileDesc->rfd_nBlks      = 0;
     memcpy (&pFileDesc->rfd_dirEntry, &dirEntry, sizeof (RT11FS_DIR_ENTRY));
 
     /* Put entry in directory */
@@ -616,6 +616,8 @@ LOCAL int  rt11VopGetAttr (
     RT11FS_VOLUME_DESC * pVolDesc;
     RT11FS_INODE  *      pFileInode;
     RT11FS_FILE_DESC  *  pFileDesc;
+    struct tm            fileDate;
+    time_t               timer;
 
     /* Check file vnode */
     if (vp == NULL) {
@@ -629,29 +631,33 @@ LOCAL int  rt11VopGetAttr (
     /* Get file inode */
     RT11FS_VTOI (pFileInode, vp);
 
+    /* Get modification date */
+    rt11fsFileDate(pFileDesc, &fileDate);
+    timer = mktime(&fileDate);
+
     /* Get file descriptor */
     pFileDesc = (RT11FS_FILE_DESC *) pFileInode->in_data;
 
-    vap->va_type   = VREG;
-    vap->va_mode   = 0666;
-    vap->va_nlink  = 1;
-    vap->va_uid    = 0;
-    vap->va_gid    = 0;
-    vap->va_fsid   = 0;           /* Ignored for now. */
-    vap->va_fileid = pFileInode->in_inode;
-    vap->va_size   = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
-    vap->va_blksize = pVolDesc->vd_blkSize;
-    vap->va_atime.tv_sec     = 0;  /* dummy value */
-    vap->va_mtime.tv_sec     = 0;  /* dummy value */
-    vap->va_ctime.tv_sec     = 0;  /* dummy value */
-    vap->va_birthtime.tv_sec = 0;  /* dummy value */
-    vap->va_flags = 0;
+    vap->va_type             = VREG;
+    vap->va_mode             = 0666;
+    vap->va_nlink            = 1;
+    vap->va_uid              = 0;
+    vap->va_gid              = 0;
+    vap->va_fsid             = 0;           /* Ignored for now. */
+    vap->va_fileid           = pFileInode->in_inode;
+    vap->va_size             = pFileDesc->rfd_nBlks * pVolDesc->vd_blkSize;
+    vap->va_blksize          = pVolDesc->vd_blkSize;
+    vap->va_atime.tv_sec     = timer;
+    vap->va_mtime.tv_sec     = timer;
+    vap->va_ctime.tv_sec     = timer;
+    vap->va_birthtime.tv_sec = timer;
+    vap->va_flags            = 0;
 #if 0                /* remaining fields are not yet used */
-    vap->va_gen = 0;
-    vap->va_rdev = 0;
-    vap->va_bytes = 0;
-    vap->va_filerev = 0;
-    vap->va_vaflags = 0;
+    vap->va_gen              = 0;
+    vap->va_rdev             = 0;
+    vap->va_bytes            = 0;
+    vap->va_filerev          = 0;
+    vap->va_vaflags          = 0;
 #endif
 
     return (OK);

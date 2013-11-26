@@ -285,6 +285,29 @@ void rt11fsNameString (
     char  *     string
     );
 
+/******************************************************************************
+ *
+ * rt11fsCurrDate - Get current date encoded for file stamp
+ *
+ * RETURNS: Encoded date for file stamp
+ */
+
+int rt11fsCurrDate(
+    BOOL now
+    );
+
+/******************************************************************************
+ *
+ * rt11fsFileDate - Get file modification date
+ *
+ * RETURNS: File modification date
+ */
+
+void rt11fsFileDate(
+    RT11FS_FILE_DESC *  pFd,
+    struct tm *     pDate
+    );
+
 /*******************************************************************************
  *
  * rt11fsAllocDirEntry - allocate a new directory entry

@@ -163,6 +163,8 @@ SYMBOL standTable[] =
   /* stdlib */
   {NULL, "_malloc", malloc, 0, N_TEXT | N_EXT},
   {NULL, "_realloc", realloc, 0, N_TEXT | N_EXT},
+  {NULL, "_memalign", memalign, 0, N_TEXT | N_EXT},
+  {NULL, "_valloc", valloc, 0, N_TEXT | N_EXT},
   {NULL, "_free", free, 0, N_TEXT | N_EXT},
   {NULL, "_exit", exit, 0, N_TEXT | N_EXT},
   {NULL, "_abs", abs, 0, N_TEXT | N_EXT},
