@@ -658,19 +658,6 @@ STATUS vnodeUnlock (
 
 /***************************************************************************
  *
- * getnewvnode - initialize a new vnode with operations passed as argument
- *
- * RETURNS: OK on success, error otherwise
- */
-
-int getnewvnode(
-    struct mount *       pMount,
-    const vnode_ops_t *  pVnodeOps,
-    vnode_t **           ppVnode
-    );
-
-/***************************************************************************
- *
  * vgetino - get the vnode for the given inode
  *
  * RETURNS: OK on success, error otherwise

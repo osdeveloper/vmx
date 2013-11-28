@@ -87,6 +87,7 @@ int mountCreate (
         vnodesDelete (vp, maxFiles);
         semDelete (semId);
         free (mp);
+        return (ENOMEM);
     }
 
     cookieData = (int *) &fdList[maxFiles];

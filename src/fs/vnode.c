@@ -110,7 +110,8 @@ STATUS vnodeLock (
 STATUS vnodeUnlock (
     vnode_t *  pVnode
     ) {
-    int              error = OK;
+    int              error  = OK;
+    struct mount *   pMount = pVnode->v_mount;
 
     /*
      * Note that access to the mount has already been single threaded.
@@ -119,45 +120,17 @@ STATUS vnodeUnlock (
      */
 
     if (--pVnode->v_count == 0) {
-        error = VOP_INACTIVE (pVnode);
 
-        /* Not concerned with <error> result yet. */
+        error = VOP_INACTIVE (pVnode);
+        if (error == OK) {
+            mountLock (pMount);
+            listRemove (&pMount->mnt_vused, &pVnode->v_node);
+            listAdd (&pMount->mnt_vlist, &pVnode->v_node);
+            mountUnlock (pMount);
+        }
     }
 
     return (error);
-}
-
-/***************************************************************************
- *
- * getnewvnode - initialize a new vnode with operations passed as argument
- *
- * RETURNS: OK on success, error otherwise
- */
-
-int getnewvnode(
-    struct mount *       pMount,
-    const vnode_ops_t *  pVnodeOps,
-    vnode_t **           ppVnode
-    ) {
-    vnode_t * pVnode;
-    int       vsize;
-
-    vsize = sizeof(vnode_t) + pMount->mnt_ops->inodeSize;
-    pVnode = (vnode_t *) malloc(vsize);
-    if (pVnode == NULL) {
-        return (ERROR);
-    }
-
-    memset (pVnode, 0, vsize);
-
-    pVnode->v_mount = pMount;
-    pVnode->v_ops   = pVnodeOps;
-    pVnode->v_data  = (char *) &pVnode[1];
-
-    listInit (&pVnode->v_buflist);
-
-    *ppVnode = pVnode;
-    return (OK);
 }
 
 /***************************************************************************
@@ -235,6 +208,7 @@ int vgetino (
     /* Remove vnode from LRU and add to used list */
     listRemove (&pMount->mnt_vlist, &pVnode->v_node);
     listAdd (&pMount->mnt_vused, &pVnode->v_node);
+    vnodeLock (pVnode);               /* Yes.  Increment its use count */
     mountUnlock (pMount);
 
     *ppVnode = pVnode;

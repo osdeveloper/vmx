@@ -241,7 +241,7 @@ int insert(
     return (OK);
 }
 
-int fsTest1(
+int fileTest(
     char *name,
     int   num,
     int   size
@@ -302,6 +302,53 @@ int fsTest1(
     return 0;
 }
 
+int fdTest(
+    int   nFiles,
+    int   fileSize,
+    char *prefix
+    )
+{
+    static char def_prefix[] = "file";
+    static char name[12];
+    static char str[12];
+
+    int   i;
+    int   fd;
+    char  c;
+    char *buf;
+
+    if (prefix == NULL) {
+        prefix = def_prefix;
+    }
+
+    buf = (char *) malloc(fileSize);
+    if (buf == NULL) {
+        fprintf(stderr, "Error - Unable to allocate memory.\n");
+        return (ERROR);
+    }
+
+    for (i = 0; i < nFiles; i++) {
+        itoa(i, str, 10);
+        strcpy(name, prefix);
+        strcat(name, str);
+        strcat(name, ".txt");
+        fd = creat(name, O_RDWR);
+        if (fd == ERROR) {
+            fprintf(stderr, "Error - Unable to create file: %s\n", name);
+            free(buf);
+            return ERROR;
+        }
+        c = 'a' + i;
+        printf("Write: %c to file: %s\n", c, name);
+        memset(buf, c, fileSize);
+        write(fd, buf, fileSize);
+        close(fd);
+    }
+
+    free(buf);
+    return OK;
+}
+
 void fsDemoInit(
     void
     )
@@ -319,7 +366,8 @@ void fsDemoInit(
         {NULL, "_format", format, 0, N_TEXT | N_EXT},
         {NULL, "_eject", eject, 0, N_TEXT | N_EXT},
         {NULL, "_insert", insert, 0, N_TEXT | N_EXT},
-        {NULL, "_fsTest1", fsTest1, 0, N_TEXT | N_EXT}
+        {NULL, "_fileTest", fileTest, 0, N_TEXT | N_EXT},
+        {NULL, "_fdTest", fdTest, 0, N_TEXT | N_EXT}
     };
 
     int i;
