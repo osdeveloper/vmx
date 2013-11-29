@@ -296,6 +296,11 @@ typedef struct vnode {
 
 /* macros */
 
+/* Get shared or exclusive lock on vnode */
+#define VN_SHLOCK(vp)   (0)
+#define VN_EXLOCK(vp)   (0)
+#define VN_UNLOCK(vp)   (0)
+
 #define VOP_LOOKUP(dvp, vpp, cnp) \
     (dvp)->v_ops->vop_lookup ((dvp), (vpp), (cnp))
 
