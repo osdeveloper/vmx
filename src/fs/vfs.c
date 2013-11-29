@@ -584,7 +584,7 @@ int vnioCreate (
     if ((error == OK) &&
         ((nidp->ni_vp->v_type != VREG) || (oflags & O_EXCL))) {
         vnodeUnlock (nidp->ni_vp);
-        error == EEXIST;
+        error = EEXIST;
     }
 
     if ((error != OK) && (error != ENOENT)) {
