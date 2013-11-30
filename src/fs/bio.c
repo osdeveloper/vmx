@@ -101,11 +101,11 @@ LOCAL void bio_new (struct buf *bp);
  */
 
 int bread (
-    struct vnode *vp,
-    lblkno_t  blkno,
-    int size,
-    struct ucred *cred,
-    struct buf **bpp
+    struct vnode * vp,
+    lblkno_t       blkno,
+    int            size,
+    struct ucred * cred,
+    struct buf **  bpp
     ) {
     struct buf *bp;
 
@@ -137,7 +137,7 @@ int bread (
  */
 
 int bwrite (
-    struct buf *bp
+    struct buf * bp
     ) {
     int rtval;
     int oldflags = bp->b_flags;
@@ -181,7 +181,7 @@ int bwrite (
  */
 
 void buf_startwrite (
-    struct buf *bp
+    struct buf * bp
     ) {
     bp->b_flags |= B_ASYNC;
     bwrite (bp);
@@ -199,7 +199,7 @@ void buf_startwrite (
  */
 
 void brelse (
-    struct buf *bp
+    struct buf * bp
     ) {
     LIST *pBufHead = &bp->b_vp->v_mount->mnt_buflist;
 
@@ -235,8 +235,8 @@ void brelse (
  */
 
 struct buf* buf_new (
-    struct vnode *vp,
-    lblkno_t blkno
+    struct vnode * vp,
+    lblkno_t       blkno
     ) {
     struct buf *bp;
     LIST *pBufHead = &vp->v_mount->mnt_buflist;
@@ -270,8 +270,8 @@ struct buf* buf_new (
  */
 
 struct buf* buf_incore (
-    struct vnode *vp,
-    lblkno_t blkno
+    struct vnode * vp,
+    lblkno_t       blkno
     ) {
     struct buf *bp;
     LIST *pBufHead = &vp->v_mount->mnt_buflist;
@@ -303,9 +303,9 @@ struct buf* buf_incore (
  */
 
 struct buf* buf_getblk (
-    struct vnode *vp,
-    lblkno_t blkno,
-    unsigned size
+    struct vnode * vp,
+    lblkno_t       blkno,
+    unsigned       size
     ) {
     struct buf *bp;
     LIST *pBufHead = &vp->v_mount->mnt_buflist;
@@ -357,7 +357,7 @@ loop:
  */
 
 int buf_wait (
-    struct buf *bp
+    struct buf * bp
     ) {
     LIST *pBufHead = &bp->b_vp->v_mount->mnt_buflist;
 
@@ -398,8 +398,8 @@ int buf_wait (
  */
 
 void buf_done (
-    struct buf *bp,
-    int error
+    struct buf * bp,
+    int          error
     ) {
     bp->b_error = error;
     bp->b_flags |= B_DONE;
@@ -425,12 +425,12 @@ void buf_done (
  */
 
 void buf_swapdata (
-    struct buf *  b1,
-    struct buf *  b2
+    struct buf * b1,
+    struct buf * b2
     ) {
-    int              b_size;
-    unsigned char *  b_data;
-    struct bio *     b_bio;
+    int             b_size;
+    unsigned char * b_data;
+    struct bio *    b_bio;
 
     /* Swap data buffers */
     b_data     = b2->b_data;
@@ -446,6 +446,21 @@ void buf_swapdata (
     b_bio     = b2->b_bio;
     b2->b_bio = b1->b_bio;
     b1->b_bio = b_bio;
+}
+
+/***************************************************************************
+ *
+ * buf_setpriority - set buffer cache priority
+ *
+ * RETURNS: N/A
+ */
+
+void buf_setpriority (
+    struct buf * bp,
+    int          pri
+    ) {
+
+    bp->b_priority = pri;
 }
 
 /***************************************************************************

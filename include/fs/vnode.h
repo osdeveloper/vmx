@@ -35,13 +35,26 @@
 
 /* defines */
 
-#define V_ROOT      0x0001
-#define V_DELETED   0x0002
+#define V_ROOT          0x0001
+#define V_DELETED       0x0002
+
+/* Flags for ioflag */
+
+#define VNIO_UNIT       0x01
+#define VNIO_APPEND     0x02
+#define VNIO_SYNC       0x04
+
+/* Flags for vaflags */
+
+#define VA_UTIMES_NULL  0x01
+#define VA_EXCLUSIVE    0x02
+
+/* Modes for vaccess */
 
 #define VNOVAL          -1
-#define VREAD         0004
-#define VWRITE        0002
-#define VEXEC         0001
+#define VREAD           0004
+#define VWRITE          0002
+#define VEXEC           0001
 
 /* enums */
 
@@ -68,8 +81,8 @@ struct flock;
 typedef off_t        voff_t;
 
 typedef struct ucred {
-    int dummy;
-    /* Not yet filled */
+    uid_t  cr_uid;
+    gid_t  cr_gid;
 } ucred_t;
 
 typedef struct vattr {
@@ -86,6 +99,7 @@ typedef struct vattr {
     struct timespec  va_ctime;        /* time of last modification */
     struct timespec  va_birthtime;    /* time of file creation */
     unsigned         va_flags;        /* special inode flags */
+    unsigned         va_vaflags;      /* operations flags */
 
     /* The following fields are not yet used */
     unsigned         va_fsid;         /* file system identifier */

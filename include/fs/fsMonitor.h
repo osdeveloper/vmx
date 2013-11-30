@@ -27,7 +27,7 @@
 
 #define S_fsMonitor_INVALID_PARAMETER           (M_fsMonitor | 0x0001)
 #define S_fsMonitor_ITEM_NOT_FOUND              (M_fsMonitor | 0x0002)
-#define S_fsMonitor_DRV_NOT_FOUND               (M_fsMonitor | 0x0002)
+#define S_fsMonitor_DRV_NOT_FOUND               (M_fsMonitor | 0x0003)
 
 #include <vmx.h>
 #include <fs/xbd.h>
