@@ -75,6 +75,8 @@
 #include <os/vmLib.h>
 #include <os/vmShow.h>
 #include <ostool/shellLib.h>
+#include <ostool/moduleLib.h>
+#include <ostool/moduleShow.h>
 #include <fs/xbd.h>
 #include <fs/xbdRamDisk.h>
 #include <fs/fsMonitor.h>
@@ -281,6 +283,9 @@ LOCAL void usrRoot(
          (ARG) 1, (ARG) 2, (ARG) 3, (ARG) 4, (ARG) 5, (ARG) 6);
   taskDelay(2);
 #endif /* INCLUDE_LOG_STARTUP */
+
+  moduleLibInit();
+  moduleShowInit();
 
   erfLibInit(MAX_EVENT_CATEGORIES, MAX_EVENT_TYPES);
 

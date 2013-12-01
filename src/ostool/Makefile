@@ -20,7 +20,7 @@
 
 # Makefile - Utilities library for Real VMX
 
-OBJS = shellLexer.o shellParser.o shellLib.o
+OBJS = shellLexer.o shellParser.o shellLib.o moduleLib.o moduleShow.o
 SUBDIRS =
 LIB_TGT = ostool
 

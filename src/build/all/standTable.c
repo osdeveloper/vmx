@@ -58,6 +58,8 @@
 #include <os/erfLib.h>
 #include <os/vmLib.h>
 #include <os/vmShow.h>
+#include <ostool/moduleLib.h>
+#include <ostool/moduleShow.h>
 #include <util/listLib.h>
 #include <util/dllLib.h>
 #include <util/sllLib.h>
@@ -536,6 +538,35 @@ SYMBOL standTable[] =
   {NULL, "_vmTranslate", vmTranslate, 0, N_TEXT | N_EXT},
   {NULL, "_vmShowInit", vmShowInit, 0, N_TEXT | N_EXT},
   {NULL, "_vmContextShow", vmContextShow, 0, N_TEXT | N_EXT},
+
+  /* moduleLib */
+  {NULL, "_moduleClassId", NULL, 0, N_DATA | N_EXT},
+  {NULL, "_moduleCreate", moduleCreate, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleInit", moduleInit, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleDestroy", moduleDestroy, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleTerminate", moduleTerminate, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleDelete", moduleDelete, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleIdFigure", moduleIdFigure, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleIdListGet", moduleIdListGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleNameGet", moduleNameGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleGroupGet", moduleGroupGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleFlagsGet", moduleFlagsGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleFormatGet", moduleFormatGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleFindByName", moduleFindByName, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleFindByNameAndPath", moduleFindByNameAndPath, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleFindByGroup", moduleFindByGroup, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleEach", moduleEach, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleInfoGet", moduleInfoGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleCheck", moduleCheck, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleCreateHookAdd", moduleCreateHookAdd, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleCreateHookDelete", moduleCreateHookDelete, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleSegAdd", moduleSegAdd, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleSegGet", moduleSegGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleSegFirst", moduleSegFirst, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleSegNext", moduleSegNext, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleSegEach", moduleSegEach, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleSegInfoGet", moduleSegInfoGet, 0, N_TEXT | N_EXT},
+  {NULL, "_moduleShow", moduleShow, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},
