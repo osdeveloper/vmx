@@ -18,39 +18,15 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* loadLibP.h - Load library private header*/
+/* elfArchLib.h - Elf relocation header */
 
-#ifndef _loadLibP_h
-#define _loadLibP_h
+#ifndef _elfArchLib_h
+#define _elfArchLib_h
 
-#include <vmx.h>
-#include <os/symbol.h>
 
-#ifndef _ASMLANGUAGE
-
-#ifdef __cplusplus
-extern "C" {
+#if     CPU_FAMILY==I386
+#include <arch/i386/elfI386Lib.h>
 #endif
 
-/* Types */
-
-typedef void *SYM_ADDR;
-
-typedef struct
-{
-    char          *symName;               /* Symbol name */
-    BOOL           symMatched;            /* TRUE if syms are included */
-    void          *pSymAddrBss;           /* Bss symbol address */
-    SYM_TYPE       bssSymType;            /* Bss symbol type */
-    void          *pSymAddrData;          /* Data symbol address */
-    SYM_TYPE       dataSymType;           /* Data symbol type */
-} COMMON_INFO;
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _loadLibP_h */
+#endif /* _elfArchLib_h */
 

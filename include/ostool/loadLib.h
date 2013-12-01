@@ -58,6 +58,7 @@ extern "C" {
 #endif
 
 /* Types */
+
 typedef struct
 {
     char          *addrText;              /* Address to text segment */
@@ -73,6 +74,7 @@ typedef struct
 } SEG_INFO;
 
 /* Macros */
+
 #define LD_NO_ADDRESS                   ((char *) NONE)
 
 /* Functions */

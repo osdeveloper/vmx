@@ -63,6 +63,7 @@ extern "C" {
 #endif
 
 /* Types */
+
 typedef struct
 {
     OBJ_CORE                     objCore;           /* Object class */

@@ -18,13 +18,21 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* loadLibP.h - Load library private header*/
+/* elfI386Lib.h - Elf relocation header */
 
-#ifndef _loadLibP_h
-#define _loadLibP_h
+#ifndef _elfI386Lib_h
+#define _elfI386Lib_h
 
 #include <vmx.h>
-#include <os/symbol.h>
+#include <elf.h>
+
+/* Machine type */
+#define EM_ARCH_MACHINE         EM_386  /* Machine type */
+
+/* Relocation options */
+#define R_386_NONE              0       /* None */
+#define R_386_32                1       /* Direct 32-bit */
+#define R_386_PC32              2       /* Pc relative address */
 
 #ifndef _ASMLANGUAGE
 
@@ -32,19 +40,18 @@
 extern "C" {
 #endif
 
-/* Types */
+/* Functions */
 
-typedef void *SYM_ADDR;
+/******************************************************************************
+ * elfArchLibInit - Initialize elf arch library
+ *
+ * RETURNS: OK
+ */
 
-typedef struct
-{
-    char          *symName;               /* Symbol name */
-    BOOL           symMatched;            /* TRUE if syms are included */
-    void          *pSymAddrBss;           /* Bss symbol address */
-    SYM_TYPE       bssSymType;            /* Bss symbol type */
-    void          *pSymAddrData;          /* Data symbol address */
-    SYM_TYPE       dataSymType;           /* Data symbol type */
-} COMMON_INFO;
+STATUS elfArchLibInit(
+    FUNCPTR *pElfVerifyFunc,
+    FUNCPTR *pElfSegRelFunc
+    );
 
 #ifdef __cplusplus
 }
@@ -52,5 +59,5 @@ typedef struct
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _loadLibP_h */
+#endif /* _elfI386Lib_h */
 
