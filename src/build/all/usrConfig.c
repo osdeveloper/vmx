@@ -77,6 +77,7 @@
 #include <ostool/shellLib.h>
 #include <ostool/moduleLib.h>
 #include <ostool/moduleShow.h>
+#include <ostool/loadLib.h>
 #include <fs/xbd.h>
 #include <fs/xbdRamDisk.h>
 #include <fs/fsMonitor.h>
@@ -286,6 +287,7 @@ LOCAL void usrRoot(
 
   moduleLibInit();
   moduleShowInit();
+  loadLibInit();
 
   erfLibInit(MAX_EVENT_CATEGORIES, MAX_EVENT_TYPES);
 

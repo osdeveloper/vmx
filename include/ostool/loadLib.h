@@ -31,6 +31,7 @@
 #include <vmx.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
+#include <ostool/moduleLib.h>
 #include <ostool/private/loadLibP.h>
 
 /* Load symbols */
@@ -78,6 +79,107 @@ typedef struct
 #define LD_NO_ADDRESS                   ((char *) NONE)
 
 /* Functions */
+
+/******************************************************************************
+ * loadLibInit - Inititalize loader library
+ *
+ * RETURNS: OK 
+ */
+
+STATUS loadLibInit(
+    void
+    );
+
+/******************************************************************************
+ * loadModule - Load module
+ *
+ * RETURNS: MODULE_ID or NULL
+ */
+
+MODULE_ID loadModule(
+    int fd,
+    int symFlags
+    );
+
+/******************************************************************************
+ * loadModuleAt - Load module at system symbol table
+ *
+ * RETURNS: MODULE_ID or NULL
+ */
+
+MODULE_ID loadModuleAt(
+    int    fd,
+    int    symFlags,
+    void **ppText,
+    void **ppData,
+    void **ppBss
+    );
+
+/******************************************************************************
+ * loadModuleAtSym - Load module at symbol table
+ *
+ * RETURNS: MODULE_ID or NULL
+ */
+
+MODULE_ID loadModuleAtSym(
+    int         fd,
+    int         symFlags,
+    void      **ppText,
+    void      **ppData,
+    void      **ppBss,
+    SYMTAB_ID   symTable
+    );
+
+/******************************************************************************
+ * loadModuleGet - Create module for loadable code
+ *
+ * RETURNS: MODULE_ID or NULL
+ */
+
+MODULE_ID loadModuleGet(
+    char *name,
+    int   format,
+    int  *symFlags
+    );
+
+/******************************************************************************
+ * loadSegmentsAllocate - Allocate text, data and bss segments
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS loadSegmentsAllocate(
+    SEG_INFO *pSegInfo
+    );
+
+/******************************************************************************
+ * loadCommonMatch - Fill in common info
+ *
+ * RETURNS: OK
+ */
+
+STATUS loadCommonMatch(
+    COMMON_INFO *pCommonInfo,
+    SYMTAB_ID    symTable
+    );
+
+/******************************************************************************
+ * loadCommonManage - Process common symbol
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS loadCommonManage(
+    int             size,
+    int             align,
+    char           *symName,
+    SYMTAB_ID       symTable,
+    SYM_ADDR       *pSymAddr,
+    SYM_TYPE       *pSymType,
+    int             loadFlag,
+    SEG_INFO       *pSegInfo,
+    unsigned short  group
+    );
 
 #ifdef __cplusplus
 }
