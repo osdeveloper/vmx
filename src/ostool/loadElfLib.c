@@ -334,6 +334,10 @@ LOCAL STATUS loadElfHeaderCheck(
     {
         fprintf(stderr, "Null offset to section header table.\n");
         errnoSet(S_loadElfLib_HDR_ERROR);
+        status = ERROR;
+    }
+    else
+    {
         status = OK;
     }
 
@@ -350,8 +354,8 @@ LOCAL BOOL loadElfArchVerify(
     Elf32_Ehdr *pHeader
     )
 {
-    BOOL result;
-    BOOL sdaUsed;
+    BOOL      result;
+    BOOL      sdaUsed;
     u_int16_t target;
 
     /* Check magic number */

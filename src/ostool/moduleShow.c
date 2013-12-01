@@ -99,14 +99,8 @@ STATUS moduleShow(
             }
 
             /* Show module info */
-            if (moduleDisplay(modId, options) == TRUE)
-            {
-                status = OK;
-            }
-            else
-            {
-                status = ERROR;
-            }
+            moduleDisplay(modId, options);
+            status = OK;
         }
     }
     else
@@ -114,14 +108,8 @@ STATUS moduleShow(
         /* Print header */
         printf("%s", moduleShowHeader[0]);
 
-        if (moduleEach((FUNCPTR) moduleDisplay, (ARG) options) == NULL)
-        {
-            status = OK;
-        }
-        else
-        {
-            status = ERROR;
-        }
+        moduleEach((FUNCPTR) moduleDisplay, (ARG) options);
+        status = OK;
     }
 
     return status;
