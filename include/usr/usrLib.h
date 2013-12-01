@@ -23,11 +23,8 @@
 #ifndef _usrLib_h
 #define _usrLib_h
 
-#define NO_LOADER
 #include <vmx.h>
-#ifndef NO_LOADER
-#include <tools/moduleLib.h>
-#endif
+#include <ostool/moduleLib.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -188,7 +185,6 @@ void devs(
     void
     );
 
-#ifndef NO_LOADER
 /******************************************************************************
  * ld - Load object module into memory
  *
@@ -199,8 +195,7 @@ MODULE_ID ld(
     int symFlags,
     BOOL noAbort,
     char *name
-    )
-#endif
+    );
 
 /******************************************************************************
  * lkup - List symbols in system symbol table

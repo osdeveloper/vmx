@@ -23,7 +23,7 @@
 AR = ar
 OBJS = excALib.o excArchLib.o excArchShow.o intALib.o intArchLib.o regsALib.o \
        regsArchLib.o vmxALib.o sysALib.o taskArchLib.o sigALib.o sigArchLib.o \
-       mmuPro32ALib.o mmuPro32Lib.o cacheALib.o cacheArchLib.o
+       mmuPro32ALib.o mmuPro32Lib.o cacheALib.o cacheArchLib.o elfArchLib.o
 LIB_TGT = arch
 
 include $(VMX_BASE)/include/make/build.defaults

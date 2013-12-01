@@ -20,8 +20,6 @@
 
 /* usrLib.c - User functions used by shell */
 
-#define NO_LOADER
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,10 +40,8 @@
 #include <os/iosShow.h>
 #include <os/symbol.h>
 #include <os/symLib.h>
-#ifndef NO_LOADER
-#include <tools/moduleLib.h>
-#include <tools/loadLib.h>
-#endif
+#include <ostool/moduleLib.h>
+#include <ostool/loadLib.h>
 #include <usr/usrLib.h>
 
 /* Defines */
@@ -769,7 +765,6 @@ void devs(
     iosDevShow();
 }
 
-#ifndef NO_LOADER
 /******************************************************************************
  * ld - Load object module into memory
  *
@@ -867,7 +862,6 @@ MODULE_ID ld(
 
     return modId;
 }
-#endif
 
 /******************************************************************************
  * lkup - List symbols in system symbol table

@@ -20,8 +20,6 @@
 
 /* standTable.c - Standalone symbol table */
 
-#define NO_LOADER
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,6 +37,7 @@
 #include <vmx.h>
 #include <arch/vmxArchLib.h>
 #include <arch/sigArchLib.h>
+#include <arch/elfArchLib.h>
 #include <os/objLib.h>
 #include <os/classLib.h>
 #include <os/classShow.h>
@@ -102,9 +101,7 @@ SYMBOL standTable[] =
   {NULL, "_m", m, 0, N_TEXT | N_EXT},
   {NULL, "_pc", pc, 0, N_TEXT | N_EXT},
   {NULL, "_devs", devs, 0, N_TEXT | N_EXT},
-#ifndef NO_LOADER
   {NULL, "_ld", ld, 0, N_TEXT | N_EXT},
-#endif
   {NULL, "_lkup", lkup, 0, N_TEXT | N_EXT},
   {NULL, "_checkStack", checkStack, 0, N_TEXT | N_EXT},
   {NULL, "_periodRun", periodRun, 0, N_TEXT | N_EXT},
@@ -567,6 +564,7 @@ SYMBOL standTable[] =
   {NULL, "_moduleSegEach", moduleSegEach, 0, N_TEXT | N_EXT},
   {NULL, "_moduleSegInfoGet", moduleSegInfoGet, 0, N_TEXT | N_EXT},
   {NULL, "_moduleShow", moduleShow, 0, N_TEXT | N_EXT},
+  {NULL, "_elfArchLibInit", elfArchLibInit, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},

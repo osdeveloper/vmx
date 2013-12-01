@@ -43,13 +43,6 @@
 #define MWRITE32(pAddr, val)            *((u_int32_t *) pAddr) = val;
 #define MWRITE16(pAddr, val)            *((u_int16_t *) pAddr = val;
 
-/* Imports */
-IMPORT int loadElfRelocRelEntryRead(
-    int        fd,
-    int        pos,
-    Elf32_Rel *pRel
-    );
-
 /* Locals */
 LOCAL BOOL elfArchVerify(
     u_int32_t  type,

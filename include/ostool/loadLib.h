@@ -91,6 +91,17 @@ STATUS loadLibInit(
     );
 
 /******************************************************************************
+ * loadFuncSet - Set load function
+ *
+ * RETURNS: N/A
+ */
+
+void loadFuncSet(
+    FUNCPTR load,
+    FUNCPTR sync
+    );
+
+/******************************************************************************
  * loadModule - Load module
  *
  * RETURNS: MODULE_ID or NULL

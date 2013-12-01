@@ -43,9 +43,8 @@ IMPORT SYMTAB_ID sysSymTable;
 
 /* Locals */
 
-/* Globals */
-FUNCPTR loadFunc     = (FUNCPTR) NULL;
-FUNCPTR loadSyncFunc = (FUNCPTR) NULL;
+LOCAL FUNCPTR loadFunc     = (FUNCPTR) NULL;
+LOCAL FUNCPTR loadSyncFunc = (FUNCPTR) NULL;
 
 /* Functions */
 
@@ -60,6 +59,21 @@ STATUS loadLibInit(
     )
 {
     return OK;
+}
+
+/******************************************************************************
+ * loadFuncSet - Set load function
+ *
+ * RETURNS: N/A
+ */
+
+void loadFuncSet(
+    FUNCPTR load,
+    FUNCPTR sync
+    )
+{
+    loadFunc = load;
+    sync     = sync;
 }
 
 /******************************************************************************

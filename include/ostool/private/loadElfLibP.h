@@ -88,6 +88,20 @@ typedef SYM_INFO_TABLE   *SYMINFO_REFS;
 
 #define CHECK_2_ALIGN(x)                (((x) & ((x) - 1)) == 0)
 
+/* Functions */
+
+/******************************************************************************
+ * loadElfRelocRelEntryRead - Real elf relocation entry
+ *
+ * RETURNS: Address of the next relocation entry or ERROR
+ */
+
+int loadElfRelocRelEntryRead(
+    int        fd,
+    int        pos,
+    Elf32_Rel *pRel
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

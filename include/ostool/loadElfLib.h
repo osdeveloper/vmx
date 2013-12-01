@@ -58,6 +58,16 @@ typedef unsigned char SDA_SECT_TYPE;
 
 /* Functions */
 
+/******************************************************************************
+ * loadElfLibInit - Initialize elf load library
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS loadElfLibInit(
+    void
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
