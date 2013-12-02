@@ -35,12 +35,12 @@ u_int32_t  ext2fsDiskToHost16 (
     u_int8_t * pDisk
     ) {
     u_int32_t  ret;
-    
+
     ret = ((u_int32_t) pDisk[0]) + (((u_int32_t) pDisk[1]) << 8);
 
     return (ret);
 }
-    
+
 /******************************************************************************
  *
  * ext2fsDiskToHost32 - convert 32-bit integer from disk to host format
@@ -55,10 +55,10 @@ u_int32_t  ext2fsDiskToHost32 (
 
     ret = ((u_int32_t) pDisk[0]) + (((u_int32_t) pDisk[1]) << 8) +
           (((u_int32_t) pDisk[2]) << 16) + (((u_int32_t) pDisk[3]) << 24);
-         
+
     return (ret);
 }
-    
+
 /******************************************************************************
  *
  * ext2fsHostToDisk16 - convert 16-bit integer from host to disk format
@@ -74,7 +74,7 @@ void  ext2fsHostToDisk16 (
     pDisk[0] = (u_int8_t) host;
     pDisk[1] = (u_int8_t) (host >> 8);
 }
-    
+
 /******************************************************************************
  *
  * ext2fsHostToDisk32 - convert 32-bit integer from host to disk format
@@ -92,7 +92,7 @@ void  ext2fsHostToDisk32 (
     pDisk[2] = (u_int8_t) (host >> 16);
     pDisk[3] = (u_int8_t) (host >> 24);
 }
-    
+
 /******************************************************************************
  *
  * ext2fsDirEntryDiskToHost - convert directory entry from disk to host format
@@ -196,7 +196,7 @@ void ext2fsInodeHostToDisk (
     ) {
     int        i;
     u_int8_t * ptr;
-    
+
     ext2fsHostToDisk16 (pHost->i_mode, pDisk->i_mode);
     ext2fsHostToDisk16 (pHost->i_uid, pDisk->i_uid);
     ext2fsHostToDisk32 ((u_int32_t) pHost->i_size, pDisk->i_size);

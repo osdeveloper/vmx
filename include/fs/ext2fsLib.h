@@ -62,6 +62,7 @@ extern "C" {
 
 #define EXT2FS_ROOT_INODE                               2
 #define EXT2FS_SUPERBLK_MAGIC                           0xef53
+#define EXT2FS_SUPERBLK_SIZE                            1024
 
 #define EXT2FS_BGD_CACHE_DIRTY                          0x00000001
 
@@ -491,6 +492,81 @@ void ext2fsSuperBlockDiskToHost (
 void ext2fsSuperBlockHostToDisk (
     EXT2FS_SUPERBLOCK *      pHost,
     EXT2FS_SUPERBLOCK_DISK * pDisk
+    );
+
+/******************************************************************************
+ *
+ * ext2fsSuperBlkRead - read ext2fs superblock
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+int ext2fsSuperBlkRead (
+    EXT2FS_DEV * pFsDev
+    );
+
+/******************************************************************************
+ *
+ * ext2fsDiskProbe - probe media for ext2 filesystem
+ *
+ * RETURNS: OK if ext2 filesystem found, otherwise error
+ */
+
+int ext2fsDiskProbe (
+    device_t  device
+    );
+
+/******************************************************************************
+ *
+ * ext2fsLibInit - initialize ext2 filesystem library
+ *
+ * RETURNS: OK
+ */
+
+STATUS ext2fsLibInit (
+    int  maxBufs,
+    int  maxFiles,
+    int  reserved2,
+    int  reserved1
+    );
+
+/******************************************************************************
+ *
+ * ext2fsDevCreate - create an ext2 filesystem device
+ *
+ * RETURNS: pointer to the device on success, otherwise NULL
+ */
+
+EXT2FS_DEV *  ext2fsDevCreate (
+    char *    pDevName,
+    device_t  device,
+    int       numBufs,
+    int       maxFiles,
+    int       reserved2,
+    int       reserved1
+    );
+
+/******************************************************************************
+ *
+ * ext2fsDevDelete - delete an Ext2 file system device
+ *
+ * RETURNS: OK on success, otherwise ERROR
+ */
+
+STATUS ext2fsDevDelete (
+    EXT2FS_DEV * pExt2fsDev
+    );
+
+/******************************************************************************
+ *
+ * ext2fsDevCreate2 - create ext2 filesystem device
+ *
+ * RETURNS: OK on success, otherwise ERROR
+ */
+
+STATUS ext2fsDevCreate2 (
+    device_t  device,
+    char *    pDevName
     );
 
 #ifdef __cplusplus
