@@ -22,7 +22,7 @@
 
 OBJS = bio.o mount.o vnode.o vfs.o fsEventUtilLib.o fsMonitor.o \
        xbdLib.o xbdPartition.o xbdRamDisk.o xbdBlkDev.o
-SUBDIRS = rawfs rt11fs
+SUBDIRS = rawfs rt11fs ext2fs
 LIB_TGT = fs
 
 include $(VMX_BASE)/include/make/build.defaults
