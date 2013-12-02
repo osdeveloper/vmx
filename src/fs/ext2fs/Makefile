@@ -1,7 +1,8 @@
 # Makefile -
 #
 
-OBJS = ext2fsConvLib.o ext2fsSuperLib.o ext2fsLib.o
+OBJS = ext2fsConvLib.o ext2fsSuperLib.o ext2fsLib.o ext2fsSyncerLib.o \
+       ext2fsVfsLib.o
 
 SUBDIRS = 
 LIB_TGT = fs

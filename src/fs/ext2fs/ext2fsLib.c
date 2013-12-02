@@ -198,15 +198,13 @@ EXT2FS_DEV *  ext2fsDevCreate (
         numBufs = EXT2FS_MIN_BUFFERS;
     }
 
-#ifdef notyet
-    error = mountCreate (ext2fsVfsOps, device, maxFiles, pDevName, &pMount);
+    error = mountCreate (&ext2fsVfsOps, device, maxFiles, pDevName, &pMount);
     if (error != OK) {
         errnoSet (error);
         return (NULL);
     }
     pExt2fsDev = (EXT2FS_DEV *) pMount->mnt_data;
     mountBufFree (pMount);
-#endif
 
     error = mountBufAlloc (pMount, numBufs, pExt2fsDev->ext2fsVolDesc.blkSize);
     if (error != OK) {

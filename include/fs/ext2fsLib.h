@@ -325,6 +325,10 @@ typedef struct ext2fs_dev {
     SEM_ID               bioSem;
 } EXT2FS_DEV;
 
+/* imports */
+
+IMPORT const struct vfsops ext2fsVfsOps;
+
 /* macros */
 
 /******************************************************************************
@@ -567,6 +571,91 @@ STATUS ext2fsDevDelete (
 STATUS ext2fsDevCreate2 (
     device_t  device,
     char *    pDevName
+    );
+
+/******************************************************************************
+ *
+ * ext2fsPhysFind - find the physical block for a logical block
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+int ext2fsPhysFind (
+    struct vnode * pVnode,
+    lblkno_t       blkNum
+    );
+
+/******************************************************************************
+ *
+ * ext2fsGroupDescriptorRead - read group descriptor from the disk
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+int ext2fsGroupDescriptorRead (
+    EXT2FS_DEV *        pFsDev,
+    struct vnode *      pSyncer,
+    EXT2FS_GROUP_DESC * pGroupDesc,
+    int                 gdNum
+    );
+
+/******************************************************************************
+ *
+ * ext2fsGroupDescriptorsRead - read block of group descriptors from the disk
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+int ext2fsGroupDescriptorsRead (
+    EXT2FS_DEV *   pFsDev,
+    struct vnode * pSyncer,
+    int            bgNum
+    );
+
+/******************************************************************************
+ *
+ * ext2fsInodeGet - read inode from the disk
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+int ext2fsInodeGet (
+    struct vnode * pVnode
+    );
+
+/******************************************************************************
+ *
+ * ext2fsMount - mount ext2 filesystem
+ *
+ * RETURNS: OK on success, otherwise error
+ */
+
+int ext2fsMount (
+    struct mount * pMount
+    );
+
+/******************************************************************************
+ *
+ * ext2fsStat - retrieve ext2 filesystem status
+ *
+ * RETURNS: OK
+ */
+
+int ext2fsStat (
+    struct mount *   pMount,
+    struct statvfs * pStatVfs
+    );
+
+/******************************************************************************
+ *
+ * ext2fsIsSparseBlockGroup - determine if block group is sparse
+ *
+ * RETURNS: FALSE if block group has super block group descriptors,
+ *          otherwise TRUE
+ */
+
+BOOL ext2fsIsSparseBlockGroup (
+    u_int32_t  bgNum
     );
 
 #ifdef __cplusplus
