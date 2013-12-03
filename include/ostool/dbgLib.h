@@ -2,7 +2,7 @@
  *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  *   This file is part of Real VMX.
- *   Copyright (C) 2008 Surplus Users Ham Society
+ *   Copyright (C) 2013 Surplus Users Ham Society
  *
  *   Real VMX is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* echoDrv.h - I/O Echo driver header */
+/* degLib.h - Debug library header */
 
-#ifndef _echoDrv_h
-#define _echoDrv_h
+#ifndef _dbgLib_h
+#define _dbgLib_h
 
 #ifndef _ASMLANGUAGE
 
@@ -29,43 +29,15 @@
 extern "C" {
 #endif
 
-#include <vmx.h>
-#include <os/tyLib.h>
-
-typedef struct
-{
-    TY_DEV tyDev;
-} ECHO_DEV;
+/* Functions */
 
 /******************************************************************************
- * echoDrvInit - Initialize echo device
+ * dbgLibInit - Initialize debug library
  *
- * RETURNS: OK or ERROR
+ * RETURNS: OK
  */
 
-STATUS echoDrvInit(
-    void
-    );
-
-/******************************************************************************
- * echoDevCreate - Create echo device
- *
- * RETURNS: OK or ERROR
- */
-
-STATUS echoDevCreate(
-    char *name,
-    int readBufferSize,
-    int writeBufferSize
-    );
-
-/******************************************************************************
- * echoDrvNumber - Get echo device number
- *
- * RETURNS: Driver number
- */
-
-int echoDrvNumber(
+STATUS dbgLibInit(
     void
     );
 
@@ -75,5 +47,5 @@ int echoDrvNumber(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _echoDrv_h */
+#endif /* _dbgLib_h */
 

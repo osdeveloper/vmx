@@ -2,7 +2,7 @@
  *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  *   This file is part of Real VMX.
- *   Copyright (C) 2008 Surplus Users Ham Society
+ *   Copyright (C) 2013 Surplus Users Ham Society
  *
  *   Real VMX is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

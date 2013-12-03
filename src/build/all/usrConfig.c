@@ -75,6 +75,7 @@
 #include <os/vmLib.h>
 #include <os/vmShow.h>
 #include <ostool/shellLib.h>
+#include <ostool/dbgLib.h>
 #include <ostool/moduleLib.h>
 #include <ostool/moduleShow.h>
 #include <ostool/loadLib.h>
@@ -316,5 +317,6 @@ LOCAL void usrRoot(
   fsDemoInit();
 
   shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);
+  dbgLibInit();
 }
 
