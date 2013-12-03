@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ext2fsConverters.c - Convert between host and disk for ext2 filesystem */
+/* ext2ConvLib.c - Convert between host and disk for ext2 filesystem */
 
 #include <string.h>
 #include <vmx.h>

@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ext2fsVfsLib.c - ext2 filesystem VFS operators library */
+/* ext2VfsLib.c - ext2 filesystem VFS operators library */
 
 #include <stdlib.h>
 #include <vmx.h>
@@ -27,9 +27,6 @@
 #include <fs/ext2fsLib.h>
 
 /* locals */
-
-/* TODO */
-LOCAL const struct vnode_ops ext2fsOps;
 
 LOCAL int ext2fsVfsStart (
     struct mount * pMount,

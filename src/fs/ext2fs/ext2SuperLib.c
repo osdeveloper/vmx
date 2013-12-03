@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ext2fsSuperLib.c - Ext2 superblock library */
+/* ext2SuperLib.c - Ext2 superblock library */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,7 +86,6 @@ int ext2fsSuperBlkRead (
     pSuperBlk = pFsDev->ext2fsVolDesc.pSuperBlk;
 
     ext2fsSuperBlockDiskToHost (pSuperBlkDisk, pSuperBlk);
-    ext2fsSuperBlkShow (pSuperBlk);
 
     return (OK);
 }

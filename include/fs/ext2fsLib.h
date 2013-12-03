@@ -327,7 +327,8 @@ typedef struct ext2fs_dev {
 
 /* imports */
 
-IMPORT const struct vfsops ext2fsVfsOps;
+IMPORT const struct vfsops    ext2fsVfsOps;
+IMPORT const struct vnode_ops ext2fsOps;
 
 /* macros */
 
@@ -657,6 +658,13 @@ int ext2fsStat (
 BOOL ext2fsIsSparseBlockGroup (
     u_int32_t  bgNum
     );
+
+/******************************************************************************
+ *
+ * usrExtfsInit - Initialize ext2 filesystem
+ *
+ * RETURNS: OK on success, otherwise ERROR
+ */
 
 #ifdef __cplusplus
 }

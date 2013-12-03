@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ext2fsSyncerLib.c - Ext2fs syncer library */
+/* ext2SyncerVopsLib.c - Ext2fs syncer library */
 
 #include <stdio.h>
 #include <string.h>
