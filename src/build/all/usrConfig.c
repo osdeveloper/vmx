@@ -86,6 +86,7 @@
 #include <fs/fsMonitor.h>
 #include <fs/rawfsLib.h>
 #include <fs/rt11fsLib.h>
+#include <fs/ext2fsLib.h>
 #include <usr/usrLib.h>
 #include "configAll.h"
 #include "config.h"
@@ -305,6 +306,7 @@ LOCAL void usrRoot(
   usrRawfsInit(MAX_FS_BUFFERS, MAX_FS_FILES, 0, 0);
   rt11fsLibInit(MAX_FS_BUFFERS, MAX_FS_FILES, MAX_FS_DIR_ENTRIES, 0);
   usrRt11fsInit(MAX_FS_BUFFERS, MAX_FS_FILES, MAX_FS_DIR_ENTRIES, 0);
+  usrExt2fsInit(MAX_FS_BUFFERS, MAX_FS_FILES, 0, 0);
 
   usrLibInit();
 
