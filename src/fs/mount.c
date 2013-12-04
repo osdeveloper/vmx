@@ -21,6 +21,7 @@
 /* mount.c - Mount filesytem utitilies */
 
 #include <stdlib.h>
+#include <string.h>
 #include <vmx.h>
 #include <vmx/semLib.h>
 #include <fs/mount.h>
@@ -91,7 +92,7 @@ int mountCreate (
     }
 
     cookieData = (int *) &fdList[maxFiles];
-    memset(cookieData, sizeof (cookieData) * vfsops->maxCookies * maxFiles);
+    memset(cookieData, 0, sizeof (cookieData) * vfsops->maxCookies * maxFiles);
     for (i = 0; i < maxFiles; i++) {
         fdList[i].fd_vnode = NULL;             /* not using any vnode */
         fdList[i].fd_mode  = 0;                /* no mode (yet) */
