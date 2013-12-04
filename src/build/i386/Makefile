@@ -32,7 +32,8 @@ CFLAGS = -nostdinc -fno-builtin -m32 -fno-stack-protector
 ASMFLAGS = -nostdinc -fno-builtin -m32
 DFLAGS = -DCPU=$(CPU) \
 	 -DCOMPILE_DATE=\"`date +%d_%B_%Y.%H:%M`\"
-LIBS = -lvmx -larch -los -lstdc -lutil -lfs -lostool -lusr -lgcc
+LIBS = -lvmx -larch -los -lstdc -lutil -lfs -lostool -lusr -lgcc \
+       -lugl-2d -lugl-os -lugl-driver
 LDFLAGS = -T $(VMX_BASE)/include/make/i386/link.ld -m elf_i386
 INCFLAGS = -I./ -I../all -I$(VMX_BASE)/include -I$(VMX_BASE)/src
 LD_LIBRARY_PATH = -L$(VMX_BASE)/lib/$(CPU)/
@@ -51,7 +52,7 @@ LD_LIBRARY_PATH = -L$(VMX_BASE)/lib/$(CPU)/
 OBJECTS = sysALib.o sysLib.o \
 	  ../all/usrConfig.o ../all/usrKernel.o ../all/usrMmuInit.o \
           ../all/standTable.o \
-          ../all/usrTest.o ../all/fsDemo.o
+          ../all/usrTest.o ../all/fsDemo.o ../all/uglDemo.o
 
 ###############################################################################
 # BUILD PART

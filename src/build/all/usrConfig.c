@@ -313,8 +313,17 @@ LOCAL void usrRoot(
 
   printLogo();
 
+#ifdef INCLUDE_USR_TEST
   usrTestInit();
+#endif /* INCLUDE_USR_TEST */
+
+#ifdef INCLUDE_FS_DEMO
   fsDemoInit();
+#endif /* INCLUDE_FS_DEMO */
+
+#ifdef INCLUDE_UGL_DEMO
+  uglDemoInit();
+#endif /* INCLUDE_UGL_DEMO */
 
   shellLibInit(SHELL_STACK_SIZE, (ARG) TRUE);
   dbgLibInit();
