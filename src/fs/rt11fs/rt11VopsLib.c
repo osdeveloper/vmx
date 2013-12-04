@@ -1063,10 +1063,10 @@ LOCAL int  rt11VopReaddir (
     pDirDesc = (RT11FS_DIR_DESC *) pDirInode->in_data;
 
     /* Get entry number */
-        entryNum = (int) dep->d_ino;
+    entryNum = (int) dep->d_ino;
 
-        /* Do while dir status is empty */
-        do {
+    /* Do while dir status is empty */
+    do {
         if (entryNum >= pDirDesc->rdd_maxEntries) {
             *eof = 1;
             return (OK);

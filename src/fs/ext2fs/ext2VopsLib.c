@@ -29,7 +29,6 @@
 #include <sys/stat.h>
 #include <vmx.h>
 #include <os/errnoLib.h>
-#include <os/logLib.h>
 #include <fs/vnode.h>
 #include <fs/mount.h>
 #include <fs/buf.h>
@@ -49,10 +48,6 @@ LOCAL int ext2fsVopErrorInactive (
 
 void ext2fsVopErrorPrint (
     struct vnode * pVnode
-    );
-
-LOCAL void ext2fsVopsDebug (
-    char * str
     );
 
 LOCAL int ext2fsVopLookup (
@@ -486,20 +481,6 @@ void ext2fsVopErrorPrint (
 
 /******************************************************************************
  *
- * ext2fsVopsDebug - log debug message
- *
- * RETURNS: N/A
- */
-
-LOCAL void ext2fsVopsDebug (
-    char * str
-    ) {
-
-    logMsg ("ext2fsVopsDebug: %s\n", str, 0, 0, 0, 0, 0);
-}
-
-/******************************************************************************
- *
  * ext2fsDirEntryRead - read directory entry
  *
  * RETURNS: OK on success, otherwise error
@@ -529,7 +510,7 @@ int ext2fsDirEntryRead (
     lbn = (offset >> pVolDesc->blkSize2);
     if (offset >= pDirInode->host.i_size) {
         *pInfo = EXT2_DIRENT_EOF;
-    return (OK);
+        return (OK);
     }
 
     off = (offset & (pVolDesc->blkSize - 1));
@@ -1278,12 +1259,13 @@ LOCAL int ext2fsVopReaddir (
         if (dirEntry.inode != 0) {
             pDirEnt->d_ino = dirEntry.inode;
             strncpy (pDirEnt->d_name, name, dirEntry.name_len);
-            pDirEnt->d_name[dirEntry.name_len] = '\0';
+            pDirEnt->d_name[dirEntry.name_len] = EOS;
             *pIndex = offset;
             return (OK);
         }
     }
 
+    *pIndex = 0;
     *pIsEof = 1;
 
     return (error);

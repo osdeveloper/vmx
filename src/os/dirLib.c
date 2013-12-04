@@ -137,8 +137,9 @@ struct dirent *  readdir (
     }
 
     pDirEnt = &pDir->ds_dirent;
-    if (ioctl (pDir->ds_fd, FIOREADDIR, (int) pDirEnt) != OK)
-      return NULL;
+    if (ioctl (pDir->ds_fd, FIOREADDIR, (int) pDirEnt) != OK) {
+      return (NULL);
+    }
 
     return (pDirEnt);
 }
