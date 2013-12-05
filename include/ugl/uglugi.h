@@ -210,7 +210,6 @@ typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
 
 #define UGL_GC_CHANGED_CLEAR(gc)        (gc)->magicNumber &= 0x7fffffffL
 
-#if 0
 /******************************************************************************
  *
  * UGL_GC_SET - Set graphics context
@@ -225,10 +224,6 @@ typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
         UGL_GC_CHANGED_CLEAR (gcId);                                          \
         (devId)->magicNumber = (gcId)->magicNumber;                           \
     }                                                                         \
-
-#endif
-
-#define UGL_GC_SET(devId, gcId) (*(devId)->gcSet)(devId, gcId)
 
 /******************************************************************************
  *
