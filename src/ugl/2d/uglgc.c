@@ -24,6 +24,10 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
+/* Locals */
+
+LOCAL UGL_UINT32 uglMagicNumber = 1;
+
 /******************************************************************************
  *
  * uglGcCreate - Create graphics context
@@ -91,12 +95,18 @@ UGL_GC_ID uglGcCreate (
     gc->clipRect.right    =       width - 1;
     gc->clipRect.bottom   =       height - 1;
 
+    /* Initialize colors */
+    gc->foregroundColor   =       1;
+    gc->backgroundColor   =       0;
+
     /* Initialize raster operation */
     gc->rasterOp          =       UGL_RASTER_OP_COPY;
 
-    /* Initialize colors */
-    gc->backgroundColor   =       0;
-    gc->foregroundColor   =       1;
+    /* Mark all attributes as changed */
+    gc->changed           = 0xffffffff;
+
+    /* Set context magic number id */
+    gc->magicNumber       = uglMagicNumber;
 
     /* Unlock */
     uglOsUnLock (devId->lockId);
@@ -148,7 +158,7 @@ UGL_STATUS uglGcCopy (
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGcDestroy(
+UGL_STATUS uglGcDestroy (
     UGL_GC_ID  gc
     ) {
     UGL_DEVICE_ID  devId;
@@ -157,13 +167,18 @@ UGL_STATUS uglGcDestroy(
         return (UGL_STATUS_ERROR);
     }
 
+    /* Get device */
+    devId = gc->pDriver;
+
     /* Lock device */
     if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
-    /* Get device */
-    devId = gc->pDriver;
+    /* Switch to default GC if destroyed GC is used */
+    if ((gc->magicNumber & 0x7fffffff) == (devId->magicNumber & 0x7fffffff)) {
+        UGL_GC_SET (devId, devId->defaultGc);
+    }
 
     /* Destroy locking semaphore */
     if (uglOsLockDestroy (gc->lockId) != UGL_STATUS_OK) {
@@ -185,35 +200,189 @@ UGL_STATUS uglGcDestroy(
 
 /******************************************************************************
  *
- * uglGcSet - Set current graphics context
+ * uglDefaultBtmapSet - Set graphics context default bitmap
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGcSet (
-    UGL_DEVICE_ID  devId,
-    UGL_GC_ID      gc
+UGL_STATUS uglDefaultBitmapSet (
+    UGL_GC_ID   gc,
+    UGL_DDB_ID  bmpId
+    ) {
+    UGL_DEVICE_ID  devId;
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    if (bmpId == NULL) {
+        bmpId = UGL_DISPLAY_ID;
+    }
+    else if (bmpId != UGL_DISPLAY_ID && bmpId->type != UGL_DDB_TYPE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get device */
+    devId = gc->pDriver;
+
+    /* Lock GC */
+    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set default bitmap */
+    if (gc->pDefaultBitmap != bmpId) {
+        gc->pDefaultBitmap = bmpId;
+
+        if (bmpId == UGL_DISPLAY_ID) {
+            gc->boundRect.left   = 0;
+            gc->boundRect.top    = 0;
+            gc->boundRect.right  = devId->pMode->Width - 1;
+            gc->boundRect.bottom = devId->pMode->Height - 1;
+        }
+        else {
+            gc->boundRect.left   = 0;
+            gc->boundRect.top    = 0;
+            gc->boundRect.right  = bmpId->width - 1;
+            gc->boundRect.bottom = bmpId->height - 1;
+        }
+
+        /* Update viewport */
+        uglViewPortSet (gc, gc->boundRect.left, gc->boundRect.top,
+                        gc->boundRect.right, gc->boundRect.bottom);
+
+        gc->changed |= UGL_GC_DEFAULT_BITMAP_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOsUnLock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglViewPortSet - Set graphics context viewport
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglViewPortSet (
+    UGL_GC_ID  gc,
+    UGL_POS    left,
+    UGL_POS    top,
+    UGL_POS    right,
+    UGL_POS    bottom
     ) {
 
-    /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (gc != UGL_NULL) {
         return (UGL_STATUS_ERROR);
     }
 
-    /* Lock source gc */
+    /* Lock GC */
     if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
-    /* Call specific method */
-    if ((*devId->gcSet) (devId, gc) != UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
-        uglOsUnLock (gc->lockId);
+    /* Check if trivial and set viewport */
+    if (gc->viewPort.left != left || gc->viewPort.top != top ||
+        gc->viewPort.right != right || gc->viewPort.bottom != bottom) {
+
+        gc->viewPort.left   = left;
+        gc->viewPort.top    = top;
+        gc->viewPort.right  = right;
+        gc->viewPort.bottom = bottom;
+    }
+
+    /* Set clipping rectangle to bounds */
+    uglClipRectSet (gc, 0, 0, gc->viewPort.right - gc->viewPort.left,
+                    gc->viewPort.bottom - gc->viewPort.top);
+
+    /* Unlock */
+    uglOsUnLock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglClipRectSet - Set graphics context clipping rectangle
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglClipRectSet (
+    UGL_GC_ID  gc,
+    UGL_POS    left,
+    UGL_POS    top,
+    UGL_POS    right,
+    UGL_POS    bottom
+    ) {
+    UGL_DEVICE_ID  devId;
+    UGL_RECT       clipRect;
+
+    if (gc != UGL_NULL) {
         return (UGL_STATUS_ERROR);
     }
 
-    uglOsUnLock (devId->lockId);
+    /* Get device */
+    devId = gc->pDriver;
+
+    /* Setup rectagle */
+    clipRect.left   = left;
+    clipRect.top    = top;
+    clipRect.right  = right;
+    clipRect.bottom = bottom;
+
+    /* Lock GC */
+    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Align clip rectangle and store */
+    UGL_RECT_MOVE (clipRect, -gc->viewPort.left, -gc->viewPort.top);
+    memcpy (&gc->clipRect, &clipRect, sizeof (UGL_RECT));
+
+    /* Mark context field as changed */
+    gc->changed |= UGL_GC_CLIP_RECT_CHANGED;
+    UGL_GC_CHANGED_SET (gc);
+
+    /* Unlock */
+    uglOsUnLock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglRasterModeSet - Set graphics context raster mode
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRasterModeSet (
+    UGL_GC_ID      gc,
+    UGL_RASTER_OP  rasterOp
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set raster op if new */
+    if (gc->rasterOp != rasterOp) {
+        gc->rasterOp  = rasterOp;
+        gc->changed  |= UGL_GC_RASTER_OP_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
     uglOsUnLock (gc->lockId);
 
     return (UGL_STATUS_OK);

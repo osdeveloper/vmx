@@ -140,7 +140,7 @@ UGL_STATUS uglBitmapBlt (
     destRect.right  = destRect.left + UGL_RECT_WIDTH (srcRect) - 1;
     destRect.bottom = destRect.top + UGL_RECT_HEIGHT (srcRect) - 1;
 
-    uglGcSet (devId, gc);
+    UGL_GC_SET (devId, gc);
 
     /* Call driver specific method */
     status = (*devId->bitmapBlt) (devId, srcBmpId, &srcRect,

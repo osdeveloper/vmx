@@ -39,6 +39,7 @@
 #include "pinball.cbm"
 #include "font8x16.cfs"
 
+#define OLD_BLT
 #define LOOP_PAL_LENGTH         16
 #define BALL_SPEED 4
 
@@ -220,7 +221,7 @@ int uglPixel4Test(void)
   setPalette();
 
   gfxDevId->defaultGc->pDefaultBitmap = UGL_DISPLAY_ID;
-  uglGcSet(gfxDevId, gfxDevId->defaultGc);
+  UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
 
   for (j = 0; j < 16; j++) {
     for (i = 0; i < 80; i++) {
@@ -294,14 +295,22 @@ int uglBlt4Test(void)
   pt.x = 640 / 2 - pBgBmp->width / 2;
   pt.y = 480 / 2- pBgBmp->height / 2;
   if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+    (*gfxDevId->bitmapBlt)(gfxDevId, pBgBmp, &srcRect, pDbBmp, &pt);
+#else
     uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                  pDbBmp, pt.x, pt.y);
+#endif
   }
   else {
+#ifdef OLD_BLT
+    (*gfxDevId->bitmapBlt)(gfxDevId, pBgBmp, &srcRect, UGL_DISPLAY_ID, &pt);
+#else
     uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                  UGL_DISPLAY_ID, pt.x, pt.y);
+#endif
   }
 
   srcRect.left = 0;
@@ -322,58 +331,88 @@ int uglBlt4Test(void)
 
     /* Copy background */
     if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pDbBmp, &saveRect, pSaveBmp, &pt0);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
                    saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                    pSaveBmp, pt0.x, pt0.y);
+#endif
     }
     else {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, UGL_DISPLAY_ID, &saveRect, pSaveBmp, &pt0);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, UGL_DISPLAY_ID,
                    saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                    pSaveBmp, pt0.x, pt0.y);
+#endif
     }
 
     /* Set raster operation and draw ball */
     if (rasterOp != UGL_RASTER_OP_COPY) {
       gfxDevId->defaultGc->rasterOp = rasterOp;
+      UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
     }
 
     if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pFgBmp, &srcRect, pDbBmp, &pt);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                    pDbBmp, pt.x, pt.y);
+#endif
     }
     else {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pFgBmp, &srcRect, UGL_DISPLAY_ID, &pt);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                    UGL_DISPLAY_ID, pt.x, pt.y);
+#endif
     }
 
     if (rasterOp != UGL_RASTER_OP_COPY) {
       gfxDevId->defaultGc->rasterOp = UGL_RASTER_OP_COPY;
+      UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
     }
 
     /* Draw double buffer on screen */
     if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pDbBmp, &dbSrcRect, UGL_DISPLAY_ID, &dbPt);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
                    dbSrcRect.left, dbSrcRect.top,
                    dbSrcRect.right, dbSrcRect.bottom,
                    UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+#endif
+    }
+
+    /* Erase ball */
+    if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pSaveBmp, &srcRect, pDbBmp, &pt);
+#else
+      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                   pDbBmp, pt.x, pt.y);
+#endif
+    }
+    else {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pSaveBmp, &srcRect, UGL_DISPLAY_ID, &pt);
+#else
+      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                   UGL_DISPLAY_ID, pt.x, pt.y);
+#endif
     }
 
     /* Delay */
     taskDelay(animTreshold);
-
-    /* Erase ball */
-    if (doubleBuffer == TRUE) {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   pDbBmp, pt.x, pt.y);
-    }
-    else {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   UGL_DISPLAY_ID, pt.x, pt.y);
-    }
 
     /* Move ball */
     pt.x += BALL_SPEED;
@@ -440,7 +479,7 @@ int uglBlt8Test(void)
 
   if (doubleBuffer == TRUE) {
     gfxDevId->defaultGc->pDefaultBitmap = pDblBmp;
-    uglGcSet(gfxDevId, gfxDevId->defaultGc);
+    UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
   }
 
   /* Draw background */
@@ -452,7 +491,7 @@ int uglBlt8Test(void)
 
   if (doubleBuffer == TRUE) {
     gfxDevId->defaultGc->pDefaultBitmap = UGL_DISPLAY_ID;
-    uglGcSet(gfxDevId, gfxDevId->defaultGc);
+    UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
   }
 
   srcRect.left = 0;
@@ -473,58 +512,88 @@ int uglBlt8Test(void)
 
     /* Copy background */
     if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pDblBmp, &saveRect, pSavelBmp, &pt0);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pDblBmp,
                    saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                    pSaveBmp, pt0.x, pt0.y);
+#endif
     }
     else {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, UGL_DISPLAY_ID, &saveRect, pSavelBmp, &pt0);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, UGL_DISPLAY_ID,
                    saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                    pSaveBmp, pt0.x, pt0.y);
+#endif
     }
 
     /* Set raster operation and draw ball */
     if (rasterOp != UGL_RASTER_OP_COPY) {
       gfxDevId->defaultGc->rasterOp = rasterOp;
+      UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
     }
 
     if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pFglBmp, &srcRect, pDblBmp, &pt);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pFglBmp,
                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                    pDblBmp, pt.x, pt.y);
+#endif
     }
     else {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pFglBmp, &srcRect, UGL_DISPLAY_ID, &pt);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pFglBmp,
                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                    UGL_DISPLAY_ID, pt.x, pt.y);
+#endif
     }
 
     if (rasterOp != UGL_RASTER_OP_COPY) {
       gfxDevId->defaultGc->rasterOp = UGL_RASTER_OP_COPY;
+      UGL_GC_SET(gfxDevId, gfxDevId->defaultGc);
     }
 
     /* Draw double buffer on screen */
     if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pDblBmp, &dbSrcRect, UGL_DISPLAY_ID, &dbPt);
+#else
       uglBitmapBlt(gfxDevId->defaultGc, pDblBmp,
                    dbSrcRect.left, dbSrcRect.top,
                    dbSrcRect.right, dbSrcRect.bottom,
                    UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+#endif
+    }
+
+    /* Erase ball */
+    if (doubleBuffer == TRUE) {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pSavelBmp, &srcRect, pDblBmp, &pt);
+#else
+      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                   pDblBmp, pt.x, pt.y);
+#endif
+    }
+    else {
+#ifdef OLD_BLT
+      (*gfxDevId->bitmapBlt)(gfxDevId, pSavelBmp, &srcRect, UGL_DISPLAY_ID, &pt);
+#else
+      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                   UGL_DISPLAY_ID, pt.x, pt.y);
+#endif
     }
 
     /* Delay */
     taskDelay(animTreshold);
-
-    /* Erase ball */
-    if (doubleBuffer == TRUE) {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   pDblBmp, pt.x, pt.y);
-    }
-    else {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   UGL_DISPLAY_ID, pt.x, pt.y);
-    }
 
     /* Move ball */
     pt.x += BALL_SPEED;

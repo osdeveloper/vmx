@@ -70,6 +70,7 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate(UGL_DEVICE_ID devId,
 
   /* Setup structure */
   pGenBmp->colorDepth = 8;
+  pGenBmp->header.type = UGL_DDB_TYPE;
   pGenBmp->header.width = width;
   pGenBmp->header.height = height;
   pGenBmp->stride = width;

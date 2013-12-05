@@ -96,20 +96,62 @@ UGL_STATUS uglGcCopy (
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGcDestroy(
+UGL_STATUS uglGcDestroy (
     UGL_GC_ID  gc
     );
 
 /******************************************************************************
  *
- * uglGcSet - Set current graphics context
+ * uglDefaultBtmapSet - Set graphics context default bitmap
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGcSet (
-    UGL_DEVICE_ID  devId,
-    UGL_GC_ID      gc
+UGL_STATUS uglDefaultBitmapSet (
+    UGL_GC_ID   gc,
+    UGL_DDB_ID  bmpId
+    );
+
+/******************************************************************************
+ *
+ * uglViewPortSet - Set graphics context viewport
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglViewPortSet (
+    UGL_GC_ID  gc,
+    UGL_POS    left,
+    UGL_POS    top,
+    UGL_POS    right,
+    UGL_POS    bottom
+    );
+
+/******************************************************************************
+ *
+ * uglClipRectSet - Set graphics context clipping rectangle
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglClipRectSet (
+    UGL_GC_ID  gc,
+    UGL_POS    left,
+    UGL_POS    top,
+    UGL_POS    right,
+    UGL_POS    bottom
+    );
+
+/******************************************************************************
+ *
+ * uglRasterModeSet - Set graphics context raster mode
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRasterModeSet (
+    UGL_GC_ID      gc,
+    UGL_RASTER_OP  rasterOp
     );
 
 /* Pixel support functions */

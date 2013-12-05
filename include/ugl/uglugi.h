@@ -29,15 +29,25 @@
 extern "C" {
 #endif
 
+/* Graphics context change flags */
+
+#define UGL_GC_DEFAULT_BITMAP_CHANGED           0x00000001
+#define UGL_GC_CLIP_RECT_CHANGED                0x00000002
+#define UGL_GC_FOREGROUND_COLOR_CHANGED         0x00000004
+#define UGL_GC_BACKGROUND_COLOR_CHANGED         0x00000008
+#define UGL_GC_RASTER_OP_CHANGED                0x00000010
+
 typedef struct ugl_gc {
     struct ugl_ugi_driver * pDriver;            /* Current driver */
     UGL_DDB               * pDefaultBitmap;     /* Rendering output */
     UGL_RECT                boundRect;          /* Bounding rectagle */
     UGL_RECT                viewPort;           /* View port */
     UGL_RECT                clipRect;           /* Clipping rectangle */
-    UGL_RASTER_OP           rasterOp;           /* Raster operation */
-    UGL_COLOR               backgroundColor;    /* Background color */
     UGL_COLOR               foregroundColor;    /* Foreground color */
+    UGL_COLOR               backgroundColor;    /* Background color */
+    UGL_RASTER_OP           rasterOp;           /* Raster operation */
+    UGL_UINT32              changed;            /* Changed flags */
+    UGL_UINT32              magicNumber;        /* GC id and changed status */
     UGL_LOCK_ID             lockId;             /* Mutex */
 } UGL_GC;
 
@@ -47,6 +57,7 @@ typedef struct ugl_ugi_driver {
     UGL_MODE *   pMode;                         /* Current graphics mode */
     UGL_GC_ID    defaultGc;                     /* Default graphics context*/
     UGL_LOCK_ID  lockId;                        /* Mutex */
+    UGL_UINT32   magicNumber;                   /* Idetifies GC flags set */
 
     /* Device support methods */
 
@@ -180,6 +191,44 @@ typedef struct ugl_ugi_driver {
 typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
 
 /* Macros */
+
+/******************************************************************************
+ *
+ * UGL_GC_CHANGED_SET - Mark graphics context as changed
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_GC_CHANGED_SET(gc)          (gc)->magicNumber |= 0x80000000L
+
+/******************************************************************************
+ *
+ * UGL_GC_CHANGED_CLEAR - Clear graphics context change flags
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_GC_CHANGED_CLEAR(gc)        (gc)->magicNumber &= 0x7fffffffL
+
+#if 0
+/******************************************************************************
+ *
+ * UGL_GC_SET - Set graphics context
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_GC_SET(devId, gcId)                                               \
+    if ((devId)->magicNumber != (gcId)->magicNumber) {                        \
+        (*(devId)->gcSet) (devId, gcId);                                      \
+        (gcId)->changed = 0;                                                  \
+        UGL_GC_CHANGED_CLEAR (gcId);                                          \
+        (devId)->magicNumber = (gcId)->magicNumber;                           \
+    }                                                                         \
+
+#endif
+
+#define UGL_GC_SET(devId, gcId) (*(devId)->gcSet)(devId, gcId)
 
 /******************************************************************************
  *

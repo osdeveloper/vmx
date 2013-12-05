@@ -95,12 +95,7 @@ UGL_STATUS uglModeSet (
         }
 
         /* Set default graphics context as current */
-        if (uglGcSet (devId, devId->defaultGc) != UGL_STATUS_OK) {
-            uglOsUnLock (devId->lockId);
-            uglGcDestroy (devId->defaultGc);
-            uglGraphicsDevDestroy (devId);
-            return (UGL_STATUS_ERROR);
-        }
+        UGL_GC_SET (devId, devId->defaultGc);
     }
 
     /* Unlock */

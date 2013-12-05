@@ -64,7 +64,7 @@ UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
     height = devId->pMode->Height;
   }
 
-  /* Else get info from device independet bitmap */
+  /* Else get info from device independent bitmap */
   else {
     width = pDib->width;
     height = pDib->height;
@@ -100,6 +100,7 @@ UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
     case UGL_DIB_INIT_VALUE:
 
       pVgaBmp->colorDepth = devId->pMode->Depth;
+      pVgaBmp->header.type = UGL_DDB_TYPE;
       pVgaBmp->header.width = width;
       pVgaBmp->header.height = height;
       pVgaBmp->stride = width;
@@ -122,6 +123,7 @@ UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
     case UGL_DIB_INIT_DATA:
 
       pVgaBmp->colorDepth = devId->pMode->Depth;
+      pVgaBmp->header.type = UGL_DDB_TYPE;
       pVgaBmp->header.width = width;
       pVgaBmp->header.height = height;
       pVgaBmp->stride = width;

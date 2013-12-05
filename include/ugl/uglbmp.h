@@ -27,6 +27,9 @@
 #define UGL_DIB_INIT_VALUE              1
 #define UGL_DIB_INIT_DATA               2
 
+/* Bitmap types */
+#define UGL_DDB_TYPE                    0
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
@@ -48,6 +51,7 @@ typedef UGL_DIB *   UGL_DIB_ID;
 typedef UGL_UINT32  UGL_DIB_CREATE_MODE;
 
 typedef struct ugl_bmap_header {
+    UGL_UINT16  type;                   /* Bitmap type */
     UGL_UINT16  width;                  /* Bitmap width */
     UGL_UINT16  height;                 /* Bitmap height */
 } UGL_BMAP_HEADER;
