@@ -232,6 +232,25 @@ UGL_STATUS uglBitmapDestroy (
     UGL_MEM_POOL_ID  poolId
     );
 
+/******************************************************************************
+ *
+ * uglBitmapBlt - Block transfer for device independet bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBitmapBlt (
+    UGL_GC_ID      gc,
+    UGL_BITMAP_ID  srcBmpId,
+    UGL_POS        srcLeft,
+    UGL_POS        srcTop,
+    UGL_POS        srcRight,
+    UGL_POS        srcBottom,
+    UGL_DDB_ID     destBmpId,
+    UGL_POS        destX,
+    UGL_POS        destY
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

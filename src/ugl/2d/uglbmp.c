@@ -93,3 +93,59 @@ UGL_STATUS uglBitmapDestroy (
     return (status);
 }
 
+/******************************************************************************
+ *
+ * uglBitmapBlt - Block transfer for device independet bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBitmapBlt (
+    UGL_GC_ID      gc,
+    UGL_BITMAP_ID  srcBmpId,
+    UGL_POS        srcLeft,
+    UGL_POS        srcTop,
+    UGL_POS        srcRight,
+    UGL_POS        srcBottom,
+    UGL_DDB_ID     destBmpId,
+    UGL_POS        destX,
+    UGL_POS        destY
+    ) {
+    UGL_STATUS     status;
+    UGL_DEVICE_ID  devId;
+    UGL_RECT       srcRect;
+    UGL_RECT       destRect;
+
+    /* Check if visible */
+    if (srcTop > srcBottom || srcLeft > srcRight) {
+        return (UGL_STATUS_OK);
+    }
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get device */
+    devId =  gc->pDriver;
+
+    /* Setup source rectangle */
+    srcRect.left   = srcLeft;
+    srcRect.top    = srcTop;
+    srcRect.right  = srcRight;
+    srcRect.bottom = srcBottom;
+
+    /* Setup destination rectangle */
+    destRect.left   = destX;
+    destRect.top    = destY;
+    destRect.right  = destRect.left + UGL_RECT_WIDTH (srcRect) - 1;
+    destRect.bottom = destRect.top + UGL_RECT_HEIGHT (srcRect) - 1;
+
+    uglGcSet (devId, gc);
+
+    /* Call driver specific method */
+    status = (*devId->bitmapBlt) (devId, srcBmpId, &srcRect,
+                                  destBmpId, (UGL_POINT *) &destRect);
+
+    return (status);
+}
+

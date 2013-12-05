@@ -55,6 +55,9 @@ typedef struct ugl_bmap_header {
 typedef UGL_BMAP_HEADER  UGL_DDB;
 typedef UGL_DDB *        UGL_DDB_ID;
 
+/* Generic bitmap id */
+typedef UGL_BMAP_HEADER * UGL_BITMAP_ID;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
