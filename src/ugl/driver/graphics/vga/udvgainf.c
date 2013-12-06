@@ -49,8 +49,8 @@ UGL_STATUS uglVgaInfo(UGL_DEVICE_ID devId,
   switch(infoReq) {
     case UGL_FB_INFO_REQ:
       fbInfo = (UGL_FB_INFO *) info;
-      fbInfo->width = devId->pMode->Width;
-      fbInfo->height = devId->pMode->Height;
+      fbInfo->width = devId->pMode->width;
+      fbInfo->height = devId->pMode->height;
       fbInfo->fbAddress = pDrv->fbAddress;
       fbInfo->displayMemAvail = 0;
       fbInfo->flags = 0;
@@ -60,17 +60,17 @@ UGL_STATUS uglVgaInfo(UGL_DEVICE_ID devId,
       colorInfo = (UGL_COLOR_INFO *) info;
       colorInfo->cmodel = UGL_CMODEL_INDEXED;
       colorInfo->cspace = UGL_CSPACE_RGB;
-      colorInfo->clutSize = 1 << devId->pMode->Depth;
-      colorInfo->depth = devId->pMode->Depth;
+      colorInfo->clutSize = 1 << devId->pMode->depth;
+      colorInfo->depth = devId->pMode->depth;
       colorInfo->flags = UGL_CLUT_WRITE;
     break;
 
     case UGL_MODE_INFO_REQ:
       modeInfo = (UGL_MODE_INFO *) info;
-      modeInfo->width = devId->pMode->Width;
-      modeInfo->height = devId->pMode->Height;
-      modeInfo->colorDepth = devId->pMode->Depth;
-      modeInfo->clutSize = 1 << devId->pMode->Depth;
+      modeInfo->width = devId->pMode->width;
+      modeInfo->height = devId->pMode->height;
+      modeInfo->colorDepth = devId->pMode->depth;
+      modeInfo->clutSize = 1 << devId->pMode->depth;
       if (modeInfo->colorDepth == 8) {
         modeInfo->colorModel = UGL_INDEXED_8;
         modeInfo->colorFormat = 0;

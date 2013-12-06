@@ -50,8 +50,8 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate(UGL_DEVICE_ID devId,
 
   /* Get bitmap info, from screen if NULL DIB */
   if (pDib == UGL_NULL) {
-    width = devId->pMode->Width;
-    height = devId->pMode->Height;
+    width = devId->pMode->width;
+    height = devId->pMode->height;
   }
 
   /* Else get info from device independet bitmap */
@@ -259,7 +259,7 @@ UGL_LOCAL void uglGeneric8BitBltColorToFrameBuffer(UGL_DEVICE_ID devId,
   width = UGL_RECT_WIDTH(*pSrcRect);
   height = UGL_RECT_HEIGHT(*pSrcRect) - 1;
   srcStride = pBmp->stride;
-  destStride = devId->pMode->Width;
+  destStride = devId->pMode->width;
 
   /* Calculate source address */
   src = ((UGL_UINT8 *) pBmp->pData) +
@@ -357,7 +357,7 @@ UGL_LOCAL void uglGeneric8BitBltFrameBufferToColor(UGL_DEVICE_ID devId,
   rasterOp = devId->defaultGc->rasterOp;
   width = UGL_RECT_WIDTH(*pSrcRect);
   height = UGL_RECT_HEIGHT(*pSrcRect) - 1;
-  srcStride = devId->pMode->Width;
+  srcStride = devId->pMode->width;
   destStride = pBmp->stride;
 
   /* Calculate source address */
@@ -479,9 +479,9 @@ UGL_STATUS uglGeneric8BitBitmapBlt(UGL_DEVICE_ID devId,
   /* Store clip rectangle */
   if (destBmpId == UGL_DEFAULT_ID) {
     clipRect.top = 0;
-    clipRect.bottom = devId->pMode->Height;
+    clipRect.bottom = devId->pMode->height;
     clipRect.left = 0;
-    clipRect.right = devId->pMode->Width;
+    clipRect.right = devId->pMode->width;
   }
 
   /* Clip */

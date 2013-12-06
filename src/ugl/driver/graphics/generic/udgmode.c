@@ -46,13 +46,13 @@ UGL_INT32 uglGenericModeFind(UGL_MODE *pList,
   for (i = 0; i < numModes; i++) {
 
     /* Check if mode is correct */
-    if ( pList[i].Width == pReqMode->Width &&
-	 pList[i].Height == pReqMode->Height &&
-	 pList[i].Depth == pReqMode->Depth &&
-	 pList[i].Flags == pReqMode->Flags) {
+    if ( pList[i].width == pReqMode->width &&
+	 pList[i].height == pReqMode->height &&
+	 pList[i].depth == pReqMode->depth &&
+	 pList[i].flags == pReqMode->flags) {
 
       /* Calculate refreshrate delta and store if smaller */
-      DrefreshRate = abs(pList[i].RefreshRate - pReqMode->RefreshRate);
+      DrefreshRate = abs(pList[i].refreshRate - pReqMode->refreshRate);
       if (DrefreshRate <= DminRefreshRate) {
         DminRefreshRate = DrefreshRate;
         modeIndex = i;

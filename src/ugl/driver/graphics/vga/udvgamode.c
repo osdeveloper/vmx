@@ -334,20 +334,20 @@ int vgaInitMode(UGL_MODE *mode, struct vgaHWRec *regs)
     /* Initialise overscan register */
     regs->Attribute[17] = 0xFF;
 
-    regs->NoClock = mode->Clock;
+    regs->NoClock = mode->clock;
 
     /*
 	compute correct Hsync & Vsync polarity 
     */
     {
-    	int VDisplay = mode->Height;
-//	if (mode->Flags & V_DBLSCAN)
-//	  VDisplay *= 2;
-	if      (VDisplay < 400)
+    	int vDisplay = mode->height;
+//	if (mode->flags & V_DBLSCAN)
+//	  vDisplay *= 2;
+	if      (vDisplay < 400)
 		regs->MiscOutReg = 0xA3;	/* +hsync -vsync */
-	else if (VDisplay < 480)
+	else if (vDisplay < 480)
 		regs->MiscOutReg = 0x63;	/* -hsync +vsync */
-	else if (VDisplay < 768)
+	else if (vDisplay < 768)
 		regs->MiscOutReg = 0xE3;	/* -hsync -vsync  0xE3 */
 	else
 		regs->MiscOutReg = 0x23;	/* +hsync +vsync */
@@ -359,7 +359,7 @@ int vgaInitMode(UGL_MODE *mode, struct vgaHWRec *regs)
 	Time Sequencer
     */
     regs->Sequencer[0] = 0x02;
-//    if (mode->Flags & V_CLKDIV2) 	/* TODO */
+//    if (mode->flags & V_CLKDIV2) 	/* TODO */
 //	regs->Sequencer[1] = 0x09;
 //    else
 	regs->Sequencer[1] = 0x01;
@@ -372,46 +372,46 @@ int vgaInitMode(UGL_MODE *mode, struct vgaHWRec *regs)
 	CRTC Controller
     */
     
-    hblankstart = min(mode->HSyncStart, mode->HDisplay);
-    hblankend   = max(mode->HSyncEnd, mode->HTotal);
+    hblankstart = min(mode->hSyncStart, mode->hDisplay);
+    hblankend   = max(mode->hSyncEnd, mode->hTotal);
     if ((hblankend - hblankstart) >= 63 * 8)
     {
     	hblankstart = hblankend - 63 * 8;
     }
     
-    vblankstart = min(mode->VSyncStart, mode->VDisplay);
-    vblankend   = max(mode->VSyncEnd, mode->VTotal);
+    vblankstart = min(mode->vSyncStart, mode->vDisplay);
+    vblankend   = max(mode->vSyncEnd, mode->vTotal);
     if ((vblankend - vblankstart) >= 127)
     {
     	vblankstart = vblankend - 127;
     }
     
-    regs->CRTC[CRTC_H_TOTAL]  	    = (mode->HTotal / 8) - 5;
-    regs->CRTC[CRTC_H_DISPLAY]      = (mode->HDisplay / 8) - 1;
+    regs->CRTC[CRTC_H_TOTAL]  	    = (mode->hTotal / 8) - 5;
+    regs->CRTC[CRTC_H_DISPLAY]      = (mode->hDisplay / 8) - 1;
     regs->CRTC[CRTC_H_BLANK_START]  = (hblankstart / 8) -1;
     regs->CRTC[CRTC_H_BLANK_END]    = (((hblankend / 8) - 1) & 0x1F) | 0x80;
     
-    i = (((mode->HSkew << 2) + 0x10) & ~0x1F);
+    i = (((mode->hSkew << 2) + 0x10) & ~0x1F);
     if (i < 0x80)
     {
 	regs->CRTC[CRTC_H_BLANK_END] |= i;
     }
     
-    regs->CRTC[CRTC_H_SYNC_START]   = (mode->HSyncStart / 8);
+    regs->CRTC[CRTC_H_SYNC_START]   = (mode->hSyncStart / 8);
     regs->CRTC[CRTC_H_SYNC_END]     = ((((hblankend / 8) - 1) & 0x20 ) << 2 ) |
-	    	    	    	      (((mode->HSyncEnd / 8)) & 0x1F);
-    regs->CRTC[CRTC_V_TOTAL]  	    = (mode->VTotal - 2) & 0xFF;
-    regs->CRTC[CRTC_OVERFLOW]       = (((mode->VTotal -2) & 0x100) >> 8 )   |
-	    	    	    	      (((mode->VDisplay -1) & 0x100) >> 7 ) |
-            	    	    	      ((mode->VSyncStart & 0x100) >> 6 )    |
+	    	    	    	      (((mode->hSyncEnd / 8)) & 0x1F);
+    regs->CRTC[CRTC_V_TOTAL]  	    = (mode->vTotal - 2) & 0xFF;
+    regs->CRTC[CRTC_OVERFLOW]       = (((mode->vTotal -2) & 0x100) >> 8 )   |
+	    	    	    	      (((mode->vDisplay -1) & 0x100) >> 7 ) |
+            	    	    	      ((mode->vSyncStart & 0x100) >> 6 )    |
 	    	    	    	      (((vblankstart - 1) & 0x100) >> 5 )   |
 	      	    	    	      0x10  	    	    	    	    |
-		    	    	      (((mode->VTotal -2) & 0x200)   >> 4 ) |
-	            	    	      (((mode->VDisplay -1) & 0x200) >> 3 ) |
-		    	    	      ((mode->VSyncStart & 0x200) >> 2 );
+		    	    	      (((mode->vTotal -2) & 0x200)   >> 4 ) |
+	            	    	      (((mode->vDisplay -1) & 0x200) >> 3 ) |
+		    	    	      ((mode->vSyncStart & 0x200) >> 2 );
     regs->CRTC[CRTC_PRESET_ROW]     = 0x00;
     regs->CRTC[CRTC_MAX_SCAN]       = (((vblankstart - 1) & 0x200) >>4) | 0x40;
-//    if (mode->Flags & V_DBLSCAN)
+//    if (mode->flags & V_DBLSCAN)
 //	new->CRTC[9] |= 0x80;
     regs->CRTC[CRTC_CURSOR_START]   = 0x00;
     regs->CRTC[CRTC_CURSOR_END]     = 0x00;
@@ -419,21 +419,21 @@ int vgaInitMode(UGL_MODE *mode, struct vgaHWRec *regs)
     regs->CRTC[CRTC_START_LO] 	    = 0x00;
     regs->CRTC[CRTC_CURSOR_HI]      = 0x00;
     regs->CRTC[CRTC_CURSOR_LO]      = 0x00;
-    regs->CRTC[CRTC_V_SYNC_START]   = mode->VSyncStart & 0xFF;
-    regs->CRTC[CRTC_V_SYNC_END]     = (mode->VSyncEnd & 0x0F) | 0x20;
-    regs->CRTC[CRTC_V_DISP_END]     = (mode->VDisplay -1) & 0xFF;
-    regs->CRTC[CRTC_OFFSET] 	    = mode->Width >> (8 - mode->Depth);  /* just a guess */
+    regs->CRTC[CRTC_V_SYNC_START]   = mode->vSyncStart & 0xFF;
+    regs->CRTC[CRTC_V_SYNC_END]     = (mode->vSyncEnd & 0x0F) | 0x20;
+    regs->CRTC[CRTC_V_DISP_END]     = (mode->vDisplay -1) & 0xFF;
+    regs->CRTC[CRTC_OFFSET] 	    = mode->width >> (8 - mode->depth);  /* just a guess */
     regs->CRTC[CRTC_UNDERLINE]      = 0x00;
     regs->CRTC[CRTC_V_BLANK_START]  = (vblankstart - 1) & 0xFF; 
     regs->CRTC[CRTC_V_BLANK_END]    = (vblankend - 1) & 0xFF;
     regs->CRTC[CRTC_MODE]   	    = 0xE3;
     regs->CRTC[CRTC_LINE_COMPARE]   = 0xFF;
 
-    if ((hblankend / 8) == (mode->HTotal / 8))
+    if ((hblankend / 8) == (mode->hTotal / 8))
     {
     	i = (regs->CRTC[CRTC_H_BLANK_END] & 0x1f) | ((regs->CRTC[CRTC_H_SYNC_END] & 0x80) >> 2);
 	if ((i-- > (regs->CRTC[CRTC_H_BLANK_START] & 0x3F)) && 
-	    (hblankend == mode->HTotal))
+	    (hblankend == mode->hTotal))
 	{
 	    i = 0;
 	}
@@ -442,7 +442,7 @@ int vgaInitMode(UGL_MODE *mode, struct vgaHWRec *regs)
 	regs->CRTC[CRTC_H_SYNC_END]  = (regs->CRTC[CRTC_H_SYNC_END] & ~0x80) | ((i << 2) & 0x80);
     }
     
-    if (vblankend == mode->VTotal)
+    if (vblankend == mode->vTotal)
     {
     	i = regs->CRTC[CRTC_V_BLANK_END];
 	if ((i > regs->CRTC[CRTC_V_BLANK_START]) &&

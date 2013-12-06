@@ -195,8 +195,8 @@ UGL_STATUS uglVgaModeSet(UGL_DEVICE_ID devId, UGL_MODE *pMode)
     UGL_OUT_BYTE(0x3c0, 0x20);		/* End attribute set */
 
     /* Set releated info */
-    pDrv->bytesPerLine	=	devId->pMode->Width;
-    pDrv->colorPlanes	=	devId->pMode->Depth;
+    pDrv->bytesPerLine	=	devId->pMode->width;
+    pDrv->colorPlanes	=	devId->pMode->depth;
 
     /* Set graphics primitives support methods */
     devId->pixelSet		=	uglGeneric8BitPixelSet;
@@ -213,15 +213,15 @@ UGL_STATUS uglVgaModeSet(UGL_DEVICE_ID devId, UGL_MODE *pMode)
 
     /* Clear screen */
     memset(pDrv->generic.fbAddress, 0,
-	   devId->pMode->Height * pDrv->bytesPerLine);
+	   devId->pMode->height * pDrv->bytesPerLine);
 
     break;
 
     case 1:
 
     /* Set releated info */
-    pDrv->bytesPerLine	=	devId->pMode->Width / 8;
-    pDrv->colorPlanes	=	devId->pMode->Depth;
+    pDrv->bytesPerLine	=	devId->pMode->width / 8;
+    pDrv->colorPlanes	=	devId->pMode->depth;
 
     /* Set graphics primitives support methods */
     devId->pixelSet		=	uglVgaPixelSet;
@@ -247,7 +247,7 @@ UGL_STATUS uglVgaModeSet(UGL_DEVICE_ID devId, UGL_MODE *pMode)
     /* Clear screen */
     UGL_OUT_WORD(0x3ce, 0);
     memset(pDrv->generic.fbAddress, 0xff,
-	   devId->pMode->Height * pDrv->bytesPerLine);
+	   devId->pMode->height * pDrv->bytesPerLine);
 
     /* Enable video output */
     UGL_OUT_BYTE(0x3c4, 0x01);

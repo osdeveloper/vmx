@@ -61,7 +61,7 @@ UGL_STATUS uglGeneric8BitPixelSet(UGL_DEVICE_ID devId,
 
       /* Calculate destination address */
       dest = ((UGL_UINT8 *) pDrv->fbAddress) +
-	p->x + (p->y * devId->pMode->Width);
+	p->x + (p->y * devId->pMode->width);
 
     }
     else {

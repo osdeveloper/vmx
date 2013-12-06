@@ -55,23 +55,23 @@ extern "C" {
 #endif
 
 typedef struct ugl_mode {
-    UGL_CHAR *  Name;                   /* Mode name */
-    UGL_UINT16  Width;                  /* Display width */
-    UGL_UINT16  Height;                 /* Display height */
-    UGL_UINT8   Depth;                  /* BitsPerPixel */
-    UGL_ORD     RefreshRate;            /* Monitor refresh rate */
-    UGL_UINT16  MonitorType;            /* Monitor type */
-    UGL_UINT32  Flags;                  /* Misc Flags */
-    UGL_UINT8   Clock;                  /* PixelClock used */
-    UGL_UINT32  HDisplay;
-    UGL_UINT32  HSyncStart;
-    UGL_UINT32  HSyncEnd;
-    UGL_UINT32  HTotal;
-    UGL_UINT32  HSkew;
-    UGL_UINT32  VDisplay;
-    UGL_UINT32  VSyncStart;
-    UGL_UINT32  VSyncEnd;
-    UGL_UINT32  VTotal;
+    UGL_CHAR *  name;                   /* Mode name */
+    UGL_UINT16  width;                  /* Display width */
+    UGL_UINT16  height;                 /* Display height */
+    UGL_UINT8   depth;                  /* BitsPerPixel */
+    UGL_ORD     refreshRate;            /* Monitor refresh rate */
+    UGL_UINT16  monitorType;            /* Monitor type */
+    UGL_UINT32  flags;                  /* Misc Flags */
+    UGL_UINT8   clock;                  /* PixelClock used */
+    UGL_UINT32  hDisplay;
+    UGL_UINT32  hSyncStart;
+    UGL_UINT32  hSyncEnd;
+    UGL_UINT32  hTotal;
+    UGL_UINT32  hSkew;
+    UGL_UINT32  vDisplay;
+    UGL_UINT32  vSyncStart;
+    UGL_UINT32  vSyncEnd;
+    UGL_UINT32  vTotal;
 } UGL_MODE;
 
 #ifdef __cplusplus

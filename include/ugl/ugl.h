@@ -27,7 +27,7 @@
 #include <ugl/uglclr.h>
 #include <ugl/uglinfo.h>
 #include <ugl/uglmode.h>
-#include <ugl/uglbmp.h>
+#include <ugl/ugldib.h>
 #include <ugl/uglos.h>
 #include <ugl/uglugi.h>
 

@@ -67,9 +67,9 @@ UGL_STATUS uglGenericClipDdb(UGL_DEVICE_ID devId,
   }
   else if ((UGL_DDB_ID) *pSrcBmpId == UGL_DISPLAY_ID) {
     srcClip.top = 0;
-    srcClip.bottom = devId->pMode->Height - 1;
+    srcClip.bottom = devId->pMode->height - 1;
     srcClip.left = 0;
-    srcClip.right = devId->pMode->Width - 1;
+    srcClip.right = devId->pMode->width - 1;
   }
   else {
     srcClip.top = 0;
@@ -88,9 +88,9 @@ UGL_STATUS uglGenericClipDdb(UGL_DEVICE_ID devId,
   }
   else if ((UGL_DDB_ID) *pDestBmpId == UGL_DISPLAY_ID) {
     destClip.top = 0;
-    destClip.bottom = devId->pMode->Height - 1;
+    destClip.bottom = devId->pMode->height - 1;
     destClip.left = 0;
-    destClip.right = devId->pMode->Width - 1;
+    destClip.right = devId->pMode->width - 1;
   }
   else {
     destClip.top = 0;
@@ -167,9 +167,9 @@ UGL_BOOL uglGenericClipDibToDdb(UGL_DEVICE_ID devId,
   /* Setup source clip rect */
   if ((UGL_DDB_ID) *pBmpId == UGL_DISPLAY_ID) {
     destClip.top = 0;
-    destClip.bottom = devId->pMode->Height - 1;
+    destClip.bottom = devId->pMode->height - 1;
     destClip.left = 0;
-    destClip.right = devId->pMode->Width - 1;
+    destClip.right = devId->pMode->width - 1;
   }
   else {
     destClip.top = 0;

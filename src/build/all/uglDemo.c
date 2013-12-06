@@ -204,11 +204,11 @@ int uglPixel4Test(void)
   vgaSave(&oldRegs);
 
   /* Enter video mode */
-  gfxMode.Width = 640;
-  gfxMode.Height = 480;
-  gfxMode.Depth = 4;
-  gfxMode.RefreshRate = 60;
-  gfxMode.Flags = UGL_MODE_INDEXED_COLOR;
+  gfxMode.width = 640;
+  gfxMode.height = 480;
+  gfxMode.depth = 4;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
     vgaRestore(&oldRegs, FALSE);
@@ -250,11 +250,11 @@ int uglBlt4Test(void)
   }
 
   /* Enter video mode */
-  gfxMode.Width = 640;
-  gfxMode.Height = 480;
-  gfxMode.Depth = 4;
-  gfxMode.RefreshRate = 60;
-  gfxMode.Flags = UGL_MODE_INDEXED_COLOR;
+  gfxMode.width = 640;
+  gfxMode.height = 480;
+  gfxMode.depth = 4;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
     vgaRestore(&oldRegs, FALSE);
@@ -401,11 +401,11 @@ int uglBlt8Test(void)
   }
 
   /* Enter video mode */
-  gfxMode.Width = 320;
-  gfxMode.Height = 200;
-  gfxMode.Depth = 8;
-  gfxMode.RefreshRate = 60;
-  gfxMode.Flags = UGL_MODE_INDEXED_COLOR;
+  gfxMode.width = 320;
+  gfxMode.height = 200;
+  gfxMode.depth = 8;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
     vgaRestore(&oldRegs, FALSE);

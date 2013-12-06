@@ -68,8 +68,8 @@ UGL_GC_ID uglGcCreate (
     }
 
     /* Get dimensions */
-    width  = (UGL_POS) devId->pMode->Width;
-    height = (UGL_POS) devId->pMode->Height;
+    width  = (UGL_POS) devId->pMode->width;
+    height = (UGL_POS) devId->pMode->height;
 
     /* Initialize driver reference */
     gc->pDriver           =       devId;
@@ -237,8 +237,8 @@ UGL_STATUS uglDefaultBitmapSet (
         if (bmpId == UGL_DISPLAY_ID) {
             gc->boundRect.left   = 0;
             gc->boundRect.top    = 0;
-            gc->boundRect.right  = devId->pMode->Width - 1;
-            gc->boundRect.bottom = devId->pMode->Height - 1;
+            gc->boundRect.right  = devId->pMode->width - 1;
+            gc->boundRect.bottom = devId->pMode->height - 1;
         }
         else {
             gc->boundRect.left   = 0;

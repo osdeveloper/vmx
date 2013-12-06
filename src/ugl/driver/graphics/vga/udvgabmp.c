@@ -60,8 +60,8 @@ UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
 
   /* Get bitmap info, from screen if NULL DIB */
   if (pDib == UGL_NULL) {
-    width = devId->pMode->Width;
-    height = devId->pMode->Height;
+    width = devId->pMode->width;
+    height = devId->pMode->height;
   }
 
   /* Else get info from device independent bitmap */
@@ -99,7 +99,7 @@ UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
     /* Fill all planes with initial value */
     case UGL_DIB_INIT_VALUE:
 
-      pVgaBmp->colorDepth = devId->pMode->Depth;
+      pVgaBmp->colorDepth = devId->pMode->depth;
       pVgaBmp->header.type = UGL_DDB_TYPE;
       pVgaBmp->header.width = width;
       pVgaBmp->header.height = height;
@@ -122,7 +122,7 @@ UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
     /* Init from general bitmap */
     case UGL_DIB_INIT_DATA:
 
-      pVgaBmp->colorDepth = devId->pMode->Depth;
+      pVgaBmp->colorDepth = devId->pMode->depth;
       pVgaBmp->header.type = UGL_DDB_TYPE;
       pVgaBmp->header.width = width;
       pVgaBmp->header.height = height;
@@ -750,7 +750,7 @@ UGL_LOCAL void uglVgaBltColorToFrameBuffer(UGL_DEVICE_ID devId,
   /* Setup variables for blit */
   width = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
   height = UGL_RECT_HEIGHT(*pDestRect) - 1;
-  numPlanes = devId->pMode->Depth;
+  numPlanes = devId->pMode->depth;
   destBytesPerLine = pVgaDrv->bytesPerLine;
   srcBytesPerLine = (pBmp->header.width + 7) / 8 + 1;
   destStart = (UGL_UINT8 *) pDrv->fbAddress +
@@ -1131,9 +1131,9 @@ UGL_STATUS uglVgaBitmapBlt(UGL_DEVICE_ID devId,
   /* Store clip rectangle */
   if (destBmpId == UGL_DEFAULT_ID) {
     clipRect.top = 0;
-    clipRect.bottom = devId->pMode->Height;
+    clipRect.bottom = devId->pMode->height;
     clipRect.left = 0;
-    clipRect.right = devId->pMode->Width;
+    clipRect.right = devId->pMode->width;
   }
 
   /* Clip */
@@ -1205,7 +1205,7 @@ UGL_STATUS uglVgaBitmapWrite(UGL_DEVICE_ID devId,
 			     UGL_RECT_HEIGHT(srcRect));
 
   /* Precaculate variables */
-  numPlanes = devId->pMode->Depth;
+  numPlanes = devId->pMode->depth;
   srcOffset = (srcRect.top * pDib->stride) + srcRect.left;
 
   /* Handle case if the display is not the destination */
