@@ -102,7 +102,7 @@ UGL_STATUS uglGcDestroy (
 
 /******************************************************************************
  *
- * uglDefaultBtmapSet - Set graphics context default bitmap
+ * uglDefaultBitmapSet - Set graphics context default bitmap
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
