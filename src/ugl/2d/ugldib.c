@@ -121,7 +121,8 @@ UGL_STATUS uglBitmapBlt (
         return (UGL_STATUS_OK);
     }
 
-    if (gc == UGL_NULL) {
+    /* Start batch job */
+    if (uglBatchStart (gc) == UGL_STATUS_ERROR) {
         return (UGL_STATUS_ERROR);
     }
 
@@ -140,11 +141,29 @@ UGL_STATUS uglBitmapBlt (
     destRect.right  = destRect.left + UGL_RECT_WIDTH (srcRect) - 1;
     destRect.bottom = destRect.top + UGL_RECT_HEIGHT (srcRect) - 1;
 
+    /* Set graphics context */
     UGL_GC_SET (devId, gc);
 
-    /* Call driver specific method */
-    status = (*devId->bitmapBlt) (devId, srcBmpId, &srcRect,
-                                  destBmpId, (UGL_POINT *) &destRect);
+    if ((destBmpId == UGL_DEFAULT_ID) || (destBmpId == UGL_DISPLAY_ID) ||
+        (destBmpId->type == UGL_DDB_TYPE)) {
+
+        if ((srcBmpId == UGL_DEFAULT_ID) || (srcBmpId == UGL_DISPLAY_ID) ||
+            (srcBmpId->type == UGL_DDB_TYPE)) {
+
+            /* Call driver specific method */
+            status = (*devId->bitmapBlt) (devId, srcBmpId, &srcRect,
+                                          destBmpId, (UGL_POINT *) &destRect);
+        }
+        else {
+            status = UGL_STATUS_ERROR;
+        }
+    }
+    else {
+        status = UGL_STATUS_ERROR;
+    }
+
+    /* End batch job */
+    uglBatchEnd (gc);
 
     return (status);
 }

@@ -18,45 +18,70 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* uglpixel.c - Universal graphics library pixel support functions */
+/* uglbatch.c - Universal graphics library batch job support */
 
 #include <ugl/ugl.h>
 
 /******************************************************************************
  *
- * uglPixelSet - Set pixel
+ * uglBatchStart - Start batch job
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglPixelSet (
-    UGL_GC_ID  gc,
-    UGL_POS    x,
-    UGL_POS    y,
-    UGL_COLOR  color
+UGL_STATUS uglBatchStart (
+    UGL_GC_ID  gc
     ) {
     UGL_DEVICE_ID  devId;
-    UGL_POINT      p;
-    UGL_STATUS     status;
 
-    /* Start batch job */
-    if (uglBatchStart (gc) == UGL_STATUS_ERROR) {
+    if (gc == UGL_NULL) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Get device */
     devId = gc->pDriver;
 
-    /* Set coodrinates */
-    p.x = x;
-    p.y = y;
+    /* Lock device */
+    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
 
-    /* Call driver specific method */
-    status = (*devId->pixelSet) (devId, &p, color);
+    /* Lock GC */
+    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
 
-    /* End batch job */
-    uglBatchEnd (gc);
+    /* Set graphics context as current */
+    UGL_GC_SET (devId, gc);
 
-    return (status);
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglBatchEnd - End batch job
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBatchEnd (
+    UGL_GC_ID  gc
+    ) {
+    UGL_DEVICE_ID  devId;
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get device */
+    devId = gc->pDriver;
+
+    /* Unlock device */
+    uglOsLock (devId->lockId);
+
+    /* Unlock GC */
+    uglOsLock (gc->lockId);
+
+    return (UGL_STATUS_OK);
 }
 

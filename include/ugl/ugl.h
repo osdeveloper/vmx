@@ -293,6 +293,30 @@ UGL_STATUS uglBitmapBlt (
     UGL_POS        destY
     );
 
+/* Batch job support functions */
+
+/******************************************************************************
+ *
+ * uglBatchStart - Start batch job
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBatchStart (
+    UGL_GC_ID  gc
+    );
+
+/******************************************************************************
+ *
+ * uglBatchEnd - End batch job
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBatchEnd (
+    UGL_GC_ID  gc
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

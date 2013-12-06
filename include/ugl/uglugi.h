@@ -55,9 +55,10 @@ typedef struct ugl_gc * UGL_GC_ID;
 
 typedef struct ugl_ugi_driver {
     UGL_MODE *   pMode;                         /* Current graphics mode */
-    UGL_GC_ID    defaultGc;                     /* Default graphics context*/
+    UGL_ORD      batchCount;                    /* Number of nested batches */
     UGL_LOCK_ID  lockId;                        /* Mutex */
     UGL_UINT32   magicNumber;                   /* Idetifies GC flags set */
+    UGL_GC_ID    defaultGc;                     /* Default graphics context*/
 
     /* Device support methods */
 
