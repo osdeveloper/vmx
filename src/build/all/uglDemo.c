@@ -50,7 +50,7 @@ UGL_DEVICE_ID gfxDevId;
 UGL_DIB *pBgDib, *pFgDib;
 UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
-int animTreshold = 0;
+int animTreshold = 1;
 BOOL firstTime = TRUE;
 BOOL firstTimel = TRUE;
 UGL_DDB *pDbBmp, *pBgBmp, *pFgBmp, *pSaveBmp;
@@ -190,11 +190,15 @@ int new8BitImg(UGL_DDB_ID *pDbBmpId,
   return 0;
 }
 
-int uglPixel4Test(void)
+int uglPixel4Test(int maxtimes)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
-  int i, j;
+  int i;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
 
   if (gfxDevId == UGL_NULL) {
     printf("No compatible graphics device found.\n");
@@ -221,13 +225,10 @@ int uglPixel4Test(void)
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
 
-  for (j = 0; j < 16; j++) {
-    for (i = 0; i < 640; i++) {
-      uglPixelSet(gfxDevId->defaultGc, i, 240 + j, j);
-    }
+  for (i = 0; i < maxtimes; i++) {
+    uglPixelSet(gfxDevId->defaultGc, rand() % 640, rand() % 480, rand () % 16);
+    taskDelay(animTreshold);
   }
-
-  taskDelay(animTreshold);
 
   vgaRestore(&oldRegs, FALSE);
   vgaLoadFont(font8x16, font8x16Height);
@@ -284,7 +285,7 @@ int uglBlt4Test(void)
   dbPt.y = 0;
 
   /* Blit image */
-  gfxDevId->defaultGc->pDefaultBitmap = UGL_DISPLAY_ID;
+  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
 
   srcRect.left = 0;
   srcRect.right = pBgBmp->width;
@@ -307,8 +308,8 @@ int uglBlt4Test(void)
   srcRect.right = pFgBmp->width;
   srcRect.top = 0;
   srcRect.bottom = pFgBmp->height;
-  pt.x = 0;
-  pt.y = 0;
+  pt.x = -pFgBmp->width;
+  pt.y = -pFgBmp->height;
 
   saveRect.left = pt.x;
   saveRect.right = pt.x + pFgBmp->width;
@@ -317,7 +318,7 @@ int uglBlt4Test(void)
   pt0.x = 0;
   pt0.y = 0;
 
-  while (pt.y < 480 - pFgBmp->height) {
+  while (pt.y < 480) {
 
     /* Copy background */
     if (doubleBuffer == TRUE) {
@@ -377,6 +378,52 @@ int uglBlt4Test(void)
     saveRect.right += BALL_SPEED;
     saveRect.top += BALL_SPEED;
     saveRect.bottom += BALL_SPEED;
+  }
+
+  vgaRestore(&oldRegs, FALSE);
+  vgaLoadFont(font8x16, font8x16Height);
+
+  return 0;
+}
+
+int uglPixel8Test(int maxtimes)
+{
+  UGL_MODE gfxMode;
+  struct vgaHWRec oldRegs;
+  int i;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
+
+  if (gfxDevId == UGL_NULL) {
+    printf("No compatible graphics device found.\n");
+    return 1;
+  }
+
+  vgaSave(&oldRegs);
+
+  /* Enter video mode */
+  gfxMode.width = 320;
+  gfxMode.height = 200;
+  gfxMode.depth = 8;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
+
+  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+    vgaRestore(&oldRegs, FALSE);
+    printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
+    return 1;
+  }
+
+  /* Set palette */
+  setPalette();
+
+  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+
+  for (i = 0; i < maxtimes; i++) {
+    uglPixelSet(gfxDevId->defaultGc, rand() % 320, rand() % 200, rand () % 256);
+    taskDelay(animTreshold);
   }
 
   vgaRestore(&oldRegs, FALSE);
@@ -455,8 +502,8 @@ int uglBlt8Test(void)
   srcRect.right = pFgDib->width;
   srcRect.top = 0;
   srcRect.bottom = pFgDib->height;
-  pt.x = 0;
-  pt.y = 0;
+  pt.x = -pFgDib->width;
+  pt.y = -pFgDib->height;
 
   saveRect.left = pt.x;
   saveRect.right = pt.x + pFgDib->width;
@@ -465,7 +512,7 @@ int uglBlt8Test(void)
   pt0.x = 0;
   pt0.y = 0;
 
-  while(pt.y < 200 - pFgDib->height) {
+  while(pt.y < 200) {
 
     /* Copy background */
     if (doubleBuffer == TRUE) {
@@ -646,6 +693,7 @@ void uglDemoInit()
 static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglPixel4Test", uglPixel4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt4Test", uglBlt4Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglPixel8Test", uglPixel8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt8Test", uglBlt8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglDestroyTest", uglDestroyTest, 0, N_TEXT | N_EXT},
   {NULL, "_uglSetAnimTreshold", uglSetAnimTreshold, 0, N_TEXT | N_EXT},
