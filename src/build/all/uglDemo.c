@@ -284,9 +284,6 @@ int uglBlt4Test(void)
   dbPt.x = 0;
   dbPt.y = 0;
 
-  /* Blit image */
-  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
-
   srcRect.left = 0;
   srcRect.right = pBgBmp->width;
   srcRect.top = 0;
@@ -492,10 +489,6 @@ int uglBlt8Test(void)
     for(i = 0; i < 320; i++) {
       uglPixelSet(gfxDevId->defaultGc, i, j, (i + j) % 255);
     }
-  }
-
-  if (doubleBuffer == TRUE) {
-    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
   }
 
   srcRect.left = 0;
