@@ -51,10 +51,10 @@ typedef struct ugl_vga_ddb {
 } UGL_VGA_DDB;
 
 typedef struct ugl_vga_mddb {
-  UGL_BMAP_HEADER  header;              /* Bitmap header */
-  UGL_UINT16       stride;              /* Scanline offset */
-  UGL_UINT16       shiftValue;          /* Alignment shift */
-  UGL_UINT8 **     pPlaneArray;         /* Bit planes */
+    UGL_BMAP_HEADER  header;            /* Bitmap header */
+    UGL_UINT16       stride;            /* Scanline offset */
+    UGL_UINT16       shiftValue;        /* Alignment shift */
+    UGL_UINT8 **     pPlaneArray;       /* Bit planes */
 } UGL_VGA_MDDB;
 
 /* Device initialization support functions */
@@ -94,24 +94,65 @@ extern UGL_STATUS uglVga4BitColorConvert(UGL_DEVICE_ID devId,
                                          void *destArray,
                                          UGL_COLOR_FORMAT destFormat,
                                          UGL_SIZE arraySize);
-extern UGL_DDB_ID uglVgaBitmapCreate(UGL_DEVICE_ID devId,
-                                     UGL_DIB *pDib,
-                                     UGL_DIB_CREATE_MODE createMode,
-                                     UGL_UINT32 initValue,
-                                     UGL_MEM_POOL_ID poolId);
-extern UGL_STATUS uglVgaBitmapDestroy(UGL_DEVICE_ID devId,
-                                      UGL_DDB_ID ddbId,
-                                      UGL_MEM_POOL_ID poolId);
-extern UGL_STATUS uglVgaBitmapBlt(UGL_DEVICE_ID devId,
-                                  UGL_DDB_ID srcBmpId,
-                                  UGL_RECT *pSrcRect,
-                                  UGL_DDB_ID destBmpId,
-                                  UGL_POINT *pDestPoint);
-extern UGL_STATUS uglVgaBitmapWrite(UGL_DEVICE_ID devId,
-                                    UGL_DIB *pDib,
-                                    UGL_RECT *pSrcRect,
-                                    UGL_DDB_ID ddbId,
-                                    UGL_POINT *pDestPoint);
+/* Bitmap support functions */
+
+/******************************************************************************
+ *
+ * uglVgaBitmapCreate - Create vga bitmap
+ *
+ * RETURNS: Pointer to bitmap
+ */
+
+UGL_DDB_ID uglVgaBitmapCreate (
+    UGL_DEVICE_ID        devId,
+    UGL_DIB *            pDib,
+    UGL_DIB_CREATE_MODE  createMode,
+    UGL_UINT32           initValue,
+    UGL_MEM_POOL_ID      poolId
+    );
+
+/******************************************************************************
+ *
+ * uglVgaBitmapDestroy - Free vga bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBitmapDestroy (
+    UGL_DEVICE_ID    devId,
+    UGL_DDB_ID       ddbId,
+    UGL_MEM_POOL_ID  poolId
+    );
+
+/******************************************************************************
+ *
+ * uglVgaBitmapBlt - Blit from one bitmap memory area to another
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBitmapBlt (
+    UGL_DEVICE_ID  devId,
+    UGL_DDB_ID     srcBmpId,
+    UGL_RECT *     pSrcRect,
+    UGL_DDB_ID     destBmpId,
+    UGL_POINT *    pDestPoint
+    );
+
+/******************************************************************************
+ *
+ * uglVgaBitmapWrite - Write a device independet bitmap to vga bitmap
+ * 
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBitmapWrite (
+    UGL_DEVICE_ID  devId,
+    UGL_DIB *      pDib,
+    UGL_RECT *     pSrcRect,
+    UGL_DDB_ID     ddbId,
+    UGL_POINT *    pDestPoint
+    );
 
 #ifdef __cplusplus
 }

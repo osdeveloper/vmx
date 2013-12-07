@@ -113,6 +113,10 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
                 return (UGL_NULL);
             }
             break;
+
+        /* None */
+        default:
+            break;
     }
 
     return ((UGL_DDB_ID) pGenBmp);
