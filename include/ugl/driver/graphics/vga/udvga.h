@@ -72,28 +72,105 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     UGL_UINT32  arg2
     );
 
-extern UGL_STATUS uglVgaDevDestroy(UGL_DEVICE_ID devId);
-extern UGL_STATUS uglVgaInfo(UGL_DEVICE_ID devId,
-                             UGL_INFO_REQ infoReq,
-                             void *info);
-extern UGL_STATUS uglVgaGcSet(UGL_DEVICE_ID devId, UGL_GC_ID gc);
-extern UGL_STATUS uglVgaPixelSet(UGL_DEVICE_ID devId,
-                                 UGL_POINT *p,
-                                 UGL_COLOR c);
-extern UGL_STATUS uglVgaClutSet(UGL_DEVICE_ID devId,
-                                UGL_ORD offset,
-                                UGL_ARGB *pColors,
-                                UGL_SIZE numColors);
-extern UGL_STATUS uglVgaClutGet(UGL_DEVICE_ID devId,
-                                UGL_ORD offset,
-                                UGL_ARGB *pColors,
-                                UGL_SIZE numColors);
-extern UGL_STATUS uglVga4BitColorConvert(UGL_DEVICE_ID devId,
-                                         void *srcArray,
-                                         UGL_COLOR_FORMAT srcFormat,
-                                         void *destArray,
-                                         UGL_COLOR_FORMAT destFormat,
-                                         UGL_SIZE arraySize);
+/******************************************************************************
+ *
+ * uglVgaDevDestroy - Free graphics device
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaDevDestroy (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
+ * uglVgaInfo - Get information about video mode
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaInfo (
+    UGL_DEVICE_ID  devId,
+    UGL_INFO_REQ   infoReq,
+    void *         info
+    );
+
+/* Graphics context support functions */
+
+/******************************************************************************
+ *
+ * uglVgaGcSet - Set graphics context
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaGcSet (
+    UGL_DEVICE_ID  devId,
+    UGL_GC_ID      gc
+    );
+
+/* Pixel support functions */
+
+/******************************************************************************
+ *
+ * uglVgaPixelSet - Set pixel
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaPixelSet (
+    UGL_DEVICE_ID  devId,
+    UGL_POINT *    p,
+    UGL_COLOR      c
+    );
+
+/* Palette support functions */
+
+/******************************************************************************
+ *
+ * uglVgaClutSet - Set palette entry
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaClutSet (
+    UGL_DEVICE_ID  devId,
+    UGL_ORD        offset,
+    UGL_ARGB *     pColors,
+    UGL_SIZE       numColors
+    );
+
+/******************************************************************************
+ *
+ * uglVgaClutGet - Get palette entry
+ * 
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaClutGet (
+    UGL_DEVICE_ID  devId,
+    UGL_ORD        offset,
+    UGL_ARGB *     pColors,
+    UGL_SIZE       numColors
+    );
+
+/******************************************************************************
+ *
+ * uglVga4BitColorConvert - Color format conversion
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVga4BitColorConvert (
+    UGL_DEVICE_ID    devId,
+    void *           srcArray,
+    UGL_COLOR_FORMAT srcFormat,
+    void *           destArray,
+    UGL_COLOR_FORMAT destFormat,
+    UGL_SIZE         arraySize
+    );
+
 /* Bitmap support functions */
 
 /******************************************************************************
