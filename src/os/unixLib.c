@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <vmx.h>
+#include <util/listLib.h>
 #include <arch/intArchLib.h>
 #include <vmx/private/kernelLibP.h>
 #include <os/logLib.h>
@@ -232,5 +233,92 @@ void wakeup(
     )
 {
     semGive(semId);
+}
+
+/******************************************************************************
+ * insque - Insert into queue
+ *
+ * RETURNS: N/A
+ */
+
+void insque(
+    void *node,
+    void *prev
+    )
+{
+    LIST_NODE *pNode = (LIST_NODE *) node;
+    LIST_NODE *pPrev = (LIST_NODE *) prev;
+    LIST_NODE *pNext = pPrev->next;
+
+    /* Insert node */
+    pPrev->next = pNode;
+    pNext->prev = pNode;
+    pNode->next = pNext;
+    pNode->prev = pPrev;
+}
+
+/******************************************************************************
+ * remque - Remove from queue
+ *
+ * RETURNS: N/A
+ */
+
+void remque(
+    void *node
+    )
+{
+    LIST_NODE *pNode = (LIST_NODE *) node;
+
+    /* Remove node */
+    pNode->prev->next = pNode->next;
+    pNode->next->prev = pNode->prev;
+}
+
+/******************************************************************************
+ * hashinit - Initialize hash table
+ *
+ * RETURNS: Pointer to table
+ */
+
+void* hashinit(
+    int            elements,
+    int            type,
+    unsigned long *hashmask
+    )
+{
+    LIST *hashtable;
+    long  hashsize;
+    int   i;
+
+    /* If le. zero elements */
+    if (elements <= 0)
+    {
+        panic("hashinit: bad elements");
+    }
+
+    /* For all elements log 2 */
+    for (hashsize = 1; hashsize <= elements; hashsize <<= 1)
+    {
+        continue;
+    }
+
+    /* Shift size size */
+    hashsize >>= 1;
+
+    /* Allocate hash table */
+    hashtable = malloc((size_t) hashsize * sizeof(LIST));
+    if (hashtable != NULL)
+    {
+        /* For all lists */
+        for (i = 0; i < hashsize; i++)
+        {
+            listInit(&hashtable[i]);
+        }
+
+        /* Set mask parameter */
+        *hashmask = hashsize - 1;
+    }
+
+  return hashtable;
 }
 

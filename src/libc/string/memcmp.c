@@ -18,37 +18,37 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ioctl.h - Ioctl header */
+/* memcmp.h - Compare memory */
 
-#ifndef _SYS_IOCTL_H
-#define _SYS_IOCTL_H
-
-#ifndef _ASMLANGUAGE
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <sys/sockio.h>
-#include <os/ioLib.h>
+#include <stdlib.h>
+#include <vmx.h>
+#include <sys/types.h>
 
 /******************************************************************************
- * ioctl - I/O control function
+ * memcmp - Comapre contents in two different memory locations
  *
- * RETURNS: Driver specific or ERROR
+ * RETURNS: The dirrerance between match or zero
  */
 
-int ioctl(
-    int fd,
-    int func,
-    int arg
-    );
+int memcmp(
+    const void *s1,
+    const void *s2,
+    size_t len
+    )
+{
+    unsigned char *c1 = (unsigned char *)s1;
+    unsigned char *c2 = (unsigned char *)s2;
 
-#ifdef __cplusplus
+    while (len--)
+    {
+        if (*c1 != *c2)
+        {
+            return *c1 - *c2;
+        }
+        c1++;
+        c2++;
+    }
+
+    return 0;
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _SYS_IOCTL_H */
 

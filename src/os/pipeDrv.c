@@ -58,7 +58,8 @@ LOCAL int pipeDelete(
 
 LOCAL int pipeOpen(
     PIPE_DEV *pPipeDev,
-    const char *name, int flags,
+    const char *name,
+    int flags,
     mode_t mode
     );
 

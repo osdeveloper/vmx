@@ -116,9 +116,11 @@
 #define INCLUDE_PC_CONSOLE
 #define INCLUDE_RAM_DRV
 #define INCLUDE_FD_DRV
+#define INCLUDE_NET
 
 #define INCLUDE_USR_TEST
 #define INCLUDE_FS_DEMO
+#define INCLUDE_NET_DEMO
 #define INCLUDE_UGL_DEMO
 
 #endif

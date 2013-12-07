@@ -61,6 +61,10 @@ unsigned int sysFdBufSize = FD_DMA_BUF_SIZE;
 #include <drv/fdisk/nec765Fd.c>
 #endif /* INCLUDE_FD_DRV */
 
+#ifdef INCLUDE_NET
+#include <drv/netif/if_loop.c>
+#endif /* INCLUDE_NET */
+
 int sysPhysMemDescNumEntries   = 0;
 PHYS_MEM_DESC sysPhysMemDesc[] =
 {

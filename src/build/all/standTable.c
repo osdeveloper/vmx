@@ -82,6 +82,9 @@
 #include <fs/xbdBlkDev.h>
 #include <usr/usrLib.h>
 #include <usr/usrFsLib.h>
+#include <net/mbuf.h>
+#include <net/netLib.h>
+#include <net/netShow.h>
 
 /* Gloabals */
 int standTableSize = 0;
@@ -177,6 +180,7 @@ SYMBOL standTable[] =
 
   /* string */
   {NULL, "_memchr", memchr, 0, N_TEXT | N_EXT},
+  {NULL, "_memcmp", memcmp, 0, N_TEXT | N_EXT},
   {NULL, "_memcpy", memcpy, 0, N_TEXT | N_EXT},
   {NULL, "_memmove", memmove, 0, N_TEXT | N_EXT},
   {NULL, "_memset", memset, 0, N_TEXT | N_EXT},
@@ -565,6 +569,13 @@ SYMBOL standTable[] =
   {NULL, "_moduleSegInfoGet", moduleSegInfoGet, 0, N_TEXT | N_EXT},
   {NULL, "_moduleShow", moduleShow, 0, N_TEXT | N_EXT},
   {NULL, "_elfArchLibInit", elfArchLibInit, 0, N_TEXT | N_EXT},
+
+  /* netLib */
+  {NULL, "_netJobAdd", netJobAdd, 0, N_TEXT | N_EXT},
+  {NULL, "_netPoolShow", netPoolShow, 0, N_TEXT | N_EXT},
+  {NULL, "_ifShow", ifShow, 0, N_TEXT | N_EXT},
+  {NULL, "_routeShow", routeShow, 0, N_TEXT | N_EXT},
+  {NULL, "_domainShow", domainShow, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},

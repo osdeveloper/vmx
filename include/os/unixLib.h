@@ -93,6 +93,39 @@ void wakeup(
     SEM_ID semId
     );
 
+/******************************************************************************
+ * remque - Remove from queue
+ * 
+ * RETURNS: N/A
+ */
+
+void remque(
+    void *node
+    );
+
+/******************************************************************************
+ * insque - Insert into queue
+ *
+ * RETURNS: N/A
+ */
+
+void insque(
+    void *node,
+    void *prev
+    );
+
+/******************************************************************************
+ * hashinit - Initialize hash table
+ *
+ * RETURNS: Pointer to table
+ */
+
+void* hashinit(
+    int            elements,
+    int            type,
+    unsigned long *hashmask
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -309,6 +309,10 @@ LOCAL void usrRoot(
   usrRt11fsInit(MAX_FS_BUFFERS, MAX_FS_FILES, MAX_FS_DIR_ENTRIES, 0);
   usrExt2fsInit(MAX_FS_BUFFERS, MAX_FS_FILES, 0, 0);
 
+#ifdef INCLUDE_NET
+  usrNetInit("");
+#endif /* INCLUDE_NET */
+
   usrLibInit();
 
   printLogo();
@@ -320,6 +324,10 @@ LOCAL void usrRoot(
 #ifdef INCLUDE_FS_DEMO
   fsDemoInit();
 #endif /* INCLUDE_FS_DEMO */
+
+#ifdef INCLUDE_NET_DEMO
+  netDemoInit();
+#endif /* INCLUDE_NET_DEMO */
 
 #ifdef INCLUDE_UGL_DEMO
   uglDemoInit();

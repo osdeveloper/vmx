@@ -44,6 +44,18 @@ void* memchr(
     );
 
 /******************************************************************************
+ * memcmp - Comapre contents in two different memory locations
+ *
+ * RETURNS: The dirrerance between match or zero
+ */
+
+int memcmp(
+    const void *s1,
+    const void *s2,
+    size_t len
+    );
+
+/******************************************************************************
  * memcpy - Copy memory from location to another
  *
  * RETURNS: Pointer to destination
