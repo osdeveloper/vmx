@@ -138,9 +138,9 @@ void raw_disconnect(struct rawcb *rp)
  ******************************************************************************/
 
 void raw_input(struct mbuf *m0,
-	       struct sockproto *proto,
-	       struct sockaddr *src,
-	       struct sockaddr *dst)
+               struct sockproto *proto,
+               struct sockaddr *src,
+               struct sockaddr *dst)
 {
   struct rawcb *rp;
   struct mbuf *m, *n;
@@ -163,17 +163,17 @@ void raw_input(struct mbuf *m0,
 
     /* If protocol not equal */
     if ( (rp->rcb_proto.sp_protocol) &&
-	 (rp->rcb_proto.sp_protocol != proto->sp_protocol) )
+         (rp->rcb_proto.sp_protocol != proto->sp_protocol) )
       continue;
 
     /* If local address not equal to destination */
     if ( (rp->rcb_laddr != NULL) &&
-	 (memcmp(rp->rcb_laddr, dst, rp->rcb_laddr->sa_len) != 0) )
+         (memcmp(rp->rcb_laddr, dst, rp->rcb_laddr->sa_len) != 0) )
       continue;
 
     /* If foreign address not equal to source*/
     if ( (rp->rcb_faddr != NULL) &&
-	 (memcmp(rp->rcb_faddr, src, rp->rcb_faddr->sa_len) != 0) )
+         (memcmp(rp->rcb_faddr, src, rp->rcb_faddr->sa_len) != 0) )
       continue;
 
     /* If last non-null */
@@ -243,10 +243,10 @@ void raw_input(struct mbuf *m0,
  ******************************************************************************/
 
 int raw_usrreq(struct socket *so,
-	       int req,
-	       struct mbuf *m,
-	       struct mbuf *name,
-	       struct mbuf *ctrl)
+               int req,
+               struct mbuf *m,
+               struct mbuf *name,
+               struct mbuf *ctrl)
 {
   struct rawcb *rp;
   int err, len;

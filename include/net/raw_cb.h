@@ -37,11 +37,11 @@ extern "C" {
 
 /* Structs */
 struct rawcb {
-  LIST_NODE			listNode;		/* List node */
-  struct socket			*rcb_socket;		/* Pointer to socket */
-  struct sockaddr		*rcb_faddr;		/* Foreign addr */
-  struct sockaddr		*rcb_laddr;		/* Local address */
-  struct sockproto		rcb_proto;		/* Protocol */
+  LIST_NODE                     listNode;               /* List node */
+  struct socket                 *rcb_socket;            /* Pointer to socket */
+  struct sockaddr               *rcb_faddr;             /* Foreign addr */
+  struct sockaddr               *rcb_laddr;             /* Local address */
+  struct sockproto              rcb_proto;              /* Protocol */
 };
 
 /* Macros */
@@ -52,7 +52,7 @@ struct rawcb {
  * RETURNS: Pointer to raw socket control block
  ******************************************************************************/
 
-#define sotorawcb(so)		((struct rawcb *) (so)->so_pcb)
+#define sotorawcb(so)           ((struct rawcb *) (so)->so_pcb)
 
 /* Functions */
 
@@ -61,14 +61,14 @@ IMPORT int raw_attach(struct socket *so, int proto);
 IMPORT void raw_detach(struct rawcb *rp);
 IMPORT void raw_disconnect(struct rawcb *rp);
 IMPORT void raw_input(struct mbuf *m0,
-		      struct sockproto *proto,
-		      struct sockaddr *src,
-		      struct sockaddr *dst);
+                      struct sockproto *proto,
+                      struct sockaddr *src,
+                      struct sockaddr *dst);
 IMPORT int raw_usrreq(struct socket *so,
-		      int req,
-		      struct mbuf *m,
-		      struct mbuf *name,
-		      struct mbuf *ctrl);
+                      int req,
+                      struct mbuf *m,
+                      struct mbuf *name,
+                      struct mbuf *ctrl);
 
 #ifdef __cplusplus
 }

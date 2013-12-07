@@ -27,34 +27,34 @@
 #include <net/protosw.h>
 
 /* Defines */
-#define TCPT_NTIMERS			4		/* Number of timers */
+#define TCPT_NTIMERS                    4               /* Number of timers */
 
-#define TCPT_REXMT			0		/* Retransit */
-#define TCPT_PERSIST			1		/* Ret. persistance */
-#define TCPT_KEEP			2		/* Keep alive */
-#define TCPT_2MSL			3		/* 2 * MSL time */
+#define TCPT_REXMT                      0               /* Retransit */
+#define TCPT_PERSIST                    1               /* Ret. persistance */
+#define TCPT_KEEP                       2               /* Keep alive */
+#define TCPT_2MSL                       3               /* 2 * MSL time */
 
-#define TCP_TTL				30		/* Time to live */
+#define TCP_TTL                         30              /* Time to live */
 
-#define TCPTV_MSL			(30 * PR_SLOWHZ)
-#define TCPTV_SRTTBASE			0
+#define TCPTV_MSL                       (30 * PR_SLOWHZ)
+#define TCPTV_SRTTBASE                  0
 
-#define TCPTV_SRTTDFLT			(3 * PR_SLOWHZ)
+#define TCPTV_SRTTDFLT                  (3 * PR_SLOWHZ)
 
-#define TCPTV_PERSMIN			(5 * PR_SLOWHZ)
-#define TCPTV_PERSMAX			(60 * PR_SLOWHZ)
+#define TCPTV_PERSMIN                   (5 * PR_SLOWHZ)
+#define TCPTV_PERSMAX                   (60 * PR_SLOWHZ)
 
-#define TCPTV_KEEP_INIT			(75 * PR_SLOWHZ)
-#define TCPTV_KEEP_IDLE			(120 * PR_SLOWHZ)
-#define TCPTV_KEEPINTVL			(75 * PR_SLOWHZ)
-#define TCPTV_KEEPCNT			8
+#define TCPTV_KEEP_INIT                 (75 * PR_SLOWHZ)
+#define TCPTV_KEEP_IDLE                 (120 * PR_SLOWHZ)
+#define TCPTV_KEEPINTVL                 (75 * PR_SLOWHZ)
+#define TCPTV_KEEPCNT                   8
 
-#define TCPTV_MIN			(1 * PR_SLOWHZ)
-#define TCPTV_REXMTMAX			(64 * PR_SLOWHZ)
+#define TCPTV_MIN                       (1 * PR_SLOWHZ)
+#define TCPTV_REXMTMAX                  (64 * PR_SLOWHZ)
 
-#define TCP_LINGERTIME			120
+#define TCP_LINGERTIME                  120
 
-#define TCP_MAXRXTSHIFT			12
+#define TCP_MAXRXTSHIFT                 12
 
 #ifndef _ASMLANGUAGE
 
@@ -70,13 +70,13 @@ extern "C" {
  * RETURNS: N/A
  ******************************************************************************/
 
-#define TCPT_RANGESET(tv, value, tvmin, tvmax)				       \
-{									       \
-  (tv) = (value);							       \
-  if ( (tv) < (tvmin) )							       \
-    (tv) = (tvmin);							       \
-  else if ( (tv) > (tvmax) )						       \
-    (tv) = (tvmax);							       \
+#define TCPT_RANGESET(tv, value, tvmin, tvmax)                                 \
+{                                                                              \
+  (tv) = (value);                                                              \
+  if ( (tv) < (tvmin) )                                                        \
+    (tv) = (tvmin);                                                            \
+  else if ( (tv) > (tvmax) )                                                   \
+    (tv) = (tvmax);                                                            \
 }
 
 /*******************************************************************************
@@ -85,7 +85,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define TSTMP_LT(a, b)			((int) ((a) - (b)) < 0)
+#define TSTMP_LT(a, b)                  ((int) ((a) - (b)) < 0)
 
 /*******************************************************************************
  * TSTMP_LT - Time stamp less than
@@ -93,7 +93,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define TSTMP_GEQ(a, b)			((int) ((a) - (b)) >= 0)
+#define TSTMP_GEQ(a, b)                 ((int) ((a) - (b)) >= 0)
 
 #ifdef __cplusplus
 }

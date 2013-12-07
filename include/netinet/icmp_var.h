@@ -29,8 +29,8 @@
 #include <net/netLib.h>
 #include <netinet/ip_icmp.h>
 
-#define ICMPCTL_MASKREPL		1
-#define ICMPCTL_MAXID			2
+#define ICMPCTL_MASKREPL                1
+#define ICMPCTL_MAXID                   2
 
 #ifndef _ASMLANGUAGE
 
@@ -40,25 +40,25 @@ extern "C" {
 
 /* Structs */
 struct icmpstat {
-  unsigned long		icps_error;		/* Num calls to icmp_error */
-  unsigned long		icps_oldshort;		/* No error, old ip too short */
-  unsigned long		icps_oldicmp;		/* No error, old was icmp */
-  unsigned long		icps_outhist[ICMP_MAXTYPE + 1];
-  unsigned long		icps_badcode;		/* Code out of range */
-  unsigned long		icps_tooshort;		/* Too small packet */
-  unsigned long		icps_checksum;		/* Bad checksum */
-  unsigned long		icps_badlen;		/* Calculated bound mismatch */
-  unsigned long		icps_reflect;		/* Number of responses */
-  unsigned long		icps_inhist[ICMP_MAXTYPE + 1];
+  unsigned long         icps_error;             /* Num calls to icmp_error */
+  unsigned long         icps_oldshort;          /* No error, old ip too short */
+  unsigned long         icps_oldicmp;           /* No error, old was icmp */
+  unsigned long         icps_outhist[ICMP_MAXTYPE + 1];
+  unsigned long         icps_badcode;           /* Code out of range */
+  unsigned long         icps_tooshort;          /* Too small packet */
+  unsigned long         icps_checksum;          /* Bad checksum */
+  unsigned long         icps_badlen;            /* Calculated bound mismatch */
+  unsigned long         icps_reflect;           /* Number of responses */
+  unsigned long         icps_inhist[ICMP_MAXTYPE + 1];
 };
 
 /* Functions */
 IMPORT STATUS icmpLibInit(ICMP_CFG_PARAMS *cfg);
 IMPORT void icmp_error(struct mbuf *n,
-		       int type,
-		       int code,
-		       unsigned long dest,
-		       struct ifnet *destifp);
+                       int type,
+                       int code,
+                       unsigned long dest,
+                       struct ifnet *destifp);
 IMPORT void icmp_input(struct mbuf *m, int hlen);
 
 #ifdef __cplusplus

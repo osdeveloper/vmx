@@ -26,34 +26,34 @@
 #include <vmx.h>
 
 /* Defines */
-#define TCP_MSS				512
-#define TCP_MAXWIN			65536
-#define TCP_MAX_WINSHIFT		14
+#define TCP_MSS                         512
+#define TCP_MAXWIN                      65536
+#define TCP_MAX_WINSHIFT                14
 
-#define TCP_NODELAY			0x01
-#define TCP_MAXSEG			0x02
+#define TCP_NODELAY                     0x01
+#define TCP_MAXSEG                      0x02
 
-#define TH_FIN				0x01
-#define TH_SYN				0x02
-#define TH_RST				0x04
-#define TH_PUSH				0x08
-#define TH_ACK				0x10
-#define TH_URG				0x20
+#define TH_FIN                          0x01
+#define TH_SYN                          0x02
+#define TH_RST                          0x04
+#define TH_PUSH                         0x08
+#define TH_ACK                          0x10
+#define TH_URG                          0x20
 
-#define TCPOPT_EOL			0
-#define TCPOPT_NOP			1
-#define TCPOPT_MAXSEG			2
-#define TCPOLEN_MAXSEG			4
-#define TCPOPT_WINDOW			3
-#define TCPOLEN_WINDOW			3
-#define TCPOPT_SACK_PERMITTED		4
-#define TCPOLEN_SACK_PERMITTED		2
-#define TCPOPT_SACK			5
-#define TCPOPT_TIMESTAMP		8
-#define TCPOLEN_TIMESTAMP		10
-#define TCPOLEN_TSTAMP_APPA		(TCPOLEN_TIMESTAMP + 2)
+#define TCPOPT_EOL                      0
+#define TCPOPT_NOP                      1
+#define TCPOPT_MAXSEG                   2
+#define TCPOLEN_MAXSEG                  4
+#define TCPOPT_WINDOW                   3
+#define TCPOLEN_WINDOW                  3
+#define TCPOPT_SACK_PERMITTED           4
+#define TCPOLEN_SACK_PERMITTED          2
+#define TCPOPT_SACK                     5
+#define TCPOPT_TIMESTAMP                8
+#define TCPOLEN_TIMESTAMP               10
+#define TCPOLEN_TSTAMP_APPA             (TCPOLEN_TIMESTAMP + 2)
 
-#define TCPOPT_TSTAMP_HDR		(TCPOPT_NOP << 24 | TCPOPT_NOP << 16 | \
+#define TCPOPT_TSTAMP_HDR               (TCPOPT_NOP << 24 | TCPOPT_NOP << 16 | \
   TCPOPT_TIMESTAMP << 8 | TCPOLEN_TIMESTAMP)
 
 #ifndef _ASMLANGUAGE
@@ -67,27 +67,27 @@ typedef unsigned long tcp_seq;
 
 /* Structs */
 struct tcphdr {
-  unsigned short		th_sport;		/* Source port */
-  unsigned short		th_dport;		/* Destination port */
-  tcp_seq			th_seq;			/* Seq. number */
-  tcp_seq			th_ack;			/* Ack. number */
+  unsigned short                th_sport;               /* Source port */
+  unsigned short                th_dport;               /* Destination port */
+  tcp_seq                       th_seq;                 /* Seq. number */
+  tcp_seq                       th_ack;                 /* Ack. number */
 
 #if (_BYTE_ORDER == _LITTLE_ENDIAN)
 
-  unsigned int			th_x2:4,
-				th_off:4,		/* Data offset */
+  unsigned int                  th_x2:4,
+                                th_off:4,               /* Data offset */
 
 #elif (_BYTE_ORDER == _BIG_ENDIAN)
 
-  unsigned int			th_off:4,		/* Data offset */
-				th_x2:4,
+  unsigned int                  th_off:4,               /* Data offset */
+                                th_x2:4,
 
 #endif /* _BYTE_ORDER */
 
-				th_flags:8,		/* Flags */
-				th_win:16;		/* Window */
-  unsigned short		th_sum;			/* Checksum */
-  unsigned short		th_urp;			/* Urgent pointer */
+                                th_flags:8,             /* Flags */
+                                th_win:16;              /* Window */
+  unsigned short                th_sum;                 /* Checksum */
+  unsigned short                th_urp;                 /* Urgent pointer */
 };
 
 #ifdef __cplusplus

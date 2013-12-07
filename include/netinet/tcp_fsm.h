@@ -24,19 +24,19 @@
 #define _tcp_fsm_h
 
 /* Defines */
-#define TCPS_CLOSED			0		/* Closed */
-#define TCPS_LISTEN			1		/* Listening for conn */
-#define TCPS_SYN_SENT			2		/* Sent syn */
-#define TCPS_SYN_RECEIVED		3		/* Received syn */
-#define TCPS_ESTABLISHED		4		/* Established conn */
-#define TCPS_CLOSE_WAIT			5		/* Waiting for close */
-#define TCPS_FIN_WAIT_1			6		/* Closed, sent fin */
-#define TCPS_CLOSING			7		/* Closing */
-#define TCPS_LAST_ACK			8		/* Final ack */
-#define TCPS_FIN_WAIT_2			9		/* Closed, find acked */
-#define TCPS_TIME_WAIT			10		/* Wait for timer */
+#define TCPS_CLOSED                     0               /* Closed */
+#define TCPS_LISTEN                     1               /* Listening for conn */
+#define TCPS_SYN_SENT                   2               /* Sent syn */
+#define TCPS_SYN_RECEIVED               3               /* Received syn */
+#define TCPS_ESTABLISHED                4               /* Established conn */
+#define TCPS_CLOSE_WAIT                 5               /* Waiting for close */
+#define TCPS_FIN_WAIT_1                 6               /* Closed, sent fin */
+#define TCPS_CLOSING                    7               /* Closing */
+#define TCPS_LAST_ACK                   8               /* Final ack */
+#define TCPS_FIN_WAIT_2                 9               /* Closed, find acked */
+#define TCPS_TIME_WAIT                  10              /* Wait for timer */
 
-#define TCP_NSTATES			11
+#define TCP_NSTATES                     11
 
 #ifndef _ASMLANGUAGE
 
@@ -52,7 +52,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define TCPS_HAVERCVDSYN(s)		((s) >= TCPS_SYN_RECEIVED)
+#define TCPS_HAVERCVDSYN(s)             ((s) >= TCPS_SYN_RECEIVED)
 
 /*******************************************************************************
  * TCPS_HAVEESTABLISHED - If tcp connection has been established
@@ -60,7 +60,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define TCPS_HAVEESTABLISHED(s)		((s) >= TCPS_ESTABLISHED)
+#define TCPS_HAVEESTABLISHED(s)         ((s) >= TCPS_ESTABLISHED)
 
 /*******************************************************************************
  * TCPS_HAVERCVDFIN - If tcp connection have received fin
@@ -68,9 +68,9 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define TCPS_HAVERCVDFIN(s)		((s) < TCPS_ESTABLISHED &&	       \
-					 (s) != TCPS_FIN_WAIT_1 &&	       \
-					 (s) != TCPS_FIN_WAIT_2)
+#define TCPS_HAVERCVDFIN(s)             ((s) < TCPS_ESTABLISHED &&             \
+                                         (s) != TCPS_FIN_WAIT_1 &&             \
+                                         (s) != TCPS_FIN_WAIT_2)
 
 #ifdef __cplusplus
 }

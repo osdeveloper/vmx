@@ -33,10 +33,10 @@ extern "C" {
 
 /* Structs */
 struct udphdr {
-  unsigned short	uh_sport;		/* Source port */
-  unsigned short	uh_dport;		/* Destination port */
-  short			uh_ulen;		/* Udp length */
-  unsigned short	uh_sum;			/* Dup checksum */
+  unsigned short        uh_sport;               /* Source port */
+  unsigned short        uh_dport;               /* Destination port */
+  short                 uh_ulen;                /* Udp length */
+  unsigned short        uh_sum;                 /* Dup checksum */
 };
 
 #ifdef __cplusplus

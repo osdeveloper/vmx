@@ -37,7 +37,7 @@
 #include <net/unixDomainLib.h>
 
 /* Defines */
-#define MAX_SERVERS		10
+#define MAX_SERVERS             10
 
 /* Structs */
 struct unixDomainNode {
@@ -59,9 +59,9 @@ LOCAL struct socket *unixDomainSocket = NULL;
 
 LOCAL void unixDomainProtoInit(struct protosw *pr);
 LOCAL int unixDomainUsrreq(struct socket *so, int req,
-			   struct mbuf *arg0,
-			   struct mbuf *arg1,
-			   struct mbuf *arg2);
+                           struct mbuf *arg0,
+                           struct mbuf *arg1,
+                           struct mbuf *arg2);
 
 /* Globals */
 char unixDomainName[] = "unix";
@@ -155,9 +155,9 @@ LOCAL void unixDomainProtoInit(struct protosw *pr)
  ******************************************************************************/
 
 LOCAL int unixDomainUsrreq(struct socket *so, int req,
-			   struct mbuf *arg0,
-			   struct mbuf *arg1,
-			   struct mbuf *arg2)
+                           struct mbuf *arg0,
+                           struct mbuf *arg1,
+                           struct mbuf *arg2)
 {
   char str[64];
   int i, j, fd;
@@ -196,7 +196,7 @@ LOCAL int unixDomainUsrreq(struct socket *so, int req,
       unixDomainNodes[i].sockFd = so->so_fd;
 
       printf("PRU_BIND: Created server #%d for fd: %d\n",
-	     i, unixDomainNodes[i].sockFd);
+             i, unixDomainNodes[i].sockFd);
 
       printf("PRU_BIND COMPLETED SUCCESSFULLY!\n");
     break;
@@ -221,7 +221,7 @@ LOCAL int unixDomainUsrreq(struct socket *so, int req,
       unixDomainNodes[i].so = so;
 
       printf("PRU_LISTEN: Listening for connections on server #%d fd: %d\n",
-	     i, unixDomainNodes[i].sockFd);
+             i, unixDomainNodes[i].sockFd);
 
       printf("PRU_LISTEN COMPLETED SUCCESSFULLY!\n");
 
@@ -235,19 +235,19 @@ LOCAL int unixDomainUsrreq(struct socket *so, int req,
 
       for (i = 0; i < MAX_SERVERS; i++)
         if ( (unixDomainNodes[i].used) &&
-	     (unixDomainNodes[i].connFd == so->so_fd) )
+             (unixDomainNodes[i].connFd == so->so_fd) )
           break;
 
       if ( i >= (MAX_SERVERS - 1) ) {
 
         printf("PRU_ACCEPT: Error - No connection to server from: %d\n",
-	       so->so_fd);
+               so->so_fd);
         return ERROR;
 
       }
 
       printf("PRU_ACCEPT: Accepted connction to server #%d from fd: %d\n",
-	     i, unixDomainNodes[i].connFd);
+             i, unixDomainNodes[i].connFd);
 
       sa->sa_family = AF_UNIX;
       strcpy(sa->sa_data, "unixDomain");
@@ -272,7 +272,7 @@ LOCAL int unixDomainUsrreq(struct socket *so, int req,
 
       for (i = 0; i < MAX_SERVERS; i++)
         if ( (unixDomainNodes[i].used) &&
-	     (strcmp(str, unixDomainNodes[i].name) == 0) )
+             (strcmp(str, unixDomainNodes[i].name) == 0) )
           break;
 
       if ( i >= (MAX_SERVERS - 1) ) {
@@ -310,7 +310,7 @@ LOCAL int unixDomainUsrreq(struct socket *so, int req,
         soisconnected(aso);
 
         printf("PRU_CONNECT: Connected to server #%d fd: %d from fd: %d\n",
-	       i, unixDomainNodes[i].sockFd, unixDomainNodes[i].connFd);
+               i, unixDomainNodes[i].sockFd, unixDomainNodes[i].connFd);
 
       }
 
@@ -329,21 +329,21 @@ LOCAL int unixDomainUsrreq(struct socket *so, int req,
       if ( i >= (MAX_SERVERS - 1) ) {
 
         printf("PRU_SEND: Error - Server has not been connected to from %d\n",
-	       so->so_fd);
+               so->so_fd);
         return ERROR;
 
       }
 
       printf("PRU_SEND: Got connection to server #%d from fd: %d\n",
-	     i, unixDomainNodes[i].connFd);
+             i, unixDomainNodes[i].connFd);
 
       j = write(unixDomainNodes[i].pipeFd,
-		mtod(arg0, char *), arg0->m_len);
+                mtod(arg0, char *), arg0->m_len);
 
       if (j != arg0->m_pkthdr.len) {
 
         printf("PRU_SEND: Error - %d or %d bytes sent.\n",
-	       j, arg0->m_len);
+               j, arg0->m_len);
         return ERROR; 
 
       }

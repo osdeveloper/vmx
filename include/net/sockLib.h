@@ -35,38 +35,38 @@ extern "C" {
 
 /* Types */
 typedef struct sockFunc {
-  FUNCPTR	libInitFunc;
-  FUNCPTR	acceptFunc;
-  FUNCPTR	bindFunc;
-  FUNCPTR	connectFunc;
-  FUNCPTR	connectWithTimeoutFunc;
-  FUNCPTR	getpeernameFunc;
-  FUNCPTR	getsocknameFunc;
-  FUNCPTR	listenFunc;
-  FUNCPTR	recvFunc;
-  FUNCPTR	recvfromFunc;
-  FUNCPTR	recvmsgFunc;
-  FUNCPTR	sendFunc;
-  FUNCPTR	sendtoFunc;
-  FUNCPTR	sendmsgFunc;
-  FUNCPTR	shutdownFunc;
-  FUNCPTR	socketFunc;
-  FUNCPTR	getsockoptFunc;
-  FUNCPTR	setsockoptFunc;
-  FUNCPTR	zbufFunc;
+  FUNCPTR       libInitFunc;
+  FUNCPTR       acceptFunc;
+  FUNCPTR       bindFunc;
+  FUNCPTR       connectFunc;
+  FUNCPTR       connectWithTimeoutFunc;
+  FUNCPTR       getpeernameFunc;
+  FUNCPTR       getsocknameFunc;
+  FUNCPTR       listenFunc;
+  FUNCPTR       recvFunc;
+  FUNCPTR       recvfromFunc;
+  FUNCPTR       recvmsgFunc;
+  FUNCPTR       sendFunc;
+  FUNCPTR       sendtoFunc;
+  FUNCPTR       sendmsgFunc;
+  FUNCPTR       shutdownFunc;
+  FUNCPTR       socketFunc;
+  FUNCPTR       getsockoptFunc;
+  FUNCPTR       setsockoptFunc;
+  FUNCPTR       zbufFunc;
 } SOCK_FUNC;
 
 typedef struct sockMap {
-  int domainMap;			/* Mapping address family */
-  int domainReal;			/* Real address family */
-  SOCK_FUNC *pSockFunc;			/* Socket functions */
-  struct sockMap *pNext;		/* Pointer to next structure */
+  int domainMap;                        /* Mapping address family */
+  int domainReal;                       /* Real address family */
+  SOCK_FUNC *pSockFunc;                 /* Socket functions */
+  struct sockMap *pNext;                /* Pointer to next structure */
 } SOCK_MAP;
 
 IMPORT STATUS sockLibInit(int fdMax);
 IMPORT STATUS sockMapAdd(FUNCPTR sockMapInitFunc,
-			 int domainMap,
-			 int domainReal);
+                         int domainMap,
+                         int domainReal);
 IMPORT SOCK_FUNC* sockFdtosockFunc(int sockfd);
 
 #ifdef __cplusplus

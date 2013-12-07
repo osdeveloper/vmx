@@ -26,7 +26,7 @@
 #include <vmx.h>
 
 /* Defines */
-#define TCP_ISSINCR			(250 * 1024)
+#define TCP_ISSINCR                     (250 * 1024)
 
 #ifndef _ASMLANGUAGE
 
@@ -42,7 +42,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define SEQ_LT(a, b)			((int) ((a) - (b)) < 0)
+#define SEQ_LT(a, b)                    ((int) ((a) - (b)) < 0)
 
 /*******************************************************************************
  * SEQ_LEQ - Sequence less than or equal
@@ -50,7 +50,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define SEQ_LEQ(a, b)			((int) ((a) - (b)) <= 0)
+#define SEQ_LEQ(a, b)                   ((int) ((a) - (b)) <= 0)
 
 /*******************************************************************************
  * SEQ_LEQ - Sequence greater than
@@ -58,7 +58,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define SEQ_GT(a, b)			((int) ((a) - (b)) > 0)
+#define SEQ_GT(a, b)                    ((int) ((a) - (b)) > 0)
 
 /*******************************************************************************
  * SEQ_GEQ - Sequence greater than or equal
@@ -66,7 +66,7 @@ extern "C" {
  * RETURNS: TRUE or FALSE
  ******************************************************************************/
 
-#define SEQ_GEQ(a, b)			((int) ((a) - (b)) >= 0)
+#define SEQ_GEQ(a, b)                   ((int) ((a) - (b)) >= 0)
 
 /*******************************************************************************
  * tcp_rcvseqinit - Initialize receive sequence
@@ -74,7 +74,7 @@ extern "C" {
  * RETURNS: N/A
  ******************************************************************************/
 
-#define tcp_rcvseqinit(tp)						       \
+#define tcp_rcvseqinit(tp)                                                     \
   (tp)->rcv_adv = (tp)->rcv_nxt = (tp)->irs + 1
 
 /*******************************************************************************
@@ -83,7 +83,7 @@ extern "C" {
  * RETURNS: N/A
  ******************************************************************************/
 
-#define tcp_sendseqinit(tp)						       \
+#define tcp_sendseqinit(tp)                                                    \
   (tp)->snd_una = (tp)->snd_nxt = (tp)->snd_max = (tp)->snd_up = (tp)->iss
 
 #ifdef __cplusplus

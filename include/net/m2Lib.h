@@ -23,8 +23,8 @@
 #ifndef _m2Lib_h
 #define _m2Lib_h
 
-#define M2_ipRouteProto_other			1
-#define M2_ipRouteProto_local			2
+#define M2_ipRouteProto_other                   1
+#define M2_ipRouteProto_local                   2
 
 #ifndef _ASMLANGUAGE
 

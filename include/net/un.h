@@ -34,9 +34,9 @@ extern "C" {
 
 /* Structs */
 struct sockaddr_un {
-  unsigned char sun_len;		/* Length including null */
-  unsigned char sun_family;		/* AF_UNIX */
-  char sun_path[PATH_MAX];		/* Path for IPC file */
+  unsigned char sun_len;                /* Length including null */
+  unsigned char sun_family;             /* AF_UNIX */
+  char sun_path[PATH_MAX];              /* Path for IPC file */
 };
 
 /* Macros */
@@ -47,7 +47,7 @@ struct sockaddr_un {
  * RETURNS: Number of bytes required for socket address
  */
 
-#define SUN_LEN(su)							       \
+#define SUN_LEN(su)                                                            \
   (sizeof(*(su)) - sizeof((su)->sun_path) + strlen((su)->sun_path))
 
 #ifdef __cplusplus

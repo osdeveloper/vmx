@@ -22,7 +22,7 @@
 
 /*
  * Copyright (c) 1988, 1992, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *      The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,8 +34,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *      This product includes software developed by the University of
+ *      California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -52,7 +52,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)in_cksum.c	8.1 (Berkeley) 6/10/93
+ *      @(#)in_cksum.c  8.1 (Berkeley) 6/10/93
  */
 
 /* Includes */
@@ -87,9 +87,9 @@ struct in_ifaddr *in_ifaddr = NULL;
 struct in_addr zeroin_addr = {0};
 
 /* Macros */
-#define satosin(sa)			((struct sockaddr_in *) (sa))
-#define sintosa(sin)			((struct sockaddr *) (sin))
-#define ifatoia(ifa)			((struct in_ifaddr *) (ifa))
+#define satosin(sa)                     ((struct sockaddr_in *) (sa))
+#define sintosa(sin)                    ((struct sockaddr *) (sin))
+#define ifatoia(ifa)                    ((struct in_ifaddr *) (ifa))
 
 #define ADDCARRY(x)  (x > 65535 ? x -= 65535 : x)
 #define REDUCE {l_util.l = sum; sum = l_util.s[0] + l_util.s[1]; ADDCARRY(sum);}
@@ -235,9 +235,9 @@ void in_ifscrub(struct ifnet *ifp, struct in_ifaddr *ia)
  ******************************************************************************/
 
 int in_ifinit(struct ifnet *ifp,
-	      struct in_ifaddr *ia,
-	      struct sockaddr_in *sin,
-	      int scrub)
+              struct in_ifaddr *ia,
+              struct sockaddr_in *sin,
+              int scrub)
 {
   int s, flags, err;
   unsigned long i;
@@ -319,10 +319,10 @@ int in_ifinit(struct ifnet *ifp,
   if (ifp->if_flags & IFF_BROADCAST) {
 
     ia->ia_broadaddr.sin_addr.s_addr =
-	htonl(ia->ia_subnet | ~ia->ia_subnetmask);
+        htonl(ia->ia_subnet | ~ia->ia_subnetmask);
 
     ia->ia_netbroadcast.s_addr =
-	htonl(ia->ia_net | ~ia->ia_netmask);
+        htonl(ia->ia_net | ~ia->ia_netmask);
 
   } /* End if broadcast */
 
@@ -359,9 +359,9 @@ int in_ifinit(struct ifnet *ifp,
  ******************************************************************************/
 
 int in_control(struct socket *so,
-	       unsigned long cmd,
-	       void *data,
-	       struct ifnet *ifp)
+               unsigned long cmd,
+               void *data,
+               struct ifnet *ifp)
 {
   struct ifreq *ifr;
   struct in_ifaddr *ia, *oia;
@@ -409,7 +409,7 @@ int in_control(struct socket *so,
         for (oia = ia; ia != NULL; ia = ia->ia_next) {
 
           if ((ia->ia_ifp == ifp) &&
-	      (ia->ia_addr.sin_addr.s_addr == ifra->ifra_addr.sin_addr.s_addr))
+              (ia->ia_addr.sin_addr.s_addr == ifra->ifra_addr.sin_addr.s_addr))
             break;
 
         } /* End for all interface addresses */
@@ -582,7 +582,7 @@ int in_control(struct socket *so,
 
       /* If interface ioctl fails */
       if ( (ifp->if_ioctl != NULL) &&
-	   (err = ( *ifp->if_ioctl) (ifp, SIOCSIFDSTADDR, ia)) ) {
+           (err = ( *ifp->if_ioctl) (ifp, SIOCSIFDSTADDR, ia)) ) {
 
         ia->ia_dstaddr = oldaddr;
         return err;
@@ -645,7 +645,7 @@ int in_control(struct socket *so,
 
         /* Else if address match */
         else if (ifra->ifra_addr.sin_addr.s_addr ==
-		 ia->ia_addr.sin_addr.s_addr) {
+                 ia->ia_addr.sin_addr.s_addr) {
 
           newhost = 0;
 
@@ -665,7 +665,7 @@ int in_control(struct socket *so,
 
       /* If point-to-point and inet */
       if ( (ifp->if_flags & IFF_POINTOPOINT) &&
-	   (ifra->ifra_dstaddr.sin_family == AF_INET) ) {
+           (ifra->ifra_dstaddr.sin_family == AF_INET) ) {
 
         in_ifscrub(ifp, ia);
         ia->ia_dstaddr = ifra->ifra_dstaddr;
@@ -674,15 +674,15 @@ int in_control(struct socket *so,
       } /* End if point-to-point and inet */
 
       if ( (ifra->ifra_addr.sin_family == AF_INET) &&
-	   (newhost || newmask) )
+           (newhost || newmask) )
         err = in_ifinit(ifp, ia, &ifra->ifra_addr, 0);
 
       if ( (err == EEXIST) && !newroute)
         err = 0;
 
       if ( (ifp->if_flags & IFF_BROADCAST) &&
-	   (ifra->ifra_broadaddr.sin_family == AF_INET) &&
-	   (ifra->ifra_broadaddr.sin_addr.s_addr) )
+           (ifra->ifra_broadaddr.sin_family == AF_INET) &&
+           (ifra->ifra_broadaddr.sin_addr.s_addr) )
         ia->ia_broadaddr = ifra->ifra_broadaddr;
 
       return err;
@@ -706,7 +706,7 @@ int in_control(struct socket *so,
 
         /* Move until end or match */
         while ( (ifa->ifa_next != NULL) &&
-		(ifa->ifa_next != (struct ifaddr *) ia) )
+                (ifa->ifa_next != (struct ifaddr *) ia) )
           ifa = ifa->ifa_next;
 
         if (ifa->ifa_next != NULL)
@@ -731,7 +731,7 @@ int in_control(struct socket *so,
 
         /* Move until end or match */
         while ( (ia->ia_next != NULL) &&
-		(ia->ia_next != oia) )
+                (ia->ia_next != oia) )
           ia = ia->ia_next;
 
         if (ia->ia_next != NULL)
@@ -827,7 +827,7 @@ int in_pcbbind(struct inpcb *inp, struct mbuf *name)
 
   if ( ((so->so_options & (SO_REUSEADDR | SO_REUSEPORT)) == 0) &&
         ( ((so->so_proto->pr_flags & PR_CONNREQUIRED) == 0) ||
-	  ((so->so_options & SO_ACCEPTCONN) == 0) ) )
+          ((so->so_options & SO_ACCEPTCONN) == 0) ) )
     wild = INPLOOKUP_WILDCARD;
 
   /* If name non-null */
@@ -872,7 +872,7 @@ int in_pcbbind(struct inpcb *inp, struct mbuf *name)
 
       /* Lookup address */
       t = in_pcblookup(inp->inp_pcbinfo, zeroin_addr, 0,
-		       sin->sin_addr, lport, wild);
+                       sin->sin_addr, lport, wild);
       if ( (t != NULL) && ((reuseport & t->inp_socket->so_options) == 0) )
         return EADDRINUSE;
 
@@ -891,13 +891,13 @@ int in_pcbbind(struct inpcb *inp, struct mbuf *name)
 
       ++*lastport;
       if ( (*lastport < IPPORT_RESERVED) ||
-	   (*lastport > IPPORT_USERRESERVED) )
+           (*lastport > IPPORT_USERRESERVED) )
         *lastport = IPPORT_RESERVED;
 
       lport = htons(*lastport);
 
     } while (in_pcblookup(inp->inp_pcbinfo, zeroin_addr, 0,
-			  inp->inp_laddr, lport, wild) );
+                          inp->inp_laddr, lport, wild) );
 
   } /* End if local port zero */
 
@@ -915,8 +915,8 @@ int in_pcbbind(struct inpcb *inp, struct mbuf *name)
  ******************************************************************************/
 
 int in_pcbladdr(struct inpcb *inp,
-		struct mbuf *name,
-		struct sockaddr_in **plocal_sin)
+                struct mbuf *name,
+                struct sockaddr_in **plocal_sin)
 {
   struct in_ifaddr *ia;
   struct sockaddr_in *sin;
@@ -956,8 +956,8 @@ int in_pcbladdr(struct inpcb *inp,
         /* If broadcast */
         if (ia->ia_ifp->if_flags & IFF_BROADCAST) {
 
-	  sin->sin_addr =
-		satosin(&in_ifaddr->ia_next->ia_broadaddr)->sin_addr;
+          sin->sin_addr =
+                satosin(&in_ifaddr->ia_next->ia_broadaddr)->sin_addr;
 
           break;
 
@@ -976,8 +976,8 @@ int in_pcbladdr(struct inpcb *inp,
     ro = &inp->inp_route;
 
     if ( (ro->ro_rt != NULL) &&
-	 ( (satosin(&ro->ro_dst)->sin_addr.s_addr != sin->sin_addr.s_addr) ||
-	   (inp->inp_socket->so_options & SO_DONTROUTE) ) ) {
+         ( (satosin(&ro->ro_dst)->sin_addr.s_addr != sin->sin_addr.s_addr) ||
+           (inp->inp_socket->so_options & SO_DONTROUTE) ) ) {
 
       RTFREE(ro->ro_rt);
       ro->ro_rt = NULL;
@@ -986,7 +986,7 @@ int in_pcbladdr(struct inpcb *inp,
 
     /* If route but no routing info */
     if ( ((inp->inp_socket->so_options & SO_DONTROUTE) == 0) &&
-	 ( (ro->ro_rt == NULL) || (ro->ro_rt->rt_ifp == NULL) ) ) {
+         ( (ro->ro_rt == NULL) || (ro->ro_rt->rt_ifp == NULL) ) ) {
 
       ro->ro_dst.sa_family = AF_INET;
       ro->ro_dst.sa_len = sizeof(struct sockaddr_in);
@@ -1082,7 +1082,7 @@ int in_pcbconnect(struct inpcb *inp, struct mbuf *name)
 
   /* Check if it exists in table */
   if (in_pcblookuphash(inp->inp_pcbinfo, sin->sin_addr, sin->sin_port,
-		       addr, inp->inp_lport, 0) != NULL)
+                       addr, inp->inp_lport, 0) != NULL)
     return EADDRINUSE;
 
   /* If any local address */
@@ -1179,7 +1179,7 @@ void in_pcbinshash(struct inpcb *inp)
 
   /* Get head from hash table */
   pHead = &inp->inp_pcbinfo->hashbase[INP_PCBHASH(inp->inp_faddr.s_addr,
-	inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
+        inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
 
   /* Insert into list */
   listInsert(pHead, NULL, &inp->inp_hash);
@@ -1194,9 +1194,9 @@ void in_pcbinshash(struct inpcb *inp)
 int in_pcbhash(struct inpcb *inp)
 {
   return (INP_PCBHASH(inp->inp_faddr.s_addr,
-  		      inp->inp_lport,
-		      inp->inp_fport,
-		      inp->inp_pcbinfo->hashmask));
+                      inp->inp_lport,
+                      inp->inp_fport,
+                      inp->inp_pcbinfo->hashmask));
 }
 
 /*******************************************************************************
@@ -1219,7 +1219,7 @@ void in_pcbchghash(struct inpcb *inp, int oi)
 
   /* Insert into new place in hash list */
   pHead = &inp->inp_pcbinfo->hashbase[INP_PCBHASH(inp->inp_faddr.s_addr,
-	inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
+        inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
   listInsert(pHead, NULL, &inp->inp_hash);
 
   /* Restore processor level */
@@ -1245,7 +1245,7 @@ void in_pcbrehash(struct inpcb *inp)
 
   /* Get head from hash table */
   pHead = &inp->inp_pcbinfo->hashbase[INP_PCBHASH(inp->inp_faddr.s_addr,
-	inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
+        inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
 
   /* Insert into hash list */
   listInsert(pHead, NULL, &inp->inp_hash);
@@ -1266,7 +1266,7 @@ void in_pcbremhash(struct inpcb *inp)
 
   /* Get head from hash table */
   pHead = &inp->inp_pcbinfo->hashbase[INP_PCBHASH(inp->inp_faddr.s_addr,
-	inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
+        inp->inp_lport, inp->inp_fport, inp->inp_pcbinfo->hashmask)];
 
   /* Remove from hash list */
   listRemove(pHead, &inp->inp_hash);
@@ -1279,11 +1279,11 @@ void in_pcbremhash(struct inpcb *inp)
  ******************************************************************************/
 
 struct inpcb* in_pcblookuphash(struct inpcbinfo *pcbinfo,
-			       struct in_addr faddr,
-			       unsigned int fport_arg,
-			       struct in_addr laddr,
-			       unsigned int lport_arg,
-			       int wildcard)
+                               struct in_addr faddr,
+                               unsigned int fport_arg,
+                               struct in_addr laddr,
+                               unsigned int lport_arg,
+                               int wildcard)
 {
   struct inpcb *inp, *inpw;
   LIST *pHead;
@@ -1300,20 +1300,20 @@ struct inpcb* in_pcblookuphash(struct inpcbinfo *pcbinfo,
 
   /* Get head from hash table */
   pHead = &pcbinfo->hashbase[INP_PCBHASH(faddr.s_addr, lport, fport,
-	pcbinfo->hashmask)];
+        pcbinfo->hashmask)];
 
   /* For all nodes in list */
   for (pNode = LIST_HEAD(pHead); pNode != NULL; pNode = LIST_NEXT(pNode)) {
 
     /* Calculate address of struct */
     inp = (struct inpcb *) ( ((char *) pNode) -
-				OFFSET(struct inpcb, inp_hash) );
+                                OFFSET(struct inpcb, inp_hash) );
 
     /* If match */
     if ( (inp->inp_faddr.s_addr == faddr.s_addr) &&
-	 (inp->inp_fport == fport) &&
+         (inp->inp_fport == fport) &&
          (inp->inp_laddr.s_addr == laddr.s_addr) &&
-	 (inp->inp_lport == lport) )
+         (inp->inp_lport == lport) )
       goto found;
 
   } /* End for all nodes in list */
@@ -1326,19 +1326,19 @@ struct inpcb* in_pcblookuphash(struct inpcbinfo *pcbinfo,
 
     /* Get head from hash table */
     pHead = &pcbinfo->hashbase[INP_PCBHASH(INADDR_ANY, lport, 0,
-	pcbinfo->hashmask)];
+        pcbinfo->hashmask)];
 
     /* For all nodes in list */
     for (pNode = LIST_HEAD(pHead); pNode != NULL; pNode = LIST_NEXT(pNode)) {
 
       /* Calculate address of struct */
       inp = (struct inpcb *) ( ((char *) pNode) -
-				OFFSET(struct inpcb, inp_hash) );
+                                OFFSET(struct inpcb, inp_hash) );
 
       /* If partial match */
       if ( (inp->inp_faddr.s_addr == INADDR_ANY) &&
-	   (inp->inp_fport == 0) &&
-	   (inp->inp_lport == lport) ) {
+           (inp->inp_fport == 0) &&
+           (inp->inp_lport == lport) ) {
 
         if (inp->inp_laddr.s_addr == laddr.s_addr)
           goto found;
@@ -1389,11 +1389,11 @@ found:
  ******************************************************************************/
 
 struct inpcb* in_pcblookup(struct inpcbinfo *pcbinfo,
-			   struct in_addr faddr,
-			   unsigned int fport_arg,
-			   struct in_addr laddr,
-			   unsigned int lport_arg,
-			   int wild_okay)
+                           struct in_addr faddr,
+                           unsigned int fport_arg,
+                           struct in_addr laddr,
+                           unsigned int lport_arg,
+                           int wild_okay)
 {
   struct inpcb *inp, *match;
   int wildcard, matchwild;
@@ -1427,7 +1427,7 @@ struct inpcb* in_pcblookup(struct inpcbinfo *pcbinfo,
       if (faddr.s_addr == INADDR_ANY)
         wildcard++;
       else if ( (inp->inp_faddr.s_addr != faddr.s_addr) ||
-		(inp->inp_fport != fport) )
+                (inp->inp_fport != fport) )
         continue;
 
     } /* End if not any foreign address */
@@ -1548,10 +1548,10 @@ int in_broadcast(struct in_addr in, struct ifnet *ifp)
   for (ifa = ifp->if_addrlist; ifa != NULL; ifa = ifa->ifa_next) {
 
     if ((ifa->ifa_addr->sa_family == AF_INET) &&
-	(in.s_addr == ((struct in_ifaddr *)ifa)->ia_broadaddr.sin_addr.s_addr ||
-	 in.s_addr == ((struct in_ifaddr *)ifa)->ia_netbroadcast.s_addr ||
-	  t == ((struct in_ifaddr *)ifa)->ia_subnet ||
-	  t == ((struct in_ifaddr *)ifa)->ia_net) )
+        (in.s_addr == ((struct in_ifaddr *)ifa)->ia_broadaddr.sin_addr.s_addr ||
+         in.s_addr == ((struct in_ifaddr *)ifa)->ia_netbroadcast.s_addr ||
+          t == ((struct in_ifaddr *)ifa)->ia_subnet ||
+          t == ((struct in_ifaddr *)ifa)->ia_net) )
       return 1;
 
   } /* End for all addresses for interface */
@@ -1593,12 +1593,12 @@ int in_canforward(struct in_addr in)
  ******************************************************************************/
 
 void in_pcbnotify(LIST *pList,
-		  struct sockaddr *dst,
-		  unsigned int fport_arg,
-		  struct in_addr laddr,
-		  unsigned int lport_arg,
-		  int cmd,
-		  VOIDFUNCPTR notify)
+                  struct sockaddr *dst,
+                  unsigned int fport_arg,
+                  struct in_addr laddr,
+                  unsigned int lport_arg,
+                  int cmd,
+                  VOIDFUNCPTR notify)
 {
   struct inpcb *inp, *oinp;
   struct in_addr faddr;
@@ -1643,12 +1643,12 @@ void in_pcbnotify(LIST *pList,
        inp != NULL; ) {
 
     if ( ((inp->inp_faddr.s_addr != faddr.s_addr) &&
-	  (((struct sockaddr_in *) &inp->inp_route.ro_dst)->sin_addr.s_addr !=
-	    faddr.s_addr)) ||
-	 inp->inp_socket == NULL ||
-	 (lport && inp->inp_lport != lport) ||
-	 (laddr.s_addr && inp->inp_laddr.s_addr != laddr.s_addr) ||
-	 (fport && inp->inp_fport != fport) ) {
+          (((struct sockaddr_in *) &inp->inp_route.ro_dst)->sin_addr.s_addr !=
+            faddr.s_addr)) ||
+         inp->inp_socket == NULL ||
+         (lport && inp->inp_lport != lport) ||
+         (laddr.s_addr && inp->inp_laddr.s_addr != laddr.s_addr) ||
+         (fport && inp->inp_fport != fport) ) {
 
       inp = (struct inpcb *) LIST_NEXT(&inp->inp_list);
       continue;
@@ -1749,100 +1749,100 @@ void in_setpeeraddr(struct inpcb *inp, struct mbuf *name)
 
 int in_cksum(struct mbuf *m, int len)
 {
-	u_short *w;
-	int sum = 0;
-	int mlen = 0;
-	int byte_swapped = 0;
+        u_short *w;
+        int sum = 0;
+        int mlen = 0;
+        int byte_swapped = 0;
 
-	union {
-		char	c[2];
-		u_short	s;
-	} s_util;
-	union {
-		u_short s[2];
-		long	l;
-	} l_util;
+        union {
+                char    c[2];
+                u_short s;
+        } s_util;
+        union {
+                u_short s[2];
+                long    l;
+        } l_util;
 
-	for (;m && len; m = m->m_next) {
-		if (m->m_len == 0)
-			continue;
-		w = mtod(m, u_short *);
-		if (mlen == -1) {
-			/*
-			 * The first byte of this mbuf is the continuation
-			 * of a word spanning between this mbuf and the
-			 * last mbuf.
-			 *
-			 * s_util.c[0] is already saved when scanning previous 
-			 * mbuf.
-			 */
-			s_util.c[1] = *(char *)w;
-			sum += s_util.s;
-			w = (u_short *)((char *)w + 1);
-			mlen = m->m_len - 1;
-			len--;
-		} else
-			mlen = m->m_len;
-		if (len < mlen)
-			mlen = len;
-		len -= mlen;
-		/*
-		 * Force to even boundary.
-		 */
-		if ((1 & (int) w) && (mlen > 0)) {
-			REDUCE;
-			sum <<= 8;
-			s_util.c[0] = *(u_char *)w;
-			w = (u_short *)((char *)w + 1);
-			mlen--;
-			byte_swapped = 1;
-		}
-		/*
-		 * Unroll the loop to make overhead from
-		 * branches &c small.
-		 */
-		while ((mlen -= 32) >= 0) {
-			sum += w[0]; sum += w[1]; sum += w[2]; sum += w[3];
-			sum += w[4]; sum += w[5]; sum += w[6]; sum += w[7];
-			sum += w[8]; sum += w[9]; sum += w[10]; sum += w[11];
-			sum += w[12]; sum += w[13]; sum += w[14]; sum += w[15];
-			w += 16;
-		}
-		mlen += 32;
-		while ((mlen -= 8) >= 0) {
-			sum += w[0]; sum += w[1]; sum += w[2]; sum += w[3];
-			w += 4;
-		}
-		mlen += 8;
-		if (mlen == 0 && byte_swapped == 0)
-			continue;
-		REDUCE;
-		while ((mlen -= 2) >= 0) {
-			sum += *w++;
-		}
-		if (byte_swapped) {
-			REDUCE;
-			sum <<= 8;
-			byte_swapped = 0;
-			if (mlen == -1) {
-				s_util.c[1] = *(char *)w;
-				sum += s_util.s;
-				mlen = 0;
-			} else
-				mlen = -1;
-		} else if (mlen == -1)
-			s_util.c[0] = *(char *)w;
-	}
-	if (len)
-		printf("cksum: out of data\n");
-	if (mlen == -1) {
-		/* The last mbuf has odd # of bytes. Follow the
-		   standard (the odd byte may be shifted left by 8 bits
-		   or not as determined by endian-ness of the machine) */
-		s_util.c[1] = 0;
-		sum += s_util.s;
-	}
-	REDUCE;
-	return (~sum & 0xffff);
+        for (;m && len; m = m->m_next) {
+                if (m->m_len == 0)
+                        continue;
+                w = mtod(m, u_short *);
+                if (mlen == -1) {
+                        /*
+                         * The first byte of this mbuf is the continuation
+                         * of a word spanning between this mbuf and the
+                         * last mbuf.
+                         *
+                         * s_util.c[0] is already saved when scanning previous 
+                         * mbuf.
+                         */
+                        s_util.c[1] = *(char *)w;
+                        sum += s_util.s;
+                        w = (u_short *)((char *)w + 1);
+                        mlen = m->m_len - 1;
+                        len--;
+                } else
+                        mlen = m->m_len;
+                if (len < mlen)
+                        mlen = len;
+                len -= mlen;
+                /*
+                 * Force to even boundary.
+                 */
+                if ((1 & (int) w) && (mlen > 0)) {
+                        REDUCE;
+                        sum <<= 8;
+                        s_util.c[0] = *(u_char *)w;
+                        w = (u_short *)((char *)w + 1);
+                        mlen--;
+                        byte_swapped = 1;
+                }
+                /*
+                 * Unroll the loop to make overhead from
+                 * branches &c small.
+                 */
+                while ((mlen -= 32) >= 0) {
+                        sum += w[0]; sum += w[1]; sum += w[2]; sum += w[3];
+                        sum += w[4]; sum += w[5]; sum += w[6]; sum += w[7];
+                        sum += w[8]; sum += w[9]; sum += w[10]; sum += w[11];
+                        sum += w[12]; sum += w[13]; sum += w[14]; sum += w[15];
+                        w += 16;
+                }
+                mlen += 32;
+                while ((mlen -= 8) >= 0) {
+                        sum += w[0]; sum += w[1]; sum += w[2]; sum += w[3];
+                        w += 4;
+                }
+                mlen += 8;
+                if (mlen == 0 && byte_swapped == 0)
+                        continue;
+                REDUCE;
+                while ((mlen -= 2) >= 0) {
+                        sum += *w++;
+                }
+                if (byte_swapped) {
+                        REDUCE;
+                        sum <<= 8;
+                        byte_swapped = 0;
+                        if (mlen == -1) {
+                                s_util.c[1] = *(char *)w;
+                                sum += s_util.s;
+                                mlen = 0;
+                        } else
+                                mlen = -1;
+                } else if (mlen == -1)
+                        s_util.c[0] = *(char *)w;
+        }
+        if (len)
+                printf("cksum: out of data\n");
+        if (mlen == -1) {
+                /* The last mbuf has odd # of bytes. Follow the
+                   standard (the odd byte may be shifted left by 8 bits
+                   or not as determined by endian-ness of the machine) */
+                s_util.c[1] = 0;
+                sum += s_util.s;
+        }
+        REDUCE;
+        return (~sum & 0xffff);
 }
 

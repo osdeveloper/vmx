@@ -122,17 +122,17 @@ void rip_input(struct mbuf *m)
 
     /* If protocol mismatch */
     if ( (inp->inp_ip.ip_p) &&
-	 (inp->inp_ip.ip_p != ip->ip_p) )
+         (inp->inp_ip.ip_p != ip->ip_p) )
       continue;
 
     /* If local address and destination address mismatch */
     if ( (inp->inp_laddr.s_addr) &&
-	 (inp->inp_laddr.s_addr != ip->ip_dst.s_addr) )
+         (inp->inp_laddr.s_addr != ip->ip_dst.s_addr) )
       continue;
 
     /* If foreign address and soruce address mismatch */
     if ( (inp->inp_faddr.s_addr) &&
-	 (inp->inp_faddr.s_addr != ip->ip_src.s_addr) )
+         (inp->inp_faddr.s_addr != ip->ip_src.s_addr) )
       continue;
 
     /* If last match found */
@@ -145,9 +145,9 @@ void rip_input(struct mbuf *m)
       if (n != NULL) {
 
         if ( sbappendaddr(&last->so_rcv,
-			 (struct sockaddr *) &ripsrc,
-			 n,
-			 (struct mbuf *) NULL) == 0 )
+                         (struct sockaddr *) &ripsrc,
+                         n,
+                         (struct mbuf *) NULL) == 0 )
           m_freem(n);
         else
           sorwakeup(last);
@@ -165,9 +165,9 @@ void rip_input(struct mbuf *m)
   if (last != NULL) {
 
     if ( sbappendaddr(&last->so_rcv,
-		     (struct sockaddr *) &ripsrc,
-		     m,
-		     (struct mbuf *) NULL) == 0 )
+                     (struct sockaddr *) &ripsrc,
+                     m,
+                     (struct mbuf *) NULL) == 0 )
       m_freem(m);
     else
       sorwakeup(last);
@@ -229,7 +229,7 @@ int rip_output(struct mbuf *m, struct socket *so, unsigned long dst)
   else {
 
     if ( (m->m_len < sizeof(struct ip)) &&
-	 (m = m_pullup(m, sizeof(struct ip))) == NULL )
+         (m = m_pullup(m, sizeof(struct ip))) == NULL )
       return ENOBUFS;
 
     ip = mtod(m, struct ip *);
@@ -256,10 +256,10 @@ int rip_output(struct mbuf *m, struct socket *so, unsigned long dst)
  ******************************************************************************/
 
 int rip_ctloutput(int op,
-		  struct socket *so,
-		  int level,
-		  int optname,
-		  struct mbuf **m)
+                  struct socket *so,
+                  int level,
+                  int optname,
+                  struct mbuf **m)
 {
   struct inpcb *inp;
   int err;
@@ -278,15 +278,15 @@ int rip_ctloutput(int op,
       if (op == PRCO_SETOPT) {
 
         if ( (*m == NULL) ||
-	     (*m)->m_len < sizeof(int) )
-	  err = EINVAL;
-	else if ( *mtod(*m, int *) )
-	  inp->inp_flags |= INP_HDRINCL;
-	else
-	  inp->inp_flags &= ~INP_HDRINCL;
+             (*m)->m_len < sizeof(int) )
+          err = EINVAL;
+        else if ( *mtod(*m, int *) )
+          inp->inp_flags |= INP_HDRINCL;
+        else
+          inp->inp_flags &= ~INP_HDRINCL;
 
-	if (*m != NULL)
-	  m_free(*m);
+        if (*m != NULL)
+          m_free(*m);
 
       } /* End if set option */
 
@@ -303,7 +303,7 @@ int rip_ctloutput(int op,
         else {
 
           (*m)->m_len = sizeof(int);
-	  *mtod(*m, int *) = inp->inp_flags & INP_HDRINCL;
+          *mtod(*m, int *) = inp->inp_flags & INP_HDRINCL;
 
         }
 
@@ -326,10 +326,10 @@ int rip_ctloutput(int op,
  ******************************************************************************/
 
 int rip_usrreq(struct socket *so,
-	       int req,
-	       struct mbuf *m,
-	       struct mbuf *name,
-	       struct mbuf *ctrl)
+               int req,
+               struct mbuf *m,
+               struct mbuf *name,
+               struct mbuf *ctrl)
 {
   int err;
   struct inpcb *inp;
@@ -362,7 +362,7 @@ int rip_usrreq(struct socket *so,
 
       /* If reserve space or pcb alloc fails */
       if ( (err = soreserve(so, rip_sendspace, rip_recvspace)) ||
-	   (err = in_pcballoc(so, &ripcbinfo)) )
+           (err = in_pcballoc(so, &ripcbinfo)) )
         break;
 
       /* Get allocated pcb */
@@ -416,13 +416,13 @@ int rip_usrreq(struct socket *so,
 
       /* If no inet address  */
       if ( (ifnet == NULL) &&
-	   ((sin->sin_family != AF_INET) &&
-	    (sin->sin_family != AF_IMPLINK)) ||
-	   (sin->sin_addr.s_addr &&
-	    ifa_ifwithaddr((struct sockaddr *) sin) == 0) ) {
+           ((sin->sin_family != AF_INET) &&
+            (sin->sin_family != AF_IMPLINK)) ||
+           (sin->sin_addr.s_addr &&
+            ifa_ifwithaddr((struct sockaddr *) sin) == 0) ) {
 
         err = EADDRNOTAVAIL;
-	break;
+        break;
 
       } /* End if no inet address */
 
@@ -448,13 +448,13 @@ int rip_usrreq(struct socket *so,
       if (ifnet == NULL) {
 
         err = EADDRNOTAVAIL;
-	break;
+        break;
 
       } /* End if no interface address  */
 
       /* If wrong family */
       if ( (sin->sin_family != AF_INET) &&
-	   (sin->sin_family != AF_IMPLINK) ) {
+           (sin->sin_family != AF_IMPLINK) ) {
 
         err = EAFNOSUPPORT;
         break;
@@ -487,15 +487,15 @@ int rip_usrreq(struct socket *so,
       /* If connected */
       if (so->so_state & SS_ISCONNECTED) {
 
-	/* If destination given */
+        /* If destination given */
         if (name != NULL) {
 
-	  err = EISCONN;
-	  break;
+          err = EISCONN;
+          break;
 
-	} /* End if destination given */
+        } /* End if destination given */
 
-	/* Get destination for connection */
+        /* Get destination for connection */
         dst = inp->inp_faddr.s_addr;
 
       } /* End if connected */
@@ -506,13 +506,13 @@ int rip_usrreq(struct socket *so,
         /* If destination not given */
         if (name == NULL) {
 
-	  err = ENOTCONN;
-	  break;
+          err = ENOTCONN;
+          break;
 
         } /* End if destination not given */
 
-	/* Get give destination */
-	dst = mtod(name, struct sockaddr_in *)->sin_addr.s_addr;
+        /* Get give destination */
+        dst = mtod(name, struct sockaddr_in *)->sin_addr.s_addr;
 
       } /* End else not connected */
 

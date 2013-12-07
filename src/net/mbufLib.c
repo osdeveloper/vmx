@@ -69,11 +69,11 @@ STATUS mbufLibInit(void)
 
   /* Initialize network buffers */
   if ( netPoolInit(&netSysDpool, &mClBlkConfig, clDescTable,
-		clDescTableNumEntries, NULL) != OK)
+                clDescTableNumEntries, NULL) != OK)
     return ERROR;
 
   if ( netPoolInit(&netSysPool, &sysMclBlkConfig, sysClDescTable,
-		sysClDescTableNumEntries, NULL) != OK)
+                sysClDescTableNumEntries, NULL) != OK)
     return ERROR;
 
   return OK;
@@ -92,7 +92,7 @@ void* mb_alloc(size_t size, unsigned char type, int canWait)
 
   /* Get network tuple */
   pMblk = netTupleGet(netSysPoolId, (size + sizeof(struct mbuf *)),
-		      canWait, type, TRUE);
+                      canWait, type, TRUE);
   if (pMblk == NULL)
     return NULL;
 
@@ -124,7 +124,7 @@ void mb_free(void *buf)
  ******************************************************************************/
 
 struct mbuf* m_get(int canWait, unsigned char type,
-		   int bufsize, BOOL bestFit)
+                   int bufsize, BOOL bestFit)
 {
   M_BLK_ID blkId;
 
@@ -151,7 +151,7 @@ struct mbuf* m_get(int canWait, unsigned char type,
  ******************************************************************************/
 
 struct mbuf* m_gethdr(int canWait, unsigned char type,
-		      int bufsize, BOOL bestFit)
+                      int bufsize, BOOL bestFit)
 {
   M_BLK_ID blkId;
 

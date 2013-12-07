@@ -36,21 +36,21 @@ extern "C" {
 
 /* Structs */
 struct domain {
-  int			dom_family;		/* Domain family */
-  char			*dom_name;		/* Domain name */
+  int                   dom_family;             /* Domain family */
+  char                  *dom_name;              /* Domain name */
 
-  FUNCPTR		dom_init;		/* Initialize domain */
-  FUNCPTR		dom_externalize;	/* Externalize right */
-  FUNCPTR		dom_dispose;		/* Dispose external right */
+  FUNCPTR               dom_init;               /* Initialize domain */
+  FUNCPTR               dom_externalize;        /* Externalize right */
+  FUNCPTR               dom_dispose;            /* Dispose external right */
 
-  struct protosw	*dom_protosw;		/* Protocol switch table */
-  struct protosw	*dom_nprotosw;
-  struct domain		*dom_next;		/* Next domain */
+  struct protosw        *dom_protosw;           /* Protocol switch table */
+  struct protosw        *dom_nprotosw;
+  struct domain         *dom_next;              /* Next domain */
 
-  FUNCPTR		dom_rtattach;		/* Initialize routing table */
+  FUNCPTR               dom_rtattach;           /* Initialize routing table */
 
-  int			dom_rtoffset;		/* Arg to reattach */
-  int			dom_maxrtkey;		/* For routing layer */
+  int                   dom_rtoffset;           /* Arg to reattach */
+  int                   dom_maxrtkey;           /* For routing layer */
 };
 
 /* Functions */

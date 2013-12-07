@@ -33,8 +33,8 @@ extern "C" {
 #endif
 
 IMPORT STATUS etherOutput(struct ifnet *pIf,
-			  struct ether_header *pEh,
-			  char *pData);
+                          struct ether_header *pEh,
+                          char *pData);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

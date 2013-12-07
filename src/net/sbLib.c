@@ -80,9 +80,9 @@ void sbcompress(struct sockbuf *sb, struct mbuf *m, struct mbuf *n)
 
     /* If packet can be removed */
     if ( (m->m_len == 0) &&
-	 ( (eor == 0) ||
-	  ( (((o = m->m_next) != NULL) || ((o = n) != NULL)) &&
-	   (o->m_type == m->m_type) )) ) {
+         ( (eor == 0) ||
+          ( (((o = m->m_next) != NULL) || ((o = n) != NULL)) &&
+           (o->m_type == m->m_type) )) ) {
 
       m = m_free(m);
       continue;
@@ -91,10 +91,10 @@ void sbcompress(struct sockbuf *sb, struct mbuf *m, struct mbuf *n)
 
     /* If data copy possible */
     if ( (n != NULL) &&
-	 ((n->m_flags & M_EOR) == 0) &&
-	 (m->m_len < CL_SIZE_MIN) &&
-	 (n->m_data + n->m_len + m->m_len) < (n->m_extBuf + n->m_extSize) &&
-	 (n->m_type == m->m_type) ) {
+         ((n->m_flags & M_EOR) == 0) &&
+         (m->m_len < CL_SIZE_MIN) &&
+         (n->m_data + n->m_len + m->m_len) < (n->m_extBuf + n->m_extSize) &&
+         (n->m_type == m->m_type) ) {
 
       memcpy( mtod(n, char *) + n->m_len, mtod(m, char *), m->m_len );
       n->m_len += m->m_len;
@@ -315,8 +315,8 @@ void sbwakeup(struct socket *so, struct sockbuf *sb, SELECT_TYPE selType)
  ******************************************************************************/
 
 void sbseldequeue(struct socket *so,
-		  struct sockbuf *sb,
-		  SEL_WAKEUP_NODE *wakeupNode)
+                  struct sockbuf *sb,
+                  SEL_WAKEUP_NODE *wakeupNode)
 {
   selNodeDelete(&so->so_selWakeupList, wakeupNode);
 
@@ -453,9 +453,9 @@ void sbappendrecord(struct sockbuf *sb, struct mbuf *m0)
  ******************************************************************************/
 
 int sbappendaddr(struct sockbuf *sb,
-		 struct sockaddr *asa,
-		 struct mbuf *m0,
-		 struct mbuf *ctrl)
+                 struct sockaddr *asa,
+                 struct mbuf *m0,
+                 struct mbuf *ctrl)
 {
   int space;
   struct mbuf *m, *n;

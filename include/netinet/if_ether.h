@@ -26,16 +26,16 @@
 #include <netinet/in.h>
 
 /* Defines */
-#define ETHERTYPE_PUP			0x0200		/* PUP protocol */
-#define ETHERTYPE_IP			0x0800		/* IP protocol */
-#define ETHERTYPE_ARP			0x0806		/* ARP protocol */
-#define ETHERTYPE_REVARP		0x8035		/* Reverse ARP proto. */
+#define ETHERTYPE_PUP                   0x0200          /* PUP protocol */
+#define ETHERTYPE_IP                    0x0800          /* IP protocol */
+#define ETHERTYPE_ARP                   0x0806          /* ARP protocol */
+#define ETHERTYPE_REVARP                0x8035          /* Reverse ARP proto. */
 
-#define ETHERTYPE_TRAIL			0x1000		/* Trailer packet */
-#define ETHERTYPE_NTRAILER		16
+#define ETHERTYPE_TRAIL                 0x1000          /* Trailer packet */
+#define ETHERTYPE_NTRAILER              16
 
-#define ETHERMTU			1500
-#define ETHERMIN			( 60 - 14 )
+#define ETHERMTU                        1500
+#define ETHERMIN                        ( 60 - 14 )
 
 #ifndef _ASMLANGUAGE
 
@@ -45,20 +45,20 @@ extern "C" {
 
 /* Structs */
 struct ether_addr {
-  unsigned char		ether_addr_octet[6];
+  unsigned char         ether_addr_octet[6];
 } __attribute__((packed));
 
 struct ether_header {
-  unsigned char		ether_dhost[6];
-  unsigned char		ether_shost[6];
-  unsigned short	ether_type;
+  unsigned char         ether_dhost[6];
+  unsigned char         ether_shost[6];
+  unsigned short        ether_type;
 } __attribute__((packed));
 
 struct ether_tag_header {
-  unsigned char		ether_dhost[6];
-  unsigned char		ether_shost[6];
-  unsigned char		etherTag[4];
-  unsigned short	ether_type;
+  unsigned char         ether_dhost[6];
+  unsigned char         ether_shost[6];
+  unsigned char         etherTag[4];
+  unsigned short        ether_type;
 } __attribute__((packed));
 
 #ifdef __cplusplus

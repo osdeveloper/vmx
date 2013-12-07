@@ -37,9 +37,9 @@
 #include <netinet/inetLib.h>
 
 /* Defines */
-#define RT_SHOW_NET				0x001
-#define RT_SHOW_HST				0x010
-#define RT_SHOW_ARP				0x100
+#define RT_SHOW_NET                             0x001
+#define RT_SHOW_HST                             0x010
+#define RT_SHOW_ARP                             0x100
 
 /* Imports */
 IMPORT struct domain *domains;
@@ -86,13 +86,13 @@ LOCAL char sockName[SOCK_MAX][14] = {
 };
 
 LOCAL char sepLine[] = "-------------------------------------------------------"
-		       "------------------------\n";
+                       "------------------------\n";
 
 LOCAL void clPoolShow(NET_POOL_ID poolId);
 LOCAL void ifInetAddrPrint(char *str, struct sockaddr *addr);
 LOCAL BOOL routeEntryPrint(struct rtentry *pRoute,
-			   void *pRouteType,
-			   BOOL ipRouteFlag);
+                           void *pRouteType,
+                           BOOL ipRouteFlag);
 LOCAL int routeNodeShow(struct radix_node *pNode, void *w);
 LOCAL void routeTableShow(int routeType, int af);
 
@@ -176,7 +176,7 @@ void netPoolShow(NET_POOL_ID poolId)
   for (i = 0; i < NUM_MBLK_TYPES; i++) {
 
     printf("%-8s:    %3ld\n",
-	mtNames[i], poolId->pPoolStat->mTypes[mtTypes[i]]);
+        mtNames[i], poolId->pPoolStat->mTypes[mtTypes[i]]);
     sum += poolId->pPoolStat->mTypes[mtTypes[i]];
 
   } /* End for all block types */
@@ -187,11 +187,11 @@ void netPoolShow(NET_POOL_ID poolId)
   /* Print other net pool info */
   printf("number of mbufs: %ld\n", poolId->pPoolStat->mNum);
   printf("number of times failed to find space: %ld\n",
-	poolId->pPoolStat->mDrops);
+        poolId->pPoolStat->mDrops);
   printf("number of times waited for space: %ld\n",
-	poolId->pPoolStat->mDrops);
+        poolId->pPoolStat->mDrops);
   printf("number of times drained protocols for space: %ld\n",
-	poolId->pPoolStat->mDrain);
+        poolId->pPoolStat->mDrain);
 
   /* Print cluster pool info */
   clPoolShow(poolId);
@@ -344,7 +344,7 @@ void ifShow(char *ifName)
 
         /* Print netmask */
         printf("     Netmask 0x%lx Subnetmask 0x%lx\n",
-	       ia->ia_netmask, ia->ia_subnetmask);
+               ia->ia_netmask, ia->ia_subnetmask);
 
       } /* End if internet address family */
 
@@ -356,11 +356,11 @@ void ifShow(char *ifName)
 
     /* Print status */
     printf("     %lu packets received; %lu packets sent\n",
-	   ifp->if_ipackets, ifp->if_opackets);
+           ifp->if_ipackets, ifp->if_opackets);
     printf("     %lu multicast packets received\n", ifp->if_imcasts);
     printf("     %lu multicast packets sent\n", ifp->if_omcasts);
     printf("     %lu input errors; %lu output errors\n",
-	   ifp->if_ierrors, ifp->if_oerrors);
+           ifp->if_ierrors, ifp->if_oerrors);
 
   } /* End for all interfaces */
 
@@ -382,8 +382,8 @@ void ifShow(char *ifName)
 ******************************************************************************/
 
 LOCAL BOOL routeEntryPrint(struct rtentry *pRoute,
-			   void *pRouteType,
-			   BOOL ipRouteFlag)
+                           void *pRouteType,
+                           BOOL ipRouteFlag)
 {
   struct sockaddr *dest, *gateway;
   int type;
@@ -416,7 +416,7 @@ LOCAL BOOL routeEntryPrint(struct rtentry *pRoute,
   /* If arp requested and invalid link address */
   if ( (type & RT_SHOW_ARP) &&
        ((gateway->sa_family != AF_LINK) ||
-	(((struct sockaddr_dl *) gateway)->sdl_alen == 0)) )
+        (((struct sockaddr_dl *) gateway)->sdl_alen == 0)) )
     return FALSE;
 
   /* If net requested and gateway address family is link */
@@ -583,7 +583,7 @@ LOCAL void routeTableShow(int routeType, int af)
 void routeShow(int af)
 {
   char *headLine = "Destination      Gateway          Flags  Refcnt Use"
-		   "        Interface\n";
+                   "        Interface\n";
 
   printf("\nROUTE NET TABLE\n");
   printf(headLine);

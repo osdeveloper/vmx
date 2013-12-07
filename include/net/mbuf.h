@@ -27,37 +27,37 @@
 #include <net/netBufLib.h>
 
 /* Cluster size related */
-#define MCLBYTES			2048
-#define USE_CLUSTER(size)		( (size) >= 512 ? TRUE : FALSE )
+#define MCLBYTES                        2048
+#define USE_CLUSTER(size)               ( (size) >= 512 ? TRUE : FALSE )
 
 /* Constants */
-#define M_MAXCOMPRESS			(CL_SIZE_128 / 2)
-#define mbuf				mBlk
-#define m_next				mBlkHdr.mNext
-#define m_len				mBlkHdr.mLen
-#define m_data				mBlkHdr.mData
-#define m_type				mBlkHdr.mType
-#define m_flags				mBlkHdr.mFlags
-#define m_nextpkt			mBlkHdr.mNextPkt
-#define m_act				m_nextpkt
-#define m_pkthdr			mBlkPktHdr
-#define m_ext				pClBlk
-#define m_extBuf			m_ext->clNode.pClBuf
-#define m_extFreeFunc			m_ext->clFreeFunc
-#define m_extSize			m_ext->clSize
-#define m_extRefCount			m_ext->clRefCount
-#define m_extArg1			m_ext->clFreeArg1
-#define m_extArg2			m_ext->clFreeArg2
-#define m_extArg3			m_ext->clFreeArg3
-#define m_mbufs				mNum
-#define m_drops				mDrops
-#define m_wait				mWait
-#define m_drain				mDrain
-#define m_mtypes			mTypes
+#define M_MAXCOMPRESS                   (CL_SIZE_128 / 2)
+#define mbuf                            mBlk
+#define m_next                          mBlkHdr.mNext
+#define m_len                           mBlkHdr.mLen
+#define m_data                          mBlkHdr.mData
+#define m_type                          mBlkHdr.mType
+#define m_flags                         mBlkHdr.mFlags
+#define m_nextpkt                       mBlkHdr.mNextPkt
+#define m_act                           m_nextpkt
+#define m_pkthdr                        mBlkPktHdr
+#define m_ext                           pClBlk
+#define m_extBuf                        m_ext->clNode.pClBuf
+#define m_extFreeFunc                   m_ext->clFreeFunc
+#define m_extSize                       m_ext->clSize
+#define m_extRefCount                   m_ext->clRefCount
+#define m_extArg1                       m_ext->clFreeArg1
+#define m_extArg2                       m_ext->clFreeArg2
+#define m_extArg3                       m_ext->clFreeArg3
+#define m_mbufs                         mNum
+#define m_drops                         mDrops
+#define m_wait                          mWait
+#define m_drain                         mDrain
+#define m_mtypes                        mTypes
 
-#define M_COPYFLAGS			(M_PKTHDR | M_EOR | M_BCAST | M_MCAST)
+#define M_COPYFLAGS                     (M_PKTHDR | M_EOR | M_BCAST | M_MCAST)
 
-#define MPULL_EXTRA			32
+#define MPULL_EXTRA                     32
 
 #ifndef _ASMLANGUAGE
 
@@ -66,12 +66,12 @@ extern "C" {
 #endif
 
 /* Type conversions */
-#define MC_NO_CLUSTER			( (unsigned char) 0 )
-#define MC_CLUSTER			( (unsigned char) 1 )
-#define MC_LANCE			( (unsigned char) 2 )
-#define MC_BACKPLANE			( (unsigned char) 3 )
-#define MC_EI				( (unsigned char) 4 )
-#define MC_UCLUSTER			( (unsigned char) 0x80 )
+#define MC_NO_CLUSTER                   ( (unsigned char) 0 )
+#define MC_CLUSTER                      ( (unsigned char) 1 )
+#define MC_LANCE                        ( (unsigned char) 2 )
+#define MC_BACKPLANE                    ( (unsigned char) 3 )
+#define MC_EI                           ( (unsigned char) 4 )
+#define MC_UCLUSTER                     ( (unsigned char) 0x80 )
 
 /* Macros */
 
@@ -81,7 +81,7 @@ extern "C" {
 * RETURNS: N/A
 ******************************************************************************/
 
-#define mtod(m, t)			( (t)( (m)->m_data ) )
+#define mtod(m, t)                      ( (t)( (m)->m_data ) )
 
 /******************************************************************************
 * M_ALIGN - Set m_data to point to new mbuf
@@ -89,12 +89,12 @@ extern "C" {
 * RETURNS: N/A
 ******************************************************************************/
 
-#define M_ALIGN(m, len)							      \
-{									      \
-  (m)->m_data += ( m->m_extSize - (len) ) &~ ( sizeof(long) - 1 );	      \
+#define M_ALIGN(m, len)                                                       \
+{                                                                             \
+  (m)->m_data += ( m->m_extSize - (len) ) &~ ( sizeof(long) - 1 );            \
 }
 
-#define MH_ALIGN(m, len)		M_ALIGN(m, len)
+#define MH_ALIGN(m, len)                M_ALIGN(m, len)
 
 /******************************************************************************
 * M_LEADINGSPACE - Get ammount of space before start of data in cluster
@@ -102,7 +102,7 @@ extern "C" {
 * RETURNS: Number of bytes
 ******************************************************************************/
 
-#define M_LEADINGSPACE(m)		( (m)->m_data - (m)->m_extBuf )
+#define M_LEADINGSPACE(m)               ( (m)->m_data - (m)->m_extBuf )
 
 /******************************************************************************
 * M_TRAILINGSPACE - Get ammount of space after end of data in cluster
@@ -110,8 +110,8 @@ extern "C" {
 * RETURNS: Number of bytes
 ******************************************************************************/
 
-#define M_TRAILINGSPACE(m)		( (m)->m_extBuf + (m)->m_extSize -    \
-					  (m)->m_data - (m)->m_len )
+#define M_TRAILINGSPACE(m)              ( (m)->m_extBuf + (m)->m_extSize -    \
+                                          (m)->m_data - (m)->m_len )
 
 /******************************************************************************
 * M_PREPEND - Prepend space of size len to mbuf
@@ -119,16 +119,16 @@ extern "C" {
 * RETURNS: N/A
 ******************************************************************************/
 
-#define M_PREPEND(m, plen, how)						      \
-{									      \
-  if ( M_LEADINGSPACE(m) >= (plen) ) {					      \
-    (m)->m_data -= (plen);						      \
-    (m)->m_len += (plen);						      \
-  }									      \
-  else									      \
-    (m) = m_prepend((m), (plen), (how) );				      \
-  if ( ((m) != NULL) && ((m)->m_flags & M_PKTHDR) )			      \
-    (m)->m_pkthdr.len += (plen);					      \
+#define M_PREPEND(m, plen, how)                                               \
+{                                                                             \
+  if ( M_LEADINGSPACE(m) >= (plen) ) {                                        \
+    (m)->m_data -= (plen);                                                    \
+    (m)->m_len += (plen);                                                     \
+  }                                                                           \
+  else                                                                        \
+    (m) = m_prepend((m), (plen), (how) );                                     \
+  if ( ((m) != NULL) && ((m)->m_flags & M_PKTHDR) )                           \
+    (m)->m_pkthdr.len += (plen);                                              \
 }
 
 /******************************************************************************
@@ -137,7 +137,7 @@ extern "C" {
 * RETURNS: N/A
 ******************************************************************************/
 
-#define Free(buf)			mb_free(buf)
+#define Free(buf)                       mb_free(buf)
 
 /******************************************************************************
 * m_free - Free mbuf cluster pair
@@ -145,7 +145,7 @@ extern "C" {
 * RETURNS: M_BLK_ID
 ******************************************************************************/
 
-#define m_free(m)			netMblkClFree(m)
+#define m_free(m)                       netMblkClFree(m)
 
 /******************************************************************************
 * m_freem - Free mbuf cluster chain
@@ -153,7 +153,7 @@ extern "C" {
 * RETURNS: N/A
 ******************************************************************************/
 
-#define m_freem(m)			netMblkClChainFree(m)
+#define m_freem(m)                      netMblkClChainFree(m)
 
 /******************************************************************************
 * m_copy - Copy mbufs without wait
@@ -161,7 +161,7 @@ extern "C" {
 * RETURNS: M_BLK_ID
 ******************************************************************************/
 
-#define m_copy(m, o, l)			m_copym((m), (o), (l), M_DONTWAIT)
+#define m_copy(m, o, l)                 m_copym((m), (o), (l), M_DONTWAIT)
 
 /******************************************************************************
 * m_copym - Copy mbufs
@@ -169,7 +169,7 @@ extern "C" {
 * RETURNS: M_BLK_ID
 ******************************************************************************/
 
-#define m_copym(m, o, l, w)						      \
+#define m_copym(m, o, l, w)                                                   \
   netMblkChainDup(netSysDpoolId, (m), (o), (l), (w));
 
 /* Globlas */
@@ -181,9 +181,9 @@ IMPORT STATUS mbufLibInit(void);
 IMPORT void* mb_alloc(size_t size, unsigned char type, int canWait);
 IMPORT void mb_free(void *buf);
 IMPORT struct mbuf* m_get(int canWait, unsigned char type,
-			  int bufsize, BOOL bestFit);
+                          int bufsize, BOOL bestFit);
 IMPORT struct mbuf* m_gethdr(int canWait, unsigned char type,
-			     int bufsize, BOOL bestFit);
+                             int bufsize, BOOL bestFit);
 IMPORT struct mbuf* m_prepend(struct mbuf *m, int len, int how);
 IMPORT void m_cat(struct mbuf *m, struct mbuf *n);
 IMPORT void m_adj(struct mbuf *mp, int req_len);

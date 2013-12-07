@@ -136,7 +136,7 @@ int socreate(int domain, struct socket **aso, int type, int proto)
   so->selectFlag = TRUE;
 
   err = ( *pr->pr_usrreq) (so, PRU_ATTACH, (struct mbuf *) NULL,
-		           (struct mbuf *) (long) proto, (struct mbuf *) NULL);
+                           (struct mbuf *) (long) proto, (struct mbuf *) NULL);
   if (err) {
 
     so->so_state |= SS_NOFDREF;
@@ -173,7 +173,7 @@ int soaccept(struct socket *so, struct mbuf *cliaddr)
 
   /* Call function */
   err = ( *so->so_proto->pr_usrreq) (so, PRU_ACCEPT, (struct mbuf *) NULL,
-				     cliaddr, (struct mbuf *) NULL);
+                                     cliaddr, (struct mbuf *) NULL);
 
   /* Restore processor level */
   splx(s);
@@ -196,7 +196,7 @@ int sobind(struct socket *so, struct mbuf *my_addr)
 
   /* Call function */
   err = ( *so->so_proto->pr_usrreq) (so, PRU_BIND, (struct mbuf *) NULL,
-				     my_addr, (struct mbuf *) NULL);
+                                     my_addr, (struct mbuf *) NULL);
 
   /* Restore processor level */
   splx(s);
@@ -223,7 +223,7 @@ int soconnect(struct socket *so, struct mbuf *serv_addr)
   /* If connected or connecting */
   if ( (so->so_state) & (SS_ISCONNECTED | SS_ISCONNECTING) &&
        ( (so->so_proto->pr_flags & PR_CONNREQUIRED) ||
-	 (err = sodisconnect(so)) ) ) {
+         (err = sodisconnect(so)) ) ) {
 
     err = EISCONN;
 
@@ -234,7 +234,7 @@ int soconnect(struct socket *so, struct mbuf *serv_addr)
 
     /* Call function */
     err = ( *so->so_proto->pr_usrreq) (so, PRU_CONNECT, (struct mbuf *) NULL,
-				       serv_addr, (struct mbuf *) NULL);
+                                       serv_addr, (struct mbuf *) NULL);
 
   } /* End else not connected */
  
@@ -259,7 +259,7 @@ int soconnect2(struct socket *so1, struct socket *so2)
 
   /* Call function */
   err = ( *so1->so_proto->pr_usrreq) (so1, PRU_CONNECT2, (struct mbuf *) NULL,
-				     (struct mbuf *) so2, (struct mbuf *) NULL);
+                                     (struct mbuf *) so2, (struct mbuf *) NULL);
 
   /* Restore processor level */
   splx(s);
@@ -282,9 +282,9 @@ int solisten(struct socket *so, int backlog)
 
   /* Call usrreq function */
   err = ( *so->so_proto->pr_usrreq) (so, PRU_LISTEN,
-				     (struct mbuf *) NULL,
-			             (struct mbuf *) NULL,
-			             (struct mbuf *) NULL);
+                                     (struct mbuf *) NULL,
+                                     (struct mbuf *) NULL,
+                                     (struct mbuf *) NULL);
   if (err) {
 
     splx(s);
@@ -367,8 +367,8 @@ void sorflush(struct socket *so)
  ******************************************************************************/
 
 int sosend(struct socket *so, struct mbuf *addr,
-	   struct uio *uio, struct mbuf *top, struct mbuf *ctrl,
-	   int flags)
+           struct uio *uio, struct mbuf *top, struct mbuf *ctrl,
+           int flags)
 {
   struct mbuf **mp;
   struct mbuf *m;
@@ -395,7 +395,7 @@ int sosend(struct socket *so, struct mbuf *addr,
   /* Get dontroute */
   dontroute = ( (flags & MSG_DONTROUTE) &&
                 ( (so->so_options & SO_DONTROUTE) == 0 ) &&
-		(so->so_proto->pr_flags & PR_ATOMIC) );
+                (so->so_proto->pr_flags & PR_ATOMIC) );
 
   /* Check control */
   if (ctrl != NULL)
@@ -443,7 +443,7 @@ restart:
 
         /* If not connected error */
         if ( ( (so->so_state & SS_ISCONFIRMING) == 0 ) &&
-	     ( !((resid == 0) && (ctlen != 0)) ) ) {
+             ( !((resid == 0) && (ctlen != 0)) ) ) {
 
           err = ENOTCONN;
           splx(s);
@@ -473,7 +473,7 @@ restart:
 
     /* If message size error */
     if ( (atomic) && ( (resid > so->so_snd.sb_hiwat) ||
-		       (ctlen > so->so_snd.sb_hiwat) ) ) {
+                       (ctlen > so->so_snd.sb_hiwat) ) ) {
 
       err = EMSGSIZE;
       splx(s);
@@ -483,7 +483,7 @@ restart:
 
     /* If space left */
     if ( (space < resid + ctlen) &&
-	 ( (atomic) || (space < so->so_snd.sb_lowat) || (space < ctlen) ) ) {
+         ( (atomic) || (space < so->so_snd.sb_lowat) || (space < ctlen) ) ) {
 
       /* If nbio state */
       if (so->so_state & SS_NBIO) {
@@ -579,11 +579,11 @@ restart:
           /* Advance */
           space -= (m->m_extSize + MSIZE);
 
-	  /* Uio move */
-	  err = uiomove( mtod(m, char *), (int) len, uio );
+          /* Uio move */
+          err = uiomove( mtod(m, char *), (int) len, uio );
 
           /* Get resid */
-	  resid = uio->uio_resid;
+          resid = uio->uio_resid;
 
           /* Advance */
           m->m_len = len;
@@ -677,7 +677,7 @@ out:
  ******************************************************************************/
 
 int soreceive(struct socket *so, struct mbuf **paddr, struct uio *uio,
-	      struct mbuf **mp0, struct mbuf **ctrlp, int *flagsp)
+              struct mbuf **mp0, struct mbuf **ctrlp, int *flagsp)
 {
   struct mbuf *m, **mp, *next;
   struct protosw *pr;
@@ -715,8 +715,8 @@ int soreceive(struct socket *so, struct mbuf **paddr, struct uio *uio,
 
     /* Call protocol func */
     err = ( *pr->pr_usrreq) (so, PRU_RCVOOB, m,
-			     (struct mbuf *) (long) (flags & MSG_PEEK),
-			     (struct mbuf *) NULL);
+                             (struct mbuf *) (long) (flags & MSG_PEEK),
+                             (struct mbuf *) NULL);
     if (err)
       goto bad;
 
@@ -742,7 +742,7 @@ int soreceive(struct socket *so, struct mbuf **paddr, struct uio *uio,
       do {
 
         err = uiomove( mtod(m, char *), (int) min(uio->uio_resid, m->m_len),
-		       uio );
+                       uio );
         m = m_free(m);
 
       } while ( (uio->uio_resid) && (err == 0) && (m != NULL) );
@@ -762,7 +762,7 @@ bad:
   /* If is confirming and residual count */
   if ( (so->so_state & SS_ISCONFIRMING) && (uio->uio_resid) )
     ( *pr->pr_usrreq) (so, PRU_RCVD, (struct mbuf *) NULL,
-		       (struct mbuf *) NULL, (struct mbuf *) NULL);
+                       (struct mbuf *) NULL, (struct mbuf *) NULL);
 
   /* Get processor level */
   s = splnet();
@@ -773,13 +773,13 @@ restart:
 
   /* If less than requested */
   if ( (m == NULL) || ( ((flags & MSG_DONTWAIT) == 0) &&
-			(so->so_rcv.sb_cc < uio->uio_resid) &&
-			(so->so_rcv.sb_cc < so->so_rcv.sb_lowat) )
-		   ||
-		      ( (flags & MSG_WAITALL) &&
-			(uio->uio_resid <= so->so_rcv.sb_hiwat) &&
-			(m->m_nextpkt == NULL) &&
-		       ((pr->pr_flags & PR_ATOMIC) == 0) ) ) {
+                        (so->so_rcv.sb_cc < uio->uio_resid) &&
+                        (so->so_rcv.sb_cc < so->so_rcv.sb_lowat) )
+                   ||
+                      ( (flags & MSG_WAITALL) &&
+                        (uio->uio_resid <= so->so_rcv.sb_hiwat) &&
+                        (m->m_nextpkt == NULL) &&
+                       ((pr->pr_flags & PR_ATOMIC) == 0) ) ) {
 
 #ifdef NET_DIAGNOSE
 
@@ -827,7 +827,7 @@ restart:
 
     /* If connection required and not connected */
     if ( (so->so_state & (SS_ISCONNECTED | SS_ISCONNECTING) == 0) &&
-	 (so->so_proto->pr_flags & PR_CONNREQUIRED) ) {
+         (so->so_proto->pr_flags & PR_CONNREQUIRED) ) {
 
       err = ENOTCONN;
       goto release;
@@ -928,7 +928,7 @@ dontblock:
       if (ctrlp != NULL) {
 
         if ( (pr->pr_domain->dom_externalize != NULL) &&
-	     (mtod(m, struct cmsghdr *)->cmsg_type == SCM_RIGHTS) )
+             (mtod(m, struct cmsghdr *)->cmsg_type == SCM_RIGHTS) )
           err = ( *pr->pr_domain->dom_externalize) (m);
 
         *ctrlp = m;
@@ -1160,8 +1160,8 @@ dontblock:
 
     if ( (pr->pr_flags & PR_WANTRCVD) && (so->so_pcb) )
       ( *pr->pr_usrreq) (so, PRU_RCVD, (struct mbuf *) NULL,
-			 (struct mbuf *) (long) flags,
-			 (struct mbuf *) NULL, (struct mbuf *) NULL);
+                         (struct mbuf *) (long) flags,
+                         (struct mbuf *) NULL, (struct mbuf *) NULL);
 
   } /* End if no message peek */
 
@@ -1202,7 +1202,7 @@ int sosetopt(struct socket *so, int level, int optname, struct mbuf *m)
 
     if ( (so->so_proto != NULL) && (so->so_proto->pr_ctloutput) )
       return ( *so->so_proto->pr_ctloutput) (PRCO_SETOPT, so, level,
-					     optname, &m);
+                                             optname, &m);
 
     err = ENOPROTOOPT;
 
@@ -1243,7 +1243,7 @@ int sosetopt(struct socket *so, int level, int optname, struct mbuf *m)
         if ( (m == NULL) || (m->m_len != sizeof(int)) ) {
 
           err = EINVAL;
-	  goto bad;
+          goto bad;
 
         } /* End if null mbuf and int size */
 
@@ -1264,7 +1264,7 @@ int sosetopt(struct socket *so, int level, int optname, struct mbuf *m)
         if ( (m == NULL) || (m->m_len != sizeof(int)) ) {
 
           err = EINVAL;
-	  goto bad;
+          goto bad;
 
         } /* End if null mbuf and int size */
 
@@ -1276,7 +1276,7 @@ int sosetopt(struct socket *so, int level, int optname, struct mbuf *m)
 
           /* If reserve failed */
           if ( sbreserve( (optname == SO_SNDBUF) ? &so->so_snd : &so->so_rcv,
-			  (unsigned long) *mtod(m, int *) ) == 0) {
+                          (unsigned long) *mtod(m, int *) ) == 0) {
 
             err = ENOBUFS;
             goto bad;
@@ -1360,7 +1360,7 @@ int sogetopt(struct socket *so, int level, int optname, struct mbuf **m)
 
     if ( (so->so_proto != NULL) && (so->so_proto->pr_ctloutput) )
       return ( *so->so_proto->pr_ctloutput) (PRCO_GETOPT, so, level,
-					     optname, &m);
+                                             optname, &m);
 
     err = ENOPROTOOPT;
 
@@ -1492,7 +1492,7 @@ int sodisconnect(struct socket *so)
 
   /* Call function */
   err = ( *so->so_proto->pr_usrreq) (so, PRU_DISCONNECT, (struct mbuf *) NULL,
-				    (struct mbuf *) NULL, (struct mbuf *) NULL);
+                                    (struct mbuf *) NULL, (struct mbuf *) NULL);
 
   /* Restore processor level */
   splx(s);
@@ -1548,7 +1548,7 @@ int soclose(struct socket *so)
     if (so->so_options & SO_LINGER) {
 
       if ( (so->so_state & SS_ISDISCONNECTING) &&
-	   (so->so_state & SS_NBIO) )
+           (so->so_state & SS_NBIO) )
         goto drop;
 
       while (so->so_state & SS_ISCONNECTED)
@@ -1564,9 +1564,9 @@ drop:
   if (so->so_pcb != NULL) {
 
     err2 = (*so->so_proto->pr_usrreq) (so, PRU_DETACH,
-				       (struct mbuf *) NULL,
-				       (struct mbuf *) NULL,
-				       (struct mbuf *) NULL);
+                                       (struct mbuf *) NULL,
+                                       (struct mbuf *) NULL,
+                                       (struct mbuf *) NULL);
     if (err == 0)
       err = err2;
 
@@ -1623,7 +1623,7 @@ int soshutdown(struct socket *so, int how)
     sorflush(so);
   if (how & 2)
     return ( *pr->pr_usrreq) (so, PRU_SHUTDOWN, (struct mbuf *) NULL,
-			      (struct mbuf *) NULL, (struct mbuf *) NULL);
+                              (struct mbuf *) NULL, (struct mbuf *) NULL);
 
   return 0;
 }
@@ -1637,8 +1637,8 @@ int soshutdown(struct socket *so, int how)
 int soabort(struct socket *so)
 {
   return ( *so->so_proto->pr_usrreq) (so, PRU_ABORT, (struct mbuf *) NULL,
-				      (struct mbuf *) NULL,
-				      (struct mbuf * ) NULL);
+                                      (struct mbuf *) NULL,
+                                      (struct mbuf * ) NULL);
 }
 
 /*******************************************************************************
@@ -2051,8 +2051,8 @@ int soqremque(struct socket *so, int q)
  ******************************************************************************/
 
 int soreserve(struct socket *so,
-	      unsigned long sndcc,
-	      unsigned long rcvcc)
+              unsigned long sndcc,
+              unsigned long rcvcc)
 {
 
   /* Reserve send buffer */
@@ -2193,11 +2193,11 @@ int soo_ioctl(struct socket *so, int cmd, void *data)
       err = rtioctl(cmd, data);
     else
       err = ( *so->so_proto->pr_usrreq)
-	      (so,
-	      PRU_CONTROL,
-	      (struct mbuf *) cmd,
-	      (struct mbuf *) data,
-	      (struct mbuf *) NULL);
+              (so,
+              PRU_CONTROL,
+              (struct mbuf *) cmd,
+              (struct mbuf *) data,
+              (struct mbuf *) NULL);
 
   } /* End else not interface command */
 

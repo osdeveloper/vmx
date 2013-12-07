@@ -51,50 +51,35 @@ LOCAL int bsdBind(int sockfd, struct sockaddr *my_addr, socklen_t addrlen);
 LOCAL int bsdListen(int sockfd, int backlog);
 LOCAL int bsdAccept(int sockfd, struct sockaddr *cliaddr, socklen_t *addrlen);
 LOCAL int bsdConnect(int sockfd, struct sockaddr *serv_addr,
-		     socklen_t addrlen);
+                     socklen_t addrlen);
 LOCAL int bsdConnectWithTimeout(int sockfd, struct sockaddr *serv_addr,
-		                socklen_t addrlen, struct timeval *timeout);
+                                socklen_t addrlen, struct timeval *timeout);
 LOCAL int bsdSendto(int sockfd, void *buf, int buflen, int flags,
-		    struct sockaddr *to_addr, int tolen);
+                    struct sockaddr *to_addr, int tolen);
 LOCAL int bsdSend(int sockfd, void *buf, int buflen, int flags);
 LOCAL int bsdSendmsg(int sockfd, struct msghdr *msg, int flags);
 LOCAL int bsdRecvfrom(int sockfd, void *buf, int buflen, int flags,
-		    struct sockaddr *from_addr, int *fromlen);
+                    struct sockaddr *from_addr, int *fromlen);
 LOCAL int bsdRecv(int sockfd, void *buf, int buflen, int flags);
 LOCAL int bsdRecvmsg(int sockfd, struct msghdr *msg, int flags);
 LOCAL int bsdSetsockopt(int sockfd, int level, int optname,
-			void *optval, int optlen);
+                        void *optval, int optlen);
 LOCAL int bsdGetsockopt(int sockfd, int level, int optname,
-			void *optval, int *optlen);
+                        void *optval, int *optlen);
 LOCAL int bsdGetsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 LOCAL int bsdGetpeername(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 LOCAL int bsdShutdown(int sockfd, int how);
 
-LOCAL int bsdSockCreate(
-    struct socket *so,
-    const char *name,
-    mode_t mode,
-    const char *symlink
-    ) { return OK; }
-
-LOCAL int bsdSockDelete(
-    struct socket *so,
-    const char *name,
-    mode_t mode
-    ) { return OK; }
-
-LOCAL int bsdSockOpen(
-    struct socket *so,
-    const char *name,
-    int flags,
-    mode_t mode
-    ) { return OK; }
-
+LOCAL int bsdSockCreate(struct socket *so, const char *name, mode_t mode,
+                        const char *symlink);
+LOCAL int bsdSockDelete(struct socket *so, const char *name, mode_t mode);
+LOCAL int bsdSockOpen(struct socket *so, const char *name, int flags,
+                      mode_t mode);
 LOCAL STATUS bsdSockClose(struct socket *so);
 LOCAL int bsdSockWrite(struct socket *so, void *buf, int buflen);
 LOCAL int bsdSockRead(struct socket *so, void *buf, int buflen);
 LOCAL int bsdSockArgs(struct mbuf **pName, void *name,
-		      socklen_t addrlen, int type);
+                      socklen_t addrlen, int type);
 
 /* Globals */
 
@@ -147,12 +132,12 @@ LOCAL SOCK_FUNC* bsdSockLibInit(void)
 
   /* Install driver */
   bsdSockDrvNum = iosDrvInstall((FUNCPTR) bsdSockCreate,/* Create */
-				(FUNCPTR) bsdSockClose,	/* Delete */
-				(FUNCPTR) bsdSockOpen,	/* Open */
-				(FUNCPTR) bsdSockClose,	/* Close */
-				(FUNCPTR) bsdSockRead,	/* Read */
-				(FUNCPTR) bsdSockWrite,	/* Write */
-				(FUNCPTR) soo_ioctl);	/* Ioctl */
+                                (FUNCPTR) bsdSockClose, /* Delete */
+                                (FUNCPTR) bsdSockOpen,  /* Open */
+                                (FUNCPTR) bsdSockClose, /* Close */
+                                (FUNCPTR) bsdSockRead,  /* Read */
+                                (FUNCPTR) bsdSockWrite, /* Write */
+                                (FUNCPTR) soo_ioctl);   /* Ioctl */
   if (bsdSockDrvNum == ERROR)
     return NULL;
 
@@ -403,7 +388,7 @@ LOCAL int bsdAccept(int sockfd, struct sockaddr *cliaddr, socklen_t *addrlen)
  ******************************************************************************/
 
 LOCAL int bsdConnect(int sockfd, struct sockaddr *serv_addr,
-		     socklen_t addrlen)
+                     socklen_t addrlen)
 {
   struct mbuf *name;
   int s, status;
@@ -498,7 +483,7 @@ LOCAL int bsdConnect(int sockfd, struct sockaddr *serv_addr,
  ******************************************************************************/
 
 LOCAL int bsdConnectWithTimeout(int sockfd, struct sockaddr *serv_addr,
-		                socklen_t addrlen, struct timeval *timeout)
+                                socklen_t addrlen, struct timeval *timeout)
 {
   return ERROR;
 }
@@ -510,7 +495,7 @@ LOCAL int bsdConnectWithTimeout(int sockfd, struct sockaddr *serv_addr,
  ******************************************************************************/
 
 LOCAL int bsdSendto(int sockfd, void *buf, int buflen, int flags,
-		    struct sockaddr *to_addr, int tolen)
+                    struct sockaddr *to_addr, int tolen)
 {
   struct socket *so;
   struct mbuf *m, *msgBuf;
@@ -527,7 +512,7 @@ LOCAL int bsdSendto(int sockfd, void *buf, int buflen, int flags,
   if (so == (struct socket *) ERROR) {
 
     if ( (flags & MSG_MBUF) &&
-	 (buf != NULL) )
+         (buf != NULL) )
         m_freem((struct mbuf *) buf);
 
       return ERROR;
@@ -544,7 +529,7 @@ LOCAL int bsdSendto(int sockfd, void *buf, int buflen, int flags,
     errnoSet(status);
 
     if ( (flags & MSG_MBUF) &&
-	 (buf != NULL) )
+         (buf != NULL) )
         m_freem((struct mbuf *) buf);
 
       splx(s);
@@ -589,8 +574,8 @@ LOCAL int bsdSendto(int sockfd, void *buf, int buflen, int flags,
   if (status) {
 
     if ( (pUio != NULL) &&
-	 (pUio->uio_resid != len) &&
-	 ((status == EINTR) || (status != EWOULDBLOCK)) )
+         (pUio->uio_resid != len) &&
+         ((status == EINTR) || (status != EWOULDBLOCK)) )
       status = OK;
 
   }
@@ -636,7 +621,7 @@ LOCAL int bsdSendmsg(int sockfd, struct msghdr *msg, int flags)
  ******************************************************************************/
 
 LOCAL int bsdRecvfrom(int sockfd, void *buf, int buflen, int flags,
-		    struct sockaddr *from_addr, int *fromlen)
+                    struct sockaddr *from_addr, int *fromlen)
 {
   struct socket *so;
   struct mbuf *m;
@@ -683,7 +668,7 @@ LOCAL int bsdRecvfrom(int sockfd, void *buf, int buflen, int flags,
 
     fromLen = *fromlen;
     if ( (fromLen <= 0) ||
-	 (m == NULL) ) {
+         (m == NULL) ) {
 
       fromLen = 0;
 
@@ -712,7 +697,7 @@ LOCAL int bsdRecvfrom(int sockfd, void *buf, int buflen, int flags,
   if (status) {
 
     if ( (uio.uio_resid != len) &&
-	 ((status == EINTR) || (status == EWOULDBLOCK)) )
+         ((status == EINTR) || (status == EWOULDBLOCK)) )
       status = OK;
 
   }
@@ -752,7 +737,7 @@ LOCAL int bsdRecvmsg(int sockfd, struct msghdr *msg, int flags)
  ******************************************************************************/
 
 LOCAL int bsdSetsockopt(int sockfd, int level, int optname,
-			void *optval, int optlen)
+                        void *optval, int optlen)
 {
   struct mbuf *m;
   struct socket *so;
@@ -817,7 +802,7 @@ LOCAL int bsdSetsockopt(int sockfd, int level, int optname,
  ******************************************************************************/
 
 LOCAL int bsdGetsockopt(int sockfd, int level, int optname,
-			void *optval, int *optlen)
+                        void *optval, int *optlen)
 {
   return ERROR;
 }
@@ -870,6 +855,41 @@ LOCAL int bsdShutdown(int sockfd, int how)
   }
 
   return OK;
+}
+
+/*******************************************************************************
+ * bsdSockCreate - Create socket
+ *
+ * RETURNS: ERROR
+ ******************************************************************************/
+
+LOCAL int bsdSockCreate(struct socket *so, const char *name, mode_t mode,
+                        const char *symlink)
+{
+    return ERROR;
+}
+
+/*******************************************************************************
+ * bsdSockDelete - Delete socket
+ *
+ * RETURNS: ERROR
+ ******************************************************************************/
+
+LOCAL int bsdSockDelete(struct socket *so, const char *name, mode_t mode)
+{
+    return ERROR;
+}
+
+/*******************************************************************************
+ * bsdSockOpen - Open socket
+ *
+ * RETURNS: OK
+ ******************************************************************************/
+
+LOCAL int bsdSockOpen(struct socket *so, const char *name, int flags,
+                      mode_t mode)
+{
+    return OK;
 }
 
 /*******************************************************************************
@@ -934,14 +954,14 @@ LOCAL int bsdSockWrite(struct socket *so, void *buf, int buflen)
 
   /* Call socket send function */
   status = sosend(so, (struct mbuf *) NULL,
-		      &uio,
-		      (struct mbuf *) NULL,
-		      (struct mbuf *) NULL,
-		      0);
+                      &uio,
+                      (struct mbuf *) NULL,
+                      (struct mbuf *) NULL,
+                      0);
   if (status) {
 
     if ( (uio.uio_resid != len) &&
-	 ( (status == EINTR) || (status == EWOULDBLOCK) ) )
+         ( (status == EINTR) || (status == EWOULDBLOCK) ) )
       status = OK;
 
   }
@@ -987,7 +1007,7 @@ LOCAL int bsdSockRead(struct socket *so, void *buf, int buflen)
 
   /* Call so receive */
   status = soreceive(so, (struct mbuf **) NULL, &uio, (struct mbuf **) NULL,
-		     (struct mbuf **) NULL, &flags);
+                     (struct mbuf **) NULL, &flags);
 
   /* Restore processor level */
   splx(s);
@@ -996,7 +1016,7 @@ LOCAL int bsdSockRead(struct socket *so, void *buf, int buflen)
   if (status) {
 
     if ( (uio.uio_resid != len) &&
-	 ( (status == EINTR) || (status == EWOULDBLOCK) ) )
+         ( (status == EINTR) || (status == EWOULDBLOCK) ) )
       status = OK;
 
   } /* End if error */
@@ -1014,7 +1034,7 @@ LOCAL int bsdSockRead(struct socket *so, void *buf, int buflen)
  ******************************************************************************/
 
 LOCAL int bsdSockArgs(struct mbuf **pName, void *name,
-		      socklen_t addrlen, int type)
+                      socklen_t addrlen, int type)
 {
   struct mbuf *m;
   struct sockaddr *sa;

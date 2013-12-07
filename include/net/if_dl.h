@@ -33,14 +33,14 @@ extern "C" {
 
 /* Structs */
 struct sockaddr_dl {
-  unsigned char			sdl_len;		/* Length */
-  unsigned char			sdl_family;		/* Address family */
-  unsigned short		sdl_index;		/* Index to interface */
-  unsigned char			sdl_type;		/* Interface type */
-  unsigned char			sdl_nlen;		/* Name length */
-  unsigned char			sdl_alen;		/* Link addr len */
-  unsigned char			sdl_slen;		/* Link selector len */
-  char				sdl_data[12];		/* Data */
+  unsigned char                 sdl_len;                /* Length */
+  unsigned char                 sdl_family;             /* Address family */
+  unsigned short                sdl_index;              /* Index to interface */
+  unsigned char                 sdl_type;               /* Interface type */
+  unsigned char                 sdl_nlen;               /* Name length */
+  unsigned char                 sdl_alen;               /* Link addr len */
+  unsigned char                 sdl_slen;               /* Link selector len */
+  char                          sdl_data[12];           /* Data */
 };
 
 #ifdef __cplusplus

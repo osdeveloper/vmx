@@ -73,9 +73,9 @@ STATUS netLibInit(void)
 
   /* Start network task */
   netTaskId = taskSpawn("tNetTask", netTaskPriority,
-			netTaskOptions, netTaskStackSize,
-			(FUNCPTR) netTask,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        netTaskOptions, netTaskStackSize,
+                        (FUNCPTR) netTask,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   if (netTaskId == (int) NULL)
     return ERROR;
 
@@ -103,12 +103,12 @@ void netTask(void)
 
       /* Get work node, kill task if error */
       if ( rngBufGet(netWorkRing, (char *) &node,
-		     sizeof(node)) != sizeof(node) )
+                     sizeof(node)) != sizeof(node) )
         exit(1);
 
       /* Do work */
       ( *(node.func) ) ( node.args[0], node.args[1], node.args[2],
-			 node.args[3], node.args[4] );
+                         node.args[3], node.args[4] );
 
     } /* End process work list */
 
@@ -123,7 +123,7 @@ void netTask(void)
 ******************************************************************************/
 
 STATUS netJobAdd(FUNCPTR func, ARG param0, ARG param1, ARG param2,
-		 	       ARG param3, ARG param4)
+                               ARG param3, ARG param4)
 {
   int level, ringPut;
   NET_JOB_NODE node;

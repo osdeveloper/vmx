@@ -35,30 +35,30 @@ extern "C" {
 
 /* Structs */
 struct in_ifaddr {
-  struct ifaddr		ia_ifa;			/* Protocol independent info */
-  unsigned long		ia_net;			/* Network interface number */
-  unsigned long		ia_netmask;		/* Net mask */
-  unsigned long		ia_subnet;		/* Subnet number */
-  unsigned long		ia_subnetmask;		/* Subnet mask */
-  struct in_addr	ia_netbroadcast;	/* Broadcast address */
-  struct in_ifaddr	*ia_next;		/* Next interface in list */
-  struct sockaddr_in	ia_addr;		/* Interface in addrss  */
-  struct sockaddr_in	ia_dstaddr;		/* Destination in address */
-  struct sockaddr_in	ia_sockmask;		/* General netmask */
+  struct ifaddr         ia_ifa;                 /* Protocol independent info */
+  unsigned long         ia_net;                 /* Network interface number */
+  unsigned long         ia_netmask;             /* Net mask */
+  unsigned long         ia_subnet;              /* Subnet number */
+  unsigned long         ia_subnetmask;          /* Subnet mask */
+  struct in_addr        ia_netbroadcast;        /* Broadcast address */
+  struct in_ifaddr      *ia_next;               /* Next interface in list */
+  struct sockaddr_in    ia_addr;                /* Interface in addrss  */
+  struct sockaddr_in    ia_dstaddr;             /* Destination in address */
+  struct sockaddr_in    ia_sockmask;            /* General netmask */
 };
 
-#define ia_ifp		ia_ifa.ifa_ifp
-#define ia_flags	ia_ifa.ifa_flags
-#define ia_broadaddr	ia_dstaddr
+#define ia_ifp          ia_ifa.ifa_ifp
+#define ia_flags        ia_ifa.ifa_flags
+#define ia_broadaddr    ia_dstaddr
 
 struct in_aliasreq {
-  char 			ifra_name[IFNAMSIZ];	/* Name */
-  struct sockaddr_in	ifra_addr;
-  struct sockaddr_in	ifra_broadaddr;
-  struct sockaddr_in	ifra_mask;
+  char                  ifra_name[IFNAMSIZ];    /* Name */
+  struct sockaddr_in    ifra_addr;
+  struct sockaddr_in    ifra_broadaddr;
+  struct sockaddr_in    ifra_mask;
 };
 
-#define ifra_dstaddr	ifra_broadaddr
+#define ifra_dstaddr    ifra_broadaddr
 
 /* Macros */
 
@@ -68,7 +68,7 @@ struct in_aliasreq {
  * RETURNS: Internet socket address
  ******************************************************************************/
 
-#define IA_SIN(ia)							       \
+#define IA_SIN(ia)                                                             \
   (&(((struct in_ifaddr *)(ia))->ia_addr))
 
 /*******************************************************************************
@@ -77,7 +77,7 @@ struct in_aliasreq {
  * RETURNS: NULL
  ******************************************************************************/
 
-#define IN_LOOKUP_MULTI(addr, ifp, inm)					       \
+#define IN_LOOKUP_MULTI(addr, ifp, inm)                                        \
   (NULL)
 
 /*******************************************************************************
@@ -86,7 +86,7 @@ struct in_aliasreq {
  * RETURNS: N/A
  ******************************************************************************/
 
-#define INADDR_TO_IFP(addr, ifp)					       \
+#define INADDR_TO_IFP(addr, ifp)                                               \
   ((ifp) = in_ifwithaddr((addr)))
 
 /*******************************************************************************
@@ -95,7 +95,7 @@ struct in_aliasreq {
  * RETURNS: N/A
  ******************************************************************************/
 
-#define IFP_TO_IA(ifp, ia)						       \
+#define IFP_TO_IA(ifp, ia)                                                     \
   ((ia) = in_addrwithif((ifp)))
 
 /* Functions */

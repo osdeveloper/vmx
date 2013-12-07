@@ -166,7 +166,7 @@ int socket(int domain, int type, int protocol)
 
   /* Get file descriptor from socket function */
   fd = ( *pSockMap->pSockFunc->socketFunc) (pSockMap->domainReal,
-					    type, protocol);
+                                            type, protocol);
   if (fd == ERROR)
     return ERROR;
 
@@ -304,7 +304,7 @@ int connect(int sockfd, struct sockaddr *serv_addr, socklen_t addrlen)
  ******************************************************************************/
 
 int connectWithTimeout(int sockfd, struct sockaddr *serv_addr,
-	               socklen_t addrlen, struct timeval *timeout)
+                       socklen_t addrlen, struct timeval *timeout)
 {
   SOCK_FUNC *pSockFunc;
 
@@ -328,7 +328,7 @@ int connectWithTimeout(int sockfd, struct sockaddr *serv_addr,
     return ERROR;
 
   return ( *pSockFunc->connectWithTimeoutFunc) (sockfd, serv_addr,
-					        addrlen, timeout);
+                                                addrlen, timeout);
 }
 
 /*******************************************************************************
@@ -402,7 +402,7 @@ int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
  ******************************************************************************/
 
 int sendto(int sockfd, void *buf, int buflen, int flags,
-	   struct sockaddr *to_addr, int tolen)
+           struct sockaddr *to_addr, int tolen)
 {
   SOCK_FUNC *pSockFunc;
 
@@ -434,7 +434,7 @@ int sendto(int sockfd, void *buf, int buflen, int flags,
     return ERROR;
 
   return ( *pSockFunc->sendtoFunc) (sockfd, buf, buflen,
-				    flags, to_addr, tolen);
+                                    flags, to_addr, tolen);
 }
 
 /*******************************************************************************
@@ -508,7 +508,7 @@ int sendmsg(int sockfd, struct msghdr *msg, int flags)
  ******************************************************************************/
 
 int recvfrom(int sockfd, void *buf, int buflen, int flags,
-	     struct sockaddr *from_addr, int *fromlen)
+             struct sockaddr *from_addr, int *fromlen)
 {
   SOCK_FUNC *pSockFunc;
 
@@ -541,7 +541,7 @@ int recvfrom(int sockfd, void *buf, int buflen, int flags,
     return ERROR;
 
   return ( *pSockFunc->recvfromFunc) (sockfd, buf, buflen, flags,
-				      from_addr, fromlen);
+                                      from_addr, fromlen);
 }
 
 /*******************************************************************************
@@ -647,7 +647,7 @@ int shutdown(int sockfd, int how)
  ******************************************************************************/
 
 int setsockopt(int sockfd, int level, int optname,
-	       void *optval, int optlen)
+               void *optval, int optlen)
 {
   SOCK_FUNC *pSockFunc;
 
@@ -670,7 +670,7 @@ int setsockopt(int sockfd, int level, int optname,
     return ERROR;
 
   return ( *pSockFunc->setsockoptFunc) (sockfd, level, optname,
-				        optval, optlen);
+                                        optval, optlen);
 }
 
 /*******************************************************************************
@@ -680,7 +680,7 @@ int setsockopt(int sockfd, int level, int optname,
  ******************************************************************************/
 
 int getsockopt(int sockfd, int level, int optname,
-	       void *optval, int *optlen)
+               void *optval, int *optlen)
 {
   SOCK_FUNC *pSockFunc;
 
@@ -704,6 +704,6 @@ int getsockopt(int sockfd, int level, int optname,
     return ERROR;
 
   return ( *pSockFunc->getsockoptFunc) (sockfd, level, optname,
-					optval, optlen);
+                                        optval, optlen);
 }
 

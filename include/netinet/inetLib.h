@@ -28,9 +28,9 @@
 #include <net/domain.h>
 #include <ostool/moduleNumber.h>
 
-#define S_inetLib_ILLEGAL_INTERNET_ADDRESS	(M_inetLib | 0x0001)
+#define S_inetLib_ILLEGAL_INTERNET_ADDRESS      (M_inetLib | 0x0001)
 
-#define INET_ADDR_LEN				18	/* Max inet addr len */
+#define INET_ADDR_LEN                           18      /* Max inet addr len */
 
 #ifndef _ASMLANGUAGE
 
@@ -45,8 +45,8 @@ IMPORT void inetLibInit(void);
 IMPORT unsigned long inet_addr(char *inetString);
 IMPORT void inet_ntoa(struct in_addr addr, char *str);
 IMPORT STATUS ifAddrAdd(char *ifName, char *ifAddr,
-			char *broadAddr,
-			int subnetMask);
+                        char *broadAddr,
+                        int subnetMask);
 
 #ifdef __cplusplus
 }

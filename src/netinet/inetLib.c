@@ -41,7 +41,7 @@
 #include <netinet/udp_var.h>
 
 /* Defines */
-#define MAX_PARTS		4
+#define MAX_PARTS               4
 
 /* Imports */
 
@@ -52,8 +52,8 @@ LOCAL STATUS ifIoctlCall(int cmd, struct ifreq *ifrp);
 
 /* Globals */
 struct protosw inetsw[] = {
-   /* Type		Domain		Protocol	Flags */
-  {0,			&inetdomain,	0,		0,
+   /* Type              Domain          Protocol        Flags */
+  {0,                   &inetdomain,    0,              0,
    (FUNCPTR) NULL,
    (FUNCPTR) ip_output,
    (FUNCPTR) NULL,
@@ -66,8 +66,8 @@ struct protosw inetsw[] = {
    (FUNCPTR) NULL},
 
   /* UDP socket */
-  {SOCK_DGRAM,		&inetdomain,	IPPROTO_UDP,	PR_ATOMIC |
-							PR_ADDR,
+  {SOCK_DGRAM,          &inetdomain,    IPPROTO_UDP,    PR_ATOMIC |
+                                                        PR_ADDR,
    (FUNCPTR) udp_input,
    (FUNCPTR) NULL,
    (FUNCPTR) udp_ctlinput,
@@ -80,8 +80,8 @@ struct protosw inetsw[] = {
    (FUNCPTR) NULL},
 
   /* TCP socket */
-  {SOCK_STREAM,		&inetdomain,	IPPROTO_TCP,	PR_CONNREQUIRED |
-							PR_WANTRCVD,
+  {SOCK_STREAM,         &inetdomain,    IPPROTO_TCP,    PR_CONNREQUIRED |
+                                                        PR_WANTRCVD,
    (FUNCPTR) tcp_input,
    (FUNCPTR) NULL,
    (FUNCPTR) tcp_ctlinput,
@@ -94,8 +94,8 @@ struct protosw inetsw[] = {
    (FUNCPTR) NULL},
 
   /* Raw IP socket */
-  {SOCK_RAW,		&inetdomain,	IPPROTO_RAW,	PR_ATOMIC |
-							PR_ADDR,
+  {SOCK_RAW,            &inetdomain,    IPPROTO_RAW,    PR_ATOMIC |
+                                                        PR_ADDR,
    (FUNCPTR) rip_input,
    (FUNCPTR) rip_output,
    (FUNCPTR) NULL,
@@ -108,8 +108,8 @@ struct protosw inetsw[] = {
    (FUNCPTR) NULL},
 
   /* ICMP IP socket */
-  {SOCK_RAW,		&inetdomain,	IPPROTO_ICMP,	PR_ATOMIC |
-							PR_ADDR,
+  {SOCK_RAW,            &inetdomain,    IPPROTO_ICMP,   PR_ATOMIC |
+                                                        PR_ADDR,
    (FUNCPTR) icmp_input,
    (FUNCPTR) rip_output,
    (FUNCPTR) NULL,
@@ -136,7 +136,7 @@ struct domain inetdomain = {
 };
 
 /* Macros */
-#define UC(b)			(((int) b) & 0xff)
+#define UC(b)                   (((int) b) & 0xff)
 
 /* Functions */
 
@@ -312,7 +312,7 @@ again:
 
       /* Store value */
       val = (parts[0] << 24) | (parts[1] << 16) |
-	    (parts[2] << 8) | parts[3];
+            (parts[2] << 8) | parts[3];
 
     break;
 

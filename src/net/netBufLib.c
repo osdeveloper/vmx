@@ -30,9 +30,9 @@
 
 /* Locals */
 LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
-		       M_CL_CONFIG *pMclBlkConfig,
-		       CL_DESC *pClDescTable,
-		       int clDescTableNumEntries);
+                       M_CL_CONFIG *pMclBlkConfig,
+                       CL_DESC *pClDescTable,
+                       int clDescTableNumEntries);
 LOCAL STATUS _memPoolInit(int num, int unitSize, int headerSize, char *memArea);
 LOCAL void _mBlkFree(NET_POOL_ID pNetPool, M_BLK_ID pMblk);
 LOCAL M_BLK_ID _mBlkCarve(NET_POOL_ID pNetPool, int num, char *pool);
@@ -46,7 +46,7 @@ LOCAL CL_BLK_ID _clBlkGet(NET_POOL_ID pNetPool, int canWait);
 LOCAL char* _clusterGet(NET_POOL_ID pNetPool, CL_POOL_ID pClPool);
 LOCAL CL_POOL_ID _clPoolIdGet(NET_POOL_ID pNetPool, int size, BOOL bestFit);
 LOCAL STATUS _mClGet(NET_POOL_ID pNetPool, M_BLK_ID pMblk, int size,
-	      int canWait, BOOL bestFit);
+              int canWait, BOOL bestFit);
 
 /* Default pool function table */
 LOCAL POOL_FUNC defaultFuncTable = {
@@ -73,9 +73,9 @@ POOL_FUNC *_pNetPoolFuncTable = &defaultFuncTable;
 ******************************************************************************/
 
 LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
-		       M_CL_CONFIG *pMclBlkConfig,
-		       CL_DESC *pClDescTable,
-		       int clDescTableNumEntries)
+                       M_CL_CONFIG *pMclBlkConfig,
+                       CL_DESC *pClDescTable,
+                       int clDescTableNumEntries)
 {
   int i, j, numFree;
   int sizeLog2;
@@ -99,23 +99,23 @@ LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
 
     /* Check if resonable */
     if (pMclBlkConfig->memSize <
-	( (pMclBlkConfig->mBlkNum  * (M_BLK_SZ + sizeof(long))) +
-	  (pMclBlkConfig->clBlkNum *  CL_BLK_SZ)) ) {
+        ( (pMclBlkConfig->mBlkNum  * (M_BLK_SZ + sizeof(long))) +
+          (pMclBlkConfig->clBlkNum *  CL_BLK_SZ)) ) {
       netPoolDelete(pNetPool);
       return ERROR;
     }
 
     /* Initialize pool */
     if (_memPoolInit(pMclBlkConfig->mBlkNum, M_BLK_SZ,
-		     sizeof(void *), pMclBlkConfig->memArea) != OK) {
+                     sizeof(void *), pMclBlkConfig->memArea) != OK) {
       netPoolDelete(pNetPool);
       return ERROR;
     }
 
     /* Carve up pool */
     pNetPool->pmBlkHead = _mBlkCarve(pNetPool,
-				     pMclBlkConfig->mBlkNum,
-				     pMclBlkConfig->memArea);
+                                     pMclBlkConfig->mBlkNum,
+                                     pMclBlkConfig->memArea);
 
     /* Set number of free memory blocks */
     numFree = pMclBlkConfig->mBlkNum;
@@ -126,7 +126,7 @@ LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
 
     /* Get memory area */
     memArea = (char *) ( (int) pMclBlkConfig->memArea +
-			 (numFree * (M_BLK_SZ + sizeof(long))) );
+                         (numFree * (M_BLK_SZ + sizeof(long))) );
 
     /* If block number geater than zero */
     if (pMclBlkConfig->clBlkNum > 0) {
@@ -134,14 +134,14 @@ LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
       /* Initialize memory pool */
       if (_memPoolInit(pMclBlkConfig->clBlkNum, CL_BLK_SZ, 0, memArea) != OK) {
         netPoolDelete(pNetPool);
-	return ERROR;
+        return ERROR;
       }
 
       /* Carve up pool */
       pNetPool->pClBlkHead = _clBlkCarve(pMclBlkConfig->clBlkNum, memArea);
       if (pNetPool->pClBlkHead == NULL) {
         netPoolDelete(pNetPool);
-	return ERROR;
+        return ERROR;
       }
 
     } /* End if block number greater that zero */
@@ -193,9 +193,9 @@ LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
     pNetPool->clTable[CL_LOG2_TO_CL_INDEX(sizeLog2)] = pClPool;
 
     for (j = (sizeLog2 - 1);
-	 ( ( !(pNetPool->clMask & CL_LOG2_TO_CL_SIZE(j)) ) &&
-	   (CL_LOG2_TO_CL_INDEX(j) >= CL_INDX_MIN) );
-	 j--)
+         ( ( !(pNetPool->clMask & CL_LOG2_TO_CL_SIZE(j)) ) &&
+           (CL_LOG2_TO_CL_INDEX(j) >= CL_INDX_MIN) );
+         j--)
       pNetPool->clTable[CL_LOG2_TO_CL_INDEX(j)] = pClPool;
 
     /* Initialize more fields in structure */
@@ -207,21 +207,21 @@ LOCAL STATUS _poolInit(NET_POOL_ID pNetPool,
 
     /* Check memory size */
     if (pClDesc->memSize < ( pClDesc->clNum *
-			    (pClDesc->clSize + sizeof(int))) ) {
+                            (pClDesc->clSize + sizeof(int))) ) {
         netPoolDelete(pNetPool);
         return ERROR;
     }
 
     /* Initialize memory pool */
     if (_memPoolInit(pClDesc->clNum, pClDesc->clSize,
-		     sizeof(void *), pClDesc->memArea) != OK) {
+                     sizeof(void *), pClDesc->memArea) != OK) {
         netPoolDelete(pNetPool);
         return ERROR;
     }
 
     /* Carve up pool */
     pClPool->pClHead = _clPoolCarve(pClPool, pClDesc->clNum,
-				    pClDesc->clSize, pClDesc->memArea);
+                                    pClDesc->clSize, pClDesc->memArea);
     if (pClPool->pClHead == NULL) {
         netPoolDelete(pNetPool);
         return ERROR;
@@ -371,8 +371,8 @@ LOCAL void _clBlkFree(CL_BLK_ID pClBlk)
     if (pClBlk->clFreeFunc != NULL) {
       INT_UNLOCK(level);
       (*pClBlk->clFreeFunc) (pClBlk->clFreeArg1,
-			     pClBlk->clFreeArg2,
-			     pClBlk->clFreeArg3);
+                             pClBlk->clFreeArg2,
+                             pClBlk->clFreeArg3);
       INT_LOCK(level);
     }
 
@@ -586,11 +586,11 @@ LOCAL M_BLK_ID _mBlkGet(NET_POOL_ID pNetPool, int canWait, unsigned char type)
            /* Unlock interrupts */
           INT_UNLOCK(level);
 
-	  /* Call collect function */
+          /* Call collect function */
           (*_pNetBufCollect) (pNetPool->pPoolStat);
 
-	  /* Retry once */
-	  canWait = M_DONTWAIT;
+          /* Retry once */
+          canWait = M_DONTWAIT;
           retry = 1;
 
         } /* End if net buffer collect function is set */
@@ -600,11 +600,11 @@ LOCAL M_BLK_ID _mBlkGet(NET_POOL_ID pNetPool, int canWait, unsigned char type)
       /* Else can't wait for block to become free */
       else {
 
-	/* Increase packet drops */
+        /* Increase packet drops */
         pNetPool->pPoolStat->mDrops++;
 
         /* Unlock interrupts */
-	INT_UNLOCK(level);
+        INT_UNLOCK(level);
 
         return NULL;
 
@@ -674,11 +674,11 @@ LOCAL CL_BLK_ID _clBlkGet(NET_POOL_ID pNetPool, int canWait)
           /* Unlock interrupts */
           INT_UNLOCK(level);
 
-	  /* Call collect function */
+          /* Call collect function */
           (*_pNetBufCollect) (pNetPool->pPoolStat);
 
-	  /* Retry once */
-	  canWait = M_DONTWAIT;
+          /* Retry once */
+          canWait = M_DONTWAIT;
           retry = 1;
 
         } /* End if net buffer collect function is set */
@@ -689,7 +689,7 @@ LOCAL CL_BLK_ID _clBlkGet(NET_POOL_ID pNetPool, int canWait)
       else {
 
         /* Unlock interrupts */
-	INT_UNLOCK(level);
+        INT_UNLOCK(level);
 
         return NULL;
 
@@ -752,7 +752,7 @@ LOCAL char* _clusterGet(NET_POOL_ID pNetPool, CL_POOL_ID pClPool)
 ******************************************************************************/
 
 LOCAL STATUS _mClGet(NET_POOL_ID pNetPool, M_BLK_ID pMblk, int size,
-	      int canWait, BOOL bestFit)
+              int canWait, BOOL bestFit)
 {
   int level, retry, sizeLog2;
   CL_POOL_ID poolId;
@@ -796,22 +796,22 @@ LOCAL STATUS _mClGet(NET_POOL_ID pNetPool, M_BLK_ID pMblk, int size,
       /* If best match */
       if (pNetPool->clMask >= CL_LOG2_TO_CL_SIZE(poolId->clLg2)) {
 
-	/* Get size and size log2 */
+        /* Get size and size log2 */
         size = CL_LOG2_TO_CL_SIZE(poolId->clLg2);
         sizeLog2 = poolId->clLg2;
 
-	/* Scan for pool with resonable size */
-	while (size <= CL_SIZE_MAX) {
+        /* Scan for pool with resonable size */
+        while (size <= CL_SIZE_MAX) {
 
-	  /* Resonable sized pool found */
-	  if (pNetPool->clMask & size) {
-	    poolId = pNetPool->clTable[CL_LOG2_TO_CL_INDEX(sizeLog2)];
-	    break;
+          /* Resonable sized pool found */
+          if (pNetPool->clMask & size) {
+            poolId = pNetPool->clTable[CL_LOG2_TO_CL_INDEX(sizeLog2)];
+            break;
           }
 
-	  /* Advance to next size to scan for */
-	  size <<= 1;
-	  sizeLog2++;
+          /* Advance to next size to scan for */
+          size <<= 1;
+          sizeLog2++;
 
         } /* End scan for pool with resonable size */
 
@@ -820,7 +820,7 @@ LOCAL STATUS _mClGet(NET_POOL_ID pNetPool, M_BLK_ID pMblk, int size,
       /* Else if close fit */
       else if (!bestFit && pNetPool->clMask) {
 
-	/* Find buffer with cloest size */
+        /* Find buffer with cloest size */
         poolId = pNetPool->clTable[CL_SIZE_TO_CL_INDEX(pNetPool->clMask)];
 
       } /* End else if close fit */
@@ -829,17 +829,17 @@ LOCAL STATUS _mClGet(NET_POOL_ID pNetPool, M_BLK_ID pMblk, int size,
       else if (canWait == M_WAIT) {
 
         /* Check if collect function is set */
-	if (_pNetBufCollect) {
+        if (_pNetBufCollect) {
 
-	  /* Unlock interrupts */
-	  INT_UNLOCK(level);
+          /* Unlock interrupts */
+          INT_UNLOCK(level);
 
-	  /* Call collect function */
-	  (*_pNetBufCollect)(pNetPool->pPoolStat);
+          /* Call collect function */
+          (*_pNetBufCollect)(pNetPool->pPoolStat);
 
-	  /* Try once again */
-	  canWait = M_DONTWAIT;
-	  retry = 1;
+          /* Try once again */
+          canWait = M_DONTWAIT;
+          retry = 1;
 
         } /* End if collect function is set */
 
@@ -961,8 +961,8 @@ void netBufLibInit(void)
 ******************************************************************************/
 
 STATUS netPoolInit(NET_POOL_ID poolId, M_CL_CONFIG *pMclBlkConfig,
-		   CL_DESC *pClDescTable, int clDescTableNumEntries,
-		   POOL_FUNC *pFuncTable)
+                   CL_DESC *pClDescTable, int clDescTableNumEntries,
+                   POOL_FUNC *pFuncTable)
 {
 
   /* Check net pool argument */
@@ -977,7 +977,7 @@ STATUS netPoolInit(NET_POOL_ID poolId, M_CL_CONFIG *pMclBlkConfig,
 
   /* Call poolInit from function table */
   return POOL_INIT(poolId, pMclBlkConfig, pClDescTable,
-		  clDescTableNumEntries);
+                  clDescTableNumEntries);
 }
 
 /******************************************************************************
@@ -1086,7 +1086,7 @@ void netClFree(NET_POOL_ID poolId, char *pClBuf)
 ******************************************************************************/
 
 STATUS netMblkClGet(NET_POOL_ID poolId, M_BLK_ID mBlkId, int size,
-		  int canWait, BOOL bestFit)
+                  int canWait, BOOL bestFit)
 {
   /* Check if valid net pool */
   if (poolId == NULL || poolId->pFuncTable == NULL ||
@@ -1172,7 +1172,7 @@ CL_POOL_ID netClPoolIdGet(NET_POOL_ID poolId, int size, BOOL bestFit)
 ******************************************************************************/
 
 M_BLK_ID netTupleGet(NET_POOL_ID poolId, int size, int canWait,
-		     unsigned char type, BOOL bestFit)
+                     unsigned char type, BOOL bestFit)
 {
   M_BLK_ID blkId;
 
@@ -1255,7 +1255,7 @@ STATUS netPoolDelete(NET_POOL_ID poolId)
 ******************************************************************************/
 
 M_BLK_ID netMblkChainDup(NET_POOL_ID poolId, M_BLK_ID blkId, int offset,
-			 int len, int canWait)
+                         int len, int canWait)
 {
   M_BLK_ID newBlkId, topBlkId;
   M_BLK_ID *pBlkId;

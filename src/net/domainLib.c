@@ -42,10 +42,10 @@ LOCAL void pffasttimo(void);
 LOCAL void pfslowtimo(void);
 
 /* Globals */
-struct domain *domains = NULL;		/* List of domains */
-int max_linkhdr = 0;			/* Max link level headers */
-int max_protohdr = 0;			/* Max protocol headers */
-int max_hdr = 0;			/* Max link and protocol headers */
+struct domain *domains = NULL;          /* List of domains */
+int max_linkhdr = 0;                    /* Max link level headers */
+int max_protohdr = 0;                   /* Max protocol headers */
+int max_hdr = 0;                        /* Max link and protocol headers */
 
 /* Functions */
 
@@ -179,7 +179,7 @@ struct protosw* pffindproto(int family, int protocol, int type)
 
         /* Check for raw socket type */
         if ( (type == SOCK_RAW) && (pr->pr_type == SOCK_RAW) &&
-	     (pr->pr_protocol == 0) && (chk == NULL) )
+             (pr->pr_protocol == 0) && (chk == NULL) )
           chk = pr;
 
       } /* End for all protocols */
@@ -252,9 +252,9 @@ LOCAL void pffasttimo(void)
 
   /* Start watchdog */
   wdStart(pffasttimoWd,
-	  sysClockRateGet() / 5,
-	  (FUNCPTR) netJobAdd,
-	  (ARG) pffasttimo);
+          sysClockRateGet() / 5,
+          (FUNCPTR) netJobAdd,
+          (ARG) pffasttimo);
 }
 
 /*******************************************************************************
@@ -291,8 +291,8 @@ LOCAL void pfslowtimo(void)
 
   /* Start watchdog */
   wdStart(pfslowtimoWd,
-	  sysClockRateGet() / 2,
-	  (FUNCPTR) netJobAdd,
-	  (ARG) pfslowtimo);
+          sysClockRateGet() / 2,
+          (FUNCPTR) netJobAdd,
+          (ARG) pfslowtimo);
 }
 
