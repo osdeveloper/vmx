@@ -219,12 +219,12 @@ UGL_STATUS uglGenericClutDestroy (
 
 /******************************************************************************
  *
- * uglGenericClipDdb - Generic clip of device dependent bitmap
+ * uglGenericClipDdbToDdb - Generic clip of device dependent bitmap
  *
  * RETURNS: UGL_TRUE or UGL_FALSE
  */
 
-UGL_STATUS uglGenericClipDdb (
+UGL_STATUS uglGenericClipDdbToDdb (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pClipRect,
     UGL_BMAP_ID *  pSrcBmpId,

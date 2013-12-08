@@ -1090,7 +1090,7 @@ UGL_STATUS uglVgaBitmapBlt (
     }
 
     /* Clip */
-    if (uglGenericClipDdb (devId, &clipRect,
+    if (uglGenericClipDdbToDdb (devId, &clipRect,
                            (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
                            (UGL_BMAP_ID *) &pDestBmp, &destPoint) != UGL_TRUE) {
         return (UGL_STATUS_ERROR);
@@ -1170,175 +1170,182 @@ UGL_STATUS uglVgaBitmapWrite (
     destPoint.x = pDestPoint->x;
     destPoint.y = pDestPoint->y;
 
-    /* Calulcate destination dimensions */
-    destRect.left   = destPoint.x;
-    destRect.top    = destPoint.y;
-    destRect.right  = destPoint.x;
-    destRect.bottom = destPoint.y;
-    UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
-                                UGL_RECT_HEIGHT (srcRect));
+    if (uglGenericClipDibToDdb (devId, pDib, &srcRect,
+                                (UGL_BMAP_ID *) &pVgaBmp,
+                                &destPoint) == UGL_TRUE) {
 
-    /* Precaculate variables */
-    numPlanes = devId->pMode->depth;
-    srcOffset = (srcRect.top * pDib->stride) + srcRect.left;
-
-    /* Handle case if the display is not the destination */
-    if (ddbId != UGL_DISPLAY_ID) {
+        /* Calulcate destination dimensions */
+        destRect.left   = destPoint.x;
+        destRect.top    = destPoint.y;
+        destRect.right  = destPoint.x;
+        destRect.bottom = destPoint.y;
+        UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
+                          UGL_RECT_HEIGHT (srcRect));
 
         /* Precaculate variables */
-        left             = destRect.left + pVgaBmp->shiftValue;
-        destBytesPerLine = (pVgaBmp->header.width + 7) / 8 + 1;
-        pPlaneArray      = pVgaBmp->pPlaneArray;
-        startIndex       = destRect.top * destBytesPerLine + (left >> 3);
-        startMask        = 0x80 >> (left & 0x07);
+        numPlanes = devId->pMode->depth;
+        srcOffset = (srcRect.top * pDib->stride) + srcRect.left;
 
-        /* Handle case when source has a color lookup table */
-        if (pDib->imageFormat != UGL_DIRECT) {
+        /* Handle case if the display is not the destination */
+        if (ddbId != UGL_DISPLAY_ID) {
 
-            /* Check if temporary clut should be generated */
-            if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
+            /* Precaculate variables */
+            left             = destRect.left + pVgaBmp->shiftValue;
+            destBytesPerLine = (pVgaBmp->header.width + 7) / 8 + 1;
+            pPlaneArray      = pVgaBmp->pPlaneArray;
+            startIndex       = destRect.top * destBytesPerLine + (left >> 3);
+            startMask        = 0x80 >> (left & 0x07);
 
-                /* Generate */
-                pClut = malloc (pDib->clutSize * sizeof (UGL_COLOR));
-                if (pClut == UGL_NULL) {
-                    return (UGL_STATUS_ERROR);
+            /* Handle case when source has a color lookup table */
+            if (pDib->imageFormat != UGL_DIRECT) {
+
+                /* Check if temporary clut should be generated */
+                if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
+
+                    /* Generate */
+                    pClut = malloc (pDib->clutSize * sizeof (UGL_COLOR));
+                    if (pClut == UGL_NULL) {
+                        return (UGL_STATUS_ERROR);
+                    }
+
+                    /* Convert to 32-bit color */
+                    (*devId->colorConvert) (devId, pDib->pClut,
+                                            pDib->colorFormat,
+                                            pClut, UGL_DEVICE_COLOR_32,
+                                            pDib->clutSize);
+                }
+                else {
+                    pClut = pDib->pClut;
                 }
 
-                /* Convert to 32-bit color */
-                (*devId->colorConvert) (devId, pDib->pClut, pDib->colorFormat,
-                                        pClut, UGL_DEVICE_COLOR_32,
-                                        pDib->clutSize);
-            }
-            else {
-                pClut = pDib->pClut;
-            }
+                /* Select color mode */
+                switch(pDib->imageFormat) {
+                    case UGL_INDEXED_8:
 
-            /* Select color mode */
-            switch(pDib->imageFormat) {
-                case UGL_INDEXED_8:
+                        /* Calculate source pointer */
+                        pSrc = (UGL_UINT8 *) pDib->pData +
+                               srcRect.top * pDib->stride;
 
-                    /* Calculate source pointer */
-                    pSrc = (UGL_UINT8 *) pDib->pData +
-                           srcRect.top * pDib->stride;
+                        /* For source height */
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
 
-                    /* For source height */
-                    for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            /* Variable recalculate for each line */
+                            destIndex = startIndex;
+                            destMask  = startMask;
 
-                        /* Variable recalculate for each line */
-                        destIndex = startIndex;
-                        destMask  = startMask;
+                            /* For source width */
+                            for (x = srcRect.left; x <= srcRect.right; x++) {
 
-                        /* For source width */
-                        for (x = srcRect.left; x <= srcRect.right; x++) {
+                                /* Initialize pixel */
+                                /* TODO: pixel = ((UGL_COLOR *) pClut) [pSrc[x]];*/
+                                pixel = pSrc[x];
+                                planeMask = 0x01;
 
-                            /* Initialize pixel */
-                            /* TODO: pixel = ((UGL_COLOR *) pClut) [pSrc[x]];*/
-                            pixel = pSrc[x];
-                            planeMask = 0x01;
+                                /* For each plane */
+                                for (planeIndex = 0;
+                                     planeIndex < numPlanes;
+                                     planeIndex++) {
 
-                            /* For each plane */
-                            for (planeIndex = 0;
-                                 planeIndex < numPlanes;
-                                 planeIndex++) {
+                                    if ((pixel & planeMask) != 0) {
+                                        pPlaneArray[planeIndex][destIndex] |=
+                                            destMask;
+                                    }
+                                    else {
+                                        pPlaneArray[planeIndex][destIndex] &=
+                                            ~destMask;
+                                    }
 
-                                if ((pixel & planeMask) != 0) {
-                                    pPlaneArray[planeIndex][destIndex] |=
-                                        destMask;
-                                }
-                                else {
-                                    pPlaneArray[planeIndex][destIndex] &=
-                                        ~destMask;
+                                    /* Advance plane mask */
+                                    planeMask <<= 1;
                                 }
 
-                                /* Advance plane mask */
-                                planeMask <<= 1;
+                                /* Advance to next pixel */
+                                destMask >>= 1;
+
+                                /* Check if a new byte was reached */
+                                if (destMask == 0) {
+                                    destIndex++;
+                                    destMask = 0x80;
+                                }
                             }
 
-                            /* Advance to next pixel */
-                            destMask >>= 1;
-
-                            /* Check if a new byte was reached */
-                            if (destMask == 0) {
-                                destIndex++;
-                                destMask = 0x80;
-                            }
+                            /* Advance to next line */
+                            pSrc       += pDib->stride;
+                            startIndex += destBytesPerLine;
                         }
+                        break;
 
-                        /* Advance to next line */
-                        pSrc       += pDib->stride;
-                        startIndex += destBytesPerLine;
-                    }
-                    break;
+                    case UGL_INDEXED_4:
+                    case UGL_INDEXED_2:
+                    case UGL_INDEXED_1:
 
-                case UGL_INDEXED_4:
-                case UGL_INDEXED_2:
-                case UGL_INDEXED_1:
+                        /* Precalulate pixel vars */
+                        bpp = pDib->imageFormat & UGL_INDEX_MASK;
+                        ppb = bpp / 8;
 
-                    /* Precalulate pixel vars */
-                    bpp = pDib->imageFormat & UGL_INDEX_MASK;
-                    ppb = bpp / 8;
+                        /* For source height */
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
 
-                    /* For source height */
-                    for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            /* Variable recalculate for each line */
+                            pSrc      = (UGL_UINT8 *) pDib->pData +
+                                        srcOffset / ppb;
+                            nPixels   = srcOffset & ppb;
+                            shift     = (ppb - nPixels - 1) * bpp;
+                            srcMask   = (0xff >> (8 - bpp)) << shift;
+                            destIndex = startIndex;
+                            destMask  = startMask;
 
-                        /* Variable recalculate for each line */
-                        pSrc      = (UGL_UINT8 *) pDib->pData + srcOffset / ppb;
-                        nPixels   = srcOffset & ppb;
-                        shift     = (ppb - nPixels - 1) * bpp;
-                        srcMask   = (0xff >> (8 - bpp)) << shift;
-                        destIndex = startIndex;
-                        destMask  = startMask;
+                            /* For source width */
+                            for (x = srcRect.left; x <= srcRect.right; x++) {
 
-                        /* For source width */
-                        for (x = srcRect.left; x <= srcRect.right; x++) {
+                                /* Initialize pixel */
+                                pixel     = (*pSrc & srcMask) >> shift;
+                                planeMask = 0x01;
 
-                            /* Initialize pixel */
-                            pixel     = (*pSrc & srcMask) >> shift;
-                            planeMask = 0x01;
+                                /* For each plane */
+                                for (planeIndex = 0;
+                                     planeIndex < numPlanes;
+                                     planeIndex++) {
 
-                            /* For each plane */
-                            for (planeIndex = 0;
-                                 planeIndex < numPlanes;
-                                 planeIndex++) {
+                                    if ((pixel & planeMask) != 0) {
+                                        pPlaneArray[planeIndex][destIndex] |=
+                                            destMask;
+                                    }
+                                    else {
+                                        pPlaneArray[planeIndex][destIndex] &=
+                                            ~destMask;
+                                    }
 
-                                if ((pixel & planeMask) != 0) {
-                                    pPlaneArray[planeIndex][destIndex] |=
-                                        destMask;
+                                    /* Advance plane mask */
+                                    planeMask <<= 1;
                                 }
-                                else {
-                                    pPlaneArray[planeIndex][destIndex] &=
-                                        ~destMask;
+
+                                /* Advance to next pixel */
+                                srcMask  >>= bpp;
+                                destMask >>= 1;
+                                shift     -= bpp;
+
+                                if (srcMask == 0) {
+                                    pSrc++;
+                                    shift   = (bpp - 1) * bpp;
+                                    srcMask = (0xff >> (8 - bpp)) << shift;
                                 }
 
-                                /* Advance plane mask */
-                                planeMask <<= 1;
+                                if (destMask == 0) {
+                                    destIndex++;
+                                    destMask = 0x80;
+                                }
                             }
 
-                            /* Advance to next pixel */
-                            srcMask  >>= bpp;
-                            destMask >>= 1;
-                            shift     -= bpp;
-
-                            if (srcMask == 0) {
-                                pSrc++;
-                                shift   = (bpp - 1) * bpp;
-                                srcMask = (0xff >> (8 - bpp)) << shift;
-                            }
-
-                            if (destMask == 0) {
-                                destIndex++;
-                                destMask = 0x80;
-                            }
+                            /* Advance to next line */
+                            srcOffset  += pDib->stride;
+                            startIndex += destBytesPerLine;
                         }
+                        break;
 
-                        /* Advance to next line */
-                        srcOffset  += pDib->stride;
-                        startIndex += destBytesPerLine;
-                    }
-                    break;
-
-                default:
-                    return (UGL_STATUS_ERROR);
+                    default:
+                        return (UGL_STATUS_ERROR);
+                }
             }
         }
     }

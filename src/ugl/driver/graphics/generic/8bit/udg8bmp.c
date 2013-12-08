@@ -477,7 +477,7 @@ UGL_STATUS uglGeneric8BitBitmapBlt (
     }
 
     /* Clip */
-    if (uglGenericClipDdb (devId, &clipRect,
+    if (uglGenericClipDdbToDdb (devId, &clipRect,
                            (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
                            (UGL_BMAP_ID *) &pDestBmp, &destPoint) != UGL_TRUE) {
         return UGL_STATUS_ERROR;

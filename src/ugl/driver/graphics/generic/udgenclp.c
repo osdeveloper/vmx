@@ -26,12 +26,12 @@
 
 /******************************************************************************
  *
- * uglGenericClipDdb - Generic clip of device dependent bitmap
+ * uglGenericClipDdbToDbd - Generic clip of device dependent bitmap
  *
  * RETURNS: UGL_TRUE or UGL_FALSE
  */
 
-UGL_STATUS uglGenericClipDdb (
+UGL_STATUS uglGenericClipDdbToDdb (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pClipRect,
     UGL_BMAP_ID *  pSrcBmpId,
@@ -66,12 +66,11 @@ UGL_STATUS uglGenericClipDdb (
 
     /* Setup source clip rect */
     if ((UGL_DDB_ID) *pSrcBmpId == UGL_DEFAULT_ID) {
-        *pSrcBmpId = (UGL_BMAP_ID) UGL_DEFAULT_ID;
-
+        *pSrcBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
         srcClip.top    = gc->boundRect.top;
         srcClip.bottom = gc->boundRect.bottom;
         srcClip.left   = gc->boundRect.left;
-        srcClip.right = gc->boundRect.right;
+        srcClip.right  = gc->boundRect.right;
     }
     else if ((UGL_DDB_ID) *pSrcBmpId == UGL_DISPLAY_ID) {
         srcClip.top    = 0;
@@ -88,8 +87,7 @@ UGL_STATUS uglGenericClipDdb (
 
     /* Set dest clip rect */
     if ((UGL_DDB_ID) *pDestBmpId == UGL_DEFAULT_ID) {
-        *pDestBmpId = (UGL_BMAP_ID) UGL_DEFAULT_ID;
-
+        *pDestBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
         destClip.top    = pClipRect->top;
         destClip.bottom = pClipRect->bottom;
         destClip.left   = pClipRect->left;
