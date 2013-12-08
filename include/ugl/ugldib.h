@@ -29,6 +29,7 @@
 
 /* Bitmap types */
 #define UGL_DDB_TYPE                    0
+#define UGL_MDDB_TYPE                   1
 
 #ifndef _ASMLANGUAGE
 
@@ -36,6 +37,7 @@
 extern "C" {
 #endif
 
+/* Color bitmap */
 typedef struct ugl_dib {
     UGL_SIZE          width;            /* Bitmap width */
     UGL_SIZE          height;           /* Bitmap height */
@@ -50,14 +52,28 @@ typedef struct ugl_dib {
 typedef UGL_DIB *   UGL_DIB_ID;
 typedef UGL_UINT32  UGL_DIB_CREATE_MODE;
 
+/* Monochrome bitmap */
+typedef struct ugl_mdib {
+    UGL_SIZE          width;            /* Bitmap width */
+    UGL_SIZE          height;           /* Bitmap height */
+    UGL_SIZE          stride;           /* Distance between 2 scanlines */
+    void *            pData;            /* Image data */
+} UGL_MDIB;
+
+/* Gneric bitmap header */
 typedef struct ugl_bmap_header {
     UGL_UINT16  type;                   /* Bitmap type */
     UGL_UINT16  width;                  /* Bitmap width */
     UGL_UINT16  height;                 /* Bitmap height */
 } UGL_BMAP_HEADER;
 
+/* Device dependent bitmap */
 typedef UGL_BMAP_HEADER  UGL_DDB;
 typedef UGL_DDB *        UGL_DDB_ID;
+
+/* Device dependent monochrome bitmap */
+typedef UGL_BMAP_HEADER  UGL_MDDB;
+typedef UGL_MDDB *       UGL_MDDB_ID;
 
 /* Generic bitmap id */
 typedef UGL_BMAP_HEADER * UGL_BITMAP_ID;
