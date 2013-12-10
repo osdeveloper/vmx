@@ -233,7 +233,7 @@ UGL_STATUS uglVgaBitmapWrite (
 
 /******************************************************************************
  *
- * uglVgaMonoBitmapCreate - Create vgamonocrhome bitmap
+ * uglVgaMonoBitmapCreate - Create vga monocrhome bitmap
  *
  * RETURNS: Pointer to monochrome bitmap
  */

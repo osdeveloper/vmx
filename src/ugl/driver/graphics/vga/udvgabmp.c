@@ -1348,7 +1348,7 @@ UGL_STATUS uglVgaBitmapWrite (
 
 /******************************************************************************
  *
- * uglVgaMonoBitmapCreate - Create vgamonocrhome bitmap
+ * uglVgaMonoBitmapCreate - Create vga monocrhome bitmap
  *
  * RETURNS: Pointer to monochrome bitmap
  */
@@ -1420,8 +1420,8 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     /* Intiaialize data */
     switch(createMode) {
         case UGL_DIB_INIT_VALUE:
-            memset (pVgaMonoBmp->pPlaneArray[0], planeSize, initValue);
-            memset (pVgaMonoBmp->pPlaneArray[1], planeSize, initValue);
+            memset (pVgaMonoBmp->pPlaneArray[0], initValue, planeSize);
+            memset (pVgaMonoBmp->pPlaneArray[1], ~initValue, planeSize);
             break;
 
         case UGL_DIB_INIT_DATA:

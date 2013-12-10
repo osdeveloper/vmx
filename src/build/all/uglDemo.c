@@ -167,7 +167,7 @@ int new4BitImg(UGL_DDB_ID *pDbBmpId,
 int new4BitMonoImg(UGL_MDDB_ID *pMddbId)
 {
   *pMddbId = uglMonoBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-			         0x1e, gfxPartId);
+			         0x55, gfxPartId);
   if (*pMddbId == UGL_NULL)
     return 1;
 
