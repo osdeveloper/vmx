@@ -204,6 +204,14 @@ typedef struct ugl_ugi_driver {
         UGL_POINT *             pDestPoint
         );
 
+    UGL_STATUS   (*monoBitmapWrite) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_MDIB *              pMdib,
+        UGL_RECT *              pSrcRect,
+        UGL_MDDB *              pMddb,
+        UGL_POINT *             pDestPoint
+        );
+
 } UGL_UGI_DRIVER;
 
 typedef struct ugl_ugi_driver * UGL_DEVICE_ID;

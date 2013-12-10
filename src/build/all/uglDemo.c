@@ -48,20 +48,20 @@ IMPORT SYMTAB_ID sysSymTable;
 PART_ID gfxPartId;
 UGL_DEVICE_ID gfxDevId;
 UGL_DIB *pBgDib, *pFgDib;
+UGL_MDIB *pMdib;
 UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
 int animTreshold = 1;
 BOOL firstTime = TRUE;
 BOOL firstTimeMono4 = TRUE;
 BOOL firstTimel = TRUE;
-UGL_DDB *pDbBmp, *pBgBmp, *pFgBmp, *pSaveBmp;
-UGL_MDDB *pMddb4Id;
-UGL_DDB *pFglBmp, *pSavelBmp, *pDblBmp;
+UGL_DDB *pDbBmp, *pBgBmp, *pFgBmp, *pSaveBmp = UGL_NULL;
+UGL_MDDB *pMddb4;
+UGL_DDB *pDblBmp, *pFglBmp, *pSavelBmp;
 
 int createDib(void)
 {
   int i, j;
-  UGL_UINT8 *ptr;
 
   pBgDib = malloc(sizeof(UGL_DIB));
   pFgDib = malloc(sizeof(UGL_DIB));
@@ -106,6 +106,14 @@ int createDib(void)
 		    		     16 * pinballClut[i][2] / 255);
   pFgDib->pData = pinballData;
 
+  pMdib = (UGL_MDIB *) malloc (sizeof(UGL_MDIB) +
+                               pinballWidth * pinballHeight / 8);
+  pMdib->width = pinballWidth;
+  pMdib->height = pinballHeight;
+  pMdib->stride = pinballWidth;
+  pMdib->pData = (void *) &pMdib[1];
+  memset(pMdib->pData, 0x55, pinballWidth * pinballHeight / 8);
+
   return 0;
 }
 
@@ -126,76 +134,81 @@ void setPalette(void)
   uglColorAlloc(gfxDevId, palette, paletteIndex, colors, LOOP_PAL_LENGTH);
 }
 
-int new4BitImg(UGL_DDB_ID *pDbBmpId,
-	       UGL_DDB_ID *pBgBmpId,
-	       UGL_DDB_ID *pFgBmpId,
-	       UGL_DDB_ID *pSaveBmpId)
+int new4BitImg(void)
 {
-  *pDbBmpId = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+  pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
 			 14, gfxPartId);
-  if (*pDbBmpId == UGL_NULL)
+  if (pDbBmp == UGL_NULL)
     return 1;
 
-  *pBgBmpId = uglBitmapCreate(gfxDevId, pBgDib, UGL_DIB_INIT_DATA,
+  pBgBmp = uglBitmapCreate(gfxDevId, pBgDib, UGL_DIB_INIT_DATA,
 			 8, gfxPartId);
-  if (*pBgBmpId == UGL_NULL) {
-    uglBitmapDestroy(gfxDevId, *pDbBmpId, gfxPartId);
+  if (pBgBmp == UGL_NULL) {
+    uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
     return 1;
   }
 
-  *pFgBmpId = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
+  pFgBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
 			 8, gfxPartId);
 
-  if (*pFgBmpId == UGL_NULL) {
-    uglBitmapDestroy(gfxDevId, *pDbBmpId, gfxPartId);
-    uglBitmapDestroy(gfxDevId, *pBgBmpId, gfxPartId);
+  if (pFgBmp == UGL_NULL) {
+    uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
     return 1;
   }
 
-  *pSaveBmpId = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
-		  		8, gfxPartId);
-  if (*pSaveBmpId == UGL_NULL) {
-    uglBitmapDestroy(gfxDevId, *pDbBmpId, gfxPartId);
-    uglBitmapDestroy(gfxDevId, *pBgBmpId, gfxPartId);
-    uglBitmapDestroy(gfxDevId, *pFgBmpId, gfxPartId);
-    return 1;
+  if (pSaveBmp == UGL_NULL) {
+    pSaveBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_VALUE,
+		  		0, gfxPartId);
+    if (pSaveBmp == UGL_NULL) {
+      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
+      return 1;
+    }
   }
 
   return 0;
 }
 
-int new4BitMonoImg(UGL_MDDB_ID *pMddbId)
+int new4BitMonoImg(void)
 {
-  *pMddbId = uglMonoBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-			         0x55, gfxPartId);
-  if (*pMddbId == UGL_NULL)
+  pMddb4 = uglMonoBitmapCreate(gfxDevId, pMdib, UGL_DIB_INIT_DATA,
+			         0, gfxPartId);
+  if (pMddb4 == UGL_NULL)
     return 1;
+
+  if (pSaveBmp == UGL_NULL) {
+    pSaveBmp = uglBitmapCreate(gfxDevId, (UGL_DIB *) pMdib, UGL_DIB_INIT_VALUE,
+		  		0, gfxPartId);
+    if (pSaveBmp == UGL_NULL) {
+      return 1;
+    }
+  }
 
   return 0;
 }
 
-int new8BitImg(UGL_DDB_ID *pDbBmpId,
-               UGL_DDB_ID *pFgBmpId,
-               UGL_DDB_ID *pSaveBmpId)
+int new8BitImg(void)
 {
-  *pDbBmpId = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+  pDblBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
                          14, gfxPartId);
-  if (*pDbBmpId == UGL_NULL)
+  if (pDblBmp == UGL_NULL)
     return 1;
 
-  *pFgBmpId = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
+  pFglBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
                          8, gfxPartId);
 
-  if (*pFgBmpId == UGL_NULL) {
-    uglBitmapDestroy(gfxDevId, *pDbBmpId, gfxPartId);
+  if (pFglBmp == UGL_NULL) {
+    uglBitmapDestroy(gfxDevId, pDblBmp, gfxPartId);
     return 1;
   }
 
-  *pSaveBmpId = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
+  pSavelBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
                                 8, gfxPartId);
-  if (*pSaveBmpId == UGL_NULL) {
-    uglBitmapDestroy(gfxDevId, *pDbBmpId, gfxPartId);
-    uglBitmapDestroy(gfxDevId, *pFgBmpId, gfxPartId);
+  if (pSavelBmp == UGL_NULL) {
+    uglBitmapDestroy(gfxDevId, pDblBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pFglBmp, gfxPartId);
     return 1;
   }
 
@@ -280,7 +293,7 @@ int uglBlt4Test(void)
 
   if (firstTime == TRUE) {
 
-    if (new4BitImg(&pDbBmp, &pBgBmp, &pFgBmp, &pSaveBmp) != 0) {
+    if (new4BitImg() != 0) {
       vgaRestore(&oldRegs, FALSE);
       printf("Error initializing images.\n");
       return 1;
@@ -399,8 +412,8 @@ int uglMono4Test(void)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
-  UGL_RECT srcRect;
-  UGL_POINT pt;
+  UGL_RECT srcRect, saveRect;
+  UGL_POINT pt, pt0;
 
   vgaSave(&oldRegs);
 
@@ -431,7 +444,7 @@ int uglMono4Test(void)
 
   if (firstTimeMono4 == TRUE) {
 
-    if (new4BitMonoImg(&pMddb4Id) != 0) {
+    if (new4BitMonoImg() != 0) {
       vgaRestore(&oldRegs, FALSE);
       printf("Error initializing images.\n");
       return 1;
@@ -441,22 +454,41 @@ int uglMono4Test(void)
   }
 
   srcRect.left = 0;
-  srcRect.right = pMddb4Id->width;
+  srcRect.right = pMddb4->width;
   srcRect.top = 0;
-  srcRect.bottom = pMddb4Id->height;
+  srcRect.bottom = pMddb4->height;
   pt.x = 0;
   pt.y = 0;
 
+  saveRect.left = pt.x;
+  saveRect.right = pt.x + pMddb4->width;
+  saveRect.top = pt.y;
+  saveRect.bottom = pt.y + pMddb4->height;
+  pt0.x = pt.x;
+  pt0.y = pt.y;
+
   while (pt.y < 480) {
-    uglBitmapBlt(gfxDevId->defaultGc, pMddb4Id,
+    uglBitmapBlt(gfxDevId->defaultGc, UGL_DISPLAY_ID,
+                 saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
+                 pSaveBmp, pt0.x, pt0.y);
+
+    uglBitmapBlt(gfxDevId->defaultGc, pMddb4,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 UGL_DISPLAY_ID, 0, 0);
+                 UGL_DISPLAY_ID, pt.x, pt.y);
 
     /* Delay */
     taskDelay(animTreshold);
 
+    uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DISPLAY_ID, pt.x, pt.y);
+
     pt.x += BALL_SPEED;
     pt.y += BALL_SPEED;
+    saveRect.left += BALL_SPEED;
+    saveRect.right += BALL_SPEED;
+    saveRect.top += BALL_SPEED;
+    saveRect.bottom += BALL_SPEED;
   }
 
   vgaRestore(&oldRegs, FALSE);
@@ -543,7 +575,7 @@ int uglBlt8Test(void)
 
   if (firstTimel == TRUE) {
 
-    if (new8BitImg(&pDblBmp, &pFglBmp, &pSavelBmp) != 0) {
+    if (new8BitImg() != 0) {
       vgaRestore(&oldRegs, FALSE);
       printf("Error initializing images.\n");
       return 1;

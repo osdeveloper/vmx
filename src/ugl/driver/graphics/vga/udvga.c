@@ -253,6 +253,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->bitmapWrite      = uglVgaBitmapWrite;
             devId->monoBitmapCreate = uglVgaMonoBitmapCreate;
             devId->monoBitmapBlt    = uglVgaMonoBitmapBlt;
+            devId->monoBitmapWrite  = uglVgaMonoBitmapWrite;
 
             /* Create palette for 16 colors */
             if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 16)
