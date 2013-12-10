@@ -1362,6 +1362,8 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     ) {
     UGL_VGA_DRIVER * pDrv;
     UGL_VGA_MDDB *   pVgaMonoBmp;
+    UGL_SIZE         width;
+    UGL_SIZE         height;
     UGL_RECT         srcRect;
     UGL_POINT        destPoint;
     UGL_UINT32       bmpSize;
@@ -1372,11 +1374,21 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     /* Get driver first in device struct */
     pDrv = (UGL_VGA_DRIVER *) devId;
 
-    /* Calcualte stride */
-    stride = ((pMdib->width + 7) / 8 + 1) * 8;
+    /* Get bitmap info, from screen if NULL MDIB */
+    if (pMdib == UGL_NULL) {
+        width  = devId->pMode->width;
+        height = devId->pMode->height;
+    }
+    else {
+        width  = pMdib->width;
+        height = pMdib->height;
+    }
 
-    /* Calclate plane size */
-    planeSize = (stride / 8) * pMdib->height;
+    /* Calcualte stride */
+    stride = ((width + 7) / 8 + 1) * 8;
+
+    /* Calculate plane size including 1 shift byte for each scanline */
+    planeSize = ((width + 7) / 8 + 1) * height;
 
     /* Calculate size */
     bmpSize = sizeof (UGL_VGA_MDDB) + (4 * sizeof (UGL_UINT8 *)) +
@@ -1388,16 +1400,16 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
         return (UGL_NULL);
     }
 
-    /* Initialize header /*
-    pVgaMonoBmp->header.width  = pMdib->width;
-    pVgaMonoBmp->header.height = pMdib->height;
+    /* Initialize header */
+    pVgaMonoBmp->header.width  = width;
+    pVgaMonoBmp->header.height = height;
     pVgaMonoBmp->header.type   = UGL_MDDB_TYPE;
     pVgaMonoBmp->stride        = stride;
     pVgaMonoBmp->shiftValue    = 0;
     pVgaMonoBmp->pPlaneArray   = (UGL_UINT8 **) (((UGL_UINT8 *) pVgaMonoBmp) +
-                                 sizeof (UGL_VGA_DDB));
+                                 sizeof (UGL_VGA_MDDB));
 
-    /* Intialize plane data array */
+    /* Initialize plane array */
     ptr = (UGL_UINT8 *) &pVgaMonoBmp->pPlaneArray[4];
     pVgaMonoBmp->pPlaneArray[0] = ptr;
     ptr += planeSize;
@@ -1405,7 +1417,7 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     pVgaMonoBmp->pPlaneArray[2] = UGL_NULL;
     pVgaMonoBmp->pPlaneArray[3] = UGL_NULL;
 
-    /* Initialize contents of bit planes */
+    /* Intiaialize data */
     switch(createMode) {
         case UGL_DIB_INIT_VALUE:
             memset (pVgaMonoBmp->pPlaneArray[0], planeSize, initValue);
@@ -1413,23 +1425,8 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
             break;
 
         case UGL_DIB_INIT_DATA:
+            return (UGL_NULL);
 
-            /* Read from source */
-            srcRect.left   = 0;
-            srcRect.top    = 0;
-            srcRect.right  = pMdib->width - 1;
-            srcRect.bottom = pMdib->height - 1;
-            destPoint.x = 0;
-            destPoint.y = 0;
-
-            /* TODO:
-             * (*devId->monoBitmapWrite) (devId, pMdib, &srcRect,
-             *                            (UGL_MDDB_ID) pVgaMonoBmp,
-             *                            &destPoint);
-             */
-            break;
-
-        /* None */
         default:
             break;
     }

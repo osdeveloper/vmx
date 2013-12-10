@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* uglbmp.h - Universal graphics library bitmap header */
+/* ugldib.h - Universal graphics library bitmap header */
 
-#ifndef _uglbmp_h
-#define _uglbmp_h
+#ifndef _ugldib_h
+#define _ugldib_h
 
 #define UGL_DIB_INIT_NONE               0
 #define UGL_DIB_INIT_VALUE              1
@@ -84,5 +84,5 @@ typedef UGL_BMAP_HEADER * UGL_BITMAP_ID;
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _uglbmp_h */
+#endif /* _ugldib_h */
 

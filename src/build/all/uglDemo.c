@@ -52,8 +52,10 @@ UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
 int animTreshold = 1;
 BOOL firstTime = TRUE;
+BOOL firstTimeMono4 = TRUE;
 BOOL firstTimel = TRUE;
 UGL_DDB *pDbBmp, *pBgBmp, *pFgBmp, *pSaveBmp;
+UGL_MDDB *pMddb4Id;
 UGL_DDB *pFglBmp, *pSavelBmp, *pDblBmp;
 
 int createDib(void)
@@ -158,6 +160,16 @@ int new4BitImg(UGL_DDB_ID *pDbBmpId,
     uglBitmapDestroy(gfxDevId, *pFgBmpId, gfxPartId);
     return 1;
   }
+
+  return 0;
+}
+
+int new4BitMonoImg(UGL_MDDB_ID *pMddbId)
+{
+  *pMddbId = uglMonoBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+			         0x1e, gfxPartId);
+  if (*pMddbId == UGL_NULL)
+    return 1;
 
   return 0;
 }
@@ -375,6 +387,76 @@ int uglBlt4Test(void)
     saveRect.right += BALL_SPEED;
     saveRect.top += BALL_SPEED;
     saveRect.bottom += BALL_SPEED;
+  }
+
+  vgaRestore(&oldRegs, FALSE);
+  vgaLoadFont(font8x16, font8x16Height);
+
+  return 0;
+}
+
+int uglMono4Test(void)
+{
+  UGL_MODE gfxMode;
+  struct vgaHWRec oldRegs;
+  UGL_RECT srcRect;
+  UGL_POINT pt;
+
+  vgaSave(&oldRegs);
+
+  if (gfxDevId == UGL_NULL) {
+    printf("No compatible graphics device found.\n");
+    return 1;
+  }
+
+  /* Enter video mode */
+  gfxMode.width = 640;
+  gfxMode.height = 480;
+  gfxMode.depth = 4;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
+
+  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+    vgaRestore(&oldRegs, FALSE);
+    printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+    return 1;
+  }
+
+  /* Set palette */
+  setPalette();
+
+  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  uglForegroundColorSet(gfxDevId->defaultGc, 14);
+  uglBackgroundColorSet(gfxDevId->defaultGc, 0);
+
+  if (firstTimeMono4 == TRUE) {
+
+    if (new4BitMonoImg(&pMddb4Id) != 0) {
+      vgaRestore(&oldRegs, FALSE);
+      printf("Error initializing images.\n");
+      return 1;
+    }
+
+    firstTimeMono4 = FALSE;
+  }
+
+  srcRect.left = 0;
+  srcRect.right = pMddb4Id->width;
+  srcRect.top = 0;
+  srcRect.bottom = pMddb4Id->height;
+  pt.x = 0;
+  pt.y = 0;
+
+  while (pt.y < 480) {
+    uglBitmapBlt(gfxDevId->defaultGc, pMddb4Id,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DISPLAY_ID, 0, 0);
+
+    /* Delay */
+    taskDelay(animTreshold);
+
+    pt.x += BALL_SPEED;
+    pt.y += BALL_SPEED;
   }
 
   vgaRestore(&oldRegs, FALSE);
@@ -686,6 +768,7 @@ void uglDemoInit()
 static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglPixel4Test", uglPixel4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt4Test", uglBlt4Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglMono4Test", uglMono4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglPixel8Test", uglPixel8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt8Test", uglBlt8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglDestroyTest", uglDestroyTest, 0, N_TEXT | N_EXT},

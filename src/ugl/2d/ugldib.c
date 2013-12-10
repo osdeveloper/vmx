@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* uglbmp.c - Universal graphics library bitmap support */
+/* ugldib.c - Universal graphics library bitmap support */
 
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
@@ -153,6 +153,13 @@ UGL_STATUS uglBitmapBlt (
             /* Call driver specific method */
             status = (*devId->bitmapBlt) (devId, srcBmpId, &srcRect,
                                           destBmpId, (UGL_POINT *) &destRect);
+        }
+        else if (srcBmpId->type == UGL_MDDB_TYPE) {
+
+            /* Call driver specific method */
+            status = (*devId->monoBitmapBlt) (devId, srcBmpId, &srcRect,
+                                              destBmpId,
+                                              (UGL_POINT *) &destRect);
         }
         else {
             status = UGL_STATUS_ERROR;

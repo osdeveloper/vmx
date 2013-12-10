@@ -317,6 +317,36 @@ UGL_STATUS uglBitmapBlt (
     UGL_POS        destY
     );
 
+/* Monocrhome bitmap support functions */
+
+/******************************************************************************
+ *
+ * uglMonoBitmapCreate - Create monochrome bitmap
+ *
+ * RETURNS: Pointer to device dependent monochrome bitmap
+ */
+
+UGL_DDB_ID uglMonoBitmapCreate (
+    UGL_DEVICE_ID        devId,
+    UGL_MDIB *           pMdib,
+    UGL_DIB_CREATE_MODE  createMode,
+    UGL_UINT8            initValue,
+    UGL_MEM_POOL_ID      poolId
+    );
+
+/******************************************************************************
+ *
+ * uglMonoBitmapDestroy - Free monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglMonoBitmapDestroy (
+    UGL_DEVICE_ID    devId,
+    UGL_DDB *        pMddb,
+    UGL_MEM_POOL_ID  poolId
+    );
+
 /* Batch job support functions */
 
 /******************************************************************************

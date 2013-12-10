@@ -1,7 +1,7 @@
 # Makefile -
 #
 
-OBJS = ugldib.o uglcolor.o uglgc.o uglmode.o uglpixel.o uglbatch.o
+OBJS = ugldib.o uglmdib.o uglcolor.o uglgc.o uglmode.o uglpixel.o uglbatch.o
 SUBDIRS =
 LIB_TGT = ugl-2d
 
