@@ -438,7 +438,7 @@ int uglMono4Test(void)
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
   uglForegroundColorSet(gfxDevId->defaultGc, 14);
-  uglBackgroundColorSet(gfxDevId->defaultGc, UGL_COLOR_TRANSPARENT);
+  uglBackgroundColorSet(gfxDevId->defaultGc, 0);
 
   if (firstTimeMono4 == TRUE) {
 

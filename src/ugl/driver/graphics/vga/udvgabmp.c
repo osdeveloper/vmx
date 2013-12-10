@@ -1812,19 +1812,19 @@ UGL_STATUS uglVgaMonoBitmapWrite (
                         *destFg &= ~destMask;
                         *destBg |= destMask;
                     }
-                }
 
-                /* Advance source */
-                if ((srcMask >>= 1) == 0) {
-                    srcMask = 0x80;
-                    src++;
-                }
+                    /* Advance source */
+                    if ((srcMask >>= 1) == 0) {
+                        srcMask = 0x80;
+                        src++;
+                    }
 
-                /* Advance destination */
-                if ((destMask >>= 1) == 0) {
-                    destMask = 0x80;
-                    destFg++;
-                    destBg++;
+                    /* Advance destination */
+                    if ((destMask >>= 1) == 0) {
+                        destMask = 0x80;
+                        destFg++;
+                        destBg++;
+                    }
                 }
             }
 
