@@ -106,13 +106,11 @@ int createDib(void)
 		    		     16 * pinballClut[i][2] / 255);
   pFgDib->pData = pinballData;
 
-  pMdib = (UGL_MDIB *) malloc (sizeof(UGL_MDIB) +
-                               pinballWidth * pinballHeight / 8);
+  pMdib = (UGL_MDIB *) malloc (sizeof(UGL_MDIB));
   pMdib->width = pinballWidth;
   pMdib->height = pinballHeight;
   pMdib->stride = pinballWidth;
-  pMdib->pData = (void *) &pMdib[1];
-  memset(pMdib->pData, 0x55, pinballWidth * pinballHeight / 8);
+  pMdib->pData = (void *) &pinballMask;
 
   return 0;
 }
@@ -440,7 +438,7 @@ int uglMono4Test(void)
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
   uglForegroundColorSet(gfxDevId->defaultGc, 14);
-  uglBackgroundColorSet(gfxDevId->defaultGc, 0);
+  uglBackgroundColorSet(gfxDevId->defaultGc, UGL_COLOR_TRANSPARENT);
 
   if (firstTimeMono4 == TRUE) {
 
