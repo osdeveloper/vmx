@@ -187,6 +187,23 @@ typedef struct ugl_ugi_driver {
         UGL_DDB *               pDdb,
         UGL_POINT *             pDestPoint
         );
+
+    UGL_DDB *    (*monoBitmapCreate) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_MDIB *              pMdib,
+        UGL_DIB_CREATE_MODE     createMode,
+        UGL_UINT8               intiValue,
+        UGL_MEM_POOL_ID         poolId
+        );
+
+    UGL_STATUS   (*monoBitmapBlt) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_MDDB *              pSrcBmp,
+        UGL_RECT *              pSrcRect,
+        UGL_DDB *               pDestBmp,
+        UGL_POINT *             pDestPoint
+        );
+
 } UGL_UGI_DRIVER;
 
 typedef struct ugl_ugi_driver * UGL_DEVICE_ID;

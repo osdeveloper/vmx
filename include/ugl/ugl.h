@@ -144,6 +144,30 @@ UGL_STATUS uglClipRectSet (
 
 /******************************************************************************
  *
+ * uglForegroundColorSet - Set graphics context foreground color
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglForegroundColorSet (
+    UGL_GC_ID  gc,
+    UGL_COLOR  color
+    );
+
+/******************************************************************************
+ *
+ * uglBackgroundColorSet - Set graphics context background color
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBackgroundColorSet (
+    UGL_GC_ID  gc,
+    UGL_COLOR  color
+    );
+
+/******************************************************************************
+ *
  * uglRasterModeSet - Set graphics context raster mode
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

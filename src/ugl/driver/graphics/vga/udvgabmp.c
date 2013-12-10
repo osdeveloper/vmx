@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include <vmx.h>
 #include <arch/sysArchLib.h>
@@ -47,7 +48,7 @@ UGL_DDB_ID uglVgaBitmapCreate (
     UGL_VGA_DRIVER * pDrv;
     UGL_VGA_DDB *    pVgaBmp;
     UGL_UINT32       i;
-    UGL_UINT32       numPlanes;
+    UGL_SIZE         numPlanes;
     UGL_UINT32       planeSize;
     UGL_SIZE         width;
     UGL_SIZE         height;
@@ -199,8 +200,8 @@ UGL_LOCAL void uglVgaShiftBitmap (
     UGL_VGA_DRIVER * pDrv;
     UGL_INT32        x;
     UGL_INT32        y;
-    UGL_INT32        planeIndex;
-    UGL_INT32        numPlanes;
+    UGL_SIZE         planeIndex;
+    UGL_SIZE         numPlanes;
     UGL_INT32        bytesPerLine;
     UGL_UINT8 *      ptr;
     UGL_UINT16       shiftReg;
@@ -361,10 +362,10 @@ UGL_LOCAL void uglVgaBltPlane (
     UGL_SIZE       destStride,
     UGL_RASTER_OP  rasterOp
     ) {
-    int         i;
-    int         y;
-    int         width;
-    int         height;
+    UGL_UINT32  i;
+    UGL_UINT32  y;
+    UGL_UINT32  width;
+    UGL_UINT32  height;
     UGL_UINT8 * src;
     UGL_UINT8 * dest;
     UGL_UINT8   startMask;
@@ -634,8 +635,8 @@ UGL_LOCAL void uglVgaBltColorToColor (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_RASTER_OP        rasterOp;
-    int                  planeIndex;
-    int                  numPlanes;
+    UGL_SIZE             planeIndex;
+    UGL_SIZE             numPlanes;
     UGL_SIZE             srcStride;
     UGL_SIZE             destStride;
     UGL_UINT8 *          src;
@@ -689,8 +690,8 @@ UGL_LOCAL void uglVgaBltColorToFrameBuffer (
     UGL_INT32            y;
     UGL_INT32            width;
     UGL_INT32            height;
-    UGL_INT32            planeIndex;
-    UGL_INT32            numPlanes;
+    UGL_SIZE             planeIndex;
+    UGL_SIZE             numPlanes;
     UGL_INT32            destBytesPerLine;
     UGL_INT32            srcBytesPerLine;
     UGL_INT32            srcOffset;
@@ -843,8 +844,8 @@ UGL_LOCAL void uglVgaBltFrameBufferToColor (
     UGL_INT32            y;
     UGL_INT32            width;
     UGL_INT32            height;
-    UGL_INT32            planeIndex;
-    UGL_INT32            numPlanes;
+    UGL_SIZE             planeIndex;
+    UGL_SIZE             numPlanes;
     UGL_INT32            destBytesPerLine;
     UGL_INT32            srcBytesPerLine;
     UGL_INT32            destOffset;
@@ -1131,8 +1132,8 @@ UGL_STATUS uglVgaBitmapWrite (
     UGL_INT32            x;
     UGL_INT32            y;
     UGL_INT32            left;
-    UGL_INT32            numPlanes;
-    UGL_INT32            planeIndex;
+    UGL_SIZE             planeIndex;
+    UGL_SIZE             numPlanes;
     UGL_INT32            destBytesPerLine;
     UGL_INT32            startIndex;
     UGL_INT32            srcOffset;
@@ -1353,11 +1354,11 @@ UGL_STATUS uglVgaBitmapWrite (
  */
 
 UGL_MDDB_ID uglVgaMonoBitmapCreate (
-    UGL_DEVICE_ID    devId,
-    UGL_MDIB *       pMdib,
-    UGL_ORD          createMode,
-    UGL_UINT8        initValue,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DEVICE_ID       devId,
+    UGL_MDIB *          pMdib,
+    UGL_DIB_CREATE_MODE createMode,
+    UGL_UINT8           initValue,
+    UGL_MEM_POOL_ID     poolId
     ) {
     UGL_VGA_DRIVER * pDrv;
     UGL_VGA_MDDB *   pVgaMonoBmp;
@@ -1436,6 +1437,202 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     return (UGL_MDDB_ID) pVgaMonoBmp;
 }
 
+
+/******************************************************************************
+ *
+ * uglVgaMonoBitmapBltToFramBuffer - Blit from mono-bitmap to framebuffer
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
+    UGL_DEVICE_ID  devId,
+    UGL_VGA_MDDB * pBmp,
+    UGL_RECT *     pSrcRect,
+    UGL_RECT *     pDestRect
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_VGA_DRIVER *     pVgaDrv;
+    UGL_GC_ID            gc;
+    volatile UGL_UINT8   tmp;
+    UGL_INT32            x;
+    UGL_INT32            y;
+    UGL_INT32            width;
+    UGL_INT32            height;
+    UGL_SIZE             planeIndex;
+    UGL_SIZE             numPlanes;
+    UGL_INT32            destBytesPerLine;
+    UGL_INT32            srcBytesPerLine;
+    UGL_INT32            srcOffset;
+    UGL_UINT8 *          destStart;
+    UGL_UINT8            startMask;
+    UGL_UINT8            endMask;
+    UGL_UINT8 *          src;
+    UGL_UINT8 *          dest;
+
+    /* Get driver first in device struct */
+    pDrv    = (UGL_GENERIC_DRIVER *) devId;
+    pVgaDrv = (UGL_VGA_DRIVER *) devId;
+
+    /* Get gc */
+    gc = pDrv->gc;
+
+    /* Align source bitmap to dest */
+    uglVgaBltAlign (devId, (UGL_BMAP_HEADER *) pBmp, pSrcRect,
+                    UGL_NULL, pDestRect);
+
+    /* Setup variables for blit */
+    width            = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
+    height           = UGL_RECT_HEIGHT (*pDestRect) - 1;
+    numPlanes        = devId->pMode->depth;
+    destBytesPerLine = pVgaDrv->bytesPerLine;
+    srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
+    destStart        = (UGL_UINT8 *) pDrv->fbAddress +
+                       pDestRect->top * destBytesPerLine +
+                       (pDestRect->left >> 3);
+    srcOffset        = pSrcRect->top * srcBytesPerLine +
+                       (pSrcRect->left >> 3);
+
+    /* Generate masks */
+    startMask = 0xff >> (pDestRect->left & 0x07);
+    endMask   = 0xff << (7 - (pDestRect->right & 0x07));
+    if (width == 1) {
+        startMask &= endMask;
+    }
+
+    /* If draw foreground */
+    if (gc->foregroundColor != UGL_COLOR_TRANSPARENT) {
+
+        /* Setup source and destination */
+        src = pBmp->pPlaneArray[0] + srcOffset;
+        dest = destStart;
+
+        /* Set foreground color */
+        UGL_OUT_WORD (0x3ce, (u_int16_t) (gc->foregroundColor << 8));
+
+        /* Set bitmask register */
+        UGL_OUT_BYTE (0x3ce, 0x08);
+        UGL_OUT_BYTE (0x3ce, startMask);
+
+        /* Blit start */
+        for (y = height; y != 0; --y) {
+            tmp = *dest;
+            *dest = *src;
+
+            /* Advance to next line */
+            src  += srcBytesPerLine;
+            dest += destBytesPerLine;
+        }
+
+        /* Blit middle */
+        if (width > 2) {
+
+            /* Set bitmask register */
+            UGL_OUT_BYTE (0x3ce, 0xff);
+
+            src = pBmp->pPlaneArray[0] + srcOffset + 1;
+            dest = destStart + 1;
+
+            for (y = height; y != 0; --y) {
+                for (x = 0; x < width - 2; x++) {
+                    tmp = dest[x];
+                    dest[x] = src[x];
+                }
+
+                /* Advance to next line */
+                src  += srcBytesPerLine;
+                dest += destBytesPerLine;
+            }
+        }
+
+        /* Blit end */
+        if (width > 1) {
+            UGL_OUT_BYTE (0x3ce, endMask);
+
+            src = pBmp->pPlaneArray[0] + srcOffset + width - 1;
+            dest = destStart + width - 1;
+
+            for (y = height; y != 0; --y) {
+                tmp = *dest;
+                *dest = *src;
+
+                /* Advance to next line */
+                src  += srcBytesPerLine;
+                dest += destBytesPerLine;
+            }
+        }
+    }
+
+    /* If draw background */
+    if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
+
+        /* Setup source and destination */
+        src = pBmp->pPlaneArray[1] + srcOffset;
+        dest = destStart;
+
+        /* Set foreground color */
+        UGL_OUT_WORD (0x3ce, (u_int16_t) (gc->backgroundColor << 8));
+
+        /* Set bitmask register */
+        UGL_OUT_BYTE (0x3ce, 0x08);
+        UGL_OUT_BYTE (0x3ce, startMask);
+
+        /* Blit start */
+        for (y = height; y != 0; --y) {
+            tmp = *dest;
+            *dest = *src;
+
+            /* Advance to next line */
+            src  += srcBytesPerLine;
+            dest += destBytesPerLine;
+        }
+
+        /* Blit middle */
+        if (width > 2) {
+
+            /* Set bitmask register */
+            UGL_OUT_BYTE (0x3ce, 0xff);
+
+            src = pBmp->pPlaneArray[1] + srcOffset + 1;
+            dest = destStart + 1;
+
+            for (y = height; y != 0; --y) {
+                for (x = 0; x < width - 2; x++) {
+                    tmp = dest[x];
+                    dest[x] = src[x];
+                }
+
+                /* Advance to next line */
+                src  += srcBytesPerLine;
+                dest += destBytesPerLine;
+            }
+        }
+
+        /* Blit end */
+        if (width > 1) {
+            UGL_OUT_BYTE (0x3ce, endMask);
+
+            src = pBmp->pPlaneArray[1] + srcOffset + width - 1;
+            dest = destStart + width - 1;
+
+            for (y = height; y != 0; --y) {
+                tmp = *dest;
+                *dest = *src;
+
+                /* Advance to next line */
+                src  += srcBytesPerLine;
+                dest += destBytesPerLine;
+            }
+        }
+    }
+
+    /* Restore registers */
+    UGL_OUT_BYTE (0x3cf, 0xff);
+
+    /* Restore color */
+    UGL_OUT_WORD (0x3ce, ((u_int16_t) pVgaDrv->color << 8));
+}
+
 /******************************************************************************
  *
  * uglVgaMonoBitmapBlt - Blit from monochrome bitmap memory area to another
@@ -1445,9 +1642,9 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
 
 UGL_STATUS uglVgaMonoBitmapBlt (
     UGL_DEVICE_ID  devId,
-    UGL_DDB_ID     srcBmpId,
+    UGL_MDDB_ID    srcBmpId,
     UGL_RECT *     pSrcRect,
-    UGL_MDDB_ID    destBmpId,
+    UGL_DDB_ID     destBmpId,
     UGL_POINT *    pDestPoint
     ) {
     UGL_GENERIC_DRIVER * pDrv;
@@ -1493,9 +1690,14 @@ UGL_STATUS uglVgaMonoBitmapBlt (
         UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
         UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
                           UGL_RECT_HEIGHT(srcRect));
-    }
 
-    /* TODO: Perform the actual blit */
+        if ((UGL_DDB_ID) destBmpId == UGL_DISPLAY_ID) {
+            uglVgaBltMonoToFrameBuffer (devId, pSrcBmp, &srcRect, &destRect);
+        }
+        else {
+            /* TODO: uglVgaBltMonoToColor(devId, pSrcBmp, &srcRect, pDestBmp, &destRect) */
+        }
+    }
 
     return (UGL_STATUS_OK);
 }

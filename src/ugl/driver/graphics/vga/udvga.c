@@ -214,11 +214,11 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             UGL_OUT_BYTE (0x3c0, 0x20);         /* End attribute set */
 
             /* Set releated info */
-            pDrv->bytesPerLine   = devId->pMode->width;
-            pDrv->colorPlanes    = devId->pMode->depth;
+            pDrv->bytesPerLine = devId->pMode->width;
+            pDrv->colorPlanes  = devId->pMode->depth;
 
             /* Set graphics primitives support methods */
-            devId->pixelSet      = uglGeneric8BitPixelSet;
+            devId->pixelSet = uglGeneric8BitPixelSet;
 
             /* Setup bitmap support methods */
             devId->bitmapCreate  = uglGeneric8BitBitmapCreate;
@@ -240,17 +240,19 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
         /* Vga mode 12 */
         case 1:
             /* Set releated info */
-            pDrv->bytesPerLine   = devId->pMode->width / 8;
-            pDrv->colorPlanes    = devId->pMode->depth;
+            pDrv->bytesPerLine = devId->pMode->width / 8;
+            pDrv->colorPlanes  = devId->pMode->depth;
 
             /* Set graphics primitives support methods */
-            devId->pixelSet      = uglVgaPixelSet;
+            devId->pixelSet = uglVgaPixelSet;
 
             /* Setup bitmap support methods */
-            devId->bitmapCreate  = uglVgaBitmapCreate;
-            devId->bitmapDestroy = uglVgaBitmapDestroy;
-            devId->bitmapBlt     = uglVgaBitmapBlt;
-            devId->bitmapWrite   = uglVgaBitmapWrite;
+            devId->bitmapCreate     = uglVgaBitmapCreate;
+            devId->bitmapDestroy    = uglVgaBitmapDestroy;
+            devId->bitmapBlt        = uglVgaBitmapBlt;
+            devId->bitmapWrite      = uglVgaBitmapWrite;
+            devId->monoBitmapCreate = uglVgaMonoBitmapCreate;
+            devId->monoBitmapBlt    = uglVgaMonoBitmapBlt;
 
             /* Create palette for 16 colors */
             if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 16)

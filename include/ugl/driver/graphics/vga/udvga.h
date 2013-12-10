@@ -231,6 +231,36 @@ UGL_STATUS uglVgaBitmapWrite (
     UGL_POINT *    pDestPoint
     );
 
+/******************************************************************************
+ *
+ * uglVgaMonoBitmapCreate - Create vgamonocrhome bitmap
+ *
+ * RETURNS: Pointer to monochrome bitmap
+ */
+
+UGL_MDDB_ID uglVgaMonoBitmapCreate (
+    UGL_DEVICE_ID       devId,
+    UGL_MDIB *          pMdib,
+    UGL_DIB_CREATE_MODE createMode,
+    UGL_UINT8           initValue,
+    UGL_MEM_POOL_ID     poolId
+    );
+
+/******************************************************************************
+ *
+ * uglVgaMonoBitmapBlt - Blit from monochrome bitmap memory area to another
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaMonoBitmapBlt (
+    UGL_DEVICE_ID  devId,
+    UGL_MDDB_ID    srcBmpId,
+    UGL_RECT *     pSrcRect,
+    UGL_DDB_ID     destBmpId,
+    UGL_POINT *    pDestPoint
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

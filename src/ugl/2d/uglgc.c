@@ -356,6 +356,74 @@ UGL_STATUS uglClipRectSet (
 
 /******************************************************************************
  *
+ * uglForegroundColorSet - Set graphics context foreground color
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglForegroundColorSet (
+    UGL_GC_ID  gc,
+    UGL_COLOR  color
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set if new color */
+    if (gc->foregroundColor != color) {
+        gc->foregroundColor  = color;
+        gc->changed         |= UGL_GC_FOREGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOsUnLock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglBackgroundColorSet - Set graphics context background color
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBackgroundColorSet (
+    UGL_GC_ID  gc,
+    UGL_COLOR  color
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set if new color */
+    if (gc->backgroundColor != color) {
+        gc->backgroundColor  = color;
+        gc->changed         |= UGL_GC_BACKGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOsUnLock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglRasterModeSet - Set graphics context raster mode
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

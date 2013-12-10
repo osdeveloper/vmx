@@ -75,6 +75,9 @@ typedef UGL_INT32   UGL_COLOR_MODEL;
 typedef UGL_UINT32  UGL_COLOR_FORMAT;
 typedef UGL_UINT32  UGL_ARGB;
 
+/* Draw color */
+#define UGL_COLOR_TRANSPARENT           ((UGL_COLOR) 0x00010101L)
+
 /* Macros */
 
 /******************************************************************************
