@@ -347,6 +347,25 @@ UGL_STATUS uglMonoBitmapDestroy (
     UGL_MEM_POOL_ID  poolId
     );
 
+/******************************************************************************
+ *
+ * uglMonoBitmapRead - Read monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglMonoBitmapRead (
+    UGL_GC_ID    gc,
+    UGL_MDDB_ID  mDdbId,
+    UGL_POS      srcLeft,
+    UGL_POS      srcTop,
+    UGL_POS      srcRight,
+    UGL_POS      srcBottom,
+    UGL_MDIB *   pMdib,
+    UGL_POS      destX,
+    UGL_POS      destY
+    );
+
 /* Batch job support functions */
 
 /******************************************************************************

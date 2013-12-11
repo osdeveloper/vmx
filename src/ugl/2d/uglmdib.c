@@ -93,3 +93,59 @@ UGL_STATUS uglMonoBitmapDestroy (
     return (status);
 }
 
+/******************************************************************************
+ *
+ * uglMonoBitmapRead - Read monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglMonoBitmapRead (
+    UGL_GC_ID    gc,
+    UGL_MDDB_ID  mDdbId,
+    UGL_POS      srcLeft,
+    UGL_POS      srcTop,
+    UGL_POS      srcRight,
+    UGL_POS      srcBottom,
+    UGL_MDIB *   pMdib,
+    UGL_POS      destX,
+    UGL_POS      destY
+    ) {
+    UGL_RECT    srcRect;
+    UGL_POINT   destPoint;
+    UGL_STATUS  status;
+
+    /* Start batch job */
+    if (uglBatchStart (gc) == UGL_STATUS_ERROR) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Check params */
+    if (mDdbId == UGL_NULL || pMdib == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    if (srcLeft > srcRight && srcTop > srcBottom) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Setup source rectangle */
+    srcRect.left    = srcLeft;
+    srcRect.top     = srcTop;
+    srcRect.right   = srcRight;
+    srcRect.bottom  = srcBottom;
+
+    /* Setup destination point */
+    destPoint.x = destX;
+    destPoint.y = destY;
+
+    /* Call driver specific method */
+    status = (*gc->pDriver->monoBitmapRead) (gc->pDriver, mDdbId, &srcRect,
+                                            pMdib, &destPoint);
+
+    /* End batch job */
+    uglBatchEnd (gc);
+
+    return (status);
+}
+

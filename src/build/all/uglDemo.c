@@ -170,10 +170,44 @@ int new4BitImg(void)
 
 int new4BitMonoImg(void)
 {
+  UGL_MDIB * pMdib;
+
   pMddb4 = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
 			         0, gfxPartId);
   if (pMddb4 == UGL_NULL)
     return 1;
+
+  /* Copy */
+  pMdib = (UGL_MDIB *) malloc(sizeof(UGL_MDIB) +
+                              (pinballWidth * pinballHeight) / 8);
+  if (pMdib == UGL_NULL) {
+    uglMonoBitmapDestroy(gfxDevId, pMddb4, gfxPartId);
+    return 1;
+  }
+
+  pMdib->width = pinballWidth;
+  pMdib->height = pinballHeight;
+  pMdib->stride = pinballWidth;
+  pMdib->pData = (char *) &pMdib[1];
+
+  if (uglMonoBitmapRead(gfxDevId->defaultGc, pMddb4, 0, 0,
+                        pinballWidth, pinballHeight,
+                        pMdib, 0, 0) == UGL_STATUS_ERROR) {
+    free (pMdib);
+    uglMonoBitmapDestroy(gfxDevId, pMddb4, gfxPartId);
+    return 1;
+  }
+
+  uglMonoBitmapDestroy(gfxDevId, pMddb4, gfxPartId);
+
+  pMddb4 = uglMonoBitmapCreate(gfxDevId, pMdib, UGL_DIB_INIT_DATA,
+			         0, gfxPartId);
+  if (pMddb4 == UGL_NULL) {
+    free (pMdib);
+    return 1;
+  }
+
+  free (pMdib);
 
   if (pSaveBmp == UGL_NULL) {
     pSaveBmp = uglBitmapCreate(gfxDevId, (UGL_DIB *) &mDib, UGL_DIB_INIT_VALUE,

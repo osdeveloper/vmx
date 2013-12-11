@@ -55,10 +55,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     gc = pDrv->gc;
 
     /* Setup geometry */
-    srcRect.top    = pSrcRect->top;
-    srcRect.bottom = pSrcRect->bottom;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
+    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
     destRect.top   = pDestPoint->y;
     destRect.left  = pDestPoint->x;
     UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
@@ -67,10 +64,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     /* Setup source clip rect */
     if ((UGL_DDB_ID) *pSrcBmpId == UGL_DEFAULT_ID) {
         *pSrcBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
-        srcClip.top    = gc->boundRect.top;
-        srcClip.bottom = gc->boundRect.bottom;
-        srcClip.left   = gc->boundRect.left;
-        srcClip.right  = gc->boundRect.right;
+        memcpy (&srcClip, gc->boundRect, sizeof (UGL_RECT));
     }
     else if ((UGL_DDB_ID) *pSrcBmpId == UGL_DISPLAY_ID) {
         srcClip.top    = 0;
@@ -88,10 +82,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     /* Set dest clip rect */
     if ((UGL_DDB_ID) *pDestBmpId == UGL_DEFAULT_ID) {
         *pDestBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
-        destClip.top    = pClipRect->top;
-        destClip.bottom = pClipRect->bottom;
-        destClip.left   = pClipRect->left;
-        destClip.right  = pClipRect->right;
+        memcpy (&destClip, pClipRect, sizeof (UGL_RECT));
     }
     else if ((UGL_DDB_ID) *pDestBmpId == UGL_DISPLAY_ID) {
         destClip.top    = 0;
@@ -123,10 +114,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     UGL_RECT_MOVE (srcRect, destRect.left - x, destRect.top - y);
 
     /* Copy the resulting geometry */
-    pSrcRect->top    = srcRect.top;
-    pSrcRect->bottom = srcRect.bottom;
-    pSrcRect->left   = srcRect.left;
-    pSrcRect->right  = srcRect.right;
+    memcpy (pSrcRect, &srcRect, sizeof (UGL_RECT));
     pDestPoint->x = destRect.left;
     pDestPoint->y = destRect.top;
 
@@ -152,7 +140,6 @@ UGL_BOOL uglGenericClipDibToDdb (
     UGL_BMAP_ID *  pBmpId,
     UGL_POINT *    pDestPoint
     ) {
-    UGL_GENERIC_DRIVER * pDrv;
     UGL_POS              x;
     UGL_POS              y;
     UGL_RECT             srcRect;
@@ -160,26 +147,20 @@ UGL_BOOL uglGenericClipDibToDdb (
     UGL_RECT             destRect;
     UGL_RECT             destClip;
 
-    /* Get driver first in device struct */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
-
     /* Setup geometry */
-    srcRect.top    = pSrcRect->top;
-    srcRect.bottom = pSrcRect->bottom;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
+    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
     destRect.top   = pDestPoint->y;
     destRect.left  = pDestPoint->x;
     UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
                       UGL_RECT_HEIGHT (srcRect));
 
-    /* Setup destination clip rect */
+    /* Setup source clip rect */
     srcClip.top    = 0;
     srcClip.bottom = pDib->height;
     srcClip.left   = 0;
     srcClip.right  = pDib->width;
 
-    /* Setup source clip rect */
+    /* Setup dest clip rect */
     if ((UGL_DDB_ID) *pBmpId == UGL_DISPLAY_ID) {
         destClip.top    = 0;
         destClip.bottom = devId->pMode->height - 1;
@@ -207,10 +188,81 @@ UGL_BOOL uglGenericClipDibToDdb (
     UGL_RECT_MOVE (srcRect, destRect.left - x, destRect.top - y);
 
     /* Copy the resulting geometry */
-    pSrcRect->top    = srcRect.top;
-    pSrcRect->bottom = srcRect.bottom;
-    pSrcRect->left   = srcRect.left;
-    pSrcRect->right  = srcRect.right;
+    memcpy (pSrcRect, &srcRect, sizeof (UGL_RECT));
+    pDestPoint->x = destRect.left;
+    pDestPoint->y = destRect.top;
+
+    /* Check result */
+    if (UGL_RECT_WIDTH (destRect) <= 0 || UGL_RECT_HEIGHT (destRect) <= 0) {
+        return (UGL_FALSE);
+    }
+
+    return (UGL_TRUE);
+}
+
+/******************************************************************************
+ *
+ * uglGenericClipDdbToDib - Generic clip of device dependent to independent
+ *
+ * RETURNS: UGL_TRUE or UGL_FALSE
+ */
+
+UGL_BOOL uglGenericClipDdbToDib (
+    UGL_DEVICE_ID  devId,
+    UGL_BMAP_ID *  pBmpId,
+    UGL_RECT *     pSrcRect,
+    UGL_DIB *      pDib,
+    UGL_POINT *    pDestPoint
+    ) {
+    UGL_POS              x;
+    UGL_POS              y;
+    UGL_RECT             srcRect;
+    UGL_RECT             srcClip;
+    UGL_RECT             destRect;
+    UGL_RECT             destClip;
+
+    /* Setup geometry */
+    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
+    destRect.top   = pDestPoint->y;
+    destRect.left  = pDestPoint->x;
+    UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
+                      UGL_RECT_HEIGHT (srcRect));
+
+    /* Setup destination clip rect */
+    destClip.top    = 0;
+    destClip.bottom = pDib->height;
+    destClip.left   = 0;
+    destClip.right  = pDib->width;
+
+    /* Setup source clip rect */
+    if ((UGL_DDB_ID) *pBmpId == UGL_DISPLAY_ID) {
+        srcClip.top    = 0;
+        srcClip.bottom = devId->pMode->height - 1;
+        srcClip.left   = 0;
+        srcClip.right  = devId->pMode->width - 1;
+    }
+    else {
+      srcClip.top    = 0;
+      srcClip.bottom = (*pBmpId)->header.height - 1;
+      srcClip.left   = 0;
+      srcClip.right  = (*pBmpId)->header.width - 1;
+    }
+
+    /* Clip to source */
+    UGL_RECT_INTERSECT (srcRect, srcClip, srcRect);
+    UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
+                      UGL_RECT_HEIGHT (srcRect));
+
+    /* Clip to destination */
+    x = destRect.left;
+    y = destRect.top;
+    UGL_RECT_INTERSECT (destRect, destClip, destRect);
+    UGL_RECT_SIZE_TO (srcRect, UGL_RECT_WIDTH (destRect),
+                      UGL_RECT_HEIGHT (destRect));
+    UGL_RECT_MOVE (srcRect, destRect.left - x, destRect.top - y);
+
+    /* Copy the resulting geometry */
+    memcpy (pSrcRect, &srcRect, sizeof (UGL_RECT));
     pDestPoint->x = destRect.left;
     pDestPoint->y = destRect.top;
 

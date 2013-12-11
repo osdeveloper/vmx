@@ -289,6 +289,21 @@ UGL_STATUS uglVgaMonoBitmapWrite (
     UGL_POINT *    pDestPoint
     );
 
+/******************************************************************************
+ *
+ * uglVgaMonoBitmapRead - Read monochrome ddb to monochrome dib
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaMonoBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_MDDB_ID    mDdbId,
+    UGL_RECT *     pSrcRect,
+    UGL_MDIB *     pMdib,
+    UGL_POINT *    pDestPoint
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -1840,13 +1840,13 @@ UGL_STATUS uglVgaMonoBitmapWrite (
                     }
 
                     /* Advance source */
-                    if ((srcMask >>= 1) == 0) {
+                    if ((srcMask >>= 1) == 0x00) {
                         srcMask = 0x80;
                         src++;
                     }
 
                     /* Advance destination */
-                    if ((destMask >>= 1) == 0) {
+                    if ((destMask >>= 1) == 0x00) {
                         destMask = 0x80;
                         destFg++;
                         destBg++;
@@ -1858,6 +1858,98 @@ UGL_STATUS uglVgaMonoBitmapWrite (
             srcIndex    += pMdib->stride;
             destFgStart += destStride;
             destBgStart += destStride;
+        }
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglVgaMonoBitmapRead - Read monochrome ddb to monochrome dib
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaMonoBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_MDDB_ID    mDdbId,
+    UGL_RECT *     pSrcRect,
+    UGL_MDIB *     pMdib,
+    UGL_POINT *    pDestPoint
+    ) {
+    UGL_VGA_MDDB * pVgaMonoBmp;
+    UGL_RECT       srcRect;
+    UGL_POINT      destPoint;
+    UGL_INT32      x;
+    UGL_INT32      y;
+    UGL_INT32      width;
+    UGL_INT32      height;
+    UGL_INT32      srcIndex;
+    UGL_INT32      destIndex;
+    UGL_UINT8 *    src;
+    UGL_UINT8 *    dest;
+    UGL_UINT8      srcMask;
+    UGL_UINT8      destMask;
+    UGL_SIZE       srcStride;
+    UGL_UINT8 *    destStart;
+
+    /* Get device dependent bitmap */
+    pVgaMonoBmp = (UGL_VGA_MDDB *) mDdbId;
+
+    /* Setup destination start */
+    destStart = (UGL_UINT8 *) pMdib->pData;
+
+    /* Get geometry */
+    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
+    memcpy (&destPoint, pDestPoint, sizeof (UGL_RECT));
+
+    /* Clip */
+    if (uglGenericClipDdbToDib (devId, (UGL_BMAP_ID *) &pVgaMonoBmp,
+                                &srcRect, (UGL_DIB *) pMdib,
+                                &destPoint) == UGL_TRUE) {
+        /* Setup variables */
+        width     = UGL_RECT_WIDTH (srcRect);
+        height    = UGL_RECT_HEIGHT (srcRect);
+        srcStride = ((pVgaMonoBmp->header.width + 7) / 8 + 1) * 8;
+        destIndex = destPoint.x;
+        srcIndex  = (srcRect.top * pVgaMonoBmp->stride) + srcRect.left +
+                    pVgaMonoBmp->shiftValue;
+
+        /* Over height */
+        for (y = 0; y < height; y++) {
+            src      = pVgaMonoBmp->pPlaneArray[0] + (srcIndex >> 3);
+            srcMask  = 0x80 >> (srcIndex & 0x07);
+            dest     = destStart + (destIndex >> 3);
+            destMask = 0x80 >> (destIndex & 0x07);
+
+            /* Over width */
+            for (x = 0; x < width; x++) {
+                if (srcMask == 0x00) {
+                    srcMask = 0x80;
+                    src++;
+                }
+
+                if (destMask == 0x00) {
+                    destMask = 0x80;
+                    dest++;
+                }
+
+                if (*src & srcMask) {
+                    *dest |= destMask;
+                }
+                else {
+                    *dest &= ~destMask;
+                }
+
+                /* Advance column */
+                srcMask  >>= 1;
+                destMask >>= 1;
+            }
+
+            /* Advance row */
+            srcIndex  += pVgaMonoBmp->stride;
+            destIndex += pMdib->stride;
         }
     }
 

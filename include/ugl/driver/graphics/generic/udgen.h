@@ -248,6 +248,21 @@ UGL_BOOL uglGenericClipDibToDdb (
     UGL_POINT *    pDestPoint
     );
 
+/******************************************************************************
+ *
+ * uglGenericClipDdbToDib - Generic clip of device dependent to independent
+ *
+ * RETURNS: UGL_TRUE or UGL_FALSE
+ */
+
+UGL_BOOL uglGenericClipDdbToDib (
+    UGL_DEVICE_ID  devId,
+    UGL_BMAP_ID *  pBmpId,
+    UGL_RECT *     pSrcRect,
+    UGL_DIB *      pDib,
+    UGL_POINT *    pDestPoint
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
