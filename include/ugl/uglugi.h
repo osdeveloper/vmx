@@ -196,6 +196,12 @@ typedef struct ugl_ugi_driver {
         UGL_MEM_POOL_ID         poolId
         );
 
+    UGL_STATUS   (*monoBitmapDestroy) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_MDDB *              pMddb,
+        UGL_MEM_POOL_ID         poolId
+        );
+
     UGL_STATUS   (*monoBitmapBlt) (
         struct ugl_ugi_driver * pDrv,
         UGL_MDDB *              pSrcBmp,

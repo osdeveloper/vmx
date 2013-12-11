@@ -343,7 +343,7 @@ UGL_DDB_ID uglMonoBitmapCreate (
 
 UGL_STATUS uglMonoBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_DDB *        pMddb,
+    UGL_MDDB *       pMddb,
     UGL_MEM_POOL_ID  poolId
     );
 

@@ -1448,6 +1448,24 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     return (UGL_MDDB_ID) pVgaMonoBmp;
 }
 
+/******************************************************************************
+ *
+ * uglVgaMonoBitmapDestroy - Free monochrome vga bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaMonoBitmapDestroy (
+    UGL_DEVICE_ID    devId,
+    UGL_MDDB_ID      mDdbId,
+    UGL_MEM_POOL_ID  poolId
+    ) {
+
+    /* Free memory */
+    UGL_PART_FREE (poolId, mDdbId);
+
+    return (UGL_STATUS_OK);
+}
 
 /******************************************************************************
  *

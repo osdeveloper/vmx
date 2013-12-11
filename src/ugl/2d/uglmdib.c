@@ -84,10 +84,8 @@ UGL_STATUS uglMonoBitmapDestroy (
         return (UGL_STATUS_ERROR);
     }
 
-#ifdef TODO
     /* Call driver specific method, should return UGL_ERROR on failure */
     status = (*devId->monoBitmapDestroy) (devId, pMddb, poolId);
-#endif
 
     /* Unlock */
     uglOsUnLock (devId->lockId);

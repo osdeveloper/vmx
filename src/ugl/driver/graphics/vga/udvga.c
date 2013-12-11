@@ -247,13 +247,14 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->pixelSet = uglVgaPixelSet;
 
             /* Setup bitmap support methods */
-            devId->bitmapCreate     = uglVgaBitmapCreate;
-            devId->bitmapDestroy    = uglVgaBitmapDestroy;
-            devId->bitmapBlt        = uglVgaBitmapBlt;
-            devId->bitmapWrite      = uglVgaBitmapWrite;
-            devId->monoBitmapCreate = uglVgaMonoBitmapCreate;
-            devId->monoBitmapBlt    = uglVgaMonoBitmapBlt;
-            devId->monoBitmapWrite  = uglVgaMonoBitmapWrite;
+            devId->bitmapCreate      = uglVgaBitmapCreate;
+            devId->bitmapDestroy     = uglVgaBitmapDestroy;
+            devId->bitmapBlt         = uglVgaBitmapBlt;
+            devId->bitmapWrite       = uglVgaBitmapWrite;
+            devId->monoBitmapCreate  = uglVgaMonoBitmapCreate;
+            devId->monoBitmapDestroy = uglVgaMonoBitmapDestroy;
+            devId->monoBitmapBlt     = uglVgaMonoBitmapBlt;
+            devId->monoBitmapWrite   = uglVgaMonoBitmapWrite;
 
             /* Create palette for 16 colors */
             if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 16)

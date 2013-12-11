@@ -248,6 +248,19 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
 
 /******************************************************************************
  *
+ * uglVgaMonoBitmapDestroy - Free monochrome vga bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaMonoBitmapDestroy (
+    UGL_DEVICE_ID    devId,
+    UGL_MDDB_ID      mDdbId,
+    UGL_MEM_POOL_ID  poolId
+    );
+
+/******************************************************************************
+ *
  * uglVgaMonoBitmapBlt - Blit from monochrome bitmap memory area to another
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

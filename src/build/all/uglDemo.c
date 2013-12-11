@@ -711,7 +711,7 @@ int uglDestroyTest(void)
 
   if (firstTimeMono4 == FALSE) {
     printf("Freeing bitmask image @0x%d...", pMddb4);
-    uglBitmapDestroy(gfxDevId, pMddb4, gfxPartId);
+    uglMonoBitmapDestroy(gfxDevId, pMddb4, gfxPartId);
     printf("done.\n");
 
     if (pSaveBmp != UGL_NULL) {
@@ -723,6 +723,8 @@ int uglDestroyTest(void)
 
     firstTimeMono4 = TRUE;
   }
+  else
+    printf("Hires monochrome test not run yet!\n");
 
   if (firstTimel == FALSE) {
     printf("Freeing up resources for lores linear gfx test:\n");
