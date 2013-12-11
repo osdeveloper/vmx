@@ -50,6 +50,7 @@ UGL_DDB_ID uglVgaBitmapCreate (
     UGL_INT32        i;
     UGL_SIZE         numPlanes;
     UGL_UINT32       planeSize;
+    UGL_UINT32       bmpSize;
     UGL_SIZE         width;
     UGL_SIZE         height;
     UGL_UINT8 *      pPlane;
@@ -77,18 +78,20 @@ UGL_DDB_ID uglVgaBitmapCreate (
     /* Calculate plane size including 1 shift byte for each scanline */
     planeSize = ((width + 7) / 8 + 1) * height;
 
-    /* Allocate storage for header and color planes */
-    pVgaBmp = (UGL_VGA_DDB *) UGL_PART_MALLOC (poolId,
-        sizeof(UGL_VGA_DDB) +                           /* Header */
-        numPlanes * sizeof(UGL_UINT8 *) +               /* Plane array */
-        numPlanes * planeSize);                         /* bitplanes */
+    /* Calculate size */
+    bmpSize = sizeof(UGL_VGA_DDB) + (numPlanes * sizeof(UGL_UINT8 *)) +
+              (numPlanes * planeSize);
+
+    /* Allocate bitmap */
+    pVgaBmp = (UGL_VGA_DDB *) UGL_PART_MALLOC (poolId, bmpSize);
     if (pVgaBmp == NULL) {
         return (UGL_NULL);
     }
 
+    /* Clear */
+    memset (pVgaBmp, 0, bmpSize);
+
     /* Setup color planes */
-    /* After the plane pointer array are the storage are of the bitplanes */
-    /* Setup all pointers in the array to point to these areas */
     pVgaBmp->pPlaneArray = (UGL_UINT8 **) (((UGL_UINT8 *) pVgaBmp) +
                            sizeof (UGL_VGA_DDB));
     pPlane = (UGL_UINT8 *) &pVgaBmp->pPlaneArray[numPlanes];
@@ -1399,6 +1402,9 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     if (pVgaMonoBmp == NULL) {
         return (UGL_NULL);
     }
+
+    /* Clear */
+    memset (pVgaMonoBmp, 0, bmpSize);
 
     /* Initialize header */
     pVgaMonoBmp->header.width  = width;

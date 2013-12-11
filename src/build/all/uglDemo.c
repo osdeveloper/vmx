@@ -124,6 +124,13 @@ void setPalette(void)
   uglColorAlloc(gfxDevId, palette, paletteIndex, colors, LOOP_PAL_LENGTH);
 }
 
+void restoreConsole(struct vgaHWRec *regs)
+{
+  vgaRestore(regs, FALSE);
+  vgaLoadFont(font8x16, font8x16Height);
+  printf("%c\n", 0x0c);
+}
+
 int new4BitImg(void)
 {
   pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
@@ -230,7 +237,7 @@ int uglPixel4Test(int maxtimes)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
-    vgaRestore(&oldRegs, FALSE);
+    restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
   }
@@ -245,8 +252,7 @@ int uglPixel4Test(int maxtimes)
     taskDelay(animTreshold);
   }
 
-  vgaRestore(&oldRegs, FALSE);
-  vgaLoadFont(font8x16, font8x16Height);
+  restoreConsole(&oldRegs);
 
   return 0;
 }
@@ -273,7 +279,7 @@ int uglBlt4Test(void)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
-    vgaRestore(&oldRegs, FALSE);
+    restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
   }
@@ -284,7 +290,7 @@ int uglBlt4Test(void)
   if (firstTime == TRUE) {
 
     if (new4BitImg() != 0) {
-      vgaRestore(&oldRegs, FALSE);
+      restoreConsole(&oldRegs);
       printf("Error initializing images.\n");
       return 1;
     }
@@ -392,8 +398,7 @@ int uglBlt4Test(void)
     saveRect.bottom += BALL_SPEED;
   }
 
-  vgaRestore(&oldRegs, FALSE);
-  vgaLoadFont(font8x16, font8x16Height);
+  restoreConsole(&oldRegs);
 
   return 0;
 }
@@ -420,7 +425,7 @@ int uglMono4Test(void)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
-    vgaRestore(&oldRegs, FALSE);
+    restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
   }
@@ -430,12 +435,12 @@ int uglMono4Test(void)
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
   uglForegroundColorSet(gfxDevId->defaultGc, 14);
-  uglBackgroundColorSet(gfxDevId->defaultGc, 0);
+  uglBackgroundColorSet(gfxDevId->defaultGc, 4);
 
   if (firstTimeMono4 == TRUE) {
 
     if (new4BitMonoImg() != 0) {
-      vgaRestore(&oldRegs, FALSE);
+      restoreConsole(&oldRegs);
       printf("Error initializing images.\n");
       return 1;
     }
@@ -481,8 +486,7 @@ int uglMono4Test(void)
     saveRect.bottom += BALL_SPEED;
   }
 
-  vgaRestore(&oldRegs, FALSE);
-  vgaLoadFont(font8x16, font8x16Height);
+  restoreConsole(&oldRegs);
 
   return 0;
 }
@@ -512,7 +516,7 @@ int uglPixel8Test(int maxtimes)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
-    vgaRestore(&oldRegs, FALSE);
+    restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
     return 1;
   }
@@ -527,8 +531,7 @@ int uglPixel8Test(int maxtimes)
     taskDelay(animTreshold);
   }
 
-  vgaRestore(&oldRegs, FALSE);
-  vgaLoadFont(font8x16, font8x16Height);
+  restoreConsole(&oldRegs);
 
   return 0;
 }
@@ -556,7 +559,7 @@ int uglBlt8Test(void)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
-    vgaRestore(&oldRegs, FALSE);
+    restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
     return 1;
   }
@@ -566,7 +569,7 @@ int uglBlt8Test(void)
   if (firstTimel == TRUE) {
 
     if (new8BitImg() != 0) {
-      vgaRestore(&oldRegs, FALSE);
+      restoreConsole(&oldRegs);
       printf("Error initializing images.\n");
       return 1;
     }
@@ -671,8 +674,7 @@ int uglBlt8Test(void)
     saveRect.bottom += BALL_SPEED;
   }
 
-  vgaRestore(&oldRegs, FALSE);
-  vgaLoadFont(font8x16, font8x16Height);
+  restoreConsole(&oldRegs);
 
   return 0;
 }
