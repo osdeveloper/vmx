@@ -1517,7 +1517,7 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
 
         /* Set bitmask register */
         UGL_OUT_BYTE (0x3ce, 0x08);
-        UGL_OUT_BYTE (0x3ce, startMask);
+        UGL_OUT_BYTE (0x3cf, startMask);
 
         /* Blit start */
         for (y = height; y != 0; --y) {
@@ -1533,7 +1533,7 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
         if (width > 2) {
 
             /* Set bitmask register */
-            UGL_OUT_BYTE (0x3ce, 0xff);
+            UGL_OUT_BYTE (0x3cf, 0xff);
 
             src = pBmp->pPlaneArray[0] + srcOffset + 1;
             dest = destStart + 1;
@@ -1552,7 +1552,7 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
 
         /* Blit end */
         if (width > 1) {
-            UGL_OUT_BYTE (0x3ce, endMask);
+            UGL_OUT_BYTE (0x3cf, endMask);
 
             src = pBmp->pPlaneArray[0] + srcOffset + width - 1;
             dest = destStart + width - 1;
@@ -1580,7 +1580,7 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
 
         /* Set bitmask register */
         UGL_OUT_BYTE (0x3ce, 0x08);
-        UGL_OUT_BYTE (0x3ce, startMask);
+        UGL_OUT_BYTE (0x3cf, startMask);
 
         /* Blit start */
         for (y = height; y != 0; --y) {
@@ -1596,7 +1596,7 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
         if (width > 2) {
 
             /* Set bitmask register */
-            UGL_OUT_BYTE (0x3ce, 0xff);
+            UGL_OUT_BYTE (0x3cf, 0xff);
 
             src = pBmp->pPlaneArray[1] + srcOffset + 1;
             dest = destStart + 1;
@@ -1615,7 +1615,7 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
 
         /* Blit end */
         if (width > 1) {
-            UGL_OUT_BYTE (0x3ce, endMask);
+            UGL_OUT_BYTE (0x3cf, endMask);
 
             src = pBmp->pPlaneArray[1] + srcOffset + width - 1;
             dest = destStart + width - 1;
