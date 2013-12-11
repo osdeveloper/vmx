@@ -1406,7 +1406,8 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     pVgaMonoBmp->header.type   = UGL_MDDB_TYPE;
     pVgaMonoBmp->stride        = stride;
     pVgaMonoBmp->shiftValue    = 0;
-    pVgaMonoBmp->pPlaneArray   = (UGL_UINT8 **) &pVgaMonoBmp[1];
+    pVgaMonoBmp->pPlaneArray   = (UGL_UINT8 **) (((UGL_UINT8 *) pVgaMonoBmp) +
+                                 sizeof (UGL_VGA_MDDB));
 
     /* Initialize plane array */
     ptr = (UGL_UINT8 *) &pVgaMonoBmp->pPlaneArray[4];
