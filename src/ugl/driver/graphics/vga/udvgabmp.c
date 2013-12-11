@@ -373,7 +373,7 @@ UGL_LOCAL void uglVgaBltPlane (
 
     /* Calculate vars */
     width  = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
-    height = UGL_RECT_HEIGHT (*pDestRect) - 1;
+    height = UGL_RECT_HEIGHT (*pDestRect);
     src    = pSrc + pSrcRect->top * srcStride + (pSrcRect->left >> 3);
     dest   = pDest + pDestRect->top * destStride + (pDestRect->left >> 3);
 
@@ -716,7 +716,7 @@ UGL_LOCAL void uglVgaBltColorToFrameBuffer (
 
     /* Setup variables for blit */
     width            = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
-    height           = UGL_RECT_HEIGHT (*pDestRect) - 1;
+    height           = UGL_RECT_HEIGHT (*pDestRect);
     numPlanes        = devId->pMode->depth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
@@ -869,7 +869,7 @@ UGL_LOCAL void uglVgaBltFrameBufferToColor (
 
     /* Setup variables for blit */
     width            = (pSrcRect->right >> 3) - (pSrcRect->left >> 3) + 1;
-    height           = UGL_RECT_HEIGHT (*pDestRect) - 1;
+    height           = UGL_RECT_HEIGHT (*pDestRect);
     numPlanes        = pBmp->colorDepth;
     srcBytesPerLine  = pVgaDrv->bytesPerLine;
     destBytesPerLine = (pBmp->header.width + 7) / 8 + 1;
@@ -1388,7 +1388,7 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     stride = ((width + 7) / 8 + 1) * 8;
 
     /* Calculate plane size including 1 shift byte for each scanline */
-    planeSize = ((width + 7) / 8 + 1) * height;
+    planeSize = (stride >> 3) * height;
 
     /* Calculate size */
     bmpSize = sizeof (UGL_VGA_MDDB) + (4 * sizeof (UGL_UINT8 *)) +
@@ -1406,8 +1406,7 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     pVgaMonoBmp->header.type   = UGL_MDDB_TYPE;
     pVgaMonoBmp->stride        = stride;
     pVgaMonoBmp->shiftValue    = 0;
-    pVgaMonoBmp->pPlaneArray   = (UGL_UINT8 **) (((UGL_UINT8 *) pVgaMonoBmp) +
-                                 sizeof (UGL_VGA_MDDB));
+    pVgaMonoBmp->pPlaneArray   = (UGL_UINT8 **) &pVgaMonoBmp[1];
 
     /* Initialize plane array */
     ptr = (UGL_UINT8 *) &pVgaMonoBmp->pPlaneArray[4];
@@ -1482,13 +1481,15 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
     /* Get gc */
     gc = pDrv->gc;
 
+    /* Store height */
+    height = UGL_RECT_HEIGHT (*pDestRect);
+
     /* Align source bitmap to dest */
     uglVgaBltAlign (devId, (UGL_BMAP_HEADER *) pBmp, pSrcRect,
                     UGL_NULL, pDestRect);
 
     /* Setup variables for blit */
     width            = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
-    height           = UGL_RECT_HEIGHT (*pDestRect) - 1;
     numPlanes        = devId->pMode->depth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
@@ -1771,7 +1772,7 @@ UGL_STATUS uglVgaMonoBitmapWrite (
         /* Calculcate variables */
         width       = UGL_RECT_WIDTH (destRect);
         height      = UGL_RECT_HEIGHT (destRect);
-        srcIndex    = (pSrcRect->top * pMdib->stride) + pSrcRect->left;
+        srcIndex    = (srcRect.top * pMdib->stride) + srcRect.left;
         leftEdge    = destRect.left + pVgaMonoBmp->shiftValue;
         destStride  = (pVgaMonoBmp->header.width + 7) / 8 + 1;
         destFgStart = pVgaMonoBmp->pPlaneArray[0] + destRect.top * destStride +

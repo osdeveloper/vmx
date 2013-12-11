@@ -47,8 +47,8 @@ IMPORT SYMTAB_ID sysSymTable;
 
 PART_ID gfxPartId;
 UGL_DEVICE_ID gfxDevId;
-UGL_DIB *pBgDib, *pFgDib;
-UGL_MDIB *pMdib;
+UGL_DIB bgDib, fgDib;
+UGL_MDIB mDib;
 UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
 int animTreshold = 1;
@@ -63,54 +63,46 @@ int createDib(void)
 {
   int i, j;
 
-  pBgDib = malloc(sizeof(UGL_DIB));
-  pFgDib = malloc(sizeof(UGL_DIB));
-  if (pBgDib == NULL || pFgDib == NULL) {
-    printf("Error creating dib\n");
-    return 1;
-  }
-
-  pBgDib->width = vmxballWidth;
-  pBgDib->height = vmxballHeight;
-  pBgDib->stride = vmxballWidth;
-  pBgDib->imageFormat = UGL_INDEXED_8;
-  pBgDib->colorFormat = UGL_DEVICE_COLOR_32;
-  pBgDib->clutSize = 16;
-  pBgDib->pClut = malloc(sizeof(UGL_COLOR) * 16);
-  if (pBgDib->pClut == NULL) {
+  bgDib.width = vmxballWidth;
+  bgDib.height = vmxballHeight;
+  bgDib.stride = vmxballWidth;
+  bgDib.imageFormat = UGL_INDEXED_8;
+  bgDib.colorFormat = UGL_DEVICE_COLOR_32;
+  bgDib.clutSize = 16;
+  bgDib.pClut = malloc(sizeof(UGL_COLOR) * 16);
+  if (bgDib.pClut == NULL) {
     printf("Error creating clut\n");
     return 1;
   }
   for (i = 0; i < 16; i++)
-    ((UGL_COLOR *) pBgDib->pClut)[i] = UGL_MAKE_ARGB(1,
+    ((UGL_COLOR *) bgDib.pClut)[i] = UGL_MAKE_ARGB(1,
 		    		     16 * vmxballClut[i][0] / 255,
 		    		     16 * vmxballClut[i][1] / 255,
 		    		     16 * vmxballClut[i][2] / 255);
-  pBgDib->pData = vmxballData;
+  bgDib.pData = vmxballData;
 
-  pFgDib->width = pinballWidth;
-  pFgDib->height = pinballHeight;
-  pFgDib->stride = pinballWidth;
-  pFgDib->imageFormat = UGL_INDEXED_8;
-  pFgDib->colorFormat = UGL_DEVICE_COLOR_32;
-  pFgDib->clutSize = 16;
-  pFgDib->pClut = malloc(sizeof(UGL_COLOR) * 16);
-  if (pFgDib->pClut == NULL) {
+  fgDib.width = pinballWidth;
+  fgDib.height = pinballHeight;
+  fgDib.stride = pinballWidth;
+  fgDib.imageFormat = UGL_INDEXED_8;
+  fgDib.colorFormat = UGL_DEVICE_COLOR_32;
+  fgDib.clutSize = 16;
+  fgDib.pClut = malloc(sizeof(UGL_COLOR) * 16);
+  if (fgDib.pClut == NULL) {
     printf("Error creating clut\n");
     return 1;
   }
   for (i = 0; i < 16; i++)
-    ((UGL_COLOR *) pFgDib->pClut)[i] = UGL_MAKE_ARGB(1,
+    ((UGL_COLOR *) fgDib.pClut)[i] = UGL_MAKE_ARGB(1,
 		    		     16 * pinballClut[i][0] / 255,
 		    		     16 * pinballClut[i][1] / 255,
 		    		     16 * pinballClut[i][2] / 255);
-  pFgDib->pData = pinballData;
+  fgDib.pData = pinballData;
 
-  pMdib = (UGL_MDIB *) malloc (sizeof(UGL_MDIB));
-  pMdib->width = pinballWidth;
-  pMdib->height = pinballHeight;
-  pMdib->stride = pinballWidth;
-  pMdib->pData = (void *) &pinballMask;
+  mDib.width = pinballWidth;
+  mDib.height = pinballHeight;
+  mDib.stride = pinballWidth;
+  mDib.pData = pinballMask;
 
   return 0;
 }
@@ -139,14 +131,14 @@ int new4BitImg(void)
   if (pDbBmp == UGL_NULL)
     return 1;
 
-  pBgBmp = uglBitmapCreate(gfxDevId, pBgDib, UGL_DIB_INIT_DATA,
+  pBgBmp = uglBitmapCreate(gfxDevId, &bgDib, UGL_DIB_INIT_DATA,
 			 8, gfxPartId);
   if (pBgBmp == UGL_NULL) {
     uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
     return 1;
   }
 
-  pFgBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
+  pFgBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_DATA,
 			 8, gfxPartId);
 
   if (pFgBmp == UGL_NULL) {
@@ -156,7 +148,7 @@ int new4BitImg(void)
   }
 
   if (pSaveBmp == UGL_NULL) {
-    pSaveBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_VALUE,
+    pSaveBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_VALUE,
 		  		0, gfxPartId);
     if (pSaveBmp == UGL_NULL) {
       uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
@@ -171,13 +163,13 @@ int new4BitImg(void)
 
 int new4BitMonoImg(void)
 {
-  pMddb4 = uglMonoBitmapCreate(gfxDevId, pMdib, UGL_DIB_INIT_DATA,
+  pMddb4 = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
 			         0, gfxPartId);
   if (pMddb4 == UGL_NULL)
     return 1;
 
   if (pSaveBmp == UGL_NULL) {
-    pSaveBmp = uglBitmapCreate(gfxDevId, (UGL_DIB *) pMdib, UGL_DIB_INIT_VALUE,
+    pSaveBmp = uglBitmapCreate(gfxDevId, (UGL_DIB *) &mDib, UGL_DIB_INIT_VALUE,
 		  		0, gfxPartId);
     if (pSaveBmp == UGL_NULL) {
       return 1;
@@ -194,7 +186,7 @@ int new8BitImg(void)
   if (pDblBmp == UGL_NULL)
     return 1;
 
-  pFglBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
+  pFglBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_DATA,
                          8, gfxPartId);
 
   if (pFglBmp == UGL_NULL) {
@@ -202,7 +194,7 @@ int new8BitImg(void)
     return 1;
   }
 
-  pSavelBmp = uglBitmapCreate(gfxDevId, pFgDib, UGL_DIB_INIT_DATA,
+  pSavelBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_DATA,
                                 8, gfxPartId);
   if (pSavelBmp == UGL_NULL) {
     uglBitmapDestroy(gfxDevId, pDblBmp, gfxPartId);
@@ -604,16 +596,16 @@ int uglBlt8Test(void)
   }
 
   srcRect.left = 0;
-  srcRect.right = pFgDib->width;
+  srcRect.right = fgDib.width;
   srcRect.top = 0;
-  srcRect.bottom = pFgDib->height;
-  pt.x = -pFgDib->width;
-  pt.y = -pFgDib->height;
+  srcRect.bottom = fgDib.height;
+  pt.x = -fgDib.width;
+  pt.y = -fgDib.height;
 
   saveRect.left = pt.x;
-  saveRect.right = pt.x + pFgDib->width;
+  saveRect.right = pt.x + fgDib.width;
   saveRect.top = pt.y;
-  saveRect.bottom = pt.y + pFgDib->height;
+  saveRect.bottom = pt.y + fgDib.height;
   pt0.x = 0;
   pt0.y = 0;
 
@@ -702,15 +694,33 @@ int uglDestroyTest(void)
     uglBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
     printf("done.\n");
 
-    printf("Freeing background save image @0x%d...", pSaveBmp);
-    uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
-    printf("done.\n");
+    if (pSaveBmp != UGL_NULL) {
+      printf("Freeing background save image @0x%d...", pSaveBmp);
+      uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
+      pSaveBmp = UGL_NULL;
+      printf("done.\n");
+    }
 
     firstTime = TRUE;
   }
   else
     printf("Hires gfx test not run yet!\n");
 
+
+  if (firstTimeMono4 == FALSE) {
+    printf("Freeing bitmask image @0x%d...", pMddb4);
+    uglBitmapDestroy(gfxDevId, pMddb4, gfxPartId);
+    printf("done.\n");
+
+    if (pSaveBmp != UGL_NULL) {
+      printf("Freeing background save image @0x%d...", pSaveBmp);
+      uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
+      pSaveBmp = UGL_NULL;
+      printf("done.\n");
+    }
+
+    firstTimeMono4 = TRUE;
+  }
 
   if (firstTimel == FALSE) {
     printf("Freeing up resources for lores linear gfx test:\n");
@@ -784,9 +794,9 @@ int uglConvertTest(void)
   UGL_COLOR colorArray[16];
 
   for (i = 0; i < 16; i++)
-    printf("input[%d] = 0x%x\n", i, ((UGL_COLOR *) pBgDib->pClut)[i]);
+    printf("input[%d] = 0x%x\n", i, ((UGL_COLOR *) bgDib.pClut)[i]);
   /*
-  (*gfxDevId->colorConvert)(gfxDevId, pBgDib->pClut, UGL_DEVICE_COLOR,
+  (*gfxDevId->colorConvert)(gfxDevId, bgDib.pClut, UGL_DEVICE_COLOR,
 		            colorArray, UGL_DEVICE_COLOR_32, 16);
   */
   for (i = 0; i < 16; i++)
