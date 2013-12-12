@@ -169,8 +169,8 @@ UGL_STATUS uglGenericTransBitmapBlt (
     pDestDdb = (UGL_DDB *) destBmpId;
 
     /* Get geometry */
-    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
-    memcpy (&destPoint, pDestPoint, sizeof (UGL_POINT));
+    UGL_RECT_COPY (&srcRect, pSrcRect);
+    UGL_POINT_COPY (&destPoint, pDestPoint);
     width  = UGL_RECT_WIDTH (srcRect);
     height = UGL_RECT_HEIGHT (srcRect);
     mDibPoint.x = 0;
@@ -239,8 +239,8 @@ UGL_STATUS uglGenericTransBitmapBlt (
                 /* Masked out pixel or end of line */
                 if (dataWidth > 0) {
                     srcRect.right = srcRect.left + dataWidth - 1;
-                    memcpy (&drawRect, &srcRect, sizeof (UGL_RECT));
-                    memcpy (&drawPoint, &destPoint, sizeof (UGL_POINT));
+                    UGL_RECT_COPY (&drawRect, &srcRect);
+                    UGL_POINT_COPY (&drawPoint, &destPoint);
 
                     /* Draw run */
                     (*devId->bitmapBlt) (devId, pSrcDdb, &drawRect,

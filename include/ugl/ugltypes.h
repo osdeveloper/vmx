@@ -116,6 +116,15 @@ typedef struct ugl_rect {
 
 /******************************************************************************
  *
+ * UGL_POINT_COPY - Get point from another point
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_POINT_COPY(p1, p2)   memcpy ((p1), (p2), sizeof (UGL_POINT))
+
+/******************************************************************************
+ *
  * UGL_RECT_WIDTH - Get rectangle width
  *
  * RETURNS: Rectangle width
@@ -131,6 +140,15 @@ typedef struct ugl_rect {
  */
 
 #define UGL_RECT_HEIGHT(r)      ((r).bottom - (r).top + 1)
+
+/******************************************************************************
+ *
+ * UGL_RECT_COPY - Get rectangle from another rectangle
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_RECT_COPY(r1, r2)   memcpy ((r1), (r2), sizeof (UGL_RECT))
 
 /*******************************************************************************
  *

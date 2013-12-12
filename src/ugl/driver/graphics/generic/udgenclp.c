@@ -55,7 +55,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     gc = pDrv->gc;
 
     /* Setup geometry */
-    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (&srcRect, pSrcRect);
     destRect.top   = pDestPoint->y;
     destRect.left  = pDestPoint->x;
     UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
@@ -64,7 +64,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     /* Setup source clip rect */
     if ((UGL_DDB_ID) *pSrcBmpId == UGL_DEFAULT_ID) {
         *pSrcBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
-        memcpy (&srcClip, gc->boundRect, sizeof (UGL_RECT));
+        UGL_RECT_COPY (&srcClip, gc->boundRect);
     }
     else if ((UGL_DDB_ID) *pSrcBmpId == UGL_DISPLAY_ID) {
         srcClip.top    = 0;
@@ -82,7 +82,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     /* Set dest clip rect */
     if ((UGL_DDB_ID) *pDestBmpId == UGL_DEFAULT_ID) {
         *pDestBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
-        memcpy (&destClip, pClipRect, sizeof (UGL_RECT));
+        UGL_RECT_COPY (&destClip, pClipRect);
     }
     else if ((UGL_DDB_ID) *pDestBmpId == UGL_DISPLAY_ID) {
         destClip.top    = 0;
@@ -114,7 +114,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     UGL_RECT_MOVE (srcRect, destRect.left - x, destRect.top - y);
 
     /* Copy the resulting geometry */
-    memcpy (pSrcRect, &srcRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (pSrcRect, &srcRect);
     pDestPoint->x = destRect.left;
     pDestPoint->y = destRect.top;
 
@@ -148,7 +148,7 @@ UGL_BOOL uglGenericClipDibToDdb (
     UGL_RECT             destClip;
 
     /* Setup geometry */
-    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (&srcRect, pSrcRect);
     destRect.top   = pDestPoint->y;
     destRect.left  = pDestPoint->x;
     UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
@@ -188,7 +188,7 @@ UGL_BOOL uglGenericClipDibToDdb (
     UGL_RECT_MOVE (srcRect, destRect.left - x, destRect.top - y);
 
     /* Copy the resulting geometry */
-    memcpy (pSrcRect, &srcRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (pSrcRect, &srcRect);
     pDestPoint->x = destRect.left;
     pDestPoint->y = destRect.top;
 
@@ -222,7 +222,7 @@ UGL_BOOL uglGenericClipDdbToDib (
     UGL_RECT             destClip;
 
     /* Setup geometry */
-    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (&srcRect, pSrcRect);
     destRect.top   = pDestPoint->y;
     destRect.left  = pDestPoint->x;
     UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
@@ -262,7 +262,7 @@ UGL_BOOL uglGenericClipDdbToDib (
     UGL_RECT_MOVE (srcRect, destRect.left - x, destRect.top - y);
 
     /* Copy the resulting geometry */
-    memcpy (pSrcRect, &srcRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (pSrcRect, &srcRect);
     pDestPoint->x = destRect.left;
     pDestPoint->y = destRect.top;
 

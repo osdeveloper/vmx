@@ -342,7 +342,7 @@ UGL_STATUS uglClipRectSet (
 
     /* Align clip rectangle and store */
     UGL_RECT_MOVE (clipRect, -gc->viewPort.left, -gc->viewPort.top);
-    memcpy (&gc->clipRect, &clipRect, sizeof (UGL_RECT));
+    UGL_RECT_COPY (&gc->clipRect, &clipRect);
 
     /* Mark context field as changed */
     gc->changed |= UGL_GC_CLIP_RECT_CHANGED;

@@ -1092,7 +1092,8 @@ UGL_STATUS uglVgaBitmapBlt (
                            (UGL_BMAP_ID *) &pDestBmp, &destPoint) == UGL_TRUE) {
 
         /* Calculate destination */
-        memset (&destRect, 0, sizeof (UGL_RECT));
+        destRect.left = 0;
+        destRect.top  = 0;
         UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
         UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
                           UGL_RECT_HEIGHT(srcRect));
@@ -1173,7 +1174,8 @@ UGL_STATUS uglVgaBitmapWrite (
                                 &destPoint) == UGL_TRUE) {
 
         /* Calulcate destination dimensions */
-        memset (&destRect, 0, sizeof (UGL_RECT));
+        destRect.left = 0;
+        destRect.top  = 0;
         UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
         UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
                           UGL_RECT_HEIGHT (srcRect));
@@ -1717,7 +1719,8 @@ UGL_STATUS uglVgaMonoBitmapBlt (
                            (UGL_BMAP_ID *) &pDestBmp, &destPoint) == UGL_TRUE) {
 
         /* Calculate destination */
-        memset (&destRect, 0, sizeof (UGL_RECT));
+        destRect.left = 0;
+        destRect.top  = 0;
         UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
         UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
                           UGL_RECT_HEIGHT(srcRect));
@@ -1781,15 +1784,16 @@ UGL_STATUS uglVgaMonoBitmapWrite (
     srcStart = (UGL_UINT8 *) pMdib->pData;
 
     /* Get geometry */
-    memcpy (&srcRect, pSrcRect, sizeof(UGL_RECT));
-    memcpy (&destPoint, pDestPoint, sizeof(UGL_POINT));
+    UGL_RECT_COPY (&srcRect, pSrcRect);
+    UGL_POINT_COPY (&destPoint, pDestPoint);
 
     if (uglGenericClipDibToDdb (devId, (UGL_DIB *) pMdib, &srcRect,
                                 (UGL_BMAP_ID *) &pVgaMonoBmp,
                                 &destPoint) == UGL_TRUE) {
 
         /* Calculate destination geometry */
-        memset (&destRect, 0, sizeof (UGL_RECT));
+        destRect.left = 0;
+        destRect.top  = 0;
         UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
         UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
                           UGL_RECT_HEIGHT(srcRect));
@@ -1818,11 +1822,11 @@ UGL_STATUS uglVgaMonoBitmapWrite (
                 if (srcMask == 0x80 && destMask == 0x80 && x >= 8) {
 
                     /* Copy foreground */
-                    memcpy (destFg, src, x / 8);
-                    destFg += x / 8;
+                    memcpy (destFg, src, x >> 3);
+                    destFg += (x >> 3);
 
                     /* Copy to background as inverted */
-                    for (i = x / 8; i != 0; --i) {
+                    for (i = x >> 3; i != 0; --i) {
                         *(destBg++) = ~(*src++);
                     }
 
@@ -1901,8 +1905,8 @@ UGL_STATUS uglVgaMonoBitmapRead (
     destStart = (UGL_UINT8 *) pMdib->pData;
 
     /* Get geometry */
-    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
-    memcpy (&destPoint, pDestPoint, sizeof (UGL_POINT));
+    UGL_RECT_COPY (&srcRect, pSrcRect);
+    UGL_POINT_COPY (&destPoint, pDestPoint);
 
     /* Clip */
     if (uglGenericClipDdbToDib (devId, (UGL_BMAP_ID *) &pVgaMonoBmp,
