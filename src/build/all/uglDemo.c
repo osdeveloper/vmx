@@ -260,7 +260,7 @@ int uglBlt4Test(void)
   srcRect.top = 0;
   srcRect.bottom = pBgBmp->height;
   pt.x = 640 / 2 - pBgBmp->width / 2;
-  pt.y = 480 / 2- pBgBmp->height / 2;
+  pt.y = 480 / 2 - pBgBmp->height / 2;
   if (doubleBuffer == TRUE) {
     uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
@@ -416,8 +416,8 @@ int uglMono4Test(void)
   srcRect.right = pMddb->width;
   srcRect.top = 0;
   srcRect.bottom = pMddb->height;
-  pt.x = 0;
-  pt.y = 0;
+  pt.x = -pMddb->width;
+  pt.y = -pMddb->height;
 
   saveRect.left = pt.x;
   saveRect.right = pt.x + pMddb->width;

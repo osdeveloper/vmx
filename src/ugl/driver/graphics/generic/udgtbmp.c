@@ -137,17 +137,172 @@ UGL_STATUS uglGenericTransBitmapBlt (
     UGL_DDB_ID     destBmpId,
     UGL_POINT *    pDestPoint
     ) {
-    UGL_GEN_TDDB * pTddb;
-    UGL_STATUS     status;
+    UGL_GEN_TDDB * pSrcTddb;
+    UGL_DDB *      pSrcDdb;
+    UGL_MDDB *     pSrcMddb;
+    UGL_DDB *      pDestDdb;
+    UGL_RECT       srcRect;
+    UGL_POINT      destPoint;
+    UGL_INT32      y;
+    UGL_INT32      width;
+    UGL_INT32      height;
+    UGL_INT32      numColumns;
+    UGL_INT32      numPixels;
+    UGL_INT32      dataWidth;
+    UGL_INT32      srcLeft;
+    UGL_INT32      srcRight;
+    UGL_INT32      destLeft;
+    UGL_UINT8 *    pBuf;
+    UGL_UINT8 *    pMaskData;
+    UGL_UINT8      mask;
+    UGL_POINT      mDibPoint;
+    UGL_MDIB       mDib;
+    UGL_RECT       drawRect;
+    UGL_POINT      drawPoint;
 
-    /* Get generic transparent bitmap */
-    pTddb = (UGL_GEN_TDDB *) srcBmpId;
+    /* Get generic transparent bitmap and components */
+    pSrcTddb = (UGL_GEN_TDDB *) srcBmpId;
+    pSrcDdb  = (UGL_DDB *) pSrcTddb->ddb;
+    pSrcMddb = (UGL_MDDB *) pSrcTddb->mask;
 
-    /* TODO: transparency not supported yet */
-    status = (*devId->bitmapBlt) (devId, pTddb->ddb, pSrcRect,
-                                  destBmpId, pDestPoint);
+    /* Get destination */
+    pDestDdb = (UGL_DDB *) destBmpId;
 
-    return (status);
+    /* Get geometry */
+    memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
+    memcpy (&destPoint, pDestPoint, sizeof (UGL_POINT));
+    width  = UGL_RECT_WIDTH (srcRect);
+    height = UGL_RECT_HEIGHT (srcRect);
+    mDibPoint.x = 0;
+    mDibPoint.y = 0;
+
+    /* Get number columne in a row */
+    numColumns = (width + 7) / 8;
+
+    pBuf = (UGL_UINT8 *) malloc (numColumns * sizeof (UGL_UINT8));
+    if (pBuf == NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Setup device independent bitmask for one row */
+    mDib.width  = width;
+    mDib.height = 1;
+    mDib.stride = width;
+    mDib.pData  = pBuf;
+
+    /* Setup geometry */
+    srcLeft  = srcRect.left;
+    srcRight = srcRect.right;
+    destLeft = destPoint.x;
+
+    /* Start at first row */
+    srcRect.bottom = srcRect.top;
+
+    /* Over height */
+    for (y = 0; y < height; y++) {
+        srcRect.left  = srcLeft;
+        srcRect.right = srcRight;
+        destPoint.x   = destLeft;
+
+        /* Read row from bitmask */
+        (*devId->monoBitmapRead) (devId, pSrcMddb, &srcRect, &mDib, &mDibPoint);
+
+        /* Cache mask pointer */
+        pMaskData = (UGL_UINT8 *) mDib.pData;
+
+        /* Setup row run */
+        dataWidth = 0;
+        numPixels = width;
+
+        /* Over mask chunks */
+        mask = 0x80;
+        while (1) {
+
+            if (mask == 0x80 && numPixels >= 8 && *pMaskData == 0xff) {
+                /* All pixels are visible for chunk */
+                dataWidth += 8;
+                numPixels -= 8;
+                pMaskData++;
+            }
+            else if ((*pMaskData & mask) != 0x00 && numPixels > 0) {
+                /* At least one pixel visible */
+                dataWidth++;
+                numPixels--;
+
+                /* Advance mask */
+                if ((mask >>= 1) == 0x00) {
+                    mask = 0x80;
+                    pMaskData++;
+                }
+            }
+            else {
+                /* Masked out pixel or end of line */
+                if (dataWidth > 0) {
+                    srcRect.right = srcRect.left + dataWidth - 1;
+                    memcpy (&drawRect, &srcRect, sizeof (UGL_RECT));
+                    memcpy (&drawPoint, &destPoint, sizeof (UGL_POINT));
+
+                    /* Draw run */
+                    (*devId->bitmapBlt) (devId, pSrcDdb, &drawRect,
+                                         pDestDdb, &drawPoint);
+
+                    /* Advance */
+                    srcRect.left += dataWidth;
+                    destPoint.x  += dataWidth;
+                    dataWidth     = 0;
+                }
+
+                /* Check if anything more to draw */
+                if (numPixels == 0) {
+                    break;
+                }
+
+                while (numPixels > 0) {
+                    if (mask == 0x80 && numPixels >= 8 && *pMaskData == 0x00) {
+                        dataWidth += 8;
+                        numPixels -= 8;
+                        pMaskData++;
+
+                        /* If end of line */
+                        if (numPixels == 0) {
+                            dataWidth = 0;
+                        }
+                    }
+                    else if ((*pMaskData & mask) == 0x00 && numPixels > 0) {
+                        dataWidth++;
+                        numPixels--;
+
+                        /* Advance mask */
+                        if ((mask >>= 1) == 0x00) {
+                            mask = 0x80;
+                            pMaskData++;
+                        }
+
+                        /* If end of line */
+                        if (numPixels == 0) {
+                            dataWidth = 0;
+                        }
+                    }
+                    else {
+                        /* Pixel is not masked, break out of loop */
+                        srcRect.left += dataWidth;
+                        destPoint.x  += dataWidth;
+                        dataWidth     = 0;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* Advance row */
+        srcRect.top++;
+        srcRect.bottom++;
+        destPoint.y++;
+    }
+
+    free (pBuf);
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************

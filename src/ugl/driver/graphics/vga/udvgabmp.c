@@ -1902,7 +1902,7 @@ UGL_STATUS uglVgaMonoBitmapRead (
 
     /* Get geometry */
     memcpy (&srcRect, pSrcRect, sizeof (UGL_RECT));
-    memcpy (&destPoint, pDestPoint, sizeof (UGL_RECT));
+    memcpy (&destPoint, pDestPoint, sizeof (UGL_POINT));
 
     /* Clip */
     if (uglGenericClipDdbToDib (devId, (UGL_BMAP_ID *) &pVgaMonoBmp,
