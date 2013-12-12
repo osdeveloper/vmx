@@ -366,6 +366,35 @@ UGL_STATUS uglMonoBitmapRead (
     UGL_POS      destY
     );
 
+/******************************************************************************
+ *
+ * uglTransBitmapCreate - Create transparent bitmap
+ *
+ * RETURNS: Pointer to device dependent transparent bitmap
+ */
+
+UGL_DDB_ID uglTransBitmapCreate (
+    UGL_DEVICE_ID        devId,
+    UGL_DIB *            pDib,
+    UGL_MDIB *           pMdib,
+    UGL_DIB_CREATE_MODE  createMode,
+    UGL_COLOR            initValue,
+    UGL_MEM_POOL_ID      poolId
+    );
+
+/******************************************************************************
+ *
+ * uglTransBitmapDestroy - Free transparent bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglTransBitmapDestroy (
+    UGL_DEVICE_ID    devId,
+    UGL_TDDB *       pTddb,
+    UGL_MEM_POOL_ID  poolId
+    );
+
 /* Batch job support functions */
 
 /******************************************************************************

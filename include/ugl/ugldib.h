@@ -30,6 +30,7 @@
 /* Bitmap types */
 #define UGL_DDB_TYPE                    0
 #define UGL_MDDB_TYPE                   1
+#define UGL_TDDB_TYPE                   2
 
 #ifndef _ASMLANGUAGE
 
@@ -74,6 +75,10 @@ typedef UGL_DDB *        UGL_DDB_ID;
 /* Device dependent monochrome bitmap */
 typedef UGL_BMAP_HEADER  UGL_MDDB;
 typedef UGL_MDDB *       UGL_MDDB_ID;
+
+/* Deveice dependent transparent bitmap */
+typedef UGL_BMAP_HEADER  UGL_TDDB;
+typedef UGL_TDDB *       UGL_TDDB_ID;
 
 /* Generic bitmap id */
 typedef UGL_BMAP_HEADER * UGL_BITMAP_ID;

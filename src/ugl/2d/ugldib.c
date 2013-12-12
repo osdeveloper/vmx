@@ -161,6 +161,12 @@ UGL_STATUS uglBitmapBlt (
                                               destBmpId,
                                               (UGL_POINT *) &destRect);
         }
+        else if (srcBmpId->type == UGL_TDDB_TYPE) {
+            /* Call driver specific method */
+            status = (*devId->transBitmapBlt) (devId, srcBmpId, &srcRect,
+                                               destBmpId,
+                                               (UGL_POINT *) &destRect);
+        }
         else {
             status = UGL_STATUS_ERROR;
         }

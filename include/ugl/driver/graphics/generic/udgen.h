@@ -32,26 +32,34 @@ extern "C" {
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/common/udcclr.h>
 
-typedef struct ugl_generic_driver {
-  UGL_UGI_DRIVER  ugi;                  /* UGI driver (required) */
-  UGL_GC_ID       gc;                   /* Graphics context */
-  UGL_CLUT *      pClut;                /* Palette */
-  void *          fbAddress;            /* Frame buffer address */
-} UGL_GENERIC_DRIVER;
-
 typedef struct ugl_gen_bitmap {
-  UGL_BMAP_HEADER  header;
+    UGL_BMAP_HEADER  header;
 } UGL_GENERIC_BMAP;
 
 typedef UGL_GENERIC_BMAP * UGL_BMAP_ID;
 
 typedef struct ugl_gen_ddb {
-  UGL_BMAP_HEADER  header;              /* Header */
-  UGL_UINT16       colorDepth;          /* Bits-per-pixel */
-  UGL_UINT16       stride;              /* Pixels per line */
-  UGL_UINT32       transColorKey;       /* Transparent color key */
-  void *           pData;               /* Image data */
+    UGL_BMAP_HEADER  header;            /* Header */
+    UGL_UINT16       colorDepth;        /* Bits-per-pixel */
+    UGL_UINT16       stride;            /* Pixels per line */
+    UGL_UINT32       transColorKey;     /* Transparent color key */
+    void *           pData;             /* Image data */
 } UGL_GEN_DDB;
+
+typedef struct ugl_gen_tddb {
+    UGL_BMAP_HEADER  header;            /* Header */
+    UGL_MDDB *       mask;              /* Bitmask */
+    UGL_DDB *        ddb;               /* Bitmap */
+} UGL_GEN_TDDB;
+
+typedef struct ugl_generic_driver {
+    UGL_UGI_DRIVER  ugi;                /* UGI driver (required) */
+    UGL_GC_ID       gc;                 /* Graphics context */
+    UGL_GEN_DDB *   scratchBitmap;      /* Scratch bitmap */
+    UGL_ORD         transBitmapCount;   /* Scratch bitmap reference count */
+    UGL_CLUT *      pClut;              /* Palette */
+    void *          fbAddress;          /* Frame buffer address */
+} UGL_GENERIC_DRIVER;
 
 /* Generic mode support functions */
 
@@ -260,6 +268,52 @@ UGL_BOOL uglGenericClipDdbToDib (
     UGL_BMAP_ID *  pBmpId,
     UGL_RECT *     pSrcRect,
     UGL_DIB *      pDib,
+    UGL_POINT *    pDestPoint
+    );
+
+/* Generic transparent bitmap support functions */
+
+/******************************************************************************
+ *
+ * uglGenericTransBitmapCreate - Create generic transparent bitmap
+ *
+ * RETURNS: UGL_TDDB_ID or UGL_NULL
+ */
+
+UGL_TDDB_ID uglGenericTransBitmapCreate (
+    UGL_DEVICE_ID        devId,
+    UGL_DIB *            pDib,
+    UGL_MDIB *           pMdib,
+    UGL_DIB_CREATE_MODE  createMode,
+    UGL_COLOR            initValue,
+    UGL_MEM_POOL_ID      poolId
+    );
+
+/******************************************************************************
+ *
+ * uglGenericTransBitmapDestroy - Destroy generic transparent bitmap
+ *
+ * RETURNS: UGL_STATUS_OK
+ */
+
+UGL_STATUS uglGenericTransBitmapDestroy (
+    UGL_DEVICE_ID    devId,
+    UGL_TDDB_ID      tDdbId,
+    UGL_MEM_POOL_ID  poolId
+    );
+
+/******************************************************************************
+ *
+ * uglGenericTransBitmapBlt - Draw generic transparent bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericTransBitmapBlt (
+    UGL_DEVICE_ID  devId,
+    UGL_TDDB_ID    srcBmpId,
+    UGL_RECT *     pSrcRect,
+    UGL_DDB_ID     destBmpId,
     UGL_POINT *    pDestPoint
     );
 

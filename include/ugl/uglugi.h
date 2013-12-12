@@ -188,7 +188,7 @@ typedef struct ugl_ugi_driver {
         UGL_POINT *             pDestPoint
         );
 
-    UGL_DDB *    (*monoBitmapCreate) (
+    UGL_MDDB *   (*monoBitmapCreate) (
         struct ugl_ugi_driver * pDrv,
         UGL_MDIB *              pMdib,
         UGL_DIB_CREATE_MODE     createMode,
@@ -223,6 +223,29 @@ typedef struct ugl_ugi_driver {
         UGL_MDDB *              pMddb,
         UGL_RECT *              pSrcRect,
         UGL_MDIB *              pMdib,
+        UGL_POINT *             pDestPoint
+        );
+
+    UGL_TDDB *   (*transBitmapCreate) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_DIB *               pDib,
+        UGL_MDIB *              pMdib,
+        UGL_DIB_CREATE_MODE     createMode,
+        UGL_COLOR               intiValue,
+        UGL_MEM_POOL_ID         poolId
+        );
+
+    UGL_STATUS   (*transBitmapDestroy) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_TDDB *              pTddb,
+        UGL_MEM_POOL_ID         poolId
+        );
+
+    UGL_STATUS   (*transBitmapBlt) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_TDDB *              pSrcBmp,
+        UGL_RECT *              pSrcRect,
+        UGL_DDB *               pDestBmp,
         UGL_POINT *             pDestPoint
         );
 
