@@ -46,7 +46,7 @@ UGL_DDB_ID uglTransBitmapCreate (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_NULL);
     }
 
@@ -55,7 +55,7 @@ UGL_DDB_ID uglTransBitmapCreate (
                                          initValue, poolId);
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (bmpId);
 }
@@ -69,8 +69,7 @@ UGL_DDB_ID uglTransBitmapCreate (
 
 UGL_STATUS uglTransBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_TDDB *       pTddb,
-    UGL_MEM_POOL_ID  poolId
+    UGL_TDDB *       pTddb
     ) {
     UGL_STATUS   status;
     UGL_TDDB_ID  bmpId;
@@ -81,15 +80,15 @@ UGL_STATUS uglTransBitmapDestroy (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method, should return UGL_ERROR on failure */
-    status = (*devId->transBitmapDestroy) (devId, pTddb, poolId);
+    status = (*devId->transBitmapDestroy) (devId, pTddb);
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (status);
 }

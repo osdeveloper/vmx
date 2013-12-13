@@ -40,7 +40,7 @@ UGL_GC_ID uglGenericGcCreate (
         return (UGL_NULL);
     }
 
-    gcId = (UGL_GC_ID) malloc (sizeof (UGL_GC));
+    gcId = (UGL_GC_ID) UGL_MALLOC (sizeof (UGL_GC));
     if (gcId == NULL) {
         return (UGL_NULL);
     }
@@ -99,7 +99,7 @@ UGL_STATUS uglGenericGcDestroy (
         pDrv->gc = UGL_NULL;
     }
 
-    free (gc);
+    UGL_FREE (gc);
 
     return (UGL_STATUS_OK);
 }

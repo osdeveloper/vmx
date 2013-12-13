@@ -45,10 +45,7 @@ extern "C" {
 #define UGL_IN_LONG(port)               sysInLong(port)
 #define UGL_OUT_LONG(port, val)         sysOutLong(port, val)
 
-#define UGL_PART_MALLOC(pol, siz)       memPartAlloc(pol, siz)
-#define UGL_PART_FREE(pol, buf)         memPartFree(pol, buf)
-
-typedef SEM_ID UGL_LOCK_ID;
+typedef SEM_ID  UGL_LOCK_ID;
 typedef PART_ID UGL_MEM_POOL_ID;
 
 #ifdef __cplusplus

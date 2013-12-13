@@ -85,6 +85,7 @@
 #include <net/mbuf.h>
 #include <net/netLib.h>
 #include <net/netShow.h>
+#include <ugl/ugl.h>
 
 /* Gloabals */
 int standTableSize = 0;
@@ -576,6 +577,15 @@ SYMBOL standTable[] =
   {NULL, "_ifShow", ifShow, 0, N_TEXT | N_EXT},
   {NULL, "_routeShow", routeShow, 0, N_TEXT | N_EXT},
   {NULL, "_domainShow", domainShow, 0, N_TEXT | N_EXT},
+
+  /* ugl */
+  {NULL, "_uglOSMemPoolCreate", uglOSMemPoolCreate, 0, N_TEXT | N_EXT},
+  {NULL, "_uglOSMemPoolDestroy", uglOSMemPoolDestroy, 0, N_TEXT | N_EXT},
+  {NULL, "_uglOSMemAlloc", uglOSMemAlloc, 0, N_TEXT | N_EXT},
+  {NULL, "_uglOSMemCalloc", uglOSMemCalloc, 0, N_TEXT | N_EXT},
+  {NULL, "_uglOSMemFree", uglOSMemFree, 0, N_TEXT | N_EXT},
+  {NULL, "_uglMemDefaultPoolGet", uglMemDefaultPoolGet, 0, N_TEXT | N_EXT},
+  {NULL, "_uglMemDefaultPoolSet", uglMemDefaultPoolSet, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},

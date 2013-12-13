@@ -82,13 +82,10 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     UGL_DEVICE_ID    devId = UGL_NULL;
 
     /* Allocate memory for driver data structure */
-    pDrv = (UGL_VGA_DRIVER *) malloc (sizeof (UGL_VGA_DRIVER));
+    pDrv = (UGL_VGA_DRIVER *) UGL_CALLOC (1, sizeof (UGL_VGA_DRIVER));
     if (pDrv == NULL) {
         return (UGL_NULL);
     }
-
-    /* Important to clear struct */
-    memset (pDrv, 0, sizeof (UGL_VGA_DRIVER));
 
     /* Store at begining of device struct, since it must be the first field */
     devId = (UGL_DEVICE_ID) pDrv;

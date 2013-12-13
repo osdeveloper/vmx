@@ -40,19 +40,19 @@ UGL_STATUS uglModeAvailGet (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method */
     if ((*devId->modeAvailGet) (devId, pNumModes, pModeArray) !=
         UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -74,13 +74,13 @@ UGL_STATUS uglModeSet (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method */
     if ((*devId->modeSet) (devId, pMode) != UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
@@ -89,7 +89,7 @@ UGL_STATUS uglModeSet (
 
         devId->defaultGc = uglGcCreate (devId);
         if (devId->defaultGc == UGL_NULL) {
-            uglOsUnLock (devId->lockId);
+            uglOSUnLock (devId->lockId);
             uglGraphicsDevDestroy (devId);
             return (UGL_STATUS_ERROR);
         }
@@ -99,7 +99,7 @@ UGL_STATUS uglModeSet (
     }
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }

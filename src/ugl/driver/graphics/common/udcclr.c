@@ -40,18 +40,9 @@ UGL_CLUT * uglCommonClutCreate (
     UGL_CLUT * pClut;
 
     /* Allocate memory for struct */
-    pClut = (UGL_CLUT *) malloc (sizeof (UGL_CLUT));
+    pClut = (UGL_CLUT *) UGL_CALLOC (1, sizeof (UGL_CLUT) +
+                                     sizeof (UGL_CLUT_ENTRY) * numColors);
     if (pClut == NULL) {
-        return (UGL_NULL);
-    }
-
-    /* Clear struct */
-    memset(pClut, 0, sizeof(UGL_CLUT));
-
-    /* Allocate storage area */
-    pClut->clut = malloc (sizeof (UGL_CLUT_ENTRY) * numColors);
-    if (pClut->clut == NULL) {
-        free (pClut);
         return (UGL_NULL);
     }
 
@@ -59,6 +50,7 @@ UGL_CLUT * uglCommonClutCreate (
     pClut->numColors      = numColors;
     pClut->firstFreeIndex = 0;
     pClut->firstUsedIndex = -1;
+    pClut->clut           = (UGL_CLUT_ENTRY *) &pClut[1];
 
     /* Initailize reference entries */
     for (i = 0; i < numColors; i++) {
@@ -424,11 +416,7 @@ UGL_STATUS uglCommonClutDestroy(
         return (UGL_STATUS_ERROR);
     }
 
-    if (pClut->clut != UGL_NULL) {
-        free (pClut->clut);
-    }
-
-    free (pClut);
+    UGL_FREE (pClut);
 
     return (UGL_STATUS_OK);
 }

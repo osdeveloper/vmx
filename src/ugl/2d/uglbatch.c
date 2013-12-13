@@ -42,12 +42,12 @@ UGL_STATUS uglBatchStart (
     devId = gc->pDriver;
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Lock GC */
-    if (uglOsLock (gc->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
@@ -77,10 +77,10 @@ UGL_STATUS uglBatchEnd (
     devId = gc->pDriver;
 
     /* Unlock device */
-    uglOsLock (devId->lockId);
+    uglOSLock (devId->lockId);
 
     /* Unlock GC */
-    uglOsLock (gc->lockId);
+    uglOSLock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }

@@ -215,7 +215,7 @@ int uglBlt4Test(void)
                            8, gfxPartId);
   if (pBgBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
     restoreConsole(&oldRegs);
     printf("Unable to create background image\n");
@@ -227,9 +227,9 @@ int uglBlt4Test(void)
 
   if (pFgBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pBgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create foreground image\n");
     return 1;
@@ -239,10 +239,10 @@ int uglBlt4Test(void)
                              0, gfxPartId);
   if (pSaveBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
-    uglBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pBgBmp);
+    uglBitmapDestroy(gfxDevId, pFgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
     return 1;
@@ -349,11 +349,11 @@ int uglBlt4Test(void)
   }
 
   if (doubleBuffer == TRUE) {
-    uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pDbBmp);
   }
-  uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
-  uglBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
-  uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
+  uglBitmapDestroy(gfxDevId, pBgBmp);
+  uglBitmapDestroy(gfxDevId, pFgBmp);
+  uglBitmapDestroy(gfxDevId, pSaveBmp);
   restoreConsole(&oldRegs);
 
   return 0;
@@ -402,7 +402,7 @@ int uglMono4Test(void)
   pSaveBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_VALUE,
                              0, gfxPartId);
   if (pSaveBmp == UGL_NULL) {
-    uglMonoBitmapDestroy(gfxDevId, pMddb, gfxPartId);
+    uglMonoBitmapDestroy(gfxDevId, pMddb);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
     return 1;
@@ -450,8 +450,8 @@ int uglMono4Test(void)
     saveRect.bottom += BALL_SPEED;
   }
 
-  uglMonoBitmapDestroy(gfxDevId, pMddb, gfxPartId);
-  uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
+  uglMonoBitmapDestroy(gfxDevId, pMddb);
+  uglBitmapDestroy(gfxDevId, pSaveBmp);
   restoreConsole(&oldRegs);
 
   return 0;
@@ -503,7 +503,7 @@ int uglTrans4Test(void)
                            8, gfxPartId);
   if (pBgBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
     restoreConsole(&oldRegs);
     printf("Unable to create background image\n");
@@ -515,9 +515,9 @@ int uglTrans4Test(void)
 
   if (pFgBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pBgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create foreground image\n");
     return 1;
@@ -527,10 +527,10 @@ int uglTrans4Test(void)
                              0, gfxPartId);
   if (pSaveBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
-    uglTransBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pBgBmp);
+    uglTransBitmapDestroy(gfxDevId, pFgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
     return 1;
@@ -637,11 +637,11 @@ int uglTrans4Test(void)
   }
 
   if (doubleBuffer == TRUE) {
-    uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pDbBmp);
   }
-  uglBitmapDestroy(gfxDevId, pBgBmp, gfxPartId);
-  uglTransBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
-  uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
+  uglBitmapDestroy(gfxDevId, pBgBmp);
+  uglTransBitmapDestroy(gfxDevId, pFgBmp);
+  uglBitmapDestroy(gfxDevId, pSaveBmp);
   restoreConsole(&oldRegs);
 
   return 0;
@@ -738,7 +738,7 @@ int uglBlt8Test(void)
 
   if (pFgBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
     restoreConsole(&oldRegs);
     printf("Unable to create foreground image\n");
@@ -749,9 +749,9 @@ int uglBlt8Test(void)
                              8, gfxPartId);
   if (pSaveBmp == UGL_NULL) {
     if (doubleBuffer == TRUE) {
-      uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+      uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pFgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
     return 1;
@@ -855,10 +855,10 @@ int uglBlt8Test(void)
   }
 
   if (doubleBuffer == TRUE) {
-    uglBitmapDestroy(gfxDevId, pDbBmp, gfxPartId);
+    uglBitmapDestroy(gfxDevId, pDbBmp);
   }
-  uglBitmapDestroy(gfxDevId, pFgBmp, gfxPartId);
-  uglBitmapDestroy(gfxDevId, pSaveBmp, gfxPartId);
+  uglBitmapDestroy(gfxDevId, pFgBmp);
+  uglBitmapDestroy(gfxDevId, pSaveBmp);
 
   restoreConsole(&oldRegs);
 
@@ -946,6 +946,7 @@ static SYMBOL symTableUglDemo[] = {
     int i;
 
     gfxPartId = memSysPartId;
+    uglMemDefaultPoolSet(gfxPartId);
     createDib();
     gfxDevId = UGL_GRAPHICS_CREATE(0, 0, 0);
 

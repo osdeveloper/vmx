@@ -168,8 +168,7 @@ typedef struct ugl_ugi_driver {
 
     UGL_STATUS   (*bitmapDestroy) (
         struct ugl_ugi_driver * pDrv,
-        UGL_DDB *               pDdb,
-        UGL_MEM_POOL_ID         poolId
+        UGL_DDB *               pDdb
         );
 
     UGL_STATUS   (*bitmapBlt) (
@@ -198,8 +197,7 @@ typedef struct ugl_ugi_driver {
 
     UGL_STATUS   (*monoBitmapDestroy) (
         struct ugl_ugi_driver * pDrv,
-        UGL_MDDB *              pMddb,
-        UGL_MEM_POOL_ID         poolId
+        UGL_MDDB *              pMddb
         );
 
     UGL_STATUS   (*monoBitmapBlt) (
@@ -237,8 +235,7 @@ typedef struct ugl_ugi_driver {
 
     UGL_STATUS   (*transBitmapDestroy) (
         struct ugl_ugi_driver * pDrv,
-        UGL_TDDB *              pTddb,
-        UGL_MEM_POOL_ID         poolId
+        UGL_TDDB *              pTddb
         );
 
     UGL_STATUS   (*transBitmapBlt) (

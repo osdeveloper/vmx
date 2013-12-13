@@ -43,19 +43,19 @@ UGL_STATUS uglClutSet (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific function */
     if ((*devId->clutSet) (devId, offset, pColors, numColors) !=
         UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOsUnLock(devId->lockId);
+    uglOSUnLock(devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -79,19 +79,19 @@ UGL_STATUS uglClutGet (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method */
     if ((*devId->clutGet) (devId, offset, pColors, numColors) !=
         UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -117,19 +117,19 @@ UGL_STATUS uglColorAllocExt (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method */
     if ((*devId->colorAlloc) (devId, pReqColors, pIndex, pActualColors,
                               pUglColors, numColors) != UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -154,19 +154,19 @@ UGL_STATUS uglColorAlloc (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method */
     if ((*devId->colorAlloc) (devId, pReqColors, pIndex, UGL_NULL,
                               pUglColors, numColors) != UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -189,18 +189,18 @@ UGL_STATUS uglColorFree (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method */
     if ((*devId->colorFree) (devId, pColors, numColors) != UGL_STATUS_OK) {
-        uglOsUnLock (devId->lockId);
+        uglOSUnLock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }

@@ -45,7 +45,7 @@ UGL_DDB_ID uglMonoBitmapCreate (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_NULL);
     }
 
@@ -54,7 +54,7 @@ UGL_DDB_ID uglMonoBitmapCreate (
                                         initValue, poolId);
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (bmpId);
 }
@@ -68,8 +68,7 @@ UGL_DDB_ID uglMonoBitmapCreate (
 
 UGL_STATUS uglMonoBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_DDB *        pMddb,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DDB *        pMddb
     ) {
     UGL_STATUS   status;
     UGL_MDDB_ID  bmpId;
@@ -80,15 +79,15 @@ UGL_STATUS uglMonoBitmapDestroy (
     }
 
     /* Lock device */
-    if (uglOsLock (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
     /* Call driver specific method, should return UGL_ERROR on failure */
-    status = (*devId->monoBitmapDestroy) (devId, pMddb, poolId);
+    status = (*devId->monoBitmapDestroy) (devId, pMddb);
 
     /* Unlock */
-    uglOsUnLock (devId->lockId);
+    uglOSUnLock (devId->lockId);
 
     return (status);
 }

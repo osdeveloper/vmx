@@ -1,7 +1,7 @@
 # Makefile -
 #
 
-OBJS = udvmxlck.o
+OBJS = udvmxmem.o udvmxlck.o
 SUBDIRS =
 LIB_TGT = ugl-os
 

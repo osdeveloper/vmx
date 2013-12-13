@@ -197,8 +197,7 @@ UGL_DDB_ID uglVgaBitmapCreate (
 
 UGL_STATUS uglVgaBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_DDB_ID       ddbId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DDB_ID       ddbId
     );
 
 /******************************************************************************
@@ -255,8 +254,7 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
 
 UGL_STATUS uglVgaMonoBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_MDDB_ID      mDdbId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_MDDB_ID      mDdbId
     );
 
 /******************************************************************************

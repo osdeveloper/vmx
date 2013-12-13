@@ -2,7 +2,7 @@
 #
 
 OBJS = ugldib.o uglmdib.o ugltdib.o uglcolor.o uglgc.o uglmode.o uglpixel.o \
-       uglbatch.o
+       uglbatch.o uglmem.o
 SUBDIRS =
 LIB_TGT = ugl-2d
 

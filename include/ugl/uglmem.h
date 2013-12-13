@@ -18,87 +18,73 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* udgen8.h - Generic 8-Bit graphics support */
+/* uglmem.h - Universal graphics library memory pool management support */
 
-#ifndef _udgen8_h
-#define _udgen8_h
+#ifndef _uglmem_h
+#define _uglmem_h
 
 #ifndef _ASMLANGUAGE
+
+#include <ugl/ugltypes.h>
+#include <ugl/uglos.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* 8-Bit pixel support functions */
+/* Macros */
+
+#define UGL_DEFAULT_MEM_POOL_ID         ((UGL_MEM_POOL_ID) UGL_NULL)
 
 /******************************************************************************
  *
- * uglGeneric8BitPixelSet - Set pixel
+ * UGL_MALLOC - Allocate memory from default pool
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+#define UGL_MALLOC(s)         uglOSMemAlloc (UGL_DEFAULT_MEM_POOL_ID, (s))
+
+/******************************************************************************
+ *
+ * UGL_CALLOC - Allocate memory objects from default pool and clear
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+#define UGL_CALLOC(n, s)      uglOSMemCalloc (UGL_DEFAULT_MEM_POOL_ID, (n), (s))
+
+/******************************************************************************
+ *
+ * UGL_FREE - Free memory from default pool
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGeneric8BitPixelSet (
-    UGL_DEVICE_ID  devId,
-    UGL_POINT *    p,
-    UGL_COLOR      c
-    );
+#define UGL_FREE(pMem)        uglOSMemFree ((pMem))
+
+/* Functions */
 
 /******************************************************************************
  *
- * uglGeneric8BitBitmapCreate - Create 8-bit bitmap
+ * uglMemDefaultPoolGet - Get default memory pool
  *
- * RETURNS: Bitmap id or UGL_NULL
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_DDB_ID uglGeneric8BitBitmapCreate (
-    UGL_DEVICE_ID        devId,
-    UGL_DIB *            pDib,
-    UGL_DIB_CREATE_MODE  createMode,
-    UGL_UINT32           initValue,
-    UGL_MEM_POOL_ID      poolId
+UGL_STATUS uglMemDefaultPoolGet (
+    UGL_MEM_POOL_ID * pPoolId
     );
 
 /******************************************************************************
  *
- * uglGeneric8BitBitmapDestroy - Free bitmap
+ * uglMemDefaultPoolSet - Set default memory pool
  *
  * RETURNS: UGL_STATUS_OK
  */
 
-UGL_STATUS uglGeneric8BitBitmapDestroy (
-    UGL_DEVICE_ID   devId,
-    UGL_DDB_ID      ddbId
-    );
-
-/******************************************************************************
- *
- * uglGeneric8BitBitmapBlt - Blit from one bitmap memory area to another
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglGeneric8BitBitmapBlt (
-    UGL_DEVICE_ID  devId,
-    UGL_DDB_ID     srcBmpId,
-    UGL_RECT *     pSrcRect,
-    UGL_DDB_ID     destBmpId,
-    UGL_POINT *    pDestPoint
-    );
-
-/******************************************************************************
- *
- * uglGeneric8BitBitmapWrite - Write a device independent bitmap to vga bitmap
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglGeneric8BitBitmapWrite (
-    UGL_DEVICE_ID  devId,
-    UGL_DIB *      pDib,
-    UGL_RECT *     pSrcRect,
-    UGL_DDB_ID     ddbId,
-    UGL_POINT *    pDestPoint
+UGL_STATUS uglMemDefaultPoolSet (
+    UGL_MEM_POOL_ID  poolId
     );
 
 #ifdef __cplusplus
@@ -107,5 +93,5 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _udgen8_h */
+#endif /* _uglmem_h */
 

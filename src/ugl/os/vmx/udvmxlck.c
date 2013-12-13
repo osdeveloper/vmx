@@ -27,7 +27,7 @@
  * RETURNS: Lock identifier
  */
 
-UGL_LOCK_ID uglOsLockCreate (
+UGL_LOCK_ID uglOSLockCreate (
     void
     ) {
 
@@ -41,7 +41,7 @@ UGL_LOCK_ID uglOsLockCreate (
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOsLockDestroy (
+UGL_STATUS uglOSLockDestroy (
     UGL_LOCK_ID  lockId
     ) {
 
@@ -59,7 +59,7 @@ UGL_STATUS uglOsLockDestroy (
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOsLock (
+UGL_STATUS uglOSLock (
     UGL_LOCK_ID  lockId
     ) {
 
@@ -77,7 +77,7 @@ UGL_STATUS uglOsLock (
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOsUnLock (
+UGL_STATUS uglOSUnLock (
     UGL_LOCK_ID  lockId
     ) {
 

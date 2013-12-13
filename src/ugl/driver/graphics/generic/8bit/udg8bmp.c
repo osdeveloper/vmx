@@ -66,8 +66,8 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
     size = width * height * sizeof(UGL_UINT8);
 
     /* Allocate memory */
-    pGenBmp = (UGL_GEN_DDB *) UGL_PART_MALLOC (poolId,
-                                               sizeof (UGL_GEN_DDB) + size);
+    pGenBmp = (UGL_GEN_DDB *) uglOSMemCalloc (poolId, 1,
+                                            sizeof (UGL_GEN_DDB) + size);
     if (pGenBmp == NULL) {
         return (UGL_NULL);
     }
@@ -109,7 +109,7 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
                                             (UGL_DDB_ID) pGenBmp, &destPoint);
 
             if (status != UGL_STATUS_OK) {
-                UGL_PART_FREE (poolId, pGenBmp);
+                uglOSMemFree (pGenBmp);
                 return (UGL_NULL);
             }
             break;
@@ -131,12 +131,11 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
 
 UGL_STATUS uglGeneric8BitBitmapDestroy (
     UGL_DEVICE_ID   devId,
-    UGL_DDB_ID      ddbId,
-    UGL_MEM_POOL_ID poolId
+    UGL_DDB_ID      ddbId
     ) {
 
     /* Free memory */
-    UGL_PART_FREE (poolId, ddbId);
+    uglOSMemFree (ddbId);
 
     return (UGL_STATUS_OK);
 }
@@ -569,7 +568,7 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
         /* Check if temporary clut should be generated */
         if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
 
-            pClut = malloc (pDib->clutSize * sizeof (UGL_COLOR));
+            pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
             if (pClut == UGL_NULL) {
                 return (UGL_STATUS_ERROR);
             }
@@ -579,7 +578,7 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
                                         pDib->colorFormat, pClut,
                                         UGL_DEVICE_COLOR_32,
                                         pDib->clutSize) == UGL_STATUS_ERROR) {
-                free (pClut);
+                UGL_FREE (pClut);
                 return (UGL_STATUS_ERROR);
             }
         }

@@ -83,13 +83,10 @@ UGL_DDB_ID uglVgaBitmapCreate (
               (numPlanes * planeSize);
 
     /* Allocate bitmap */
-    pVgaBmp = (UGL_VGA_DDB *) UGL_PART_MALLOC (poolId, bmpSize);
+    pVgaBmp = (UGL_VGA_DDB *) uglOSMemCalloc (poolId, 1, bmpSize);
     if (pVgaBmp == NULL) {
         return (UGL_NULL);
     }
-
-    /* Clear */
-    memset (pVgaBmp, 0, bmpSize);
 
     /* Setup color planes */
     pVgaBmp->pPlaneArray = (UGL_UINT8 **) (((UGL_UINT8 *) pVgaBmp) +
@@ -154,7 +151,7 @@ UGL_DDB_ID uglVgaBitmapCreate (
                                             (UGL_DDB_ID) pVgaBmp, &destPoint);
 
             if (status != UGL_STATUS_OK) {
-                UGL_PART_FREE (poolId, pVgaBmp);
+                uglOSMemFree (pVgaBmp);
                 return (UGL_NULL);
             }
             break;
@@ -176,12 +173,11 @@ UGL_DDB_ID uglVgaBitmapCreate (
 
 UGL_STATUS uglVgaBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_DDB_ID       ddbId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DDB_ID       ddbId
     ) {
 
     /* Free memory */
-    UGL_PART_FREE (poolId, ddbId);
+    uglOSMemFree (ddbId);
 
     return (UGL_STATUS_OK);
 }
@@ -1201,7 +1197,7 @@ UGL_STATUS uglVgaBitmapWrite (
                 if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
 
                     /* Generate */
-                    pClut = malloc (pDib->clutSize * sizeof (UGL_COLOR));
+                    pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
                     if (pClut == UGL_NULL) {
                         return (UGL_STATUS_ERROR);
                     }
@@ -1400,13 +1396,10 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
               (2 * planeSize);
 
     /* Allocate bitmap */
-    pVgaMonoBmp = (UGL_VGA_MDDB *) UGL_PART_MALLOC (poolId, bmpSize);
+    pVgaMonoBmp = (UGL_VGA_MDDB *) uglOSMemCalloc (poolId, 1, bmpSize);
     if (pVgaMonoBmp == NULL) {
         return (UGL_NULL);
     }
-
-    /* Clear */
-    memset (pVgaMonoBmp, 0, bmpSize);
 
     /* Initialize header */
     pVgaMonoBmp->header.width  = width;
@@ -1459,12 +1452,11 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
 
 UGL_STATUS uglVgaMonoBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_MDDB_ID      mDdbId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_MDDB_ID      mDdbId
     ) {
 
     /* Free memory */
-    UGL_PART_FREE (poolId, mDdbId);
+    uglOSMemFree (mDdbId);
 
     return (UGL_STATUS_OK);
 }

@@ -54,11 +54,11 @@ typedef struct ugl_gen_tddb {
 
 typedef struct ugl_generic_driver {
     UGL_UGI_DRIVER  ugi;                /* UGI driver (required) */
+    void *          fbAddress;          /* Frame buffer address */
     UGL_GC_ID       gc;                 /* Graphics context */
     UGL_GEN_DDB *   scratchBitmap;      /* Scratch bitmap */
     UGL_ORD         transBitmapCount;   /* Scratch bitmap reference count */
     UGL_CLUT *      pClut;              /* Palette */
-    void *          fbAddress;          /* Frame buffer address */
 } UGL_GENERIC_DRIVER;
 
 /* Generic mode support functions */
@@ -298,8 +298,7 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
 
 UGL_STATUS uglGenericTransBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_TDDB_ID      tDdbId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_TDDB_ID      tDdbId
     );
 
 /******************************************************************************

@@ -23,6 +23,7 @@
 #ifndef _uglos_h
 #define _uglos_h
 
+#include <ugl/ugltypes.h>
 #include <ugl/os/uglvmx.h>
 
 #ifndef _ASMLANGUAGE
@@ -30,6 +31,67 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Memory pools */
+
+/******************************************************************************
+ *
+ * uglOSMemPoolCreate - Create memory pool
+ *
+ * RETURNS: Memory pool id, or UGL_NULL
+ */
+
+UGL_MEM_POOL_ID uglOSMemPoolCreate (
+    void *    poolAddr,
+    UGL_SIZE  poolSize
+    );
+
+/******************************************************************************
+ *
+ * uglOSMemPoolDestroy - Destroy memory pool
+ *
+ * RETURNS: UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSMemPoolDestroy (
+    UGL_MEM_POOL_ID  poolId
+    );
+
+/******************************************************************************
+ *
+ * uglOSMemAlloc - Allocate memory from memory pool
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+void * uglOSMemAlloc (
+    UGL_MEM_POOL_ID  poolId,
+    UGL_SIZE         memSize
+    );
+
+/******************************************************************************
+ *
+ * uglOSMemCalloc - Allocate memory objects from memory pool and clear it
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+void * uglOSMemCalloc (
+    UGL_MEM_POOL_ID  poolId,
+    UGL_ORD          numItems,
+    UGL_SIZE         itemSize
+    );
+
+/******************************************************************************
+ *
+ * uglOSMemFree - Free memory allocated from memory pool
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSMemFree (
+    void * pMem
+    );
 
 /* Locks */
 
@@ -40,7 +102,7 @@ extern "C" {
  * RETURNS: Lock identifier
  */
 
-UGL_LOCK_ID uglOsLockCreate (
+UGL_LOCK_ID uglOSLockCreate (
     void
     );
 
@@ -51,7 +113,7 @@ UGL_LOCK_ID uglOsLockCreate (
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOsLockDestroy (
+UGL_STATUS uglOSLockDestroy (
     UGL_LOCK_ID  lockId
     );
 
@@ -62,7 +124,7 @@ UGL_STATUS uglOsLockDestroy (
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOsLock (
+UGL_STATUS uglOSLock (
     UGL_LOCK_ID  lockId
     );
 
@@ -73,7 +135,7 @@ UGL_STATUS uglOsLock (
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOsUnLock (
+UGL_STATUS uglOSUnLock (
     UGL_LOCK_ID  lockId
     );
 

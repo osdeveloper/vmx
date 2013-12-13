@@ -29,13 +29,11 @@
 UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
     UGL_DEVICE_ID    devId,
     UGL_SIZE         width,
-    UGL_SIZE         height,
-    UGL_MEM_POOL_ID  poolId
+    UGL_SIZE         height
     );
 
 UGL_LOCAL UGL_STATUS uglGenericScratchBitmapDestroy (
-    UGL_DEVICE_ID    devId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DEVICE_ID    devId
     );
 
 /******************************************************************************
@@ -60,13 +58,13 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
     pDrv = (UGL_GENERIC_DRIVER *) devId;
 
     /* Create scratch bitmap */
-    if (uglGenericScratchBitmapCreate (devId, pDib->width, pDib->height,
-                                       poolId) == UGL_STATUS_ERROR) {
+    if (uglGenericScratchBitmapCreate (devId, pDib->width, pDib->height) ==
+        UGL_STATUS_ERROR) {
         return (UGL_NULL);
     }
 
     /* Allocate transparent bitmap */
-    pTddb = (UGL_GEN_TDDB *) UGL_PART_MALLOC (poolId, sizeof (UGL_GEN_TDDB));
+    pTddb = (UGL_GEN_TDDB *) uglOSMemAlloc (poolId, sizeof (UGL_GEN_TDDB));
     if (pTddb != UGL_NULL) {
         pTddb->header.width  = pDib->width;
         pTddb->header.height = pDib->height;
@@ -76,16 +74,16 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
         pTddb->ddb = (*devId->bitmapCreate) (devId, pDib, createMode, initValue,
                                              poolId);
         if (pTddb->ddb == UGL_NULL) {
-            UGL_PART_FREE (poolId, pTddb);
+            uglOSMemFree (pTddb);
             return (UGL_NULL);
         }
 
         /* Create bitmask */
         pTddb->mask = (*devId->monoBitmapCreate) (devId, pMdib, createMode,
-                                            0xff, poolId);
+                                                  0xff, poolId);
         if (pTddb->mask == UGL_NULL) {
-            (*devId->bitmapDestroy) (devId, (UGL_DDB_ID) pTddb->ddb, poolId);
-            UGL_PART_FREE (poolId, pTddb);
+            (*devId->bitmapDestroy) (devId, (UGL_DDB_ID) pTddb->ddb);
+            uglOSMemFree (pTddb);
             return (UGL_NULL);
         }
     }
@@ -102,8 +100,7 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
 
 UGL_STATUS uglGenericTransBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_TDDB_ID      tDdbId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_TDDB_ID      tDdbId
     ) {
     UGL_GEN_TDDB * pTddb;
 
@@ -111,14 +108,14 @@ UGL_STATUS uglGenericTransBitmapDestroy (
     pTddb = (UGL_GEN_TDDB *) tDdbId;
 
     /* Destroy bitmap and bitmask */
-    (*devId->bitmapDestroy) (devId, (UGL_DDB_ID) pTddb->ddb, poolId);
-    (*devId->monoBitmapDestroy) (devId, (UGL_MDDB_ID) pTddb->mask, poolId);
+    (*devId->bitmapDestroy) (devId, (UGL_DDB_ID) pTddb->ddb);
+    (*devId->monoBitmapDestroy) (devId, (UGL_MDDB_ID) pTddb->mask);
 
     /* Free transparent bitmap */
-    UGL_PART_FREE (poolId, pTddb);
+    uglOSMemFree (pTddb);
 
     /* Release scratch bitmap */
-    uglGenericScratchBitmapDestroy (devId, poolId);
+    uglGenericScratchBitmapDestroy (devId);
 
     return (UGL_STATUS_OK);
 }
@@ -179,7 +176,7 @@ UGL_STATUS uglGenericTransBitmapBlt (
     /* Get number columne in a row */
     numColumns = (width + 7) / 8;
 
-    pBuf = (UGL_UINT8 *) malloc (numColumns * sizeof (UGL_UINT8));
+    pBuf = (UGL_UINT8 *) UGL_MALLOC (numColumns * sizeof (UGL_UINT8));
     if (pBuf == NULL) {
         return (UGL_STATUS_ERROR);
     }
@@ -300,7 +297,7 @@ UGL_STATUS uglGenericTransBitmapBlt (
         destPoint.y++;
     }
 
-    free (pBuf);
+    UGL_FREE (pBuf);
 
     return (UGL_STATUS_OK);
 }
@@ -315,8 +312,7 @@ UGL_STATUS uglGenericTransBitmapBlt (
 UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
     UGL_DEVICE_ID    devId,
     UGL_SIZE         width,
-    UGL_SIZE         height,
-    UGL_MEM_POOL_ID  poolId
+    UGL_SIZE         height
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_GEN_DDB *        scratchBitmap;
@@ -341,7 +337,7 @@ UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
         else {
             maxWidth  = max (width, scratchBitmap->header.width);
             maxHeight = max (height, scratchBitmap->header.height);
-            (*devId->bitmapDestroy) (devId, (UGL_DDB_ID) scratchBitmap, poolId);
+            (*devId->bitmapDestroy) (devId, (UGL_DDB_ID) scratchBitmap);
         }
 
         /* Create device independent bitmap */
@@ -355,7 +351,7 @@ UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
                                                 devId,
                                                 &scratchDib,
                                                 UGL_DIB_INIT_NONE,
-                                                0, poolId);
+                                                0, UGL_NULL);
         if (pDrv->scratchBitmap == UGL_NULL) {
             return (UGL_STATUS_ERROR);
         }
@@ -375,8 +371,7 @@ UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
  */
 
 UGL_LOCAL UGL_STATUS uglGenericScratchBitmapDestroy (
-    UGL_DEVICE_ID    devId,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DEVICE_ID    devId
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_STATUS           status;
@@ -386,8 +381,7 @@ UGL_LOCAL UGL_STATUS uglGenericScratchBitmapDestroy (
 
     if (--pDrv->transBitmapCount == 0) {
         status = (*devId->bitmapDestroy) (devId,
-                                          (UGL_DDB_ID) pDrv->scratchBitmap,
-                                          poolId);
+                                          (UGL_DDB_ID) pDrv->scratchBitmap);
         pDrv->scratchBitmap = UGL_NULL;
     }
 

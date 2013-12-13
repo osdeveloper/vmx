@@ -18,34 +18,49 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* udvgadev.c - Vga graphics device */
-
-#include <stdlib.h>
+/* uglmem.c - Universal graphics library memory pool management support */
 
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
+/* Locals */
+
+UGL_LOCAL UGL_MEM_POOL_ID uglMemPoolDefaultId = UGL_NULL;
+
 /******************************************************************************
  *
- * uglVgaDevDestroy - Free graphics device
+ * uglMemDefaultPoolGet - Get default memory pool
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglVgaDevDestroy (
-    UGL_DEVICE_ID  devId
+UGL_STATUS uglMemDefaultPoolGet (
+    UGL_MEM_POOL_ID * pPoolId
     ) {
 
-    /* Call device deinit */
-    if (uglUgiDevDeinit (devId) != UGL_STATUS_OK) {
+    /* Check args */
+    if (pPoolId == UGL_NULL) {
         return (UGL_STATUS_ERROR);
     }
 
-    /* Destroy palette */
-    uglGenericClutDestroy ((UGL_GENERIC_DRIVER *) devId);
+    /* Get memory pool */
+    *pPoolId = uglMemPoolDefaultId;
 
-    /* Free memory */
-    UGL_FREE (devId);
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglMemDefaultPoolSet - Set default memory pool
+ *
+ * RETURNS: UGL_STATUS_OK
+ */
+
+UGL_STATUS uglMemDefaultPoolSet (
+    UGL_MEM_POOL_ID  poolId
+    ) {
+
+    uglMemPoolDefaultId = poolId;
 
     return (UGL_STATUS_OK);
 }

@@ -29,6 +29,7 @@
 #include <ugl/uglmode.h>
 #include <ugl/ugldib.h>
 #include <ugl/uglos.h>
+#include <ugl/uglmem.h>
 #include <ugl/uglugi.h>
 
 #ifndef _ASMLANGUAGE
@@ -294,8 +295,7 @@ UGL_DDB_ID uglBitmapCreate (
 
 UGL_STATUS uglBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_DDB *        pDdb,
-    UGL_MEM_POOL_ID  poolId
+    UGL_DDB *        pDdb
     );
 
 /******************************************************************************
@@ -343,8 +343,7 @@ UGL_DDB_ID uglMonoBitmapCreate (
 
 UGL_STATUS uglMonoBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_MDDB *       pMddb,
-    UGL_MEM_POOL_ID  poolId
+    UGL_MDDB *       pMddb
     );
 
 /******************************************************************************
@@ -391,8 +390,7 @@ UGL_DDB_ID uglTransBitmapCreate (
 
 UGL_STATUS uglTransBitmapDestroy (
     UGL_DEVICE_ID    devId,
-    UGL_TDDB *       pTddb,
-    UGL_MEM_POOL_ID  poolId
+    UGL_TDDB *       pTddb
     );
 
 /* Batch job support functions */

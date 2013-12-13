@@ -33,7 +33,7 @@ UGL_STATUS uglUgiDevInit (
     UGL_DEVICE_ID  devId
     ) {
 
-    devId->lockId = uglOsLockCreate ();
+    devId->lockId = uglOSLockCreate ();
     if (devId->lockId == UGL_NULL) {
         return UGL_STATUS_ERROR;
     }
@@ -52,7 +52,7 @@ UGL_STATUS uglUgiDevDeinit (
     UGL_DEVICE_ID  devId
     ) {
 
-    if (uglOsLockDestroy (devId->lockId) != UGL_STATUS_OK) {
+    if (uglOSLockDestroy (devId->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
     }
 
