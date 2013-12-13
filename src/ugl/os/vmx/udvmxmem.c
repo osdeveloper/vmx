@@ -79,7 +79,7 @@ void * uglOSMemAlloc (
     ) {
     UGL_MEM_HEADER * pHeader;
 
-    /* Add for for header */
+    /* Add size for header */
     memSize += sizeof (UGL_MEM_HEADER);
 
     /* If no pool given, allocate from default pool */
@@ -137,6 +137,72 @@ void * uglOSMemCalloc (
 
 /******************************************************************************
  *
+ * uglOSMemRealloc - Change size of allocated memory from memory pool
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+void * uglOSMemRealloc (
+    UGL_MEM_POOL_ID  poolId,
+    void *           pMem,
+    UGL_SIZE         memSize
+    ) {
+    UGL_MEM_HEADER * pPrevHeader;
+    UGL_MEM_HEADER * pHeader;
+    void *           pNewMem;
+
+    /* Allocate new memory */
+    if (pMem == UGL_NULL) {
+        return uglOSMemAlloc (poolId, memSize);
+    }
+
+    /* Add size for header */
+    memSize += sizeof (UGL_MEM_HEADER);
+
+    /* Get memory pool */
+    if (poolId == UGL_NULL) {
+        uglMemDefaultPoolGet (&poolId);
+    }
+
+    /* Get previous header */
+    pPrevHeader = (UGL_MEM_HEADER *) ((char *) pMem - sizeof (UGL_MEM_HEADER));
+
+    /* Check previous header */
+    if (pPrevHeader->magicNumber != uglMemMagicNumber) {
+        return (UGL_NULL);
+    }
+
+    if (memSize != pPrevHeader->memSize || poolId != pPrevHeader->poolId) {
+        if (poolId == UGL_NULL && pPrevHeader->poolId == UGL_NULL) {
+            pHeader = (UGL_MEM_HEADER *) realloc (pPrevHeader, memSize);
+            if (pHeader == UGL_NULL) {
+                return (UGL_NULL);
+            }
+
+            pHeader->magicNumber = uglMemMagicNumber;
+            pHeader->poolId      = poolId;
+            pHeader->memSize     = memSize;
+            pNewMem = (void *) &pHeader[1];
+        }
+        else {
+            pNewMem = uglOSMemAlloc (poolId, memSize);
+            if (pNewMem == UGL_NULL) {
+                return (UGL_NULL);
+            }
+
+            memcpy (pNewMem, pMem, min (memSize, pPrevHeader->memSize));
+            uglOSMemFree (pMem);
+        }
+    }
+    else {
+        pNewMem = pMem;
+    }
+
+    return (pNewMem);
+}
+
+/******************************************************************************
+ *
  * uglOSMemFree - Free memory allocated from memory pool
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -176,3 +242,36 @@ UGL_STATUS uglOSMemFree (
 
     return (UGL_STATUS_OK);
 }
+
+/******************************************************************************
+ *
+ * uglOSMemSizeGet - Get size of allocated memory
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSMemSizeGet (
+    UGL_SIZE * pMemSize,
+    void *     pMem
+    ) {
+    UGL_MEM_HEADER * pHeader;
+
+    /* Check params */
+    if (pMem == UGL_NULL || pMemSize == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get header */
+    pHeader = (UGL_MEM_HEADER *) ((char *) pMem - sizeof (UGL_MEM_HEADER));
+
+    /* Check header */
+    if (pHeader->magicNumber != uglMemMagicNumber) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Store size */
+    *pMemSize = pHeader->memSize;
+
+    return (UGL_STATUS_OK);
+}
+

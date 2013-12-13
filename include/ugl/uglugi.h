@@ -59,6 +59,8 @@ typedef struct ugl_ugi_driver {
     UGL_LOCK_ID  lockId;                        /* Mutex */
     UGL_UINT32   magicNumber;                   /* Idetifies GC flags set */
     UGL_GC_ID    defaultGc;                     /* Default graphics context*/
+    void *       pScratchBuf;                   /* Scratch buffer */
+    UGL_BOOL     scratchBufFree;                /* Is scratch buffer in use */
 
     /* Device support methods */
 
@@ -334,6 +336,32 @@ UGL_STATUS uglUgiDevDeinit (
 
 UGL_STATUS uglGraphicsDevDestroy (
     UGL_DEVICE_ID  devId
+    );
+
+/* Scratch buffer support */
+
+/******************************************************************************
+ *
+ * uglScratchBufferAlloc - Allocate scratch memory
+ *
+ * RETURNS: Pointer to memory or UGL_NULL
+ */
+
+void * uglScratchBufferAlloc (
+    UGL_DEVICE_ID  devId,
+    UGL_SIZE       memSize
+    );
+
+/******************************************************************************
+ *
+ * uglScratchBufferFree - Release scratch memory
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglScratchBufferFree (
+    UGL_DEVICE_ID  devId,
+    void *         pMem
     );
 
 #ifdef __cplusplus

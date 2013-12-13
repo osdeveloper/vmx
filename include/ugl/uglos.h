@@ -84,6 +84,19 @@ void * uglOSMemCalloc (
 
 /******************************************************************************
  *
+ * uglOSMemRealloc - Change size of allocated memory from memory pool
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+void * uglOSMemRealloc (
+    UGL_MEM_POOL_ID  poolId,
+    void *           pMem,
+    UGL_SIZE         memSize
+    );
+
+/******************************************************************************
+ *
  * uglOSMemFree - Free memory allocated from memory pool
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -91,6 +104,18 @@ void * uglOSMemCalloc (
 
 UGL_STATUS uglOSMemFree (
     void * pMem
+    );
+
+/******************************************************************************
+ *
+ * uglOSMemSizeGet - Get size of allocated memory
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSMemSizeGet (
+    UGL_SIZE * pMemSize,
+    void *     pMem
     );
 
 /* Locks */

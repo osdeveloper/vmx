@@ -43,7 +43,7 @@ extern "C" {
  * RETURNS: Pointer to memory, or UGL_NULL
  */
 
-#define UGL_MALLOC(s)         uglOSMemAlloc (UGL_DEFAULT_MEM_POOL_ID, (s))
+#define UGL_MALLOC(s)       uglOSMemAlloc (UGL_DEFAULT_MEM_POOL_ID, (s))
 
 /******************************************************************************
  *
@@ -52,7 +52,16 @@ extern "C" {
  * RETURNS: Pointer to memory, or UGL_NULL
  */
 
-#define UGL_CALLOC(n, s)      uglOSMemCalloc (UGL_DEFAULT_MEM_POOL_ID, (n), (s))
+#define UGL_CALLOC(n, s)    uglOSMemCalloc (UGL_DEFAULT_MEM_POOL_ID, (n), (s))
+
+/******************************************************************************
+ *
+ * UGL_REALLOC - Change size of memory allocated from default pool
+ *
+ * RETURNS: Pointer to memory, or UGL_NULL
+ */
+
+#define UGL_REALLOC(m, s)   uglOSMemRealloc (UGL_DEFAULT_MEM_POOL_ID, (m), (s))
 
 /******************************************************************************
  *
@@ -61,7 +70,7 @@ extern "C" {
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-#define UGL_FREE(pMem)        uglOSMemFree ((pMem))
+#define UGL_FREE(pMem)      uglOSMemFree ((pMem))
 
 /* Functions */
 

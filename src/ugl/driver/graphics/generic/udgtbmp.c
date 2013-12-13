@@ -176,7 +176,8 @@ UGL_STATUS uglGenericTransBitmapBlt (
     /* Get number columne in a row */
     numColumns = (width + 7) / 8;
 
-    pBuf = (UGL_UINT8 *) UGL_MALLOC (numColumns * sizeof (UGL_UINT8));
+    pBuf = (UGL_UINT8 *) uglScratchBufferAlloc (devId, numColumns *
+                                                       sizeof (UGL_UINT8));
     if (pBuf == NULL) {
         return (UGL_STATUS_ERROR);
     }
@@ -297,7 +298,7 @@ UGL_STATUS uglGenericTransBitmapBlt (
         destPoint.y++;
     }
 
-    UGL_FREE (pBuf);
+    uglScratchBufferFree (devId, pBuf);
 
     return (UGL_STATUS_OK);
 }

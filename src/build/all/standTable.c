@@ -583,7 +583,9 @@ SYMBOL standTable[] =
   {NULL, "_uglOSMemPoolDestroy", uglOSMemPoolDestroy, 0, N_TEXT | N_EXT},
   {NULL, "_uglOSMemAlloc", uglOSMemAlloc, 0, N_TEXT | N_EXT},
   {NULL, "_uglOSMemCalloc", uglOSMemCalloc, 0, N_TEXT | N_EXT},
+  {NULL, "_uglOSMemRealloc", uglOSMemRealloc, 0, N_TEXT | N_EXT},
   {NULL, "_uglOSMemFree", uglOSMemFree, 0, N_TEXT | N_EXT},
+  {NULL, "_uglOSMemSizeGet", uglOSMemSizeGet, 0, N_TEXT | N_EXT},
   {NULL, "_uglMemDefaultPoolGet", uglMemDefaultPoolGet, 0, N_TEXT | N_EXT},
   {NULL, "_uglMemDefaultPoolSet", uglMemDefaultPoolSet, 0, N_TEXT | N_EXT},
 

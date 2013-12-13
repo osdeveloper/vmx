@@ -22,6 +22,8 @@
 
 #include <ugl/ugl.h>
 
+#define UGL_SCRATCH_BUF_BLK_SIZE    64
+
 /******************************************************************************
  *
  * uglUgiDevInit - Initialize graphics device
@@ -37,6 +39,11 @@ UGL_STATUS uglUgiDevInit (
     if (devId->lockId == UGL_NULL) {
         return UGL_STATUS_ERROR;
     }
+
+    /* Initialize basic fields */
+    devId->defaultGc      = UGL_NULL;
+    devId->pScratchBuf    = UGL_NULL;
+    devId->scratchBufFree = UGL_TRUE;
 
     return (UGL_STATUS_OK);
 }
@@ -69,9 +76,15 @@ UGL_STATUS uglUgiDevDeinit (
 UGL_STATUS uglGraphicsDevDestroy (
     UGL_DEVICE_ID  devId
     ) {
+    UGL_STATUS  status;
 
     if (devId == UGL_NULL) {
         return (UGL_STATUS_ERROR);
+    }
+
+    /* Free scratch buffer */
+    if (devId->pScratchBuf != UGL_NULL) {
+        UGL_FREE (devId->pScratchBuf);
     }
 
     /* Destroy default graphics context */
@@ -80,6 +93,66 @@ UGL_STATUS uglGraphicsDevDestroy (
     }
 
     /* Call driver specific device destroy method */
-    return (*devId->destroy) (devId);
+    status = (*devId->destroy) (devId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglScratchBufferAlloc - Allocate scratch memory
+ *
+ * RETURNS: Pointer to memory or UGL_NULL
+ */
+
+void * uglScratchBufferAlloc (
+    UGL_DEVICE_ID  devId,
+    UGL_SIZE       memSize
+    ) {
+    UGL_SIZE  reqMemSize;
+    void *    pMem;
+
+    /* Check if buffer is not already in use */
+    if (devId->scratchBufFree != UGL_TRUE) {
+        return (UGL_NULL);
+    }
+
+    /* Calucate size of requested memory in blocks */
+    reqMemSize = (memSize + UGL_SCRATCH_BUF_BLK_SIZE - 1) /
+                 UGL_SCRATCH_BUF_BLK_SIZE * UGL_SCRATCH_BUF_BLK_SIZE;
+
+    /* Reallocate */
+    pMem = UGL_REALLOC (devId->pScratchBuf, reqMemSize);
+    if (pMem == UGL_NULL) {
+        return (UGL_NULL);
+    }
+
+    /* Store new buffer */
+    devId->pScratchBuf = pMem;
+
+    return (pMem);
+}
+
+/******************************************************************************
+ *
+ * uglScratchBufferFree - Release scratch memory
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglScratchBufferFree (
+    UGL_DEVICE_ID  devId,
+    void *         pMem
+    ) {
+
+    /* Check buffer */
+    if (pMem != devId->pScratchBuf) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Mark as free */
+    devId->scratchBufFree = UGL_TRUE;
+
+    return (UGL_STATUS_OK);
 }
 
