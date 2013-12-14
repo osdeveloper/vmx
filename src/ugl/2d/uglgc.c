@@ -54,7 +54,7 @@ UGL_GC_ID uglGcCreate (
     /* Create driver specific gc and clear */
     gc = (*devId->gcCreate) (devId);
     if (gc == UGL_NULL) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_NULL);
     }
 
@@ -63,7 +63,7 @@ UGL_GC_ID uglGcCreate (
     /* Create lock semaphore */
     gc->lockId = uglOSLockCreate ();
     if (gc->lockId == UGL_NULL) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_NULL);
     }
 
@@ -109,7 +109,7 @@ UGL_GC_ID uglGcCreate (
     gc->magicNumber       = uglMagicNumber;
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (gc);
 }
@@ -141,12 +141,12 @@ UGL_STATUS uglGcCopy (
 
     /* Call driver specific method */
     if ((*devId->gcCopy) (devId, src, dest) != UGL_STATUS_OK) {
-        uglOSUnLock (src->lockId);
+        uglOSUnlock (src->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock (src->lockId);
+    uglOSUnlock (src->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -182,18 +182,18 @@ UGL_STATUS uglGcDestroy (
 
     /* Destroy locking semaphore */
     if (uglOSLockDestroy (gc->lockId) != UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Call specific destroy method */
     if ((*devId->gcDestroy) (devId, gc) != UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -256,7 +256,7 @@ UGL_STATUS uglDefaultBitmapSet (
     }
 
     /* Unlock */
-    uglOSUnLock (gc->lockId);
+    uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -300,7 +300,7 @@ UGL_STATUS uglViewPortSet (
                     gc->viewPort.bottom - gc->viewPort.top);
 
     /* Unlock */
-    uglOSUnLock (gc->lockId);
+    uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -349,7 +349,7 @@ UGL_STATUS uglClipRectSet (
     UGL_GC_CHANGED_SET (gc);
 
     /* Unlock */
-    uglOSUnLock (gc->lockId);
+    uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -383,7 +383,7 @@ UGL_STATUS uglForegroundColorSet (
     }
 
     /* Unlock */
-    uglOSUnLock (gc->lockId);
+    uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -417,7 +417,7 @@ UGL_STATUS uglBackgroundColorSet (
     }
 
     /* Unlock */
-    uglOSUnLock (gc->lockId);
+    uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -451,7 +451,7 @@ UGL_STATUS uglRasterModeSet (
     }
 
     /* Unlock */
-    uglOSUnLock (gc->lockId);
+    uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
 }

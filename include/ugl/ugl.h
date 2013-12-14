@@ -30,6 +30,7 @@
 #include <ugl/ugldib.h>
 #include <ugl/uglos.h>
 #include <ugl/uglmem.h>
+#include <ugl/uglregn.h>
 #include <ugl/uglugi.h>
 
 #ifndef _ASMLANGUAGE

@@ -50,12 +50,12 @@ UGL_STATUS uglClutSet (
     /* Call driver specific function */
     if ((*devId->clutSet) (devId, offset, pColors, numColors) !=
         UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock(devId->lockId);
+    uglOSUnlock(devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -86,12 +86,12 @@ UGL_STATUS uglClutGet (
     /* Call driver specific method */
     if ((*devId->clutGet) (devId, offset, pColors, numColors) !=
         UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -124,12 +124,12 @@ UGL_STATUS uglColorAllocExt (
     /* Call driver specific method */
     if ((*devId->colorAlloc) (devId, pReqColors, pIndex, pActualColors,
                               pUglColors, numColors) != UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -161,12 +161,12 @@ UGL_STATUS uglColorAlloc (
     /* Call driver specific method */
     if ((*devId->colorAlloc) (devId, pReqColors, pIndex, UGL_NULL,
                               pUglColors, numColors) != UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }
@@ -195,12 +195,12 @@ UGL_STATUS uglColorFree (
 
     /* Call driver specific method */
     if ((*devId->colorFree) (devId, pColors, numColors) != UGL_STATUS_OK) {
-        uglOSUnLock (devId->lockId);
+        uglOSUnlock (devId->lockId);
         return (UGL_STATUS_ERROR);
     }
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (UGL_STATUS_OK);
 }

@@ -18,36 +18,46 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* udvmxlck.c - Universal graphics library lock support */
+/* udvmxtsk.c - Universal graphics library task support */
 
 #include <ugl/ugl.h>
+#include <vmx/taskLib.h>
 
 /******************************************************************************
  *
- * uglOSLockCreate - Create a locking mechanism
+ * uglOSTaskDelay - Put task to sleep
  *
- * RETURNS: Lock identifier
+ * RETURNS: N/A
  */
 
-UGL_LOCK_ID uglOSLockCreate (
+UGL_VOID uglOSTaskDelay (
+    UGL_UINT32  msecs
+    ) {
+    UGL_UINT32  ticks;
+    UGL_UINT32  rate;
+
+    /* Get clock rate */
+    rate = sysClockRateGet ();
+
+    /* Calculate timeout */
+    ticks = (msecs * rate + 999) / 1000;
+
+    /* Sleep */
+    taskDelay (ticks);
+}
+
+/******************************************************************************
+ *
+ * uglOSTaskLock - Lock task
+ *
+ * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSTaskLock (
     void
     ) {
 
-    return semMCreate (SEM_Q_PRIORITY);
-}
-
-/******************************************************************************
- *
- * uglOSLockDestroy - Free a locking mechanism
- *
- * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglOSLockDestroy (
-    UGL_LOCK_ID  lockId
-    ) {
-
-    if (semDelete (lockId) == ERROR) {
+    if (taskLock () != OK) {
         return (UGL_STATUS_ERROR);
     }
 
@@ -56,34 +66,16 @@ UGL_STATUS uglOSLockDestroy (
 
 /******************************************************************************
  *
- * uglOSLock - Lock
+ * uglOSTaskUnlock - Unlock task
  *
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOSLock (
-    UGL_LOCK_ID  lockId
+UGL_STATUS uglOSTaskUnlock (
+    void
     ) {
 
-    if (semTake(lockId, WAIT_FOREVER) == ERROR) {
-        return (UGL_STATUS_ERROR);
-    }
-
-    return (UGL_STATUS_OK);
-}
-
-/******************************************************************************
- *
- * uglOSUnlock - Unlock
- *
- * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglOSUnlock (
-    UGL_LOCK_ID  lockId
-    ) {
-
-    if (semGive(lockId) == ERROR) {
+    if (taskUnlock () != OK) {
         return (UGL_STATUS_ERROR);
     }
 

@@ -155,13 +155,48 @@ UGL_STATUS uglOSLock (
 
 /******************************************************************************
  *
- * uglOSUnLock - Unlock
+ * uglOSUnlock - Unlock
  * 
  * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglOSUnLock (
+UGL_STATUS uglOSUnlock (
     UGL_LOCK_ID  lockId
+    );
+
+/* Task control */
+
+/******************************************************************************
+ *
+ * uglOSTaskDelay - Put task to sleep
+ *
+ * RETURNS: N/A
+ */
+
+UGL_VOID uglOSTaskDelay (
+    UGL_UINT32  msecs
+    );
+
+/******************************************************************************
+ *  
+ * uglOSTaskLock - Lock task
+ *  
+ * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSTaskLock (
+    void
+    );
+
+/******************************************************************************
+ *
+ * uglOSTaskUnlock - Unlock task
+ *
+ * RETURNS: UGL_STATUS_OR or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSTaskUnlock (
+    void
     );
 
 #ifdef __cplusplus

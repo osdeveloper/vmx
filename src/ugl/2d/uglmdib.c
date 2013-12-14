@@ -54,7 +54,7 @@ UGL_DDB_ID uglMonoBitmapCreate (
                                         initValue, poolId);
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (bmpId);
 }
@@ -87,7 +87,7 @@ UGL_STATUS uglMonoBitmapDestroy (
     status = (*devId->monoBitmapDestroy) (devId, pMddb);
 
     /* Unlock */
-    uglOSUnLock (devId->lockId);
+    uglOSUnlock (devId->lockId);
 
     return (status);
 }
