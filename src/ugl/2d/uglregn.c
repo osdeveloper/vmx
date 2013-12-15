@@ -679,6 +679,99 @@ UGL_STATUS uglRegionIntersect (
 
 /******************************************************************************
  *
+ * uglRegionRectSortedGet - Get sorted list of rectangles from region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionRectSortedGet (
+    UGL_REGION_ID     regionId,
+    const UGL_RECT ** ppRect,
+    UGL_BLT_DIR       rectOrder
+    ) {
+    UGL_REGION *            pRegion;
+    const UGL_REGION_RECT * pRegionRect;
+
+    /* Check params */
+    if (regionId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* If reqest to end rectangle list */
+    if (ppRect == UGL_NULL) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Check if region is empty */
+    if (uglRegionIsEmpty (regionId) == UGL_TRUE) {
+        *ppRect = UGL_NULL;
+        return (UGL_STATUS_FINISHED);
+    }
+
+    pRegion = (UGL_REGION *) regionId;
+
+    /* If request to continue rectangle list */
+    if (*ppRect == UGL_NULL) {
+        switch (rectOrder) {
+            case UGL_TL2BR:
+                pRegionRect = pRegion->pFirstTL2BR;
+                break;
+
+            case UGL_BR2TL:
+                pRegionRect = pRegion->pFirstTL2BR;
+                break;
+
+            case UGL_TR2BL:
+                pRegionRect = pRegion->pFirstTR2BL;
+                break;
+
+            case UGL_BL2TR:
+                pRegionRect = pRegion->pFirstTR2BL;
+                break;
+
+            default:
+                pRegionRect = pRegion->pFirstTL2BR;
+                break;
+        }
+    }
+    else {
+        switch (rectOrder) {
+            case UGL_TL2BR:
+                pRegionRect = ((UGL_REGION_RECT *) *ppRect)->pNextTL2BR;
+                break;
+
+            case UGL_BR2TL:
+                pRegionRect = ((UGL_REGION_RECT *) *ppRect)->pPrevTL2BR;
+                break;
+
+            case UGL_TR2BL:
+                pRegionRect = ((UGL_REGION_RECT *) *ppRect)->pNextTR2BL;
+                break;
+
+            case UGL_BL2TR:
+                pRegionRect = ((UGL_REGION_RECT *) *ppRect)->pPrevTR2BL;
+                break;
+
+            default:
+                pRegionRect = ((UGL_REGION_RECT *) *ppRect)->pNextTL2BR;
+                break;
+        }
+    }
+
+    /* If no more rectangles end list */
+    if (pRegionRect == UGL_NULL) {
+        *ppRect = UGL_NULL;
+        return (UGL_STATUS_FINISHED);
+    }
+    else {
+        *ppRect = &pRegionRect->rect;
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglRegionShow - Display region info as text to console
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

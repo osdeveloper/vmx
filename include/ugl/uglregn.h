@@ -29,6 +29,23 @@
 extern "C" {
 #endif
 
+/* Defines */
+
+#define UGL_BLT_LEFT                    0x00000000
+#define UGL_BLT_UP                      0x00000000
+#define UGL_BLT_RIGHT                   0x00000001
+#define UGL_BLT_DOWN                    0x00000010
+
+#define UGL_BLT_UP_AND_LEFT             (UGL_BLT_LEFT | UGL_BLT_UP)
+#define UGL_BLT_DOWN_AND_RIGHT          (UGL_BLT_DOWN | UGL_BLT_RIGHT)
+#define UGL_BLT_UP_AND_RIGHT            (UGL_BLT_UP   | UGL_BLT_RIGHT)
+#define UGL_BLT_DOWN_AND_LEFT           (UGL_BLT_DOWN | UGL_BLT_LEFT)
+
+#define UGL_TL2BR                       UGL_BLT_UP_AND_LEFT
+#define UGL_BR2TL                       UGL_BLT_DOWN_AND_RIGHT
+#define UGL_TR2BL                       UGL_BLT_UP_AND_RIGHT
+#define UGL_BL2TR                       UGL_BLT_DOWN_AND_LEFT
+
 /* Structs */
 
 struct  ugl_region;
@@ -36,6 +53,7 @@ struct  ugl_region;
 /* Types */
 
 typedef struct ugl_region * UGL_REGION_ID;
+typedef UGL_UINT32          UGL_BLT_DIR;
 
 /* Functions */
 
@@ -165,6 +183,19 @@ UGL_STATUS uglRegionIntersect (
     UGL_REGION_ID  regionAId,
     UGL_REGION_ID  regionBId,
     UGL_REGION_ID  intersectRegionId
+    );
+
+/******************************************************************************
+ *
+ * uglRegionRectSortedGet - Get sorted list of rectangles from region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionRectSortedGet (
+    UGL_REGION_ID     regionId,
+    const UGL_RECT ** ppRect,
+    UGL_BLT_DIR       rectOrder
     );
 
 /******************************************************************************

@@ -299,7 +299,7 @@ typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
     UGL_STATUS _status;                                                       \
     do {                                                                      \
         (pClipRect) = &(gc)->clipRect;                                        \
-        UGL_RECT_MOVE(*pClipRect, (gc)->viewPort.left, (gc)->viewPort.top);   \
+        UGL_RECT_MOVE (*pClipRect, (gc)->viewPort.left, (gc)->viewPort.top);  \
         _status = UGL_STATUS_FINISHED;
 #define UGL_CLIP_LOOP_END                                                     \
     } while (_status == UGL_STATUS_OK);                                       \
