@@ -522,8 +522,8 @@ UGL_STATUS uglRegionRectInclude (
                         UGL_RECT_COPY (&includeRect2, &pRegionRect->rect);
                     }
                     else {
-                        UGL_RECT_COPY (&includeRect, &pRegionRect->rect);
                         UGL_RECT_COPY (&includeRect2, &includeRect);
+                        UGL_RECT_COPY (&includeRect, &pRegionRect->rect);
                     }
 
                     if (includeRect.bottom < includeRect2.bottom) {
@@ -535,7 +535,7 @@ UGL_STATUS uglRegionRectInclude (
                         includeRect.top = includeRect2.bottom + 1;
                     }
 
-                    /* Add extra rectangle to region */
+                    /* Include extra rectangle to region */
                     if (uglRegionRectInclude (regionId,
                                               &includeRect2) != UGL_STATUS_OK) {
                         return (UGL_STATUS_ERROR);
@@ -547,8 +547,8 @@ UGL_STATUS uglRegionRectInclude (
                         UGL_RECT_COPY (&includeRect2, &pRegionRect->rect);
                     }
                     else {
-                        UGL_RECT_COPY (&includeRect, &pRegionRect->rect);
                         UGL_RECT_COPY (&includeRect2, &includeRect);
+                        UGL_RECT_COPY (&includeRect, &pRegionRect->rect);
                     }
 
                     if (includeRect.top > includeRect2.top) {
@@ -560,7 +560,7 @@ UGL_STATUS uglRegionRectInclude (
                         includeRect.bottom = includeRect2.top - 1;
                     }
 
-                    /* Add extra rectangle to region */
+                    /* Include extra rectangle to region */
                     if (uglRegionRectInclude (regionId,
                                               &includeRect2) != UGL_STATUS_OK) {
                         return (UGL_STATUS_ERROR);
@@ -576,7 +576,7 @@ UGL_STATUS uglRegionRectInclude (
                     }
                 }
 
-                /* Add rectangle and done */
+                /* Include rectangle and done */
                 return uglRegionRectInclude (regionId, &includeRect);
             }
 
