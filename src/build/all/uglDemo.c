@@ -925,6 +925,30 @@ int uglConvertTest(void)
     printf("output[%d] = 0x%x\n", i, colorArray[i]);
 }
 
+UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
+{
+  UGL_RECT *pRect;
+
+  pRect = (UGL_RECT *) malloc(sizeof(UGL_RECT));
+  if (pRect == NULL) {
+    printf("Unable to create rectangle\n");
+    return (NULL);
+  }
+
+  pRect->left   = x1;
+  pRect->top    = y1;
+  pRect->right  = x2;
+  pRect->bottom = y2;
+
+  printf("Created rectangle: %d %d %d %d\n",
+    pRect->left,
+    pRect->top,
+    pRect->right,
+    pRect->bottom);
+
+  return (pRect);
+}
+
 void uglDemoInit()
 {
 static SYMBOL symTableUglDemo[] = {
@@ -940,7 +964,8 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglRasterOpOr", uglRasterOpOr, 0, N_TEXT | N_EXT},
   {NULL, "_uglRasterOpXor", uglRasterOpXor, 0, N_TEXT | N_EXT},
   {NULL, "_uglToggleDoubleBuffer", uglToggleDoubleBuffer, 0, N_TEXT | N_EXT},
-  {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT}
+  {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
 };
 
     int i;

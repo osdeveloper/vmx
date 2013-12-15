@@ -20,6 +20,7 @@
 
 /* uglregn.c - Universal graphics library region support */
 
+#include <stdio.h>
 #include <ugl/ugl.h>
 
 /* Defines */
@@ -678,6 +679,38 @@ UGL_STATUS uglRegionIntersect (
 
 /******************************************************************************
  *
+ * uglRegionShow - Display region info as text to console
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionShow (
+    UGL_REGION_ID  regionId
+    )
+{
+    UGL_REGION *      pRegion;
+    UGL_REGION_RECT * pRegionRect;
+
+    if (regionId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    pRegion = (UGL_REGION *) regionId;
+
+    /* Show rectangle list */
+    pRegionRect = pRegion->pFirstTL2BR;
+    while (pRegionRect != UGL_NULL) {
+        printf("Rectangle:\t%d\t%d\t%d\t%d\n",
+               pRegionRect->rect.left, pRegionRect->rect.top,
+               pRegionRect->rect.right, pRegionRect->rect.bottom);
+        pRegionRect = pRegionRect->pNextTL2BR;
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglRegionBlockAlloc - Allocate region block
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -700,7 +733,7 @@ UGL_LOCAL UGL_STATUS uglRegionBlockAlloc (
     pRegionBlock->pNextBlock = UGL_NULL;
 
     /* Initialize all rects */
-    for (i = 0; i < UGL_REGION_RECTS_IN_BLOCK; i++) {
+    for (i = 0; i < UGL_REGION_RECTS_IN_BLOCK - 1; i++) {
         pRegionBlock->pRectBlock[i].pNextTL2BR =
             &pRegionBlock->pRectBlock[i + 1];
     }
@@ -731,7 +764,7 @@ UGL_LOCAL UGL_VOID uglRegionRectAddTL2BR (
     UGL_REGION_RECT * pPrevRect;
     UGL_REGION_RECT * pStoreRect;
 
-    /* Find */
+    /* Find next */
     pNextRect = pRegion->pFirstTL2BR;
     while (pNextRect != UGL_NULL && pRect->rect.top > pNextRect->rect.bottom) {
         pNextRect = pNextRect->pNextTL2BR;
@@ -739,7 +772,7 @@ UGL_LOCAL UGL_VOID uglRegionRectAddTL2BR (
 
     while (pNextRect != UGL_NULL &&
            (pRect->rect.top > pNextRect->rect.bottom ||
-            (pRect->rect.bottom >= pNextRect->rect. top &&
+            (pRect->rect.bottom >= pNextRect->rect.top &&
              pRect->rect.left > pNextRect->rect. right))) {
         pNextRect = pNextRect->pNextTL2BR;
     }
@@ -825,7 +858,7 @@ UGL_LOCAL UGL_VOID uglRegionRectAddTR2BL (
     UGL_REGION_RECT * pPrevRect;
     UGL_REGION_RECT * pStoreRect;
 
-    /* Find */
+    /* Find next */
     pNextRect = pRegion->pFirstTR2BL;
     while (pNextRect != UGL_NULL && pRect->rect.top > pNextRect->rect.bottom) {
         pNextRect = pNextRect->pNextTR2BL;

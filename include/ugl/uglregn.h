@@ -167,6 +167,17 @@ UGL_STATUS uglRegionIntersect (
     UGL_REGION_ID  intersectRegionId
     );
 
+/******************************************************************************
+ *
+ * uglRegionShow - Display region info as text to console
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionShow (
+    UGL_REGION_ID  regionId
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

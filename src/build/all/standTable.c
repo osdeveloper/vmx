@@ -599,6 +599,7 @@ SYMBOL standTable[] =
   {NULL, "_uglRegionRectAdd", uglRegionRectAdd, 0, N_TEXT | N_EXT},
   {NULL, "_uglRegionRectInclude", uglRegionRectInclude, 0, N_TEXT | N_EXT},
   {NULL, "_uglRegionIntersect", uglRegionIntersect, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionShow", uglRegionShow, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},
