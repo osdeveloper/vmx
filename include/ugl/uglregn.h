@@ -29,32 +29,13 @@
 extern "C" {
 #endif
 
+/* Structs */
+
+struct  ugl_region;
+
 /* Types */
 
-typedef struct ugl_region_rect {
-    UGL_POS                  left;
-    UGL_POS                  top;
-    UGL_POS                  right;
-    UGL_POS                  bottom;
-    struct ugl_region_rect * pNextTL2BR;
-    struct ugl_region_rect * pPrevTL2BR;
-    struct ugl_region_rect * pNextTR2BL;
-    struct ugl_region_rect * pPrevTR2BL;
-} UGL_REGION_RECT;
-
-typedef struct ugl_region_block {
-    UGL_REGION_RECT *         pRectBlock;
-    struct ugl_region_block * pNextBlock;
-} UGL_REGION_BLOCK;
-
-typedef struct ugl_region {
-    UGL_REGION_RECT * pFirstTL2BR;
-    UGL_REGION_RECT * pLastTL2BR;
-    UGL_REGION_RECT * pFirstTR2BL;
-    UGL_REGION_RECT * pLastTR2BL;
-} UGL_REGION;
-
-typedef UGL_REGION * UGL_REGION_ID;
+typedef struct ugl_region * UGL_REGION_ID;
 
 /* Functions */
 
@@ -104,6 +85,17 @@ UGL_STATUS uglRegionDestroy (
 
 /******************************************************************************
  *
+ * uglRegionIsEmpty - Check if region is empty
+ *
+ * RETURNS: UGL_TRUE or UGL_FALSE
+ */
+
+UGL_STATUS uglRegionIsEmpty (
+    const UGL_REGION_ID  regionId
+    );
+
+/******************************************************************************
+ *
  * uglRegionEmpty - Clear region
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -115,14 +107,64 @@ UGL_STATUS uglRegionEmpty (
 
 /******************************************************************************
  *
+ * uglRegionCopy - Copy region from source to destination
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionCopy (
+    const UGL_REGION_ID  srcRegionId,
+    UGL_REGION_ID        destRegionId
+    );
+
+/******************************************************************************
+ *
+ * uglRegionMove - Move region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionMove (
+    const UGL_REGION_ID  regionId,
+    const UGL_ORD        dx,
+    const UGL_ORD        dy
+    );
+
+/******************************************************************************
+ *
  * uglRegionRectAdd - Add rectangle to region
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
 UGL_STATUS uglRegionRectAdd (
-    UGL_REGION_ID  regionId,
-    UGL_RECT *     pRect
+    UGL_REGION_ID    regionId,
+    const UGL_RECT * pRect
+    );
+
+/******************************************************************************
+ *
+ * uglRegionRectInclude - Include rectangle in region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionRectInclude (
+    UGL_REGION_ID     regionId,
+    const UGL_RECT  * pRect
+    );
+
+/******************************************************************************
+ *
+ * uglRegionIntersect - Calculate intersection between two regions
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionIntersect (
+    UGL_REGION_ID  regionAId,
+    UGL_REGION_ID  regionBId,
+    UGL_REGION_ID  intersectRegionId
     );
 
 #ifdef __cplusplus

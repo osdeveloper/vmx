@@ -588,6 +588,17 @@ SYMBOL standTable[] =
   {NULL, "_uglOSMemSizeGet", uglOSMemSizeGet, 0, N_TEXT | N_EXT},
   {NULL, "_uglMemDefaultPoolGet", uglMemDefaultPoolGet, 0, N_TEXT | N_EXT},
   {NULL, "_uglMemDefaultPoolSet", uglMemDefaultPoolSet, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionCreate", uglRegionCreate, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionInit", uglRegionInit, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionDeinit", uglRegionDeinit, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionDestroy", uglRegionDestroy, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionIsEmpty", uglRegionIsEmpty, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionEmpty", uglRegionEmpty, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionCopy", uglRegionCopy, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionMove", uglRegionMove, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionRectAdd", uglRegionRectAdd, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionRectInclude", uglRegionRectInclude, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRegionIntersect", uglRegionIntersect, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},

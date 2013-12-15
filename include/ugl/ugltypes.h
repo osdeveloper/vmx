@@ -123,6 +123,19 @@ typedef struct ugl_rect {
 
 #define UGL_POINT_COPY(p1, p2)   memcpy ((p1), (p2), sizeof (UGL_POINT))
 
+/*******************************************************************************
+ *
+ * UGL_POINT_MOVE - Move a point by delta (dx, dy)
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_POINT_MOVE(p, dx, dy)                                             \
+{                                                                             \
+    (p).x += dx;                                                              \
+    (p).y += dy;                                                              \
+}
+
 /******************************************************************************
  *
  * UGL_RECT_WIDTH - Get rectangle width
@@ -150,19 +163,6 @@ typedef struct ugl_rect {
 
 #define UGL_RECT_COPY(r1, r2)   memcpy ((r1), (r2), sizeof (UGL_RECT))
 
-/*******************************************************************************
- *
- * UGL_POINT_MOVE - Move a point by delta (dx, dy)
- *
- * RETURNS: N/A
- */
-
-#define UGL_POINT_MOVE(p, dx, dy)                                             \
-{                                                                             \
-    (p).x += dx;                                                              \
-    (p).y += dy;                                                              \
-}
-
 /******************************************************************************
  *
  * UGL_RECT_MOVE - Move a rectangle by delta (dx, dy)
@@ -172,10 +172,10 @@ typedef struct ugl_rect {
 
 #define UGL_RECT_MOVE(r, dx, dy)                                              \
 {                                                                             \
-    (r).left   += dx;                                                         \
-    (r).right  += dx;                                                         \
-    (r).top    += dy;                                                         \
-    (r).bottom += dy;                                                         \
+    (r).left   += (dx);                                                       \
+    (r).right  += (dx);                                                       \
+    (r).top    += (dy);                                                       \
+    (r).bottom += (dy);                                                       \
 }
 
 /******************************************************************************
