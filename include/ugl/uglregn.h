@@ -150,24 +150,24 @@ UGL_STATUS uglRegionMove (
 
 /******************************************************************************
  *
- * uglRegionRectAdd - Add rectangle to region
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglRegionRectAdd (
-    UGL_REGION_ID    regionId,
-    const UGL_RECT * pRect
-    );
-
-/******************************************************************************
- *
  * uglRegionRectInclude - Include rectangle in region
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
 UGL_STATUS uglRegionRectInclude (
+    UGL_REGION_ID     regionId,
+    const UGL_RECT  * pRect
+    );
+
+/******************************************************************************
+ *
+ * uglRegionRectExclude - Exclude rectangle from region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionRectExclude (
     UGL_REGION_ID     regionId,
     const UGL_RECT  * pRect
     );

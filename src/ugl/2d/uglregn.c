@@ -85,6 +85,11 @@ UGL_LOCAL UGL_VOID uglRegionRectRemove (
     UGL_REGION_RECT * pRegionRect
     );
 
+UGL_LOCAL UGL_STATUS uglRegionRectAdd (
+    UGL_REGION *     pRegion,
+    const UGL_RECT * pRect
+    );
+
 /* Functions */
 
 /******************************************************************************
@@ -291,6 +296,7 @@ UGL_STATUS uglRegionCopy (
     UGL_REGION_ID        destRegionId
     ) {
     UGL_REGION *      pSrcRegion;
+    UGL_REGION *      pDestRegion;
     UGL_REGION_RECT * pRegionRect;
 
     /* Check params */
@@ -302,6 +308,7 @@ UGL_STATUS uglRegionCopy (
     uglRegionEmpty (destRegionId);
 
     pSrcRegion  = (UGL_REGION *) srcRegionId;
+    pDestRegion = (UGL_REGION *) destRegionId;
 
     /* Check if anything to copy */
     pRegionRect = pSrcRegion->pFirstTL2BR;
@@ -311,7 +318,7 @@ UGL_STATUS uglRegionCopy (
 
     /* Copy rectangle list */
     while (pRegionRect != UGL_NULL) {
-        uglRegionRectAdd (destRegionId, &pRegionRect->rect);
+        uglRegionRectAdd (pDestRegion, &pRegionRect->rect);
         pRegionRect = pRegionRect->pNextTL2BR;
     }
 
@@ -342,48 +349,6 @@ UGL_STATUS uglRegionMove (
     while (pRegionRect != UGL_NULL) {
         UGL_RECT_MOVE (pRegionRect->rect, dx, dy);
     }
-
-    return (UGL_STATUS_OK);
-}
-
-/******************************************************************************
- *
- * uglRegionRectAdd - Add rectangle to region
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglRegionRectAdd (
-    UGL_REGION_ID    regionId,
-    const UGL_RECT * pRect
-    ) {
-    UGL_REGION_RECT * pRegionRect;
-    UGL_REGION *      pRegion;
-
-    if (regionId == UGL_NULL || pRect == UGL_NULL) {
-        return (UGL_STATUS_ERROR);
-    }
-
-    uglOSLock (uglRegionLockId);
-    if (pFreeRegionRectHead == UGL_NULL) {
-        if (uglRegionBlockAlloc () != UGL_STATUS_OK) {
-            return (UGL_STATUS_ERROR);
-        }
-    }
-
-    /* Insert */
-    pRegionRect = pFreeRegionRectHead;
-    pFreeRegionRectHead = pRegionRect->pNextTL2BR;
-    uglOSUnlock (uglRegionLockId);
-
-    /* Set geometry from rectangle */
-    UGL_RECT_COPY (&pRegionRect->rect, pRect);
-
-    pRegion = (UGL_REGION *) regionId;
-
-    /* Add to lists */
-    uglRegionRectAddTL2BR (pRegion, pRegionRect);
-    uglRegionRectAddTR2BL (pRegion, pRegionRect);
 
     return (UGL_STATUS_OK);
 }
@@ -586,7 +551,120 @@ UGL_STATUS uglRegionRectInclude (
     }
 
     /* Add rectangle and done */
-    return uglRegionRectAdd (regionId, &includeRect);
+    return uglRegionRectAdd (pRegion, &includeRect);
+}
+
+/******************************************************************************
+ *
+ * uglRegionRectExclude - Exclude rectangle from region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRegionRectExclude (
+    UGL_REGION_ID     regionId,
+    const UGL_RECT  * pRect
+    ) {
+    UGL_REGION *      pRegion;
+    UGL_REGION_RECT * pRegionRect;
+    UGL_RECT          intersectRect;
+    UGL_RECT          includeRect;
+    UGL_POS           coord;
+
+    /* Check params */
+    if (regionId == UGL_NULL || pRect == UGL_NULL) {
+       return (UGL_STATUS_ERROR);
+    }
+
+    /* Check if trivial */
+    if (UGL_RECT_WIDTH (*pRect) <= 0 ||
+        UGL_RECT_HEIGHT (*pRect) <= 0) {
+        return (UGL_STATUS_OK);
+    }
+
+    pRegion = (UGL_REGION *) regionId;
+
+    pRegionRect = pRegion->pFirstTL2BR;
+    while (pRegionRect != UGL_NULL) {
+
+        /* Check if trivial */
+        if (pRect->bottom < pRegionRect->rect.top &&
+            pRect->right <= pRegionRect->rect.right) {
+            break;
+        }
+
+        /* Caclulate intersection */
+        UGL_RECT_INTERSECT (*pRect, pRegionRect->rect, intersectRect);
+
+        if (intersectRect.right >= intersectRect.left &&
+            intersectRect.bottom >= intersectRect.top) {
+
+            /* Save current rectnagle */
+            UGL_RECT_COPY (&includeRect, &pRegionRect->rect);
+
+            /* Remove current rectangle */
+            uglRegionRectRemove (pRegion, pRegionRect);
+
+            /* If portion left over above intersection */
+            if (intersectRect.top > includeRect.top) {
+                coord = includeRect.bottom;
+                includeRect.bottom = intersectRect.top - 1;
+
+                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                    return (UGL_STATUS_ERROR);
+                }
+
+                includeRect.bottom = coord;
+            }
+
+            /* If portion left over below intersection */
+            if (intersectRect.bottom < includeRect.bottom) {
+                coord = includeRect.top;
+                includeRect.top = intersectRect.bottom + 1;
+
+                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                    return (UGL_STATUS_ERROR);
+                }
+
+                includeRect.top = coord;
+            }
+
+            /* Complete rectangle */
+            includeRect.top    = intersectRect.top;
+            includeRect.bottom = intersectRect.bottom;
+
+            /* If portion left to the left of intersection */
+            if (intersectRect.left > includeRect.left) {
+                coord = includeRect.right;
+                includeRect.right = intersectRect.left - 1;
+
+                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                    return (UGL_STATUS_ERROR);
+                }
+
+                includeRect.right = coord;
+            }
+
+            /* If portion left to the right of intersection */
+            if (intersectRect.right < includeRect.right) {
+                includeRect.left = intersectRect.right + 1;
+
+                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                    return (UGL_STATUS_ERROR);
+                }
+            }
+
+            /* Restart because of reorering of list */
+            pRegionRect = pRegion->pFirstTL2BR;
+        }
+        else {
+
+            /* Advance */
+            pRegionRect = pRegionRect->pNextTL2BR;
+        }
+    }
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************
@@ -1028,6 +1106,41 @@ UGL_LOCAL UGL_VOID uglRegionRectRemoveTR2BL (
     else {
         pRegion->pLastTR2BL = pPrevRect;
     }
+}
+
+/******************************************************************************
+ *
+ * uglRegionRectAdd - Add rectangle to region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglRegionRectAdd (
+    UGL_REGION *     pRegion,
+    const UGL_RECT * pRect
+    ) {
+    UGL_REGION_RECT * pRegionRect;
+
+    uglOSLock (uglRegionLockId);
+    if (pFreeRegionRectHead == UGL_NULL) {
+        if (uglRegionBlockAlloc () != UGL_STATUS_OK) {
+            return (UGL_STATUS_ERROR);
+        }
+    }
+
+    /* Insert */
+    pRegionRect = pFreeRegionRectHead;
+    pFreeRegionRectHead = pRegionRect->pNextTL2BR;
+    uglOSUnlock (uglRegionLockId);
+
+    /* Set geometry from rectangle */
+    UGL_RECT_COPY (&pRegionRect->rect, pRect);
+
+    /* Add to lists */
+    uglRegionRectAddTL2BR (pRegion, pRegionRect);
+    uglRegionRectAddTR2BL (pRegion, pRegionRect);
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************
