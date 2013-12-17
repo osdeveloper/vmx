@@ -159,9 +159,7 @@ int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   setPalette();
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
-  if (clipRegionId != NULL) {
-    uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
-  }
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
 
   for (i = 0; i < maxtimes; i++) {
     uglPixelSet(gfxDevId->defaultGc, rand() % 640, rand() % 480, rand () % 16);
@@ -650,7 +648,7 @@ int uglTrans4Test(void)
   return 0;
 }
 
-int uglPixel8Test(int maxtimes)
+int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -684,6 +682,7 @@ int uglPixel8Test(int maxtimes)
   setPalette();
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
 
   for (i = 0; i < maxtimes; i++) {
     uglPixelSet(gfxDevId->defaultGc, rand() % 320, rand() % 200, rand () % 256);
