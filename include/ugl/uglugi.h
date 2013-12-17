@@ -32,10 +32,12 @@ extern "C" {
 /* Graphics context change flags */
 
 #define UGL_GC_DEFAULT_BITMAP_CHANGED           0x00000001
-#define UGL_GC_CLIP_RECT_CHANGED                0x00000002
-#define UGL_GC_FOREGROUND_COLOR_CHANGED         0x00000004
-#define UGL_GC_BACKGROUND_COLOR_CHANGED         0x00000008
-#define UGL_GC_RASTER_OP_CHANGED                0x00000010
+#define UGL_GC_VIEW_PORT_CHANGED                0x00000002
+#define UGL_GC_CLIP_RECT_CHANGED                0x00000004
+#define UGL_GC_CLIP_REGION_CHANGED              0x00000008
+#define UGL_GC_FOREGROUND_COLOR_CHANGED         0x00000010
+#define UGL_GC_BACKGROUND_COLOR_CHANGED         0x00000020
+#define UGL_GC_RASTER_OP_CHANGED                0x00000040
 
 typedef struct ugl_gc {
     struct ugl_ugi_driver * pDriver;            /* Current driver */
@@ -43,6 +45,7 @@ typedef struct ugl_gc {
     UGL_RECT                boundRect;          /* Bounding rectagle */
     UGL_RECT                viewPort;           /* View port */
     UGL_RECT                clipRect;           /* Clipping rectangle */
+    UGL_REGION_ID           clipRegionId;       /* Clipping region */
     UGL_COLOR               foregroundColor;    /* Foreground color */
     UGL_COLOR               backgroundColor;    /* Background color */
     UGL_RASTER_OP           rasterOp;           /* Raster operation */
@@ -294,13 +297,23 @@ typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
  * RETURNS: N/A
  */
 
-#define UGL_CLIP_LOOP_START(gc, pClipRect)                                    \
+#define UGL_CLIP_LOOP_START(gc, clipRect)                                     \
 {                                                                             \
-    UGL_STATUS _status;                                                       \
+    UGL_STATUS       _status;                                                 \
+    const UGL_RECT * _pRegionRect = UGL_NULL;                                 \
     do {                                                                      \
-        (pClipRect) = &(gc)->clipRect;                                        \
-        UGL_RECT_MOVE (*pClipRect, (gc)->viewPort.left, (gc)->viewPort.top);  \
-        _status = UGL_STATUS_FINISHED;
+        if ((gc)->clipRegionId == UGL_NULL) {                                 \
+            UGL_RECT_COPY (&(clipRect), &(gc)->clipRect);                     \
+            UGL_RECT_MOVE (clipRect,                                          \
+                           (gc)->viewPort.left, (gc)->viewPort.top);          \
+            _status = UGL_STATUS_FINISHED;                                    \
+        }                                                                     \
+        else {                                                                \
+            _status = uglClipRegionNext ((gc), &(clipRect), &_pRegionRect);   \
+            if (_status != UGL_STATUS_OK) {                                   \
+                break;                                                        \
+            }                                                                 \
+        }
 #define UGL_CLIP_LOOP_END                                                     \
     } while (_status == UGL_STATUS_OK);                                       \
 }

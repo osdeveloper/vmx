@@ -125,7 +125,7 @@ void restoreConsole(struct vgaHWRec *regs)
   printf("%c\n", 0x0c);
 }
 
-int uglPixel4Test(int maxtimes)
+int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -159,6 +159,9 @@ int uglPixel4Test(int maxtimes)
   setPalette();
 
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  if (clipRegionId != NULL) {
+    uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  }
 
   for (i = 0; i < maxtimes; i++) {
     uglPixelSet(gfxDevId->defaultGc, rand() % 640, rand() % 480, rand () % 16);

@@ -293,6 +293,9 @@ UGL_STATUS uglViewPortSet (
         gc->viewPort.top    = top;
         gc->viewPort.right  = right;
         gc->viewPort.bottom = bottom;
+
+        gc->changed |= UGL_GC_VIEW_PORT_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
     }
 
     /* Set clipping rectangle to bounds */
@@ -346,6 +349,38 @@ UGL_STATUS uglClipRectSet (
 
     /* Mark context field as changed */
     gc->changed |= UGL_GC_CLIP_RECT_CHANGED;
+    UGL_GC_CHANGED_SET (gc);
+
+    /* Unlock */
+    uglOSUnlock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglClipRegionSet - Set graphics context clipping region
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglClipRegionSet (
+    UGL_GC_ID      gc,
+    UGL_REGION_ID  clipRegionId
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set clipping region */
+    gc->clipRegionId = clipRegionId;
+    gc->changed |= UGL_GC_CLIP_REGION_CHANGED;
     UGL_GC_CHANGED_SET (gc);
 
     /* Unlock */
@@ -454,5 +489,78 @@ UGL_STATUS uglRasterModeSet (
     uglOSUnlock (gc->lockId);
 
     return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglClipRegionSortedNext - Get sorted clip rectangles from graphics context
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglClipRegionSortedNext (
+    UGL_GC_ID         gc,
+    UGL_RECT *        pRect,
+    const UGL_RECT ** ppRect,
+    UGL_BLT_DIR       rectOrder
+    ) {
+    UGL_STATUS  status = UGL_STATUS_OK;
+
+    /* If reset traversal */
+    if (pRect == UGL_NULL || ppRect == UGL_NULL) {
+        if (gc->clipRegionId != UGL_NULL) {
+            status = uglRegionRectSortedGet (gc->clipRegionId, UGL_NULL,
+                                             rectOrder);
+            return (status);
+        }
+    }
+
+    /* If no clipping region set */
+    if (gc->clipRegionId == UGL_NULL) {
+
+        /* If get ordinary clipping rectangle */
+        if (*ppRect == UGL_NULL) {
+            *pRect = gc->clipRect;
+            *ppRect = &gc->clipRect;
+        }
+        else {
+            *ppRect = UGL_NULL;
+            return (UGL_STATUS_FINISHED);
+        }
+    }
+    else {
+        do {
+            status = uglRegionRectSortedGet (gc->clipRegionId, ppRect,
+                                             rectOrder);
+            if (status != UGL_STATUS_OK || ppRect == UGL_NULL ||
+                *ppRect == UGL_NULL) {
+                return (status);
+            }
+
+            /* Intersect with ordinary clipping rectangle */
+            UGL_RECT_INTERSECT (**ppRect, gc->clipRect, *pRect);
+        } while (UGL_RECT_WIDTH (*pRect) <= 0 || UGL_RECT_HEIGHT (*pRect) <= 0);
+    }
+
+    /* Move according to viewport */
+    UGL_RECT_MOVE (*pRect, gc->viewPort.left, gc->viewPort.top);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglClipRegionNext - Get clip rectangles from graphics context
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglClipRegionNext (
+    UGL_GC_ID         gc,
+    UGL_RECT *        pRect,
+    const UGL_RECT ** ppRect
+    ) {
+
+    return uglClipRegionSortedNext (gc, pRect, ppRect, UGL_TR2BL);
 }
 

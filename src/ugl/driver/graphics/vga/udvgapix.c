@@ -41,7 +41,7 @@ UGL_STATUS uglVgaPixelSet (
     UGL_VGA_DRIVER *     pVga;
     UGL_GENERIC_DRIVER * pDrv;
     UGL_GC_ID            gc;
-    UGL_RECT *           pClipRect;
+    UGL_RECT             clipRect;
     UGL_VGA_DDB *        pBmp;
     UGL_UINT8            mask;
     UGL_UINT8 *          dest;
@@ -66,10 +66,10 @@ UGL_STATUS uglVgaPixelSet (
     UGL_POINT_MOVE (*p, gc->viewPort.left, gc->viewPort.top);
 
     /* Start clipping loop */
-    UGL_CLIP_LOOP_START (gc, pClipRect);
+    UGL_CLIP_LOOP_START (gc, clipRect);
 
     /* Check if point is within clipping reqion */
-    if (UGL_POINT_IN_RECT(*p, *pClipRect) == UGL_TRUE) {
+    if (UGL_POINT_IN_RECT(*p, clipRect) == UGL_TRUE) {
 
         /* Check if render to display or bitmap */
         if (gc->pDefaultBitmap == UGL_DISPLAY_ID) {
