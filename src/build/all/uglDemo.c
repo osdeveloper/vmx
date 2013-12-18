@@ -360,7 +360,7 @@ int uglBlt4Test(void)
   return 0;
 }
 
-int uglMono4Test(void)
+int uglMono4Test(UGL_REGION_ID clipRegionId)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -412,6 +412,7 @@ int uglMono4Test(void)
   uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
   uglForegroundColorSet(gfxDevId->defaultGc, 14);
   uglBackgroundColorSet(gfxDevId->defaultGc, 4);
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
 
   srcRect.left = 0;
   srcRect.right = pMddb->width;
@@ -434,7 +435,7 @@ int uglMono4Test(void)
 
     uglBitmapBlt(gfxDevId->defaultGc, pMddb,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 UGL_DISPLAY_ID, pt.x, pt.y);
+                 UGL_DEFAULT_ID, pt.x, pt.y);
 
     /* Delay */
     taskDelay(animTreshold);

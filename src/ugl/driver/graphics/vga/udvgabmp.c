@@ -1680,6 +1680,7 @@ UGL_STATUS uglVgaMonoBitmapBlt (
     UGL_POINT            destPoint;
     UGL_RECT             destRect;
     UGL_RECT             clipRect;
+    const UGL_RECT *     pRect;
 
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -1687,43 +1688,62 @@ UGL_STATUS uglVgaMonoBitmapBlt (
     /* Get gc */
     gc = pDrv->gc;
 
+    /* Start from the top of the clip region list */
+    pRect = UGL_NULL;
+
     if (destBmpId == UGL_DEFAULT_ID) {
+
+        /* If drawing to default bitmap, enable clip region */
+        if (uglClipListGet (gc, &clipRect, &pRect) != UGL_STATUS_OK) {
+            return (UGL_STATUS_OK);
+        }
+
         UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
     }
 
-    /* Store source and dest */
-    pSrcBmp  = (UGL_VGA_MDDB *) srcBmpId;
-    pDestBmp = (UGL_VGA_DDB *) destBmpId;
+    do {
+        /* Store source and dest */
+        pSrcBmp  = (UGL_VGA_MDDB *) srcBmpId;
+        pDestBmp = (UGL_VGA_DDB *) destBmpId;
 
-    /* Store source rectangle */
-    srcRect.top    = pSrcRect->top;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
-    srcRect.bottom = pSrcRect->bottom;
+        /* Store source rectangle */
+        UGL_RECT_COPY (&srcRect, pSrcRect);
 
-    /* Store starting point */
-    destPoint.x = pDestPoint->x;
-    destPoint.y = pDestPoint->y;
+        /* Store starting point */
+        UGL_POINT_COPY (&destPoint, pDestPoint);
 
-    /* Clip */
-    if (uglGenericClipDdbToDdb (devId, &clipRect,
-                           (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
-                           (UGL_BMAP_ID *) &pDestBmp, &destPoint) == UGL_TRUE) {
+        /* Clip */
+        if (uglGenericClipDdbToDdb (devId, &clipRect,
+                                    (UGL_BMAP_ID *) &pSrcBmp,
+                                    &srcRect,
+                                    (UGL_BMAP_ID *) &pDestBmp,
+                                    &destPoint) == UGL_TRUE) {
 
-        /* Calculate destination */
-        destRect.left = 0;
-        destRect.top  = 0;
-        UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
-        UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
-                          UGL_RECT_HEIGHT(srcRect));
+            /* Calculate destination */
+            destRect.left = 0;
+            destRect.top  = 0;
+            UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
+            UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
+                              UGL_RECT_HEIGHT(srcRect));
 
-        if ((UGL_DDB_ID) destBmpId == UGL_DISPLAY_ID) {
-            uglVgaBltMonoToFrameBuffer (devId, pSrcBmp, &srcRect, &destRect);
+            if ((UGL_DDB_ID) pDestBmp == UGL_DISPLAY_ID) {
+                uglVgaBltMonoToFrameBuffer (devId, pSrcBmp, &srcRect,
+                                            &destRect);
+            }
+            else {
+                /* TODO:
+                 * uglVgaBltMonoToColor(devId, pSrcBmp, &srcRect,
+                 *                      pDestBmp, &destRect);
+                 */
+            }
         }
-        else {
-            /* TODO: uglVgaBltMonoToColor(devId, pSrcBmp, &srcRect, pDestBmp, &destRect) */
+
+        /* Clip region only enabled when drawing to default bitmap */
+        if (destBmpId != UGL_DEFAULT_ID) {
+            break;
         }
-    }
+
+    } while (uglClipListGet (gc, &clipRect, &pRect) == UGL_STATUS_OK);
 
     return (UGL_STATUS_OK);
 }
