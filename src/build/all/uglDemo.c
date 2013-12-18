@@ -174,6 +174,9 @@ int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 {
   UGL_VGA_DRIVER *pDrv;
+  UGL_DDB *pDbBmp;
+  UGL_RECT dbSrcRect;
+  UGL_POINT dbPt;
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   int i, x, x1, x2;
@@ -205,10 +208,33 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   /* Set palette */
   setPalette();
 
-  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             14, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  }
+
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
 
   pDrv = (UGL_VGA_DRIVER *) gfxDevId;
+
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 640;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 480;
+  dbPt.x = 0;
+  dbPt.y = 0;
 
   for (i = 0; i < maxtimes; i++) {
     x1 = rand () % 640;
@@ -218,8 +244,122 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
         x1 = x2;
         x2 = x1;
     }
+
+    uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
     (*pDrv->generic.hLine)(&pDrv->generic, rand() % 480, x1, x2, rand () % 16);
+    uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
+
     taskDelay(animTreshold);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
+  }
+
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
+int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
+{
+  UGL_VGA_DRIVER *pDrv;
+  UGL_DDB *pDbBmp;
+  UGL_RECT dbSrcRect;
+  UGL_POINT dbPt;
+  UGL_MODE gfxMode;
+  struct vgaHWRec oldRegs;
+  int i, y, y1, y2;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
+
+  if (gfxDevId == UGL_NULL) {
+    printf("No compatible graphics device found.\n");
+    return 1;
+  }
+
+  vgaSave(&oldRegs);
+
+  /* Enter video mode */
+  gfxMode.width = 640;
+  gfxMode.height = 480;
+  gfxMode.depth = 4;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
+
+  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+    return 1;
+  }
+
+  /* Set palette */
+  setPalette();
+
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             14, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  }
+
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+
+  pDrv = (UGL_VGA_DRIVER *) gfxDevId;
+
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 640;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 480;
+  dbPt.x = 0;
+  dbPt.y = 0;
+
+  for (i = 0; i < maxtimes; i++) {
+    y1 = rand () % 480;
+    y2 = rand () % 480;
+    if (y1 > y2) {
+        y = y1;
+        y1 = y2;
+        y2 = y1;
+    }
+
+    uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
+    (*pDrv->generic.vLine)(&pDrv->generic, rand() % 640, y1, y2, rand () % 16);
+    uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
+
+    taskDelay(animTreshold);
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
   }
 
   restoreConsole(&oldRegs);
@@ -990,6 +1130,7 @@ void uglDemoInit()
 static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglPixel4Test", uglPixel4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglHLine4Test", uglHLine4Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglVLine4Test", uglVLine4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt4Test", uglBlt4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglMono4Test", uglMono4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglTrans4Test", uglTrans4Test, 0, N_TEXT | N_EXT},

@@ -64,7 +64,7 @@ UGL_STATUS uglVgaHLine (
 
         /* Calculate variables */
         dest = ((UGL_UINT8 *) pDrv->fbAddress) +
-                (x1 >> 3) + (y * pVga->bytesPerLine);
+               (y * pVga->bytesPerLine) + (x1 >> 3);
         startMask = 0xff >> (x1 & 0x07);
         endMask = 0xff << (7 - (x2 & 0x07));
         byteLen = (x2 >> 3) - (x1 >> 3) + 1;
@@ -123,11 +123,11 @@ UGL_STATUS uglVgaHLine (
         endMask    = 0xff << (7 - (x2 & 0x07));
         byteLen    = (x2 >> 3) - (x1 >> 3) + 1;
         numPlanes  = pVgaBmp->colorDepth;
+        colorMask  = 0x01;
 
         /* Select raster op */
         switch (gc->rasterOp) {
             case UGL_RASTER_OP_COPY:
-                colorMask = 0x01;
                 for (plane = 0; plane < numPlanes; plane++) {
                     dest = pVgaBmp->pPlaneArray[plane];
                     i = startIndex;
@@ -177,7 +177,6 @@ UGL_STATUS uglVgaHLine (
                 break;
 
             case UGL_RASTER_OP_AND:
-                colorMask = 0x01;
                 for (plane = 0; plane < numPlanes; plane++) {
                     dest = pVgaBmp->pPlaneArray[plane];
                     i = startIndex;
@@ -208,14 +207,13 @@ UGL_STATUS uglVgaHLine (
                 break;
 
             case UGL_RASTER_OP_OR:
-                colorMask = 0x01;
                 for (plane = 0; plane < numPlanes; plane++) {
                     dest = pVgaBmp->pPlaneArray[plane];
                     i = startIndex;
 
                     if ((c & colorMask) != 0x00) {
                         if (byteLen == 1) {
-                            dest[i] |= (startMask & endMask);
+                            dest[i] |= (startMask | endMask);
                         }
                         else {
 
@@ -244,26 +242,24 @@ UGL_STATUS uglVgaHLine (
                     i = startIndex;
                     len = byteLen;
 
-                    if ((c & colorMask) != 0x00) {
-                        if (len == 1) {
-                            dest[i] ^= (startMask & endMask);
-                        }
-                        else {
+                    if (len == 1) {
+                        dest[i] ^= (startMask & endMask);
+                    }
+                    else {
 
-                            /* Line start */
-                            dest[i++] ^= startMask;
+                        /* Line start */
+                        dest[i++] ^= startMask;
 
-                            /* Line middle */
-                            if (len > 2) {
-                                len--;
-                                while (--len) {
-                                    dest[i++] ^= 0xff;
-                                }
+                        /* Line middle */
+                        if (len > 2) {
+                            len--;
+                            while (--len) {
+                                dest[i++] ^= 0xff;
                             }
-
-                            /* Line end */
-                            dest[i] |= endMask;
                         }
+
+                        /* Line end */
+                        dest[i] ^= endMask;
                     }
                 }
                 break;
@@ -274,5 +270,162 @@ UGL_STATUS uglVgaHLine (
     }
 
     return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglVgaVLine - Draw vertical line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaVLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POS              x,
+    UGL_POS              y1,
+    UGL_POS              y2,
+    UGL_COLOR            c
+    ) {
+    UGL_VGA_DRIVER *    pVga;
+    UGL_GC_ID           gc;
+    UGL_SIZE            bytesPerLine;
+    UGL_UINT8 *         dest;
+    UGL_UINT8           mask;
+    UGL_INT32           height;
+    volatile UGL_UINT8  tmp;
+    UGL_VGA_DDB         *pVgaBmp;
+    UGL_UINT8           colorMask;
+    UGL_INT32           plane;
+    UGL_INT32           numPlanes;
+    UGL_INT32           startIndex;
+    UGL_INT32           i;
+    UGL_INT32           len;
+
+    /* Get driver which is first in the device structure */
+    pVga = (UGL_VGA_DRIVER *) pDrv;
+
+    /* Get graphics context */
+    gc = pDrv->gc;
+
+    if (gc->pDefaultBitmap == UGL_DISPLAY_ID) {
+
+        /* Caclulate variables */
+        bytesPerLine = pVga->bytesPerLine;
+        dest         = ((UGL_UINT8 *) pDrv->fbAddress) +
+                       (y1 * pVga->bytesPerLine) + (x >> 3);
+        mask         = 0x80 >> (x & 0x07);
+        height       = y2 - y1 + 1;
+
+        /* Set color register if needed */
+        if (c != pVga->color) {
+            UGL_OUT_WORD (0x3ce, (UGL_UINT16) (c << 8));
+            pVga->color = c;
+        }
+
+        /* Draw line */
+        while (height--) {
+            tmp = *dest;
+            *dest = mask;
+            dest += bytesPerLine;
+        }
+    }
+    else {
+        pVgaBmp = (UGL_VGA_DDB *) gc->pDefaultBitmap;
+
+        /* Calculate variables */
+        bytesPerLine = (pVgaBmp->header.width + 7) / 8 + 1;
+        numPlanes    = pVgaBmp->colorDepth;
+
+        /* Shift bitmap */
+        x += pVgaBmp->shiftValue;
+
+        /* Caluclate variables */
+        startIndex = y1 * bytesPerLine + (x >> 3);
+        mask       = 0x80 >> (x & 0x07);
+        height     = y2 - y1 + 1;
+        colorMask  = 0x01;
+
+        /* Select raster op */
+        switch (gc->rasterOp) {
+            case UGL_RASTER_OP_COPY:
+                for (plane = 0; plane < numPlanes; plane++) {
+                    dest = pVgaBmp->pPlaneArray[plane];
+                    i = startIndex;
+                    len = height + 1;
+
+                    if ((c & colorMask) != 0x00) {
+                        while (--len) {
+                            dest[i] |= mask;
+                            i += bytesPerLine;
+                        }
+                    }
+                    else {
+                        while (--len) {
+                            dest[i] &= ~mask;
+                            i += bytesPerLine;
+                        }
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+                break;
+
+            case UGL_RASTER_OP_AND:
+                for (plane = 0; plane < numPlanes; plane++) {
+                    dest = pVgaBmp->pPlaneArray[plane];
+                    i = startIndex;
+                    len = height + 1;
+
+                    if ((c & colorMask) == 0x00) {
+                        while (--len) {
+                            dest[i] &= ~mask;
+                            i += bytesPerLine;
+                        }
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+                break;
+
+            case UGL_RASTER_OP_OR:
+                for (plane = 0; plane < numPlanes; plane++) {
+                    dest = pVgaBmp->pPlaneArray[plane];
+                    i = startIndex;
+                    len = height + 1;
+
+                    if ((c & colorMask) != 0x00) {
+                        while (--len) {
+                            dest[i] |= mask;
+                            i += bytesPerLine;
+                        }
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+                break;
+
+            case UGL_RASTER_OP_XOR:
+                for (plane = 0; plane < numPlanes; plane++) {
+                    dest = pVgaBmp->pPlaneArray[plane];
+                    i = startIndex;
+                    len = height + 1;
+
+                    while (--len) {
+                        dest[i] ^= mask;
+                        i += bytesPerLine;
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+                break;
+
+            default:
+                return (UGL_STATUS_ERROR);
+        }
+    }
 }
 

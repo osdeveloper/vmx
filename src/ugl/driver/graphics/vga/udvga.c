@@ -242,6 +242,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
 
             /* Set generic driver methods */
             pDrv->generic.hLine = uglVgaHLine;
+            pDrv->generic.vLine = uglVgaVLine;
 
             /* Set graphics primitives support methods */
             devId->pixelSet = uglVgaPixelSet;

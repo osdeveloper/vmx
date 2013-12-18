@@ -142,6 +142,21 @@ UGL_STATUS uglVgaHLine (
     UGL_COLOR            c
     );
 
+/******************************************************************************
+ *
+ * uglVgaVLine - Draw vertical line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaVLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POS              x,
+    UGL_POS              y1,
+    UGL_POS              y2,
+    UGL_COLOR            c
+    );
+
 /* Palette support functions */
 
 /******************************************************************************
