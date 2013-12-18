@@ -171,7 +171,7 @@ int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   return 0;
 }
 
-int uglBlt4Test(void)
+int uglBlt4Test(UGL_REGION_ID clipRegionId)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -262,16 +262,18 @@ int uglBlt4Test(void)
   srcRect.bottom = pBgBmp->height;
   pt.x = 640 / 2 - pBgBmp->width / 2;
   pt.y = 480 / 2 - pBgBmp->height / 2;
+
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
   if (doubleBuffer == TRUE) {
-    uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 pDbBmp, pt.x, pt.y);
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
   }
   else {
-    uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 UGL_DISPLAY_ID, pt.x, pt.y);
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
   }
+
+  uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
+               srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+               UGL_DEFAULT_ID, pt.x, pt.y);
 
   srcRect.left = 0;
   srcRect.right = pFgBmp->width;
@@ -290,6 +292,7 @@ int uglBlt4Test(void)
   while (pt.y < 480) {
 
     /* Copy background */
+    /* Copy background */
     if (doubleBuffer == TRUE) {
       uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
                    saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
@@ -304,16 +307,9 @@ int uglBlt4Test(void)
     /* Set raster operation and draw ball */
     uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
 
-    if (doubleBuffer == TRUE) {
-      uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   pDbBmp, pt.x, pt.y);
-    }
-    else {
-      uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   UGL_DISPLAY_ID, pt.x, pt.y);
-    }
+    uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DEFAULT_ID, pt.x, pt.y);
 
     uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
 
@@ -329,16 +325,9 @@ int uglBlt4Test(void)
     taskDelay(animTreshold);
 
     /* Erase ball */
-    if (doubleBuffer == TRUE) {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   pDbBmp, pt.x, pt.y);
-    }
-    else {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   UGL_DISPLAY_ID, pt.x, pt.y);
-    }
+    uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DEFAULT_ID, pt.x, pt.y);
 
     /* Move ball */
     pt.x += BALL_SPEED;
@@ -459,7 +448,7 @@ int uglMono4Test(UGL_REGION_ID clipRegionId)
   return 0;
 }
 
-int uglTrans4Test(void)
+int uglTrans4Test(UGL_REGION_ID clipRegionId)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -551,16 +540,18 @@ int uglTrans4Test(void)
   srcRect.bottom = pBgBmp->height;
   pt.x = 640 / 2 - pBgBmp->width / 2;
   pt.y = 480 / 2- pBgBmp->height / 2;
+
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
   if (doubleBuffer == TRUE) {
-    uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 pDbBmp, pt.x, pt.y);
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
   }
   else {
-    uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 UGL_DISPLAY_ID, pt.x, pt.y);
+    uglDefaultBitmapSet(gfxDevId->defaultGc, UGL_NULL);
   }
+
+  uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
+               srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+               UGL_DEFAULT_ID, pt.x, pt.y);
 
   srcRect.left = 0;
   srcRect.right = pFgBmp->width;
@@ -593,16 +584,9 @@ int uglTrans4Test(void)
     /* Set raster operation and draw ball */
     uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
 
-    if (doubleBuffer == TRUE) {
-      uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   pDbBmp, pt.x, pt.y);
-    }
-    else {
-      uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   UGL_DISPLAY_ID, pt.x, pt.y);
-    }
+    uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DEFAULT_ID, pt.x, pt.y);
 
     uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
 
@@ -618,16 +602,9 @@ int uglTrans4Test(void)
     taskDelay(animTreshold);
 
     /* Erase ball */
-    if (doubleBuffer == TRUE) {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   pDbBmp, pt.x, pt.y);
-    }
-    else {
-      uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
-                   srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                   UGL_DISPLAY_ID, pt.x, pt.y);
-    }
+    uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DEFAULT_ID, pt.x, pt.y);
 
     /* Move ball */
     pt.x += BALL_SPEED;

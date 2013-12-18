@@ -1053,6 +1053,8 @@ UGL_STATUS uglVgaBitmapBlt (
     UGL_POINT            destPoint;
     UGL_RECT             destRect;
     UGL_RECT             clipRect;
+    const UGL_RECT *     pRect;
+    UGL_BLT_DIR          rectOrder;
 
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -1060,52 +1062,80 @@ UGL_STATUS uglVgaBitmapBlt (
     /* Get gc */
     gc = pDrv->gc;
 
+    /* Start at beginning of clip region list */
+    pRect     = UGL_NULL;
+    rectOrder = 0;
+
     if (srcBmpId == UGL_DEFAULT_ID) {
         UGL_RECT_MOVE (*pSrcRect, gc->viewPort.left, gc->viewPort.top);
     }
 
     if (destBmpId == UGL_DEFAULT_ID) {
+
+        /* Enable clipping region rectnagles if destination is default bitmap */
+        if  (pDestPoint->x > pSrcRect->left) {
+            rectOrder |= UGL_BLT_RIGHT;
+        }
+
+        if (pDestPoint->y > pSrcRect->top) {
+            rectOrder |= UGL_BLT_DOWN;
+        }
+
+        if (uglClipListSortedGet (gc, &clipRect, &pRect,
+                                  rectOrder) != UGL_STATUS_OK) {
+            return (UGL_STATUS_OK);
+        }
+
         UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
     }
 
-    /* Store source and dest */
-    pSrcBmp  = (UGL_VGA_DDB *) srcBmpId;
-    pDestBmp = (UGL_VGA_DDB *) destBmpId;
+    do {
+        /* Store source and dest */
+        pSrcBmp  = (UGL_VGA_DDB *) srcBmpId;
+        pDestBmp = (UGL_VGA_DDB *) destBmpId;
 
-    /* Store source rectangle */
-    srcRect.top    = pSrcRect->top;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
-    srcRect.bottom = pSrcRect->bottom;
+        /* Store source rectangle */
+        UGL_RECT_COPY (&srcRect, pSrcRect);
 
-    /* Store starting point */
-    destPoint.x = pDestPoint->x;
-    destPoint.y = pDestPoint->y;
+        /* Store starting point */
+        UGL_POINT_COPY (&destPoint, pDestPoint);
 
-    /* Clip */
-    if (uglGenericClipDdbToDdb (devId, &clipRect,
-                           (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
-                           (UGL_BMAP_ID *) &pDestBmp, &destPoint) == UGL_TRUE) {
+        /* Clip */
+        if (uglGenericClipDdbToDdb (devId, &clipRect,
+                                    (UGL_BMAP_ID *) &pSrcBmp,
+                                    &srcRect,
+                                    (UGL_BMAP_ID *) &pDestBmp,
+                                    &destPoint) == UGL_TRUE) {
 
-        /* Calculate destination */
-        destRect.left = 0;
-        destRect.top  = 0;
-        UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
-        UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
-                          UGL_RECT_HEIGHT(srcRect));
+            /* Calculate destination */
+            destRect.left = 0;
+            destRect.top  = 0;
+            UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
+            UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH(srcRect),
+                              UGL_RECT_HEIGHT(srcRect));
 
-        /* Blit */
-        if (srcBmpId != UGL_DISPLAY_ID && destBmpId == UGL_DISPLAY_ID) {
-            uglVgaBltColorToFrameBuffer (devId, pSrcBmp, &srcRect, &destRect);
+            /* Blit */
+            if ((UGL_DDB_ID) pSrcBmp == UGL_DISPLAY_ID) {
+                uglVgaBltFrameBufferToColor (devId, &srcRect,
+                                             pDestBmp, &destRect);
+            }
+            else if ((UGL_DDB_ID) pDestBmp == UGL_DISPLAY_ID) {
+                uglVgaBltColorToFrameBuffer (devId, pSrcBmp, &srcRect,
+                                             &destRect);
+            }
+            else {
+                uglVgaBltColorToColor (devId, pSrcBmp, &srcRect,
+                                       pDestBmp, &destRect);
+            }
         }
-        else if (srcBmpId == UGL_DISPLAY_ID && destBmpId != UGL_DISPLAY_ID) {
-            uglVgaBltFrameBufferToColor (devId, &srcRect, pDestBmp, &destRect);
+
+        /* Only process clipping region rectangles if default bitmap */
+        if (destBmpId != UGL_DEFAULT_ID) {
+            break;
         }
-        else {
-            uglVgaBltColorToColor (devId, pSrcBmp, &srcRect,
-                                   pDestBmp, &destRect);
-        }
-    }
+
+    } while (uglClipListSortedGet (gc, &clipRect, &pRect,
+                                   rectOrder) == UGL_STATUS_OK);
 
     return (UGL_STATUS_OK);
 }

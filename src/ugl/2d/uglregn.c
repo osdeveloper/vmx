@@ -796,7 +796,7 @@ UGL_STATUS uglRegionRectSortedGet (
                 break;
 
             case UGL_BR2TL:
-                pRegionRect = pRegion->pFirstTL2BR;
+                pRegionRect = pRegion->pLastTL2BR;
                 break;
 
             case UGL_TR2BL:
@@ -804,7 +804,7 @@ UGL_STATUS uglRegionRectSortedGet (
                 break;
 
             case UGL_BL2TR:
-                pRegionRect = pRegion->pFirstTR2BL;
+                pRegionRect = pRegion->pLastTR2BL;
                 break;
 
             default:
