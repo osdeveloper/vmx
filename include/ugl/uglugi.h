@@ -309,7 +309,7 @@ typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
             _status = UGL_STATUS_FINISHED;                                    \
         }                                                                     \
         else {                                                                \
-            _status = uglClipRegionNext ((gc), &(clipRect), &_pRegionRect);   \
+            _status = uglClipListGet ((gc), &(clipRect), &_pRegionRect);      \
             if (_status != UGL_STATUS_OK) {                                   \
                 break;                                                        \
             }                                                                 \

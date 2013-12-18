@@ -194,12 +194,12 @@ UGL_STATUS uglRasterModeSet (
 
 /******************************************************************************
  *
- * uglClipRegionSortedNext - Get sorted clip rectangles from graphics context
+ * uglClipListSortedGet - Get sorted clip rectangles from graphics context
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglClipRegionSortedNext (
+UGL_STATUS uglClipListSortedGet (
     UGL_GC_ID         gc,
     UGL_RECT *        pRect,
     const UGL_RECT ** ppRect,
@@ -208,12 +208,12 @@ UGL_STATUS uglClipRegionSortedNext (
 
 /******************************************************************************
  *
- * uglClipRegionNext - Get clip rectangles from graphics context
+ * uglClipListGet - Get clip rectangles from graphics context
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglClipRegionNext (
+UGL_STATUS uglClipListGet (
     UGL_GC_ID         gc,
     UGL_RECT *        pRect,
     const UGL_RECT ** ppRect
