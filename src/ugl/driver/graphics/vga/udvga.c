@@ -241,11 +241,13 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->colorPlanes  = devId->pMode->depth;
 
             /* Set generic driver methods */
-            pDrv->generic.hLine = uglVgaHLine;
-            pDrv->generic.vLine = uglVgaVLine;
+            pDrv->generic.hLine =         uglVgaHLine;
+            pDrv->generic.vLine =         uglVgaVLine;
+            pDrv->generic.bresenhamLine = uglVgaBresenhamLine;
 
             /* Set graphics primitives support methods */
             devId->pixelSet = uglVgaPixelSet;
+            devId->line     = uglGenericLine;
 
             /* Setup bitmap support methods */
             devId->bitmapCreate       = uglVgaBitmapCreate;

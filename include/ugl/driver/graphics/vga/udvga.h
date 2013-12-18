@@ -157,6 +157,25 @@ UGL_STATUS uglVgaVLine (
     UGL_COLOR            c
     );
 
+/******************************************************************************
+ *
+ * uglVgaBresenhamLine - Draw bresenham line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBresenhamLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POINT *          pStartPoint,
+    UGL_SIZE             numPoints,
+    UGL_BOOL             xMajor,
+    UGL_ORD              majorInc,
+    UGL_ORD              minorInc,
+    UGL_ORD              errorValue,
+    UGL_ORD              majorErrorInc,
+    UGL_ORD              minorErrorInc
+    );
+
 /* Palette support functions */
 
 /******************************************************************************

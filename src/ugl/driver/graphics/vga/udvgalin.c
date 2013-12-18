@@ -312,7 +312,7 @@ UGL_STATUS uglVgaVLine (
         /* Caclulate variables */
         bytesPerLine = pVga->bytesPerLine;
         dest         = ((UGL_UINT8 *) pDrv->fbAddress) +
-                       (y1 * pVga->bytesPerLine) + (x >> 3);
+                       (y1 * bytesPerLine) + (x >> 3);
         mask         = 0x80 >> (x & 0x07);
         height       = y2 - y1 + 1;
 
@@ -427,5 +427,220 @@ UGL_STATUS uglVgaVLine (
                 return (UGL_STATUS_ERROR);
         }
     }
+}
+
+/******************************************************************************
+ *
+ * uglVgaBresenhamLine - Draw bresenham line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBresenhamLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POINT *          pStartPoint,
+    UGL_SIZE             numPoints,
+    UGL_BOOL             xMajor,
+    UGL_ORD              majorInc,
+    UGL_ORD              minorInc,
+    UGL_ORD              errorValue,
+    UGL_ORD              majorErrorInc,
+    UGL_ORD              minorErrorInc
+    ) {
+    UGL_VGA_DRIVER *    pVga;
+    UGL_GC_ID           gc;
+    UGL_COLOR           c;
+    UGL_SIZE            stride;
+    UGL_INT32           xDir;
+    UGL_INT32           plane;
+    UGL_INT32           numPlanes;
+    UGL_UINT8 *         dest;
+    UGL_UINT8           colorMask;
+    UGL_UINT8           mask;
+    UGL_VGA_DDB *       pVgaBmp;
+    volatile UGL_UINT8  tmp;
+    UGL_INT32           i;
+
+    /* Get driver which is first in the device structure */
+    pVga = (UGL_VGA_DRIVER *) pDrv;
+
+    /* Get graphics context */
+    gc = pDrv->gc;
+
+    /* Get foreground color */
+    c = gc->foregroundColor;
+
+    if (gc->pDefaultBitmap == UGL_DISPLAY_ID) {
+
+        /* Calculate variables */
+        stride = pVga->bytesPerLine;
+        dest   = ((UGL_UINT8 *) pDrv->fbAddress) +
+                 (pStartPoint->y * stride) + (pStartPoint->x >> 3);
+        mask         = 0x80 >> (pStartPoint->x & 0x07);
+
+        if (xMajor == UGL_TRUE) {
+            stride *= minorInc;
+            xDir = majorInc;
+        }
+        else {
+            stride *= majorInc;
+            xDir = minorInc;
+        }
+
+        /* Set color register if needed */
+        if (c != pVga->color) {
+            UGL_OUT_WORD (0x3ce, (UGL_UINT16) (c << 8));
+            pVga->color = c;
+        }
+
+        /* Draw line */
+        while (numPoints-- > 0) {
+            tmp = *dest;
+            *dest = mask;
+
+            if (errorValue >= 0 || xMajor == UGL_FALSE) {
+                dest += stride;
+            }
+
+            if (errorValue >= 0 || xMajor == UGL_TRUE) {
+                if (xDir == 1) {
+                    if ((mask >>= 1) == 0x00) {
+                        dest++;
+                        mask = 0x80;
+                    }
+                }
+                else {
+                    if ((mask <<= 1) == 0x00) {
+                        dest--;
+                        mask = 0x01;
+                    }
+                }
+            }
+
+            if (errorValue >= 0) {
+                errorValue += minorErrorInc;
+            }
+
+            errorValue += majorErrorInc;
+        }
+    }
+    else {
+
+        /* Destinaion is memory bitmap */
+        pVgaBmp = (UGL_VGA_DDB *) gc->pDefaultBitmap;
+
+        /* Calculate variables */
+        stride    = (pVgaBmp->header.width + 7) / 8 + 1;
+        numPlanes = pVgaBmp->colorDepth;
+
+        /* Shift coordinate */
+        pStartPoint->x += pVgaBmp->shiftValue;
+
+        /* Calculate variables */
+        i    = pStartPoint->y * stride + (pStartPoint->x >> 3);
+        mask = 0x80 >> (pStartPoint->x & 0x07);
+
+        if (xMajor == UGL_TRUE) {
+            stride *= minorInc;
+            xDir = majorInc;
+        }
+        else {
+            stride *= majorInc;
+            xDir = minorInc;
+        }
+
+        /* Draw line */
+        while (numPoints-- > 0) {
+            colorMask = 0x01;
+
+            /* Select raster op */
+            switch (gc->rasterOp) {
+                case UGL_RASTER_OP_COPY:
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        dest = pVgaBmp->pPlaneArray[plane];
+
+                        if ((c & colorMask) != 0) {
+                            dest[i] |= mask;
+                        }
+                        else {
+                            dest[i] &= ~mask;
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                    break;
+
+                case UGL_RASTER_OP_AND:
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        dest = pVgaBmp->pPlaneArray[plane];
+
+                        if ((c & colorMask) == 0) {
+                            dest[i] &= ~mask;
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                    break;
+
+                case UGL_RASTER_OP_OR:
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        dest = pVgaBmp->pPlaneArray[plane];
+
+                        if ((c & colorMask) != 0) {
+                            dest[i] |= mask;
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                    break;
+
+                case UGL_RASTER_OP_XOR:
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        dest = pVgaBmp->pPlaneArray[plane];
+
+                        if ((c & colorMask) != 0) {
+                            dest[i] ^= mask;
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                    break;
+
+                default:
+                    return (UGL_STATUS_ERROR);
+            }
+
+            if (errorValue >= 0 || xMajor == UGL_FALSE) {
+                i += stride;
+            }
+
+            if (errorValue >= 0 || xMajor == UGL_TRUE) {
+                if (xDir == 1) {
+                    if ((mask >>= 1) == 0x00) {
+                        i++;
+                        mask = 0x80;
+                    }
+                }
+                else {
+                    if ((mask <<= 1) == 0x00) {
+                        i--;
+                        mask = 0x01;
+                    }
+                }
+            }
+
+            if (errorValue >= 0) {
+                errorValue += minorErrorInc;
+            }
+
+            errorValue += majorErrorInc;
+        }
+    }
+
+    return (UGL_STATUS_OK);
 }
 

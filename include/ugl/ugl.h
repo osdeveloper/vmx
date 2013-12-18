@@ -309,6 +309,23 @@ UGL_STATUS uglColorFree (
     UGL_SIZE       numColors
     );
 
+/* Line drawing support functions */
+
+/******************************************************************************
+ *
+ * uglLine - Draw line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglLine (
+    UGL_GC_ID  gc,
+    UGL_POS    x1,
+    UGL_POS    y1,
+    UGL_POS    x2,
+    UGL_POS    y2
+    );
+
 /* Bitmap support functions */
 
 /******************************************************************************

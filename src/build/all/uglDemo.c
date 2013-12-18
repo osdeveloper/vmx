@@ -179,7 +179,7 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_POINT dbPt;
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
-  int i, x, x1, x2;
+  int i, y, x, x1, x2;
 
   if (maxtimes <= 0) {
     maxtimes = 1000;
@@ -239,6 +239,7 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   for (i = 0; i < maxtimes; i++) {
     x1 = rand () % 640;
     x2 = rand () % 640;
+    y = rand () % 480;
     if (x1 > x2) {
         x = x1;
         x1 = x2;
@@ -246,7 +247,8 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     }
 
     uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
-    (*pDrv->generic.hLine)(&pDrv->generic, rand() % 480, x1, x2, rand () % 16);
+    uglForegroundColorSet (gfxDevId->defaultGc, rand () % 16);
+    uglLine (gfxDevId->defaultGc, x1, y, x2, y);
     uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
 
     taskDelay(animTreshold);
@@ -277,7 +279,7 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_POINT dbPt;
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
-  int i, y, y1, y2;
+  int i, x, y, y1, y2;
 
   if (maxtimes <= 0) {
     maxtimes = 1000;
@@ -335,6 +337,7 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   dbPt.y = 0;
 
   for (i = 0; i < maxtimes; i++) {
+    x = rand () % 640;
     y1 = rand () % 480;
     y2 = rand () % 480;
     if (y1 > y2) {
@@ -344,7 +347,8 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     }
 
     uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
-    (*pDrv->generic.vLine)(&pDrv->generic, rand() % 640, y1, y2, rand () % 16);
+    uglForegroundColorSet (gfxDevId->defaultGc, rand () % 16);
+    uglLine (gfxDevId->defaultGc, x, y1, x, y2);
     uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
 
     /* Draw double buffer on screen */

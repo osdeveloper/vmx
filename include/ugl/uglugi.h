@@ -163,6 +163,13 @@ typedef struct ugl_ugi_driver {
         UGL_SIZE                arraySize
         );
 
+    /* Line drawing */
+    UGL_STATUS   (*line) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_POINT *             p1,
+        UGL_POINT *             p2
+        );
+
     /* Bitmap support */
 
     UGL_DDB *    (*bitmapCreate) (

@@ -61,11 +61,33 @@ typedef struct ugl_generic_driver {
     UGL_CLUT *      pClut;              /* Palette */
 
     /* Generic methods */
-    UGL_STATUS      (*hLine) (struct ugl_generic_driver * pDrv,
-                              UGL_POS y, UGL_POS x1, UGL_POS x2, UGL_COLOR c);
+    UGL_STATUS      (*hLine) (
+        struct ugl_generic_driver * pDrv,
+        UGL_POS                     y,
+        UGL_POS                     x1,
+        UGL_POS                     x2,
+        UGL_COLOR                   c
+        );
 
-    UGL_STATUS      (*vLine) (struct ugl_generic_driver * pDrv,
-                              UGL_POS x, UGL_POS y1, UGL_POS y2, UGL_COLOR c);
+    UGL_STATUS      (*vLine) (
+        struct ugl_generic_driver * pDrv,
+        UGL_POS                     x,
+        UGL_POS                     y1,
+        UGL_POS                     y2,
+        UGL_COLOR                   c
+        );
+
+    UGL_STATUS      (*bresenhamLine) (
+        struct ugl_generic_driver * pDrv,
+        UGL_POINT *                 pStartPoint,
+        UGL_SIZE                    numPoints,
+        UGL_BOOL                    xMajor,
+        UGL_ORD                     majorInc,
+        UGL_ORD                     minorInc,
+        UGL_ORD                     errorValue,
+        UGL_ORD                     majorErrorInc,
+        UGL_ORD                     minorErrorInc
+        );
 
 } UGL_GENERIC_DRIVER;
 
@@ -277,6 +299,21 @@ UGL_BOOL uglGenericClipDdbToDib (
     UGL_RECT *     pSrcRect,
     UGL_DIB *      pDib,
     UGL_POINT *    pDestPoint
+    );
+
+/* Generic line drawing support functions */
+
+/******************************************************************************
+ *
+ * uglGenericLine - Draw a generic line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericLine (
+    UGL_DEVICE_ID  devId,
+    UGL_POINT *    p1,
+    UGL_POINT *    p2
     );
 
 /* Generic transparent bitmap support functions */
