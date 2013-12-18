@@ -59,6 +59,11 @@ typedef struct ugl_generic_driver {
     UGL_GEN_DDB *   scratchBitmap;      /* Scratch bitmap */
     UGL_ORD         transBitmapCount;   /* Scratch bitmap reference count */
     UGL_CLUT *      pClut;              /* Palette */
+
+    /* Generic methods */
+    UGL_STATUS      (*hLine) (struct ugl_generic_driver * pDrv,
+                              UGL_POS y, UGL_POS x1, UGL_POS x2, UGL_COLOR c);
+
 } UGL_GENERIC_DRIVER;
 
 /* Generic mode support functions */

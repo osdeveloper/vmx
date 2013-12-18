@@ -125,6 +125,23 @@ UGL_STATUS uglVgaPixelSet (
     UGL_COLOR      c
     );
 
+/* Line support functions */
+
+/******************************************************************************
+ *
+ * uglVgaHLine - Draw horiznotal line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaHLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POS              y,
+    UGL_POS              x1,
+    UGL_POS              x2,
+    UGL_COLOR            c
+    );
+
 /* Palette support functions */
 
 /******************************************************************************

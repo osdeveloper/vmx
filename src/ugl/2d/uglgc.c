@@ -72,41 +72,45 @@ UGL_GC_ID uglGcCreate (
     height = (UGL_POS) devId->pMode->height;
 
     /* Initialize driver reference */
-    gc->pDriver           =       devId;
+    gc->pDriver = devId;
 
     /* Set display as default rendering area */
-    gc->pDefaultBitmap    =       UGL_DISPLAY_ID;
+    gc->pDefaultBitmap = UGL_DISPLAY_ID;
 
     /* Initialize bounding rectagle */
-    gc->boundRect.left    =       0;
-    gc->boundRect.top     =       0;
-    gc->boundRect.right   =       width - 1;
-    gc->boundRect.bottom  =       height - 1;
+    gc->boundRect.left   = 0;
+    gc->boundRect.top    = 0;
+    gc->boundRect.right  = width - 1;
+    gc->boundRect.bottom = height - 1;
 
     /* Initialize viewport */
-    gc->viewPort.left     =       0;
-    gc->viewPort.top      =       0;
-    gc->viewPort.right    =       width - 1;
-    gc->viewPort.bottom   =       height - 1;
+    gc->viewPort.left   = 0;
+    gc->viewPort.top    = 0;
+    gc->viewPort.right  = width - 1;
+    gc->viewPort.bottom = height - 1;
 
     /* Initialize clipping rectagle */
-    gc->clipRect.left     =       0;
-    gc->clipRect.top      =       0;
-    gc->clipRect.right    =       width - 1;
-    gc->clipRect.bottom   =       height - 1;
+    gc->clipRect.left   = 0;
+    gc->clipRect.top    = 0;
+    gc->clipRect.right  = width - 1;
+    gc->clipRect.bottom = height - 1;
 
     /* Initialize colors */
-    gc->foregroundColor   =       1;
-    gc->backgroundColor   =       0;
+    gc->foregroundColor = 1;
+    gc->backgroundColor = 0;
 
     /* Initialize raster operation */
-    gc->rasterOp          =       UGL_RASTER_OP_COPY;
+    gc->rasterOp = UGL_RASTER_OP_COPY;
+
+    /* Set line attributes */
+    gc->lineWidth = 1;
+    gc->lineStyle = UGL_LINE_STYLE_SOLID;
 
     /* Mark all attributes as changed */
-    gc->changed           = 0xffffffff;
+    gc->changed = 0xffffffff;
 
     /* Set context magic number id */
-    gc->magicNumber       = uglMagicNumber;
+    gc->magicNumber = uglMagicNumber;
 
     /* Unlock */
     uglOSUnlock (devId->lockId);

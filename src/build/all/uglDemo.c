@@ -171,6 +171,62 @@ int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   return 0;
 }
 
+int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
+{
+  UGL_VGA_DRIVER *pDrv;
+  UGL_MODE gfxMode;
+  struct vgaHWRec oldRegs;
+  int i, x, x1, x2;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
+
+  if (gfxDevId == UGL_NULL) {
+    printf("No compatible graphics device found.\n");
+    return 1;
+  }
+
+  vgaSave(&oldRegs);
+
+  /* Enter video mode */
+  gfxMode.width = 640;
+  gfxMode.height = 480;
+  gfxMode.depth = 4;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
+
+  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+    return 1;
+  }
+
+  /* Set palette */
+  setPalette();
+
+  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+
+  pDrv = (UGL_VGA_DRIVER *) gfxDevId;
+
+  for (i = 0; i < maxtimes; i++) {
+    x1 = rand () % 640;
+    x2 = rand () % 640;
+    if (x1 > x2) {
+        x = x1;
+        x1 = x2;
+        x2 = x1;
+    }
+    (*pDrv->generic.hLine)(&pDrv->generic, rand() % 480, x1, x2, rand () % 16);
+    taskDelay(animTreshold);
+  }
+
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
 int uglBlt4Test(UGL_REGION_ID clipRegionId)
 {
   UGL_MODE gfxMode;
@@ -933,6 +989,7 @@ void uglDemoInit()
 {
 static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglPixel4Test", uglPixel4Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglHLine4Test", uglHLine4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt4Test", uglBlt4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglMono4Test", uglMono4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglTrans4Test", uglTrans4Test, 0, N_TEXT | N_EXT},

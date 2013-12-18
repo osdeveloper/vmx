@@ -240,6 +240,9 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->bytesPerLine = devId->pMode->width / 8;
             pDrv->colorPlanes  = devId->pMode->depth;
 
+            /* Set generic driver methods */
+            pDrv->generic.hLine = uglVgaHLine;
+
             /* Set graphics primitives support methods */
             devId->pixelSet = uglVgaPixelSet;
 

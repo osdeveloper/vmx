@@ -49,6 +49,8 @@ typedef struct ugl_gc {
     UGL_COLOR               foregroundColor;    /* Foreground color */
     UGL_COLOR               backgroundColor;    /* Background color */
     UGL_RASTER_OP           rasterOp;           /* Raster operation */
+    UGL_SIZE                lineWidth;          /* Line width */
+    UGL_LINE_STYLE          lineStyle;          /* Line style pattern */
     UGL_UINT32              changed;            /* Changed flags */
     UGL_UINT32              magicNumber;        /* GC id and changed status */
     UGL_LOCK_ID             lockId;             /* Mutex */

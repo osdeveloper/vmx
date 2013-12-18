@@ -34,6 +34,10 @@
 #define UGL_RASTER_OP_OR        0x00020003
 #define UGL_RASTER_OP_XOR       0x00020004
 
+/* UGL_LINE_STYLE */
+#define UGL_LINE_STYLE_SOLID    0xffffffff
+#define UGL_LINE_STYLE_DASHED   0xf0f0f0f0
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
@@ -61,6 +65,7 @@ typedef int                     UGL_STATUS;
 typedef char                    UGL_CHAR;
 typedef UGL_UINT16              UGL_WCHAR;
 typedef UGL_UINT32              UGL_RASTER_OP;
+typedef UGL_UINT32              UGL_LINE_STYLE;
 typedef UGL_UINT32              UGL_COLOR;
 typedef UGL_UINT32              UGL_TIMESTAMP;
 typedef UGL_UINT32              UGL_TIMEOUT;
