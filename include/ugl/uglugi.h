@@ -38,6 +38,9 @@ extern "C" {
 #define UGL_GC_FOREGROUND_COLOR_CHANGED         0x00000010
 #define UGL_GC_BACKGROUND_COLOR_CHANGED         0x00000020
 #define UGL_GC_RASTER_OP_CHANGED                0x00000040
+#define UGL_GC_LINE_WIDTH_CHANGED               0x00000080
+#define UGL_GC_LINE_STYLE_CHANGED               0x00000100
+#define UGL_GC_PATTERN_BITMAP_CHANGED           0x00000200
 
 typedef struct ugl_gc {
     struct ugl_ugi_driver * pDriver;            /* Current driver */

@@ -40,7 +40,8 @@
 #include "font8x16.cfs"
 
 #define LOOP_PAL_LENGTH         16
-#define BALL_SPEED 4
+#define BALL_SPEED              4
+#define DB_CLEAR_COLOR          0x06
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
@@ -51,6 +52,7 @@ UGL_DIB bgDib, fgDib;
 UGL_MDIB mDib;
 UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
+BOOL fillPattern = TRUE;
 int animTreshold = 1;
 
 int createDib(void)
@@ -209,7 +211,7 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer\n");
@@ -306,7 +308,7 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer\n");
@@ -403,7 +405,7 @@ int uglLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer\n");
@@ -457,6 +459,7 @@ int uglLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 {
   UGL_DDB *pDbBmp;
+  UGL_MDDB *pMddb;
   UGL_RECT dbSrcRect;
   UGL_POINT dbPt;
   UGL_MODE gfxMode;
@@ -494,10 +497,23 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  if (fillPattern == TRUE) {
+    pMddb = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
+                                0, gfxPartId);
+    if (pMddb == UGL_NULL) {
+      if (doubleBuffer == TRUE) {
+        uglBitmapDestroy(gfxDevId, pDbBmp);
+      }
+      restoreConsole(&oldRegs);
+      printf("Unable to create monochrome image\n");
       return 1;
     }
   }
@@ -518,6 +534,10 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   dbPt.x = 0;
   dbPt.y = 0;
 
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gfxDevId->defaultGc, pMddb);
+  }
+
   for (i = 0; i < maxtimes; i++) {
     x1 = rand() % 640;
     y1 = rand () % 480;
@@ -537,6 +557,7 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     }
 
     uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
+    uglForegroundColorSet(gfxDevId->defaultGc, rand () % 16);
     uglBackgroundColorSet(gfxDevId->defaultGc, rand () % 16);
     uglRectangle(gfxDevId->defaultGc, x1, y1, x2, y2);
     uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
@@ -552,6 +573,14 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     taskDelay(animTreshold);
   }
 
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gfxDevId->defaultGc, UGL_NULL);
+  }
+
+  if (fillPattern == TRUE) {
+    uglMonoBitmapDestroy(gfxDevId, pMddb);
+  }
+
   if (doubleBuffer == TRUE) {
     uglBitmapDestroy(gfxDevId, pDbBmp);
   }
@@ -561,7 +590,7 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   return 0;
 }
 
-int uglBlt4Test(UGL_REGION_ID clipRegionId)
+int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -594,7 +623,7 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer\n");
@@ -665,10 +694,22 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId)
                srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                UGL_DEFAULT_ID, pt.x, pt.y);
 
-  srcRect.left = 0;
-  srcRect.right = pFgBmp->width;
-  srcRect.top = 0;
-  srcRect.bottom = pFgBmp->height;
+  srcRect.left = x1;
+  srcRect.top = y1;
+  if (x2 == 0) {
+    srcRect.right = pFgBmp->width;
+  }
+  else {
+    srcRect.right = x2;
+  }
+
+  if (y2 == 0) {
+    srcRect.bottom = pFgBmp->height;
+  }
+  else {
+    srcRect.bottom = y2;
+  }
+
   pt.x = -pFgBmp->width;
   pt.y = -pFgBmp->height;
 
@@ -739,7 +780,7 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId)
   return 0;
 }
 
-int uglMono4Test(UGL_REGION_ID clipRegionId)
+int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 {
   UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
@@ -793,10 +834,22 @@ int uglMono4Test(UGL_REGION_ID clipRegionId)
   uglBackgroundColorSet(gfxDevId->defaultGc, 4);
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
 
-  srcRect.left = 0;
-  srcRect.right = pMddb->width;
-  srcRect.top = 0;
-  srcRect.bottom = pMddb->height;
+  srcRect.left = x1;
+  srcRect.top = y1;
+  if (x2 == 0) {
+    srcRect.right = pMddb->width;
+  }
+  else {
+    srcRect.right = x2;
+  }
+
+  if (y2 == 0) {
+    srcRect.bottom = pMddb->height;
+  }
+  else {
+    srcRect.bottom = y2;
+  }
+
   pt.x = -pMddb->width;
   pt.y = -pMddb->height;
 
@@ -872,7 +925,7 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer\n");
@@ -1095,7 +1148,7 @@ int uglBlt8Test(void)
 
   if (doubleBuffer == TRUE) {
     pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
-                             14, gfxPartId);
+                             DB_CLEAR_COLOR, gfxPartId);
     if (pDbBmp == UGL_NULL) {
       restoreConsole(&oldRegs);
       printf("Unable to create double buffer image\n");
@@ -1280,6 +1333,18 @@ int uglToggleDoubleBuffer(void)
   }
 }
 
+int uglToggleFillPattern(void)
+{
+  if (fillPattern == TRUE) {
+    fillPattern = FALSE;
+    printf("Fill pattern set to off.\n");
+  }
+  else {
+    fillPattern = TRUE;
+    printf("Fill pattern set to on.\n");
+  }
+}
+
 int uglConvertTest(void)
 {
   int i;
@@ -1338,6 +1403,7 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglRasterOpOr", uglRasterOpOr, 0, N_TEXT | N_EXT},
   {NULL, "_uglRasterOpXor", uglRasterOpXor, 0, N_TEXT | N_EXT},
   {NULL, "_uglToggleDoubleBuffer", uglToggleDoubleBuffer, 0, N_TEXT | N_EXT},
+  {NULL, "_uglToggleFillPattern", uglToggleFillPattern, 0, N_TEXT | N_EXT},
   {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
   {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
 };

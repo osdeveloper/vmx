@@ -156,7 +156,6 @@ UGL_DDB_ID uglVgaBitmapCreate (
             }
             break;
 
-            /* None */
             default:
                 break;
     }
@@ -189,7 +188,7 @@ UGL_STATUS uglVgaBitmapDestroy (
  * RETURNS: N/A
  */
 
-UGL_LOCAL void uglVgaShiftBitmap (
+UGL_LOCAL UGL_VOID uglVgaShiftBitmap (
     UGL_DEVICE_ID     devId,
     UGL_BMAP_HEADER * pBmp,
     UGL_UINT8 **      pPlaneArray,
@@ -351,7 +350,7 @@ UGL_LOCAL uglVgaBltAlign (
  * RETURNS: N/A
  */
 
-UGL_LOCAL void uglVgaBltPlane (
+UGL_LOCAL UGL_VOID uglVgaBltPlane (
     UGL_DEVICE_ID  devId,
     UGL_UINT8 *    pSrc,
     UGL_RECT *     pSrcRect,
@@ -625,7 +624,7 @@ UGL_LOCAL void uglVgaBltPlane (
  * RETURNS: N/A
  */
 
-UGL_LOCAL void uglVgaBltColorToColor (
+UGL_LOCAL UGL_VOID uglVgaBltColorToColor (
     UGL_DEVICE_ID  devId,
     UGL_VGA_DDB *  pSrcBmp,
     UGL_RECT *     pSrcRect,
@@ -675,7 +674,7 @@ UGL_LOCAL void uglVgaBltColorToColor (
  * RETURNS: N/A
  */
 
-UGL_LOCAL void uglVgaBltColorToFrameBuffer (
+UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     UGL_DEVICE_ID  devId,
     UGL_VGA_DDB *  pBmp,
     UGL_RECT *     pSrcRect,
@@ -830,7 +829,7 @@ UGL_LOCAL void uglVgaBltColorToFrameBuffer (
  * RETURNS: N/A
  */
 
-UGL_LOCAL void uglVgaBltFrameBufferToColor (
+UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     UGL_DEVICE_ID devId,
     UGL_RECT *    pSrcRect,
     UGL_VGA_DDB * pBmp,
@@ -1024,7 +1023,6 @@ UGL_LOCAL void uglVgaBltFrameBufferToColor (
                }
                break;
 
-               /* Default case */
                default:
                    break;
        }
@@ -1498,7 +1496,7 @@ UGL_STATUS uglVgaMonoBitmapDestroy (
  * RETURNS: N/A
  */
 
-UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
+UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     UGL_DEVICE_ID  devId,
     UGL_VGA_MDDB * pBmp,
     UGL_RECT *     pSrcRect,
@@ -1690,6 +1688,326 @@ UGL_LOCAL void uglVgaBltMonoToFrameBuffer(
 
 /******************************************************************************
  *
+ * uglVgaMonoBitmapBltToColor - Blit from mono-bitmap to memory bitmap
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL UGL_VOID uglVgaBltMonoToColor (
+    UGL_DEVICE_ID  devId,
+    UGL_VGA_MDDB * pSrcBmp,
+    UGL_RECT *     pSrcRect,
+    UGL_VGA_DDB *  pDestBmp,
+    UGL_RECT *     pDestRect
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_GC_ID            gc;
+    UGL_SIZE             srcStride;
+    UGL_SIZE             destStride;
+    UGL_COLOR            fg;
+    UGL_COLOR            bg;
+    UGL_COLOR            colorMask;
+    UGL_UINT8 *          src;
+    UGL_INT32            plane;
+    UGL_INT32            numPlanes;
+    UGL_RASTER_OP        rasterOp;
+
+    /* Get driver first in device struct */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get gc */
+    gc = pDrv->gc;
+
+    /* Cache gc attributes */
+    fg = gc->foregroundColor;
+    bg = gc->backgroundColor;
+
+    /* Calcucalte variables */
+    srcStride  = (pSrcBmp->header.width + 7) / 8 + 1;
+    destStride = (pDestBmp->header.width + 7) / 8 + 1;
+    numPlanes  = pDestBmp->colorDepth;
+    colorMask  = 0x01;
+
+    uglVgaBltAlign (devId, (UGL_BMAP_HEADER *) pSrcBmp, pSrcRect,
+                    pDestBmp, pDestRect);
+
+    /* Select raster op */
+    switch (gc->rasterOp) {
+        case UGL_RASTER_OP_COPY:
+            if (fg != UGL_COLOR_TRANSPARENT) {
+                if (bg != UGL_COLOR_TRANSPARENT) {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        if ((fg & colorMask) != 0x00) {
+                            if ((bg & colorMask) != 0x00) {
+                                src = (UGL_UINT8 *) -1;
+                            }
+                            else {
+                                src = pSrcBmp->pPlaneArray[0];
+                            }
+                        }
+                        else if ((bg & colorMask) != 0x00) {
+                            src = pSrcBmp->pPlaneArray[1];
+                        }
+                        else {
+                            src = (UGL_UINT8 *) 0;
+                        }
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, src, pSrcRect,
+                                        srcStride, pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride,
+                                        UGL_RASTER_OP_COPY);
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+                else {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        if ((fg & colorMask) != 0x00) {
+                            src = pSrcBmp->pPlaneArray[0];
+                            rasterOp = UGL_RASTER_OP_OR;
+                        }
+                        else {
+                            src = pSrcBmp->pPlaneArray[1];
+                            rasterOp = UGL_RASTER_OP_AND;
+                        }
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, src, pSrcRect,
+                                        srcStride, pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride, rasterOp);
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+            }
+            else if (bg != UGL_COLOR_TRANSPARENT) {
+                for (plane = 0; plane < numPlanes; plane++) {
+                    if ((bg & colorMask) != 0x00) {
+                        src = pSrcBmp->pPlaneArray[1];
+                        rasterOp = UGL_RASTER_OP_OR;
+                    }
+                    else {
+                        src = pSrcBmp->pPlaneArray[0];
+                        rasterOp = UGL_RASTER_OP_AND;
+                    }
+
+                    /* Draw plane */
+                    uglVgaBltPlane (devId, src, pSrcRect,
+                                    srcStride, pDestBmp->pPlaneArray[plane],
+                                    pDestRect, destStride, rasterOp);
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+            }
+            break;
+
+        case UGL_RASTER_OP_AND:
+            if (fg != UGL_COLOR_TRANSPARENT) {
+                if (bg != UGL_COLOR_TRANSPARENT) {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        rasterOp = UGL_RASTER_OP_AND;
+                        if ((fg & colorMask) != 0x00) {
+                            if ((bg & colorMask) != 0x00) {
+                                colorMask <<= 1;
+                                continue;
+                            }
+                            else {
+                                src = pSrcBmp->pPlaneArray[0];
+                            }
+                        }
+                        else if ((bg & colorMask) == 0x00) {
+                            src = pSrcBmp->pPlaneArray[1];
+                        }
+                        else {
+                            src = (UGL_UINT8 *) 0;
+                            rasterOp = UGL_RASTER_OP_COPY;
+                        }
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, src, pSrcRect,
+                                        srcStride, pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride, rasterOp);
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+                else {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        if ((fg & colorMask) == 0x00) {
+
+                            /* Draw plane */
+                            uglVgaBltPlane (devId, pSrcBmp->pPlaneArray[1],
+                                            pSrcRect, srcStride,
+                                            pDestBmp->pPlaneArray[plane],
+                                            pDestRect, destStride,
+                                            UGL_RASTER_OP_AND);
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+            }
+            else if (bg != UGL_COLOR_TRANSPARENT) {
+                for (plane = 0; plane < numPlanes; plane++) {
+                    if ((bg & colorMask) == 0x00) {
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, pSrcBmp->pPlaneArray[0],
+                                        pSrcRect, srcStride,
+                                        pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride,
+                                        UGL_RASTER_OP_AND);
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+            }
+            break;
+
+        case UGL_RASTER_OP_OR:
+            if (fg != UGL_COLOR_TRANSPARENT) {
+                if (bg != UGL_COLOR_TRANSPARENT) {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        rasterOp = UGL_RASTER_OP_OR;
+                        if ((fg & colorMask) != 0x00) {
+                            if ((bg & colorMask) != 0x00) {
+                                src = (UGL_UINT8 *) -1;
+                                rasterOp = UGL_RASTER_OP_COPY;
+                            }
+                            else {
+                                src = pSrcBmp->pPlaneArray[0];
+                            }
+                        }
+                        else if ((bg & colorMask) != 0x00) {
+                            src = pSrcBmp->pPlaneArray[1];
+                        }
+                        else {
+                            colorMask <<= 1;
+                            continue;
+                        }
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, src, pSrcRect,
+                                        srcStride, pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride, rasterOp);
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+                else {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        if ((fg & colorMask) != 0x00) {
+
+                            /* Draw plane */
+                            uglVgaBltPlane (devId, pSrcBmp->pPlaneArray[0],
+                                            pSrcRect, srcStride,
+                                            pDestBmp->pPlaneArray[plane],
+                                            pDestRect, destStride,
+                                            UGL_RASTER_OP_OR);
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+            }
+            else if (bg != UGL_COLOR_TRANSPARENT) {
+                for (plane = 0; plane < numPlanes; plane++) {
+                    if ((bg & colorMask) != 0x00) {
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, pSrcBmp->pPlaneArray[1],
+                                        pSrcRect, srcStride,
+                                        pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride,
+                                        UGL_RASTER_OP_OR);
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+            }
+            break;
+
+        case UGL_RASTER_OP_XOR:
+            if (fg != UGL_COLOR_TRANSPARENT) {
+                if (bg != UGL_COLOR_TRANSPARENT) {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        if ((fg & colorMask) != 0x00) {
+                            if ((bg & colorMask) != 0x00) {
+                                src = (UGL_UINT8 *) -1;
+                            }
+                            else {
+                                src = pSrcBmp->pPlaneArray[0];
+                            }
+                        }
+                        else if ((bg & colorMask) != 0x00) {
+                            src = pSrcBmp->pPlaneArray[1];
+                        }
+                        else {
+                            src = (UGL_UINT8 *) 0;
+                        }
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, src, pSrcRect,
+                                        srcStride, pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride,
+                                        UGL_RASTER_OP_XOR);
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+                else {
+                    for (plane = 0; plane < numPlanes; plane++) {
+                        if ((fg & colorMask) != 0x00) {
+
+                            /* Draw plane */
+                            uglVgaBltPlane (devId, pSrcBmp->pPlaneArray[0],
+                                            pSrcRect, srcStride,
+                                            pDestBmp->pPlaneArray[plane],
+                                            pDestRect, destStride,
+                                            UGL_RASTER_OP_XOR);
+                        }
+
+                        /* Advance */
+                        colorMask <<= 1;
+                    }
+                }
+            }
+            else if (bg != UGL_COLOR_TRANSPARENT) {
+                for (plane = 0; plane < numPlanes; plane++) {
+                    if ((bg & colorMask) != 0x00) {
+
+                        /* Draw plane */
+                        uglVgaBltPlane (devId, pSrcBmp->pPlaneArray[1],
+                                        pSrcRect, srcStride,
+                                        pDestBmp->pPlaneArray[plane],
+                                        pDestRect, destStride,
+                                        UGL_RASTER_OP_XOR);
+                    }
+
+                    /* Advance */
+                    colorMask <<= 1;
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+}
+
+/******************************************************************************
+ *
  * uglVgaMonoBitmapBlt - Blit from monochrome bitmap memory area to another
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -1761,10 +2079,8 @@ UGL_STATUS uglVgaMonoBitmapBlt (
                                             &destRect);
             }
             else {
-                /* TODO:
-                 * uglVgaBltMonoToColor(devId, pSrcBmp, &srcRect,
-                 *                      pDestBmp, &destRect);
-                 */
+                 uglVgaBltMonoToColor(devId, pSrcBmp, &srcRect,
+                                      pDestBmp, &destRect);
             }
         }
 

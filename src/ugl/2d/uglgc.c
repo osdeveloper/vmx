@@ -497,6 +497,40 @@ UGL_STATUS uglRasterModeSet (
 
 /******************************************************************************
  *
+ * uglFillPatternSet - Set graphics context fill pattern
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFillPatternSet (
+    UGL_GC_ID      gc,
+    UGL_MDDB_ID    patternBitmap
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set fill pattern new */
+    if (gc->pPatternBitmap != patternBitmap) {
+        gc->pPatternBitmap = patternBitmap;
+        gc->changed |= UGL_GC_PATTERN_BITMAP_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOSUnlock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglClipListSortedGet - Get sorted clip rectangles from graphics context
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

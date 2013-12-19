@@ -89,6 +89,7 @@ UGL_STATUS uglGenericFill (
     UGL_SIZE   patHeight;
     UGL_RECT   clipRect;
     UGL_POS    i;
+    UGL_POS    x;
     UGL_POS    y;
     UGL_POS    xStart;
     UGL_POS    xEnd;
@@ -96,6 +97,10 @@ UGL_STATUS uglGenericFill (
     UGL_POS    yEnd;
     UGL_POS *  pData;
     UGL_ORD    nSegs;
+    UGL_POS    srcLeft;
+    UGL_POS    srcTop;
+    UGL_RECT   srcRect;
+    UGL_POINT  destPoint;
 
     /* Get gc */
     gc = pDrv->gc;
@@ -149,6 +154,72 @@ UGL_STATUS uglGenericFill (
 
                     /* Draw solid line */
                     (*pDrv->hLine) (pDrv, y, xStart, xEnd, bg);
+                }
+                else {
+
+                    /* Draw pattern line */
+                    x = xStart;
+                    srcLeft = x % patWidth;
+                    srcTop  = y % patHeight;
+
+                    if (xEnd / patWidth == xStart / patWidth) {
+                        srcRect.left   = srcLeft;
+                        srcRect.top    = srcTop;
+                        srcRect.right  = xEnd % patWidth;
+                        srcRect.bottom = srcTop;
+                        destPoint.x = x - gc->viewPort.left;
+                        destPoint.y = y - gc->viewPort.top;
+
+                        (*pDrv->ugi.monoBitmapBlt) (&pDrv->ugi,
+                                                    pPatBitmap,
+                                                    &srcRect,
+                                                    UGL_DEFAULT_ID,
+                                                    &destPoint);
+                    }
+                    else {
+                        srcRect.left   = srcLeft;
+                        srcRect.top    = srcTop;
+                        srcRect.right  = patWidth - 1;
+                        srcRect.bottom = srcTop;
+                        destPoint.x = x - gc->viewPort.left;
+                        destPoint.y = y - gc->viewPort.top;
+
+                        (*pDrv->ugi.monoBitmapBlt) (&pDrv->ugi,
+                                                    pPatBitmap,
+                                                    &srcRect,
+                                                    UGL_DEFAULT_ID,
+                                                    &destPoint);
+
+                        /* Advance */
+                        x += patWidth - srcLeft;
+                        srcRect.left = 0;
+
+                        while (xEnd - x + 1 >= patWidth) {
+                            destPoint.x = x - gc->viewPort.left;
+                            destPoint.y = y - gc->viewPort.top;
+
+                            (*pDrv->ugi.monoBitmapBlt) (&pDrv->ugi,
+                                                        pPatBitmap,
+                                                        &srcRect,
+                                                        UGL_DEFAULT_ID,
+                                                        &destPoint);
+
+                            /* Advance */
+                            x += patWidth;
+                        }
+
+                        srcRect.right = xEnd - x;
+                        destPoint.x = x - gc->viewPort.left;
+                        destPoint.y = y - gc->viewPort.top;
+
+                        if (x <= xEnd) {
+                            (*pDrv->ugi.monoBitmapBlt) (&pDrv->ugi,
+                                                        pPatBitmap,
+                                                        &srcRect,
+                                                        UGL_DEFAULT_ID,
+                                                        &destPoint);
+                        }
+                    }
                 }
             }
         }
