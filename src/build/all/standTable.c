@@ -601,6 +601,8 @@ SYMBOL standTable[] =
   {NULL, "_uglRegionIntersect", uglRegionIntersect, 0, N_TEXT | N_EXT},
   {NULL, "_uglRegionRectSortedGet", uglRegionRectSortedGet, 0, N_TEXT | N_EXT},
   {NULL, "_uglRegionShow", uglRegionShow, 0, N_TEXT | N_EXT},
+  {NULL, "_uglLine", uglLine, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRectangle", uglRectangle, 0, N_TEXT | N_EXT},
 
   /* xbd devices */
   {NULL, "_xbdRamDiskDevCreate", xbdRamDiskDevCreate, 0, N_TEXT | N_EXT},

@@ -89,6 +89,18 @@ typedef struct ugl_generic_driver {
         UGL_ORD                     minorErrorInc
         );
 
+    UGL_STATUS      (*rectFill) (
+        struct ugl_generic_driver * pDrv,
+        UGL_RECT *                  pRect
+        );
+
+    UGL_STATUS      (*fill) (
+        struct ugl_generic_driver * pDrv,
+        UGL_POS                     y1,
+        UGL_POS                     y2,
+        UGL_POS **                  fillData
+        );
+
 } UGL_GENERIC_DRIVER;
 
 /* Generic mode support functions */
@@ -314,6 +326,48 @@ UGL_STATUS uglGenericLine (
     UGL_DEVICE_ID  devId,
     UGL_POINT *    p1,
     UGL_POINT *    p2
+    );
+
+/* Generic fill support functions */
+
+/******************************************************************************
+ *
+ * uglGenericRectFill - Generic rectangular fill area
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericRectFill (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_RECT *           pRect
+    );
+
+/******************************************************************************
+ *
+ * uglGenericFill - Generic fill area
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericFill (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POS              y1,
+    UGL_POS              y2,
+    UGL_POS **           fillData
+    );
+
+/* Generic rectangle drawin support functions */
+
+/******************************************************************************
+ *
+ * uglGenericRectangle - Generic rectangle drawing
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericRectangle (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
     );
 
 /* Generic transparent bitmap support functions */

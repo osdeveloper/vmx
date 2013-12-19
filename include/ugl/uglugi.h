@@ -51,6 +51,7 @@ typedef struct ugl_gc {
     UGL_RASTER_OP           rasterOp;           /* Raster operation */
     UGL_SIZE                lineWidth;          /* Line width */
     UGL_LINE_STYLE          lineStyle;          /* Line style pattern */
+    UGL_MDDB *              pPatternBitmap;     /* Fill pattern bitmap */
     UGL_UINT32              changed;            /* Changed flags */
     UGL_UINT32              magicNumber;        /* GC id and changed status */
     UGL_LOCK_ID             lockId;             /* Mutex */
@@ -125,6 +126,7 @@ typedef struct ugl_ugi_driver {
         );
 
     /* Color support */
+
     UGL_STATUS   (*colorAlloc) (
         struct ugl_ugi_driver * pDrv,
         UGL_ARGB *              pReqColors,
@@ -164,10 +166,18 @@ typedef struct ugl_ugi_driver {
         );
 
     /* Line drawing */
+
     UGL_STATUS   (*line) (
         struct ugl_ugi_driver * pDrv,
         UGL_POINT *             p1,
         UGL_POINT *             p2
+        );
+
+    /* Rectandle drawing */
+
+    UGL_STATUS   (*rectangle) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_RECT *              pRect
         );
 
     /* Bitmap support */

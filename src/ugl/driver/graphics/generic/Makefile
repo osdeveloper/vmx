@@ -1,7 +1,8 @@
 # Makefile -
 #
 
-OBJS = udgclri.o udgenclp.o udgengc.o udgmode.o udgtbmp.o udgenlin.o
+OBJS = udgclri.o udgenclp.o udgengc.o udgmode.o udgtbmp.o udgenlin.o \
+       udgenfil.o udgenrec.o
 SUBDIRS = 8bit
 LIB_TGT = ugl-driver
 

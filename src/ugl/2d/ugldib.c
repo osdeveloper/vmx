@@ -140,9 +140,6 @@ UGL_STATUS uglBitmapBlt (
     destRect.right  = destRect.left + UGL_RECT_WIDTH (srcRect) - 1;
     destRect.bottom = destRect.top + UGL_RECT_HEIGHT (srcRect) - 1;
 
-    /* Set graphics context */
-    UGL_GC_SET (devId, gc);
-
     if ((destBmpId == UGL_DEFAULT_ID) || (destBmpId == UGL_DISPLAY_ID) ||
         (destBmpId->type == UGL_DDB_TYPE)) {
 

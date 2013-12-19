@@ -326,6 +326,23 @@ UGL_STATUS uglLine (
     UGL_POS    y2
     );
 
+/* Rectangle drawing support functions */
+
+/******************************************************************************
+ *
+ * uglRectangle - Draw rectangle
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglRectangle (
+    UGL_GC_ID  gc,
+    UGL_POS    left,
+    UGL_POS    top,
+    UGL_POS    right,
+    UGL_POS    bottom
+    );
+
 /* Bitmap support functions */
 
 /******************************************************************************

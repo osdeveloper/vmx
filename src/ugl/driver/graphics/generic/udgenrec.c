@@ -18,47 +18,30 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* uglline.c - Universal graphics library line drawing support */
+/* udgenrec.c - Universal graphics library rectangle drawing support */
 
+#include <stdlib.h>
 #include <ugl/ugl.h>
+#include <ugl/driver/graphics/generic/udgen.h>
 
 /******************************************************************************
  *
- * uglLine - Draw line
+ * uglGenericRectangle - Generic rectangle drawing
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglLine (
-    UGL_GC_ID  gc,
-    UGL_POS    x1,
-    UGL_POS    y1,
-    UGL_POS    x2,
-    UGL_POS    y2
+UGL_STATUS uglGenericRectangle (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
     ) {
-    UGL_STATUS     status;
-    UGL_DEVICE_ID  devId;
-    UGL_POINT      points[2];
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_STATUS           status;
 
-    /* Start batch job */
-    if ((uglBatchStart (gc)) == UGL_STATUS_ERROR) {
-        return (UGL_STATUS_ERROR);
-    }
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
-    /* Get device */
-    devId =  gc->pDriver;
-
-    /* Store points */
-    points[0].x = x1;
-    points[0].y = y1;
-    points[1].x = x2;
-    points[1].y = y2;
-
-    /* Call driver specific method */
-    status = (*devId->line) (devId, &points[0], &points[1]);
-
-    /* End batch job */
-    uglBatchEnd (gc);
+    status = (*pDrv->rectFill) (pDrv, pRect);
 
     return (status);
 }

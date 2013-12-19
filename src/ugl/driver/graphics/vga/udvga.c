@@ -244,10 +244,13 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->generic.hLine =         uglVgaHLine;
             pDrv->generic.vLine =         uglVgaVLine;
             pDrv->generic.bresenhamLine = uglVgaBresenhamLine;
+            pDrv->generic.rectFill      = uglGenericRectFill;
+            pDrv->generic.fill          = uglGenericFill;
 
             /* Set graphics primitives support methods */
-            devId->pixelSet = uglVgaPixelSet;
-            devId->line     = uglGenericLine;
+            devId->pixelSet  = uglVgaPixelSet;
+            devId->line      = uglGenericLine;
+            devId->rectangle = uglGenericRectangle;
 
             /* Setup bitmap support methods */
             devId->bitmapCreate       = uglVgaBitmapCreate;
