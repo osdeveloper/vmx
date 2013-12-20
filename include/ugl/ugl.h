@@ -355,6 +355,21 @@ UGL_STATUS uglRectangle (
     UGL_POS    bottom
     );
 
+/* Polygon drawing support functions */
+
+/******************************************************************************
+ *
+ * uglPolygon - Draw polygon
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglPolygon (
+    UGL_GC_ID  gc,
+    UGL_ORD    numPoints,
+    UGL_POS *  pData
+    );
+
 /* Bitmap support functions */
 
 /******************************************************************************

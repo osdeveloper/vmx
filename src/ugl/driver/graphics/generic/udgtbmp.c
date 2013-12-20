@@ -122,12 +122,12 @@ UGL_STATUS uglGenericTransBitmapDestroy (
 
 /******************************************************************************
  *
- * uglGenericTransBitmapBlt - Draw generic transparent bitmap
+ * uglGenericTransBitmapLinearBlt - Draw transparent bitmap for linear display
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGenericTransBitmapBlt (
+UGL_STATUS uglGenericTransBitmapLinearBlt (
     UGL_DEVICE_ID  devId,
     UGL_TDDB_ID    srcBmpId,
     UGL_RECT *     pSrcRect,

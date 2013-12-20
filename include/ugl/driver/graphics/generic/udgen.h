@@ -89,16 +89,11 @@ typedef struct ugl_generic_driver {
         UGL_ORD                     minorErrorInc
         );
 
-    UGL_STATUS      (*rectFill) (
-        struct ugl_generic_driver * pDrv,
-        UGL_RECT *                  pRect
-        );
-
     UGL_STATUS      (*fill) (
         struct ugl_generic_driver * pDrv,
         UGL_POS                     y1,
         UGL_POS                     y2,
-        UGL_POS **                  fillData
+        UGL_POS **                  ppFillData
         );
 
 } UGL_GENERIC_DRIVER;
@@ -332,18 +327,6 @@ UGL_STATUS uglGenericLine (
 
 /******************************************************************************
  *
- * uglGenericRectFill - Generic rectangular fill area
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglGenericRectFill (
-    UGL_GENERIC_DRIVER * pDrv,
-    UGL_RECT *           pRect
-    );
-
-/******************************************************************************
- *
  * uglGenericFill - Generic fill area
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -353,10 +336,10 @@ UGL_STATUS uglGenericFill (
     UGL_GENERIC_DRIVER * pDrv,
     UGL_POS              y1,
     UGL_POS              y2,
-    UGL_POS **           fillData
+    UGL_POS **           ppFillData
     );
 
-/* Generic rectangle drawin support functions */
+/* Generic rectangle drawing support functions */
 
 /******************************************************************************
  *
@@ -368,6 +351,21 @@ UGL_STATUS uglGenericFill (
 UGL_STATUS uglGenericRectangle (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pRect
+    );
+
+/* Generic polygon drawing support functions */
+
+/******************************************************************************
+ *
+ * uglGenericPolygon - Draw generic polygon
+ *
+ * RETURNS: UGL_TDDB_ID or UGL_NULL
+ */
+
+UGL_STATUS uglGenericPolygon (
+    UGL_DEVICE_ID     devId,
+    const UGL_POINT * pointArray,
+    UGL_ORD           numPoints
     );
 
 /* Generic transparent bitmap support functions */
@@ -402,12 +400,12 @@ UGL_STATUS uglGenericTransBitmapDestroy (
 
 /******************************************************************************
  *
- * uglGenericTransBitmapBlt - Draw generic transparent bitmap
+ * uglGenericTransBitmapLinearBlt - Draw transparent bitmap for linear display
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglGenericTransBitmapBlt (
+UGL_STATUS uglGenericTransBitmapLinearBlt (
     UGL_DEVICE_ID  devId,
     UGL_TDDB_ID    srcBmpId,
     UGL_RECT *     pSrcRect,

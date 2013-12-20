@@ -52,7 +52,7 @@ UGL_DIB bgDib, fgDib;
 UGL_MDIB mDib;
 UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
-BOOL fillPattern = TRUE;
+BOOL fillPattern = FALSE;
 int animTreshold = 1;
 
 int createDib(void)
@@ -120,29 +120,15 @@ void setPalette(void)
   uglColorAlloc(gfxDevId, palette, paletteIndex, colors, LOOP_PAL_LENGTH);
 }
 
-void restoreConsole(struct vgaHWRec *regs)
-{
-  vgaRestore(regs, FALSE);
-  vgaLoadFont(font8x16, font8x16Height);
-  printf("%c\n", 0x0c);
-}
-
-int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
+int mode4Enter(struct vgaHWRec *oldRegs)
 {
   UGL_MODE gfxMode;
-  struct vgaHWRec oldRegs;
-  int i;
-
-  if (maxtimes <= 0) {
-    maxtimes = 1000;
-  }
 
   if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
     return 1;
   }
 
-  vgaSave(&oldRegs);
+  vgaSave(oldRegs);
 
   /* Enter video mode */
   gfxMode.width = 640;
@@ -152,6 +138,31 @@ int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+      return 1;
+  }
+
+  setPalette();
+
+  return 0;
+}
+
+void restoreConsole(struct vgaHWRec *regs)
+{
+  vgaRestore(regs, FALSE);
+  vgaLoadFont(font8x16, font8x16Height);
+  printf("%c\n", 0x0c);
+}
+
+int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
+{
+  struct vgaHWRec oldRegs;
+  int i;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
+
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -178,7 +189,6 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_DDB *pDbBmp;
   UGL_RECT dbSrcRect;
   UGL_POINT dbPt;
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   int i, y, x, x1, x2;
 
@@ -186,21 +196,7 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     maxtimes = 1000;
   }
 
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  vgaSave(&oldRegs);
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -275,7 +271,6 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_DDB *pDbBmp;
   UGL_RECT dbSrcRect;
   UGL_POINT dbPt;
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   int i, x, y, y1, y2;
 
@@ -283,21 +278,7 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     maxtimes = 1000;
   }
 
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  vgaSave(&oldRegs);
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -372,7 +353,6 @@ int uglLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_DDB *pDbBmp;
   UGL_RECT dbSrcRect;
   UGL_POINT dbPt;
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   int i;
 
@@ -380,21 +360,7 @@ int uglLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     maxtimes = 1000;
   }
 
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  vgaSave(&oldRegs);
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -462,7 +428,6 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_MDDB *pMddb;
   UGL_RECT dbSrcRect;
   UGL_POINT dbPt;
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   int i;
   int x, x1, x2;
@@ -472,21 +437,7 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
     maxtimes = 1000;
   }
 
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  vgaSave(&oldRegs);
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -590,29 +541,126 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   return 0;
 }
 
+int uglPoly4Test(int maxtimes, int nPoints, UGL_REGION_ID clipRegionId)
+{
+  static UGL_POS points[64];
+  UGL_DDB *pDbBmp;
+  UGL_MDDB *pMddb;
+  UGL_RECT dbSrcRect;
+  UGL_POINT dbPt;
+  struct vgaHWRec oldRegs;
+  int i, j;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
+
+  if (nPoints < 3) {
+      nPoints = 3;
+  }
+
+  if (mode4Enter(&oldRegs)) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+    return 1;
+  }
+
+  /* Set palette */
+  setPalette();
+
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             DB_CLEAR_COLOR, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  if (fillPattern == TRUE) {
+    pMddb = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
+                                0, gfxPartId);
+    if (pMddb == UGL_NULL) {
+      if (doubleBuffer == TRUE) {
+        uglBitmapDestroy(gfxDevId, pDbBmp);
+      }
+      restoreConsole(&oldRegs);
+      printf("Unable to create monochrome image\n");
+      return 1;
+    }
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  }
+
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 640;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 480;
+  dbPt.x = 0;
+  dbPt.y = 0;
+
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gfxDevId->defaultGc, pMddb);
+  }
+
+  for (i = 0; i < maxtimes; i++) {
+    for (j = 0; j < nPoints; j++) {
+      points[j * 2] = rand() % 640;
+      points[j * 2 + 1] = rand () % 480;
+    }
+
+    points[nPoints * 2] = points[0];
+    points[nPoints * 2 + 1] = points[1];
+
+    uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
+    uglForegroundColorSet(gfxDevId->defaultGc, rand () % 16);
+    uglBackgroundColorSet(gfxDevId->defaultGc, rand () % 16);
+    uglPolygon(gfxDevId->defaultGc, nPoints + 1, points);
+    uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
+
+    taskDelay(animTreshold);
+  }
+
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gfxDevId->defaultGc, UGL_NULL);
+  }
+
+  if (fillPattern == TRUE) {
+    uglMonoBitmapDestroy(gfxDevId, pMddb);
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
+  }
+
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
 int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 {
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   UGL_DDB *pDbBmp, *pBgBmp, *pFgBmp, *pSaveBmp;
   UGL_RECT dbSrcRect, srcRect, saveRect;
   UGL_POINT dbPt, pt, pt0;
 
-  vgaSave(&oldRegs);
-
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -782,28 +830,13 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 
 int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 {
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   UGL_MDDB *pMddb;
   UGL_DDB *pSaveBmp;
   UGL_RECT srcRect, saveRect;
   UGL_POINT pt, pt0;
 
-  vgaSave(&oldRegs);
-
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -893,28 +926,13 @@ int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 
 int uglTrans4Test(UGL_REGION_ID clipRegionId)
 {
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   UGL_DDB *pDbBmp, *pBgBmp, *pSaveBmp;
   UGL_TDDB *pFgBmp;
   UGL_RECT dbSrcRect, srcRect, saveRect;
   UGL_POINT dbPt, pt, pt0;
 
-  vgaSave(&oldRegs);
-
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  /* Enter video mode */
-  gfxMode.width = 640;
-  gfxMode.height = 480;
-  gfxMode.depth = 4;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -1069,22 +1087,15 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
   return 0;
 }
 
-int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
+int mode8Enter(struct vgaHWRec *oldRegs)
 {
   UGL_MODE gfxMode;
-  struct vgaHWRec oldRegs;
-  int i;
-
-  if (maxtimes <= 0) {
-    maxtimes = 1000;
-  }
 
   if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
     return 1;
   }
 
-  vgaSave(&oldRegs);
+  vgaSave(oldRegs);
 
   /* Enter video mode */
   gfxMode.width = 320;
@@ -1094,6 +1105,24 @@ int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
   if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+    return 1;
+  }
+
+  setPalette();
+
+  return 0;
+}
+
+int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
+{
+  struct vgaHWRec oldRegs;
+  int i;
+
+  if (maxtimes <= 0) {
+    maxtimes = 1000;
+  }
+
+  if (mode8Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
     return 1;
@@ -1118,27 +1147,12 @@ int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
 int uglBlt8Test(void)
 {
   int i, j;
-  UGL_MODE gfxMode;
   struct vgaHWRec oldRegs;
   UGL_DDB *pDbBmp, *pFgBmp, *pSaveBmp;
   UGL_RECT srcRect, saveRect, dbSrcRect;
   UGL_POINT pt, pt0, dbPt;
 
-  vgaSave(&oldRegs);
-
-  if (gfxDevId == UGL_NULL) {
-    printf("No compatible graphics device found.\n");
-    return 1;
-  }
-
-  /* Enter video mode */
-  gfxMode.width = 320;
-  gfxMode.height = 200;
-  gfxMode.depth = 8;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+  if (mode8Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
     return 1;
@@ -1392,6 +1406,7 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglVLine4Test", uglVLine4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglLine4Test", uglLine4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglRect4Test", uglRect4Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglPoly4Test", uglPoly4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt4Test", uglBlt4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglMono4Test", uglMono4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglTrans4Test", uglTrans4Test, 0, N_TEXT | N_EXT},

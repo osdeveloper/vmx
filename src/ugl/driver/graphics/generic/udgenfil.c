@@ -26,51 +26,6 @@
 
 /******************************************************************************
  *
- * uglGenericRectFill - Generic rectangular fill area
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglGenericRectFill (
-    UGL_GENERIC_DRIVER * pDrv,
-    UGL_RECT *           pRect
-    ) {
-    UGL_POS **  pBuf;
-    UGL_POS *   pData;
-    UGL_INT32   i;
-    UGL_POS     height;
-    UGL_STATUS  status;
-
-    /* Calculate data height */
-    height = pRect->bottom - pRect->top + 1;
-
-    pBuf = (UGL_POS **) uglScratchBufferAlloc ((UGL_DEVICE_ID) pDrv,
-                                               height * sizeof (UGL_POS *) +
-                                               3 * sizeof (UGL_UINT32));
-    if (pBuf == NULL) {
-        return (UGL_STATUS_ERROR);
-    }
-
-    /* Setup pointer to data */
-    pData = (UGL_POS *) &pBuf[height + 1];
-    pData[0] = 1;
-    pData[1] = pRect->left;
-    pData[2] = pRect->right;
-
-    for (i = 0; i < height; i++) {
-        pBuf[i]  = pData;
-    }
-
-    /* Call driver specific fill method */
-    status = (*pDrv->fill) (pDrv, pRect->top, pRect->bottom, pBuf);
-
-    uglScratchBufferFree ((UGL_DEVICE_ID) pDrv, pBuf);
-
-    return (status);
-}
-
-/******************************************************************************
- *
  * uglGenericFill - Generic fill area
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -80,7 +35,7 @@ UGL_STATUS uglGenericFill (
     UGL_GENERIC_DRIVER * pDrv,
     UGL_POS              y1,
     UGL_POS              y2,
-    UGL_POS **           fillData
+    UGL_POS **           ppFillData
     ) {
     UGL_GC_ID  gc;
     UGL_COLOR  bg;
@@ -130,9 +85,9 @@ UGL_STATUS uglGenericFill (
     /* Process each scanline */
     for (y = yStart; y <= yEnd; y++) {
 
-        pData = fillData[y - y1];
+        pData = ppFillData[y - y1];
         i = 0;
-        nSegs = pData[i++];
+        nSegs = pData[i++] / 2;
 
         while (nSegs-- > 0) {
             xStart = pData[i++];

@@ -176,11 +176,18 @@ typedef struct ugl_ugi_driver {
         UGL_POINT *             p2
         );
 
-    /* Rectandle drawing */
+    /* Rectangle drawing */
 
     UGL_STATUS   (*rectangle) (
         struct ugl_ugi_driver * pDrv,
         UGL_RECT *              pRect
+        );
+
+    /* Polygon drawing */
+    UGL_STATUS   (*polygon) (
+        struct ugl_ugi_driver * pDrv,
+        const UGL_POINT *       pointArray,
+        UGL_ORD                 numPoints
         );
 
     /* Bitmap support */

@@ -121,6 +121,20 @@ typedef struct ugl_rect {
 
 /******************************************************************************
  *
+ * UGL_INT_SWAP - Swap integer values between variables
+ *
+ * RETURNS: N/A
+ */
+
+#define UGL_INT_SWAP(a, b)                                                    \
+{                                                                             \
+    (a) ^= (b);                                                               \
+    (b) ^= (a);                                                               \
+    (a) ^= (b);                                                               \
+}
+
+/******************************************************************************
+ *
  * UGL_POINT_COPY - Get point from another point
  *
  * RETURNS: N/A

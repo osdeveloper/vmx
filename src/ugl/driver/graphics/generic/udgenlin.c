@@ -24,9 +24,9 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
-/* Locals */
+/* Globals */
 
-UGL_LOCAL UGL_STATUS uglLinePointsGet (
+UGL_STATUS uglLineDataGetBoundary (
     UGL_POINT *  p1,
     UGL_POINT *  p2,
     UGL_POINT ** ppData,
@@ -34,7 +34,9 @@ UGL_LOCAL UGL_STATUS uglLinePointsGet (
     UGL_ORD *    pNumPoints
     );
 
-UGL_LOCAL UGL_STATUS uglLinePointsGetBoundary (
+/* Locals */
+
+UGL_LOCAL UGL_STATUS uglLineDataGet (
     UGL_POINT *  p1,
     UGL_POINT *  p2,
     UGL_POINT ** ppData,
@@ -135,9 +137,7 @@ UGL_STATUS uglGenericLine (
         /* If horizontal line */
         if (y1 == y2 && y1 >= clipRect.top && y1 <= clipRect.bottom) {
             if (x1 > x2) {
-                coord = x1;
-                x1 = x2;
-                x2 = coord;
+                UGL_INT_SWAP (x1, x2);
             }
 
             /* Clip */
@@ -377,12 +377,12 @@ UGL_STATUS uglGenericLine (
 
 /******************************************************************************
  *
- * uglLinePointsGet - Calculate data points for line
+ * uglLineDataGet - Calculate data points for line
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_LOCAL UGL_STATUS uglLinePointsGet (
+UGL_LOCAL UGL_STATUS uglLineDataGet (
     UGL_POINT *  p1,
     UGL_POINT *  p2,
     UGL_POINT ** ppData,
@@ -479,12 +479,12 @@ UGL_LOCAL UGL_STATUS uglLinePointsGet (
 
 /******************************************************************************
  *
- * uglLinePointsGetBoundary - Calculate data points bounding line
+ * uglLineDataGetBoundary - Calculate data points bounding line
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_LOCAL UGL_STATUS uglLinePointsGetBoundary (
+UGL_STATUS uglLineDataGetBoundary (
     UGL_POINT *  p1,
     UGL_POINT *  p2,
     UGL_POINT ** ppData,

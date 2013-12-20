@@ -24,6 +24,13 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
+/* Locals */
+
+UGL_LOCAL UGL_STATUS uglGenericRectFill (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
+    );
+
 /******************************************************************************
  *
  * uglGenericRectangle - Generic rectangle drawing
@@ -35,13 +42,58 @@ UGL_STATUS uglGenericRectangle (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pRect
     ) {
+    UGL_STATUS  status;
+
+    status = uglGenericRectFill (devId, pRect);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglGenericRectFill - Generic rectangular fill area
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglGenericRectFill (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
+    ) {
     UGL_GENERIC_DRIVER * pDrv;
+    UGL_POS **           ppFillData;
+    UGL_POS *            pData;
+    UGL_INT32            i;
+    UGL_POS              len;
     UGL_STATUS           status;
 
     /* Get generic driver */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
 
-    status = (*pDrv->rectFill) (pDrv, pRect);
+    /* Calculate data height */
+    len = pRect->bottom - pRect->top + 1;
+
+    ppFillData = (UGL_POS **) uglScratchBufferAlloc (devId,
+                                                     len * sizeof (UGL_POS *) +
+                                                     3 * sizeof (UGL_UINT32));
+    if (ppFillData == NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Setup pointer to data */
+    pData = (UGL_POS *) &ppFillData[len + 1];
+    pData[0] = 2;
+    pData[1] = pRect->left;
+    pData[2] = pRect->right;
+
+    for (i = 0; i < len; i++) {
+        ppFillData[i]  = pData;
+    }
+
+    /* Call driver specific fill method */
+    status = (*pDrv->fill) (pDrv, pRect->top, pRect->bottom, ppFillData);
+
+    uglScratchBufferFree (devId, ppFillData);
 
     return (status);
 }

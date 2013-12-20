@@ -244,13 +244,13 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->generic.hLine =         uglVgaHLine;
             pDrv->generic.vLine =         uglVgaVLine;
             pDrv->generic.bresenhamLine = uglVgaBresenhamLine;
-            pDrv->generic.rectFill      = uglGenericRectFill;
             pDrv->generic.fill          = uglGenericFill;
 
             /* Set graphics primitives support methods */
             devId->pixelSet  = uglVgaPixelSet;
             devId->line      = uglGenericLine;
             devId->rectangle = uglGenericRectangle;
+            devId->polygon   = uglGenericPolygon;
 
             /* Setup bitmap support methods */
             devId->bitmapCreate       = uglVgaBitmapCreate;
@@ -264,7 +264,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->monoBitmapRead     = uglVgaMonoBitmapRead;
             devId->transBitmapCreate  = uglGenericTransBitmapCreate;
             devId->transBitmapDestroy = uglGenericTransBitmapDestroy;
-            devId->transBitmapBlt     = uglGenericTransBitmapBlt;
+            devId->transBitmapBlt     = uglGenericTransBitmapLinearBlt;
 
             /* Create palette for 16 colors */
             if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 16)
