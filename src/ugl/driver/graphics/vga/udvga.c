@@ -157,6 +157,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
     UGL_VGA_DRIVER * pDrv;
     UGL_INT32        modeIndex;
     UGL_UINT8        byteValue;
+    UGL_GEN_DDB *    pDdb;
     struct vgaHWRec  regs;
 
     /* Get driver from device struct, since it it the first entry */
@@ -214,6 +215,33 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->bytesPerLine = devId->pMode->width;
             pDrv->colorPlanes  = devId->pMode->depth;
 
+            /* Setup first drawing page */
+            devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
+                                                        sizeof (UGL_GEN_DDB));
+            if (devId->pPageZero == UGL_NULL) {
+                return (UGL_STATUS_ERROR);
+            }
+
+            pDdb = (UGL_GEN_DDB *) &devId->pPageZero[1];
+            pDdb->header.width  = devId->pMode->width;
+            pDdb->header.height = devId->pMode->height;
+            pDdb->header.type   = UGL_DDB_TYPE;
+            pDdb->colorDepth    = devId->pMode->depth;
+            pDdb->stride        = devId->pMode->width;
+            pDdb->pData         = pDrv->generic.fbAddress;
+
+            devId->pPageZero->pDdb = (UGL_DDB *) pDdb;
+
+            pDrv->generic.pDrawPage    = devId->pPageZero;
+            pDrv->generic.pVisiblePage = devId->pPageZero;
+
+            /* Create palette for 256 colors */
+            if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 256)
+                != UGL_STATUS_OK) {
+                UGL_FREE (devId->pPageZero);
+                return (UGL_STATUS_ERROR);
+            }
+
             /* Set graphics primitives support methods */
             devId->pixelSet = uglGeneric8BitPixelSet;
 
@@ -222,12 +250,6 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->bitmapDestroy = uglGeneric8BitBitmapDestroy;
             devId->bitmapBlt     = uglGeneric8BitBitmapBlt;
             devId->bitmapWrite   = uglGeneric8BitBitmapWrite;
-
-            /* Create palette for 256 colors */
-            if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 256)
-                != UGL_STATUS_OK) {
-                return (UGL_STATUS_ERROR);
-            }
 
             /* Clear screen */
             memset (pDrv->generic.fbAddress, 0,
@@ -245,6 +267,33 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->generic.vLine =         uglVgaVLine;
             pDrv->generic.bresenhamLine = uglVgaBresenhamLine;
             pDrv->generic.fill          = uglGenericFill;
+
+            /* Setup first drawing page */
+            devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
+                                                        sizeof (UGL_GEN_DDB));
+            if (devId->pPageZero == UGL_NULL) {
+                return (UGL_STATUS_ERROR);
+            }
+
+            pDdb = (UGL_GEN_DDB *) &devId->pPageZero[1];
+            pDdb->header.width  = devId->pMode->width;
+            pDdb->header.height = devId->pMode->height;
+            pDdb->header.type   = UGL_DDB_TYPE;
+            pDdb->colorDepth    = devId->pMode->depth;
+            pDdb->stride        = devId->pMode->width;
+            pDdb->pData         = pDrv->generic.fbAddress;
+
+            devId->pPageZero->pDdb = (UGL_DDB *) pDdb;
+
+            pDrv->generic.pDrawPage    = devId->pPageZero;
+            pDrv->generic.pVisiblePage = devId->pPageZero;
+
+            /* Create palette for 16 colors */
+            if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 16)
+                != UGL_STATUS_OK) {
+                UGL_FREE (devId->pPageZero);
+                return (UGL_STATUS_ERROR);
+            }
 
             /* Set graphics primitives support methods */
             devId->pixelSet  = uglVgaPixelSet;
@@ -265,12 +314,6 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->transBitmapCreate  = uglGenericTransBitmapCreate;
             devId->transBitmapDestroy = uglGenericTransBitmapDestroy;
             devId->transBitmapBlt     = uglGenericTransBitmapLinearBlt;
-
-            /* Create palette for 16 colors */
-            if (uglGenericClutCreate ((UGL_GENERIC_DRIVER *) devId, 16)
-                != UGL_STATUS_OK) {
-                return (UGL_STATUS_ERROR);
-            }
 
             /* Set write mode 3 */
             UGL_OUT_BYTE (0x3ce, 0x05);

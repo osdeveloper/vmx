@@ -40,6 +40,7 @@ UGL_STATUS uglVgaPixelSet (
     ) {
     UGL_VGA_DRIVER *     pVga;
     UGL_GENERIC_DRIVER * pDrv;
+    UGL_GEN_DDB *        pDrawDdb;
     UGL_GC_ID            gc;
     UGL_RECT             clipRect;
     UGL_VGA_DDB *        pBmp;
@@ -59,6 +60,9 @@ UGL_STATUS uglVgaPixelSet (
     pVga = (UGL_VGA_DRIVER *) devId;
     pDrv = (UGL_GENERIC_DRIVER *) devId;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Get graphics context */
     gc = pDrv->gc;
 
@@ -75,7 +79,7 @@ UGL_STATUS uglVgaPixelSet (
         if (gc->pDefaultBitmap == UGL_DISPLAY_ID) {
 
             /* Calculate destination address */
-            dest = ((UGL_UINT8 *) pDrv->fbAddress) +
+            dest = ((UGL_UINT8 *) pDrawDdb->pData) +
                    (p->x >> 3) + (p->y * pVga->bytesPerLine);
             mask = 0x80 >> (p->x & 0x07);
 

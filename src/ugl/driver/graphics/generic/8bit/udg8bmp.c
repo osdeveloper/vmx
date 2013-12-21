@@ -247,6 +247,7 @@ UGL_LOCAL void uglGeneric8BitBltColorToFrameBuffer (
     UGL_RECT *     pDestRect
     ) {
     UGL_GENERIC_DRIVER * pDrv;
+    UGL_GEN_DDB *        pDrawDdb;
     UGL_RASTER_OP        rasterOp;
     UGL_SIZE             width;
     UGL_SIZE             height;
@@ -260,6 +261,9 @@ UGL_LOCAL void uglGeneric8BitBltColorToFrameBuffer (
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Get variables */
     rasterOp   = devId->defaultGc->rasterOp;
     width      = UGL_RECT_WIDTH (*pSrcRect);
@@ -272,7 +276,7 @@ UGL_LOCAL void uglGeneric8BitBltColorToFrameBuffer (
           pSrcRect->left + (pSrcRect->top * srcStride);
 
     /* Calculate destination address */
-    dest = ((UGL_UINT8 *) pDrv->fbAddress) +
+    dest = ((UGL_UINT8 *) pDrawDdb->pData) +
            pDestRect->left + (pDestRect->top * destStride);
 
     /* Blit */
@@ -339,6 +343,7 @@ UGL_LOCAL void uglGeneric8BitBltFrameBufferToColor (
     UGL_RECT *     pDestRect
     ) {
     UGL_GENERIC_DRIVER * pDrv;
+    UGL_GEN_DDB *        pDrawDdb;
     UGL_RASTER_OP        rasterOp;
     UGL_SIZE             width;
     UGL_SIZE             height;
@@ -349,9 +354,11 @@ UGL_LOCAL void uglGeneric8BitBltFrameBufferToColor (
     UGL_UINT32           i;
     UGL_UINT32           j;
 
-
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
 
     /* Get variables */
     rasterOp   = devId->defaultGc->rasterOp;
@@ -361,7 +368,7 @@ UGL_LOCAL void uglGeneric8BitBltFrameBufferToColor (
     destStride = pBmp->stride;
 
     /* Calculate source address */
-    src = ((UGL_UINT8 *) pDrv->fbAddress) +
+    src = ((UGL_UINT8 *) pDrawDdb->pData) +
           pSrcRect->left + (pSrcRect->top * srcStride);
 
     /* Calculate destination address */

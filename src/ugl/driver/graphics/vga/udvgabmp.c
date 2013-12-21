@@ -682,6 +682,7 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_DRIVER *     pVgaDrv;
+    UGL_GEN_DDB *        pDrawDdb;
     UGL_RASTER_OP        rasterOp;
     volatile UGL_UINT8   tmp;
     UGL_INT32            i;
@@ -705,6 +706,9 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     pDrv    = (UGL_GENERIC_DRIVER *) devId;
     pVgaDrv = (UGL_VGA_DRIVER *) devId;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Cache raster op */
     rasterOp = pDrv->gc->rasterOp;
 
@@ -718,7 +722,7 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     numPlanes        = devId->pMode->depth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
-    destStart        = (UGL_UINT8 *) pDrv->fbAddress +
+    destStart        = (UGL_UINT8 *) pDrawDdb->pData +
                        pDestRect->top * destBytesPerLine +
                        (pDestRect->left >> 3);
     srcOffset        = pSrcRect->top * srcBytesPerLine +
@@ -837,6 +841,7 @@ UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_DRIVER *     pVgaDrv;
+    UGL_GEN_DDB *        pDrawDdb;
     UGL_RASTER_OP        rasterOp;
     UGL_INT32            i;
     UGL_INT32            y;
@@ -858,6 +863,9 @@ UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     pDrv    = (UGL_GENERIC_DRIVER *) devId;
     pVgaDrv = (UGL_VGA_DRIVER *) devId;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Cache raster op */
     rasterOp = pDrv->gc->rasterOp;
 
@@ -871,7 +879,7 @@ UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     numPlanes        = pBmp->colorDepth;
     srcBytesPerLine  = pVgaDrv->bytesPerLine;
     destBytesPerLine = (pBmp->header.width + 7) / 8 + 1;
-    srcStart         = (UGL_UINT8 *) pDrv->fbAddress +
+    srcStart         = (UGL_UINT8 *) pDrawDdb->pData +
                        pSrcRect->top * srcBytesPerLine + (pSrcRect->left >> 3);
     destOffset       = pDestRect->top * destBytesPerLine +
                        (pDestRect->left >> 3);
@@ -1504,6 +1512,7 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_DRIVER *     pVgaDrv;
+    UGL_GEN_DDB *        pDrawDdb;
     UGL_GC_ID            gc;
     volatile UGL_UINT8   tmp;
     UGL_INT32            x;
@@ -1525,6 +1534,9 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     pDrv    = (UGL_GENERIC_DRIVER *) devId;
     pVgaDrv = (UGL_VGA_DRIVER *) devId;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Get gc */
     gc = pDrv->gc;
 
@@ -1540,7 +1552,7 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     numPlanes        = devId->pMode->depth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
-    destStart        = (UGL_UINT8 *) pDrv->fbAddress +
+    destStart        = (UGL_UINT8 *) pDrawDdb->pData +
                        pDestRect->top * destBytesPerLine +
                        (pDestRect->left >> 3);
     srcOffset        = pSrcRect->top * srcBytesPerLine +

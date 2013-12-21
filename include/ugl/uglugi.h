@@ -64,6 +64,7 @@ typedef struct ugl_gc * UGL_GC_ID;
 
 typedef struct ugl_ugi_driver {
     UGL_MODE *   pMode;                         /* Current graphics mode */
+    UGL_PAGE *   pPageZero;                     /* First drawing page */
     UGL_ORD      batchCount;                    /* Number of nested batches */
     UGL_LOCK_ID  lockId;                        /* Mutex */
     UGL_UINT32   magicNumber;                   /* Idetifies GC flags set */

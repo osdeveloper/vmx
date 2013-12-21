@@ -31,6 +31,7 @@
 #include <ugl/uglos.h>
 #include <ugl/uglmem.h>
 #include <ugl/uglregn.h>
+#include <ugl/uglpage.h>
 #include <ugl/uglugi.h>
 
 #ifndef _ASMLANGUAGE

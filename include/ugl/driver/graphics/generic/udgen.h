@@ -55,6 +55,8 @@ typedef struct ugl_gen_tddb {
 typedef struct ugl_generic_driver {
     UGL_UGI_DRIVER  ugi;                /* UGI driver (required) */
     void *          fbAddress;          /* Frame buffer address */
+    UGL_PAGE *      pDrawPage;          /* Drawing page */
+    UGL_PAGE *      pVisiblePage;       /* Visible page */
     UGL_GC_ID       gc;                 /* Graphics context */
     UGL_GEN_DDB *   scratchBitmap;      /* Scratch bitmap */
     UGL_ORD         transBitmapCount;   /* Scratch bitmap reference count */

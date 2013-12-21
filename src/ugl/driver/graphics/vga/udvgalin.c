@@ -39,6 +39,7 @@ UGL_STATUS uglVgaHLine (
     UGL_COLOR            c
     ) {
     UGL_VGA_DRIVER *    pVga;
+    UGL_GEN_DDB *       pDrawDdb;
     UGL_GC_ID           gc;
     UGL_UINT8 *         dest;
     UGL_UINT8           startMask;
@@ -56,6 +57,9 @@ UGL_STATUS uglVgaHLine (
     /* Get driver which is first in the device structure */
     pVga = (UGL_VGA_DRIVER *) pDrv;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Get graphics context */
     gc = pDrv->gc;
 
@@ -63,7 +67,7 @@ UGL_STATUS uglVgaHLine (
     if (gc->pDefaultBitmap == UGL_DISPLAY_ID) {
 
         /* Calculate variables */
-        dest = ((UGL_UINT8 *) pDrv->fbAddress) +
+        dest = ((UGL_UINT8 *) pDrawDdb->pData) +
                (y * pVga->bytesPerLine) + (x1 >> 3);
         startMask = 0xff >> (x1 & 0x07);
         endMask = 0xff << (7 - (x2 & 0x07));
@@ -287,6 +291,7 @@ UGL_STATUS uglVgaVLine (
     UGL_COLOR            c
     ) {
     UGL_VGA_DRIVER *    pVga;
+    UGL_GEN_DDB *       pDrawDdb;
     UGL_GC_ID           gc;
     UGL_SIZE            bytesPerLine;
     UGL_UINT8 *         dest;
@@ -304,6 +309,9 @@ UGL_STATUS uglVgaVLine (
     /* Get driver which is first in the device structure */
     pVga = (UGL_VGA_DRIVER *) pDrv;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Get graphics context */
     gc = pDrv->gc;
 
@@ -311,7 +319,7 @@ UGL_STATUS uglVgaVLine (
 
         /* Caclulate variables */
         bytesPerLine = pVga->bytesPerLine;
-        dest         = ((UGL_UINT8 *) pDrv->fbAddress) +
+        dest         = ((UGL_UINT8 *) pDrawDdb->pData) +
                        (y1 * bytesPerLine) + (x >> 3);
         mask         = 0x80 >> (x & 0x07);
         height       = y2 - y1 + 1;
@@ -448,6 +456,7 @@ UGL_STATUS uglVgaBresenhamLine (
     UGL_ORD              minorErrorInc
     ) {
     UGL_VGA_DRIVER *    pVga;
+    UGL_GEN_DDB *       pDrawDdb;
     UGL_GC_ID           gc;
     UGL_COLOR           c;
     UGL_SIZE            stride;
@@ -464,6 +473,9 @@ UGL_STATUS uglVgaBresenhamLine (
     /* Get driver which is first in the device structure */
     pVga = (UGL_VGA_DRIVER *) pDrv;
 
+    /* Get drawing page */
+    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+
     /* Get graphics context */
     gc = pDrv->gc;
 
@@ -474,7 +486,7 @@ UGL_STATUS uglVgaBresenhamLine (
 
         /* Calculate variables */
         stride = pVga->bytesPerLine;
-        dest   = ((UGL_UINT8 *) pDrv->fbAddress) +
+        dest   = ((UGL_UINT8 *) pDrawDdb->pData) +
                  (pStartPoint->y * stride) + (pStartPoint->x >> 3);
         mask         = 0x80 >> (pStartPoint->x & 0x07);
 
