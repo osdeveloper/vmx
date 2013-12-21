@@ -41,9 +41,11 @@ UGL_STATUS uglUgiDevInit (
     }
 
     /* Initialize basic fields */
-    devId->defaultGc      = UGL_NULL;
-    devId->pScratchBuf    = UGL_NULL;
-    devId->scratchBufFree = UGL_TRUE;
+    devId->defaultGc              = UGL_NULL;
+    devId->pScratchBuf            = UGL_NULL;
+    devId->scratchBufFree         = UGL_TRUE;
+    devId->cursorColorTransparent = UGL_CURSOR_COLOR_TRANSPARENT;
+    devId->cursorColorInvert      = UGL_CURSOR_COLOR_INVERT;
 
     return (UGL_STATUS_OK);
 }

@@ -24,16 +24,18 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
-/* Locals */
+/* Globals */
 
-UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
-    UGL_DEVICE_ID    devId,
-    UGL_SIZE         width,
-    UGL_SIZE         height
+UGL_STATUS uglGenericScratchBitmapCreate (
+    UGL_DEVICE_ID  devId,
+    UGL_SIZE       width,
+    UGL_SIZE       height
     );
 
+/* Locals */
+
 UGL_LOCAL UGL_STATUS uglGenericScratchBitmapDestroy (
-    UGL_DEVICE_ID    devId
+    UGL_DEVICE_ID  devId
     );
 
 /******************************************************************************
@@ -86,6 +88,45 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
             uglOSMemFree (pTddb);
             return (UGL_NULL);
         }
+    }
+
+    return (UGL_TDDB_ID) pTddb;
+}
+
+/******************************************************************************
+ *
+ * uglGenericTransBitmapCreateFromDdb - Create generic transparent bitmap ddb
+ *
+ * RETURNS: UGL_TDDB_ID or UGL_NULL
+ */
+
+UGL_TDDB_ID uglGenericTransBitmapCreateFromDdb (
+    UGL_DEVICE_ID    devId,
+    UGL_DDB_ID       ddbId,
+    UGL_MDDB_ID      mDdbId,
+    UGL_MEM_POOL_ID  poolId
+    ) {
+    UGL_GEN_DDB *  pDdb;
+    UGL_GEN_TDDB * pTddb;
+
+    /* Get generic bitmap */
+    pDdb = (UGL_GEN_DDB *) ddbId;
+
+    /* Create scratch bitmap */
+    if (uglGenericScratchBitmapCreate (devId, pDdb->header.width,
+                                       pDdb->header.height) ==
+        UGL_STATUS_ERROR) {
+        return (UGL_NULL);
+    }
+
+    /* Allocate transparent bitmap */
+    pTddb = (UGL_GEN_TDDB *) uglOSMemAlloc (poolId, sizeof (UGL_GEN_TDDB));
+    if (pTddb != UGL_NULL) {
+        pTddb->header.width  = pDdb->header.width;
+        pTddb->header.height = pDdb->header.height;
+        pTddb->header.type   = UGL_TDDB_TYPE;
+        pTddb->ddb           = ddbId;
+        pTddb->mask          = mDdbId;
     }
 
     return (UGL_TDDB_ID) pTddb;
@@ -310,10 +351,10 @@ UGL_STATUS uglGenericTransBitmapLinearBlt (
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
-    UGL_DEVICE_ID    devId,
-    UGL_SIZE         width,
-    UGL_SIZE         height
+UGL_STATUS uglGenericScratchBitmapCreate (
+    UGL_DEVICE_ID  devId,
+    UGL_SIZE       width,
+    UGL_SIZE       height
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_GEN_DDB *        scratchBitmap;
@@ -372,7 +413,7 @@ UGL_LOCAL UGL_STATUS uglGenericScratchBitmapCreate (
  */
 
 UGL_LOCAL UGL_STATUS uglGenericScratchBitmapDestroy (
-    UGL_DEVICE_ID    devId
+    UGL_DEVICE_ID  devId
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_STATUS           status;

@@ -495,6 +495,82 @@ UGL_STATUS uglTransBitmapDestroy (
     UGL_TDDB *       pTddb
     );
 
+/* Cursor support functions */
+
+/******************************************************************************
+ *
+ * uglCursorInit - Initialize cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorInit (
+    UGL_DEVICE_ID  devId,
+    UGL_SIZE       maxWidth,
+    UGL_SIZE       maxHeight,
+    UGL_POS        xPosition,
+    UGL_POS        yPosition
+    );
+
+/******************************************************************************
+ *
+ * uglCursorDeinit - Deinitialize cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorDeinit (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
+ * uglCursorBitmapCreate - Create cursor bitmap
+ *
+ * RETURNS: UGL_CDDB_ID or UGL_NULL
+ */
+
+UGL_CDDB_ID uglCursorBitmapCreate (
+    UGL_DEVICE_ID  devId,
+    UGL_CDIB *     pCdib
+    );
+
+/******************************************************************************
+ *
+ * uglCursorBitmapDestroy - Destroy cursor bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorBitmapDestroy (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB_ID    cddbId
+    );
+
+/******************************************************************************
+ *
+ * uglCursorColorTransparentSet - Set transparent color key index for cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorColorTransparentSet (
+    UGL_DEVICE_ID  devId,
+    UGL_COLOR      color
+    );
+
+/******************************************************************************
+ *
+ * uglCursorColorInvertSet - Set invert color key index for cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorColorInvertSet (
+    UGL_DEVICE_ID  devId,
+    UGL_COLOR      color
+    );
+
 /* Batch job support functions */
 
 /******************************************************************************

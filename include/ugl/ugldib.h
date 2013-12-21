@@ -32,6 +32,10 @@
 #define UGL_MDDB_TYPE                   1
 #define UGL_TDDB_TYPE                   2
 
+/* Cursor color keys */
+#define UGL_CURSOR_COLOR_TRANSPARENT    255
+#define UGL_CURSOR_COLOR_INVERT         254
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
@@ -61,7 +65,18 @@ typedef struct ugl_mdib {
     void *            pData;            /* Image data */
 } UGL_MDIB;
 
-/* Gneric bitmap header */
+/* Cursor bitmap */
+typedef struct ugl_cdib {
+    UGL_SIZE    width;                  /* Cursor width */
+    UGL_SIZE    height;                 /* Cursor height */
+    UGL_SIZE    stride;                 /* Distance between 2 scanlines */
+    UGL_POINT   hotSpot;                /* Coordinate for hot-spot */
+    UGL_SIZE    clutSize;               /* Color lookup table size */
+    UGL_ARGB *  pClut;                  /* Color lookup table */
+    UGL_UINT8 * pData;                  /* Image data */
+} UGL_CDIB;
+
+/* Generic bitmap header */
 typedef struct ugl_bmap_header {
     UGL_UINT16  type;                   /* Bitmap type */
     UGL_UINT16  width;                  /* Bitmap width */
@@ -79,6 +94,10 @@ typedef UGL_MDDB *       UGL_MDDB_ID;
 /* Deveice dependent transparent bitmap */
 typedef UGL_BMAP_HEADER  UGL_TDDB;
 typedef UGL_TDDB *       UGL_TDDB_ID;
+
+/* Deveice dependent cursor bitmap */
+typedef UGL_BMAP_HEADER  UGL_CDDB;
+typedef UGL_CDDB *       UGL_CDDB_ID;
 
 /* Generic bitmap id */
 typedef UGL_BMAP_HEADER * UGL_BITMAP_ID;

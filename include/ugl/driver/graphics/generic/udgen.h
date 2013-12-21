@@ -52,6 +52,23 @@ typedef struct ugl_gen_tddb {
     UGL_DDB *        ddb;               /* Bitmap */
 } UGL_GEN_TDDB;
 
+typedef struct ugl_generic_cddb {
+    UGL_GEN_TDDB  tddb;                 /* Transparent cursor bitmap */
+    UGL_POINT     hotSpot;              /* Coordinates for hot-spot */
+} UGL_GEN_CDDB;
+
+typedef struct ugl_gen_cursor_data {
+    UGL_GC_ID      gc;                  /* Graphics context for cursor */
+    UGL_SIZE       maxWidth;            /* Maximum width */
+    UGL_SIZE       maxHeight;           /* Maxiumu height */
+    UGL_POINT      position;            /* Coordinates for cursor position */
+    UGL_BOOL       on;                  /* Cursor on-off */
+    UGL_BOOL       hidden;              /* Cursor hidden-visible */
+    UGL_GEN_CDDB * imageBitmap;         /* Cursor bitmap */
+    UGL_DDB *      screenBitmap;        /* Screen bitmap for cursor */
+    UGL_DDB *      scratchBitmap;       /* Scratch bitmao for cursor */
+} UGL_GEN_CURSOR_DATA;
+
 typedef struct ugl_generic_driver {
     UGL_UGI_DRIVER  ugi;                /* UGI driver (required) */
     void *          fbAddress;          /* Frame buffer address */
@@ -61,6 +78,7 @@ typedef struct ugl_generic_driver {
     UGL_GEN_DDB *   scratchBitmap;      /* Scratch bitmap */
     UGL_ORD         transBitmapCount;   /* Scratch bitmap reference count */
     UGL_CLUT *      pClut;              /* Palette */
+    void *          pCursorData;        /* Cursor data storage */
 
     /* Generic methods */
     UGL_STATUS      (*hLine) (
@@ -390,6 +408,20 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
 
 /******************************************************************************
  *
+ * uglGenericTransBitmapCreateFromDdb - Create generic transparent bitmap ddb
+ *
+ * RETURNS: UGL_TDDB_ID or UGL_NULL
+ */
+
+UGL_TDDB_ID uglGenericTransBitmapCreateFromDdb (
+    UGL_DEVICE_ID    devId,
+    UGL_DDB_ID       ddbId,
+    UGL_MDDB_ID      mDdbId,
+    UGL_MEM_POOL_ID  poolId
+    );
+
+/******************************************************************************
+ *
  * uglGenericTransBitmapDestroy - Destroy generic transparent bitmap
  *
  * RETURNS: UGL_STATUS_OK
@@ -413,6 +445,58 @@ UGL_STATUS uglGenericTransBitmapLinearBlt (
     UGL_RECT *     pSrcRect,
     UGL_DDB_ID     destBmpId,
     UGL_POINT *    pDestPoint
+    );
+
+/* Generic cursor support functions */
+
+/******************************************************************************
+ *
+ * uglGenericCursorInit - Initialize generic cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorInit (
+    UGL_DEVICE_ID  devId,
+    UGL_SIZE       maxWidth,
+    UGL_SIZE       maxHeight,
+    UGL_POS        xPosition,
+    UGL_POS        yPosition
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorDeinit - Deinitialize generic cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorDeinit (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorBitmapCreate - Create generic cursor bitmap
+ *
+ * RETURNS: UGL_CDDB_ID or UGL_NULL
+ */
+
+UGL_CDDB_ID uglGenericCursorBitmapCreate (
+    UGL_DEVICE_ID  devId,
+    UGL_CDIB *     pCdib
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorBitmapDestroy - Destroy generic cursor bitmap
+ *
+ * RETURNS: UGL_STATUS_OK
+ */
+
+UGL_STATUS uglGenericCursorBitmapDestroy (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB_ID    cDdbId
     );
 
 #ifdef __cplusplus

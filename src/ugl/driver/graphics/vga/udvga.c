@@ -302,18 +302,26 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->polygon   = uglGenericPolygon;
 
             /* Setup bitmap support methods */
-            devId->bitmapCreate       = uglVgaBitmapCreate;
-            devId->bitmapDestroy      = uglVgaBitmapDestroy;
-            devId->bitmapBlt          = uglVgaBitmapBlt;
-            devId->bitmapWrite        = uglVgaBitmapWrite;
-            devId->monoBitmapCreate   = uglVgaMonoBitmapCreate;
-            devId->monoBitmapDestroy  = uglVgaMonoBitmapDestroy;
-            devId->monoBitmapBlt      = uglVgaMonoBitmapBlt;
-            devId->monoBitmapWrite    = uglVgaMonoBitmapWrite;
-            devId->monoBitmapRead     = uglVgaMonoBitmapRead;
-            devId->transBitmapCreate  = uglGenericTransBitmapCreate;
-            devId->transBitmapDestroy = uglGenericTransBitmapDestroy;
-            devId->transBitmapBlt     = uglGenericTransBitmapLinearBlt;
+            devId->bitmapCreate             = uglVgaBitmapCreate;
+            devId->bitmapDestroy            = uglVgaBitmapDestroy;
+            devId->bitmapBlt                = uglVgaBitmapBlt;
+            devId->bitmapWrite              = uglVgaBitmapWrite;
+            devId->monoBitmapCreate         = uglVgaMonoBitmapCreate;
+            devId->monoBitmapDestroy        = uglVgaMonoBitmapDestroy;
+            devId->monoBitmapBlt            = uglVgaMonoBitmapBlt;
+            devId->monoBitmapWrite          = uglVgaMonoBitmapWrite;
+            devId->monoBitmapRead           = uglVgaMonoBitmapRead;
+            devId->transBitmapCreate        = uglGenericTransBitmapCreate;
+            devId->transBitmapCreateFromDdb =
+                uglGenericTransBitmapCreateFromDdb;
+            devId->transBitmapDestroy       = uglGenericTransBitmapDestroy;
+            devId->transBitmapBlt           = uglGenericTransBitmapLinearBlt;
+
+            /* Setup cursor support methods */
+            devId->cursorInit          = uglGenericCursorInit;
+            devId->cursorDeinit        = uglGenericCursorDeinit;
+            devId->cursorBitmapCreate  = uglGenericCursorBitmapCreate;
+            devId->cursorBitmapDestroy = uglGenericCursorBitmapDestroy;
 
             /* Set write mode 3 */
             UGL_OUT_BYTE (0x3ce, 0x05);

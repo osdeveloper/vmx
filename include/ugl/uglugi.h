@@ -71,6 +71,8 @@ typedef struct ugl_ugi_driver {
     UGL_GC_ID    defaultGc;                     /* Default graphics context*/
     void *       pScratchBuf;                   /* Scratch buffer */
     UGL_BOOL     scratchBufFree;                /* Is scratch buffer in use */
+    UGL_COLOR    cursorColorTransparent;        /* Transparent key for cursor */
+    UGL_COLOR    cursorColorInvert;             /* Invert key for cursor */
 
     /* Device support methods */
 
@@ -268,6 +270,13 @@ typedef struct ugl_ugi_driver {
         UGL_MEM_POOL_ID         poolId
         );
 
+    UGL_TDDB *   (*transBitmapCreateFromDdb) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_DDB *               pDdb,
+        UGL_MDDB *              pMddb,
+        UGL_MEM_POOL_ID         poolId
+        );
+
     UGL_STATUS   (*transBitmapDestroy) (
         struct ugl_ugi_driver * pDrv,
         UGL_TDDB *              pTddb
@@ -279,6 +288,30 @@ typedef struct ugl_ugi_driver {
         UGL_RECT *              pSrcRect,
         UGL_DDB *               pDestBmp,
         UGL_POINT *             pDestPoint
+        );
+
+    /* Cursor */
+
+    UGL_STATUS   (*cursorInit) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_SIZE                maxWidth,
+        UGL_SIZE                maxHeight,
+        UGL_POS                 xPosition,
+        UGL_POS                 yPosition
+        );
+
+    UGL_STATUS   (*cursorDeinit) (
+        struct ugl_ugi_driver * pDrv
+        );
+
+    UGL_CDDB_ID  (*cursorBitmapCreate) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_CDIB *              pCdib
+        );
+
+    UGL_STATUS   (*cursorBitmapDestroy) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_CDDB *              pCdib
         );
 
 } UGL_UGI_DRIVER;

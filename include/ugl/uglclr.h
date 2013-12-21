@@ -44,6 +44,8 @@
 #define UGL_CM_CMYK             0x06000000
 #define UGL_CM_YIQ              0x07000000
 
+#define UGL_ARGB8888            (UGL_CM_ARGB | 0x00048888)
+
 /* Color model */
 #define UGL_CMODEL_INDEXED              1                 /* Indexed color */
 #define UGL_CMODEL_DIRECT               2                 /* Direct color */
