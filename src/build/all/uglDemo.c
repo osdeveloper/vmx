@@ -490,22 +490,24 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   }
 
   for (i = 0; i < maxtimes; i++) {
-    x1 = rand() % 640;
-    y1 = rand () % 480;
-    x2 = rand () % 640;
-    y2 = rand () % 480;
+    do {
+      x1 = rand() % 640;
+      y1 = rand () % 480;
+      x2 = rand () % 640;
+      y2 = rand () % 480;
 
-    if (x1 > x2) {
+      if (x1 > x2) {
         x = x1;
         x1 = x2;
         x2 = x1;
-    }
+      }
 
-    if (y1 > y2) {
+      if (y1 > y2) {
         y = y1;
         y1 = y2;
         y2 = y1;
-    }
+      }
+    } while ((x2 - x1) <= 1 || (y2 - y1) <= 1);
 
     uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
     uglForegroundColorSet(gfxDevId->defaultGc, rand () % 16);

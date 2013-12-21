@@ -42,11 +42,91 @@ UGL_STATUS uglGenericRectangle (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pRect
     ) {
-    UGL_STATUS  status;
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_GC_ID            gc;
+    UGL_POINT            topLeft;
+    UGL_POINT            bottomLeft;
+    UGL_POINT            bottomRight;
+    UGL_POINT            topRight;
+    UGL_POS              posLeft;
+    UGL_RECT             fillRect;
+    UGL_INT32            adjust;
 
-    status = uglGenericRectFill (devId, pRect);
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
-    return (status);
+    /* Get graphics context */
+    gc = pDrv->gc;
+
+    if (gc->foregroundColor != UGL_COLOR_TRANSPARENT && gc->lineWidth > 0) {
+
+        /* Top left */
+        topLeft.x = pRect->left;
+        topLeft.y = pRect->top;
+
+        /* Top right */
+        topRight.x = pRect->right;
+        topRight.y = pRect->top;
+
+        /* Bottom right */
+        bottomRight.x = pRect->right;
+        bottomRight.y = pRect->bottom;
+
+        /* Bottom left */
+        bottomLeft.x = pRect->left;
+        bottomLeft.y = pRect->bottom;
+
+        posLeft = topLeft.y;
+
+        (*devId->line) (devId, &topLeft, &topRight);
+
+        if (bottomLeft.y > posLeft) {
+            (*devId->line) (devId, &bottomLeft, &bottomRight);
+        }
+
+        /* Top left */
+        topLeft.x = pRect->left;
+        topLeft.y = pRect->top;
+
+        /* Top right */
+        topRight.x = pRect->right;
+        topRight.y = pRect->top;
+
+        /* Bottom right */
+        bottomRight.x = pRect->right;
+        bottomRight.y = pRect->bottom;
+
+        /* Bottom left */
+        bottomLeft.x = pRect->left;
+        bottomLeft.y = pRect->bottom;
+
+        posLeft = bottomLeft.x;
+
+        if (bottomLeft.y > (topLeft.y + 1))  {
+            (*devId->line) (devId, &topLeft, &bottomLeft);
+
+            if (posLeft < bottomRight.x) {
+                (*devId->line) (devId, &topRight, &bottomRight);
+            }
+        }
+    }
+
+    if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
+        UGL_RECT_COPY (&fillRect, pRect);
+
+        adjust = (gc->lineWidth + 2) / 2;
+        fillRect.left += adjust;
+        fillRect.top  += adjust;
+
+        adjust = -(gc->lineWidth + 1) / 2;
+        fillRect.right  += adjust;
+        fillRect.bottom += adjust;
+
+        uglGenericRectFill (devId, &fillRect);
+    }
+
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************
