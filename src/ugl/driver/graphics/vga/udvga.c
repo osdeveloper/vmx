@@ -322,6 +322,12 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->cursorDeinit        = uglGenericCursorDeinit;
             devId->cursorBitmapCreate  = uglGenericCursorBitmapCreate;
             devId->cursorBitmapDestroy = uglGenericCursorBitmapDestroy;
+            devId->cursorImageSet      = uglGenericCursorImageSet;
+            devId->cursorImageGet      = uglGenericCursorImageGet;
+            devId->cursorOn            = uglGenericCursorOn;
+            devId->cursorOff           = uglGenericCursorOff;
+            devId->cursorHide          = uglGenericCursorHide;
+            devId->cursorShow          = uglGenericCursorShow;
 
             /* Set write mode 3 */
             UGL_OUT_BYTE (0x3ce, 0x05);

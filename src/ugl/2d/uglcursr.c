@@ -146,14 +146,19 @@ UGL_STATUS uglCursorBitmapDestroy (
     UGL_DEVICE_ID  devId,
     UGL_CDDB_ID    cddbId
     ) {
-    UGL_STATUS  status;
+    UGL_STATUS   status;
+    UGL_CDDB_ID  cursorImageId;
 
     /* Check params */
     if (devId == UGL_NULL || cddbId == UGL_NULL) {
         return (UGL_STATUS_ERROR);
     }
 
-    /* TODO: Check image used */
+    /* Check if image used */
+    uglCursorImageGet (devId, &cursorImageId);
+    if (cursorImageId == cddbId) {
+        return (UGL_STATUS_ERROR);
+    }
 
     /* Lock device */
     if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
@@ -162,6 +167,132 @@ UGL_STATUS uglCursorBitmapDestroy (
 
     /* Invoke driver specific method */
     status = (*devId->cursorBitmapDestroy) (devId, cddbId);
+
+    /* Unlock */
+    uglOSUnlock (devId->lockId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglCursorImageGet - Get cursor image bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorImageGet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB_ID *  pImageBitmapId
+    ) {
+    UGL_STATUS  status;
+
+    /* Check params */
+    if (devId == UGL_NULL || uglCursorInitialized == UGL_FALSE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock device */
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Invoke driver specific method */
+    status = (*devId->cursorImageGet) (devId, pImageBitmapId);
+
+    /* Unlock */
+    uglOSUnlock (devId->lockId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglCursorImageSet - Set cursor image bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorImageSet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB_ID    imageBitmapId
+    ) {
+    UGL_STATUS   status;
+    UGL_CDDB_ID  currImageBitmapId;
+
+    status = uglCursorImageGet (devId, &currImageBitmapId);
+    if (status == UGL_STATUS_OK && imageBitmapId != currImageBitmapId) {
+
+        /* Lock device */
+        if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+            return (UGL_STATUS_ERROR);
+        }
+
+        /* Invoke driver specific method */
+        status = (*devId->cursorImageSet) (devId, imageBitmapId);
+
+        /* Unlock */
+        uglOSUnlock (devId->lockId);
+    }
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglCursorOn - Turn on cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorOn (
+    UGL_DEVICE_ID  devId
+    ) {
+    UGL_STATUS  status;
+
+    /* Check params */
+    if (devId == UGL_NULL || uglCursorInitialized == UGL_FALSE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock device */
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Invoke driver specific method */
+    status = (*devId->cursorOn) (devId);
+
+    /* Unlock */
+    uglOSUnlock (devId->lockId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglCursorOff - Turn off cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorOff (
+    UGL_DEVICE_ID  devId
+    ) {
+    UGL_STATUS  status;
+
+    /* Check params */
+    if (devId == UGL_NULL || uglCursorInitialized == UGL_FALSE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock device */
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Invoke driver specific method */
+    status = (*devId->cursorOff) (devId);
 
     /* Unlock */
     uglOSUnlock (devId->lockId);

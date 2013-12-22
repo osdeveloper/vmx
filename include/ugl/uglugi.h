@@ -314,6 +314,33 @@ typedef struct ugl_ugi_driver {
         UGL_CDDB *              pCdib
         );
 
+    UGL_STATUS   (*cursorImageSet) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_CDDB *              pCdib
+        );
+
+    UGL_STATUS   (*cursorImageGet) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_CDDB **             pCdib
+        );
+
+    UGL_STATUS   (*cursorOn) (
+        struct ugl_ugi_driver * pDrv
+        );
+
+    UGL_STATUS   (*cursorOff) (
+        struct ugl_ugi_driver * pDrv
+        );
+
+    UGL_STATUS   (*cursorHide) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_RECT *              rect
+        );
+
+    UGL_STATUS   (*cursorShow) (
+        struct ugl_ugi_driver * pDrv
+        );
+
 } UGL_UGI_DRIVER;
 
 typedef struct ugl_ugi_driver * UGL_DEVICE_ID;

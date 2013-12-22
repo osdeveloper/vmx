@@ -499,6 +499,75 @@ UGL_STATUS uglGenericCursorBitmapDestroy (
     UGL_CDDB_ID    cDdbId
     );
 
+/******************************************************************************
+ *
+ * uglGenericCursorImageSet - Set cursor bitmap image
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorImageSet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB *     pCddb
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorImageGet - Get cursor bitmap image
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorImageGet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB **    ppCddb
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorOn - Turn on cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorOn (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorOff - Turn off cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorOff (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorHide - Hide cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorHide (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
+    );
+
+/******************************************************************************
+ *
+ * uglGenericCursorShow - Show cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorShow (
+    UGL_DEVICE_ID  devId
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

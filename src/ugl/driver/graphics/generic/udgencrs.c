@@ -335,3 +335,296 @@ UGL_STATUS uglGenericCursorBitmapDestroy (
     return (UGL_STATUS_OK);
 }
 
+/******************************************************************************
+ *
+ * uglGenericCursorImageSet - Set cursor bitmap image
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorImageSet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB *     pCddb
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Hide cursor */
+    (*devId->cursorHide) (devId, UGL_NULL);
+
+    /* Set cursor image */
+    pCursorData->imageBitmap = (UGL_GEN_CDDB *) pCddb;
+
+    /* Show cursor */
+    (*devId->cursorShow) (devId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGenericCursorImageGet - Get cursor bitmap image
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorImageGet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB **    ppCddb
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Store image bitmap */
+    *ppCddb = (UGL_CDDB *) pCursorData->imageBitmap;
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGenericCursorOn - Turn on cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorOn (
+    UGL_DEVICE_ID  devId
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL || pCursorData->imageBitmap == UGL_NULL ||
+        pCursorData->on == UGL_TRUE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Mark cursor as on but hidden so far */
+    pCursorData->on     = UGL_TRUE;
+    pCursorData->hidden = UGL_TRUE;
+
+    /* Unhide cursor */
+    (*devId->cursorShow) (devId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGenericCursorOff - Turn off cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorOff (
+    UGL_DEVICE_ID  devId
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL || pCursorData->on == UGL_FALSE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Hide cursor */
+    (*devId->cursorHide) (devId, UGL_NULL);
+
+    /* Mark cursor as off */
+    pCursorData->on = UGL_FALSE;
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGenericCursorHide - Hide cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorHide (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+    UGL_GEN_CDDB *        pCddb;
+    UGL_RECT              cursorRect;
+    UGL_RECT              displayRect;
+    UGL_RECT              srcRect;
+    UGL_RECT              destRect;
+    UGL_POINT             destPoint;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get current cursor image */
+    pCddb = pCursorData->imageBitmap;
+
+    if (pCursorData->hidden == UGL_TRUE || pCursorData->on == UGL_FALSE) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Set geometry */
+    cursorRect.left   = pCursorData->position.x - pCddb->hotSpot.x;
+    cursorRect.top    = pCursorData->position.y - pCddb->hotSpot.y;
+    cursorRect.right  = cursorRect.left + pCddb->tddb.header.width - 1;
+    cursorRect.bottom = cursorRect.top + pCddb->tddb.header.height - 1;
+
+    if (pRect != UGL_NULL) {
+        UGL_RECT_INTERSECT (cursorRect, *pRect, destRect);
+        if (UGL_RECT_WIDTH (destRect) <= 0 || UGL_RECT_HEIGHT (destRect) <= 0) {
+            return (UGL_STATUS_OK);
+        }
+    }
+
+    displayRect.left   = 0;
+    displayRect.top    = 0;
+    displayRect.right  = devId->pMode->width - 1;
+    displayRect.bottom = devId->pMode->height - 1;
+
+    UGL_RECT_INTERSECT (cursorRect, displayRect, destRect);
+
+    if (UGL_RECT_WIDTH (destRect) <= 0 || UGL_RECT_HEIGHT (destRect) <= 0) {
+        return (UGL_STATUS_OK);
+    }
+
+    srcRect.left   = 0;
+    srcRect.top    = 0;
+    UGL_RECT_MOVE_TO (srcRect, destRect.left - cursorRect.left,
+                      destRect.top - cursorRect.top);
+    UGL_RECT_SIZE_TO (srcRect, UGL_RECT_WIDTH (destRect),
+                      UGL_RECT_HEIGHT (destRect));
+
+    destPoint.x = destRect.left;
+    destPoint.y = destRect.top;
+
+    UGL_GC_SET (devId, pCursorData->gc);
+
+    /* Erase mouse cursor by drawing screen bitmap */
+    (*devId->bitmapBlt) (devId, pCursorData->screenBitmap, &srcRect,
+                         UGL_DISPLAY_ID, &destPoint);
+
+    /* Set cursor as hidden */
+    pCursorData->hidden = UGL_TRUE;
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGenericCursorShow - Show cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorShow (
+    UGL_DEVICE_ID  devId
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+    UGL_GEN_CDDB *        pCddb;
+    UGL_RECT              cursorRect;
+    UGL_RECT              displayRect;
+    UGL_RECT              srcRect;
+    UGL_RECT              destRect;
+    UGL_POINT             srcPoint;
+    UGL_POINT             destPoint;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get current cursor image */
+    pCddb = pCursorData->imageBitmap;
+
+    if (pCursorData->hidden == UGL_FALSE || pCursorData->on == UGL_FALSE ||
+        devId->batchCount > 0) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Set geometry */
+    cursorRect.left   = pCursorData->position.x - pCddb->hotSpot.x;
+    cursorRect.top    = pCursorData->position.y - pCddb->hotSpot.y;
+    cursorRect.right  = cursorRect.left + pCddb->tddb.header.width - 1;
+    cursorRect.bottom = cursorRect.top + pCddb->tddb.header.height - 1;
+
+    displayRect.left   = 0;
+    displayRect.top    = 0;
+    displayRect.right  = devId->pMode->width - 1;
+    displayRect.bottom = devId->pMode->height - 1;
+
+    UGL_RECT_INTERSECT (cursorRect, displayRect, destRect);
+
+    if (UGL_RECT_WIDTH (destRect) <= 0 || UGL_RECT_HEIGHT (destRect) <= 0) {
+        return (UGL_STATUS_OK);
+    }
+
+    srcRect.left   = 0;
+    srcRect.top    = 0;
+    UGL_RECT_MOVE_TO (srcRect, destRect.left - cursorRect.left,
+                      destRect.top - cursorRect.top);
+    UGL_RECT_SIZE_TO (srcRect, UGL_RECT_WIDTH (destRect),
+                      UGL_RECT_HEIGHT (destRect));
+
+    srcPoint.x = srcRect.left;
+    srcPoint.y = srcRect.top;
+
+    destPoint.x = destRect.left;
+    destPoint.y = destRect.top;
+
+    UGL_GC_SET (devId, pCursorData->gc);
+
+    /* Store screen contents in order to erase cursor later */
+    (*devId->bitmapBlt) (devId, UGL_DISPLAY_ID, &destRect,
+                         pCursorData->screenBitmap, &srcPoint);
+
+    /* Draw mouse cursor bitmap on screen */
+    (*devId->transBitmapBlt) (devId, (UGL_TDDB *) &pCddb->tddb, &srcRect,
+                              UGL_DISPLAY_ID, &destPoint);
+
+    /* Set cursor as visible */
+    pCursorData->hidden = UGL_FALSE;
+
+    return (UGL_STATUS_OK);
+}
+

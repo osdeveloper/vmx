@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* i8042Kbd.h - Intel i8042 keyboard driver header */
+/* i8042Kbd.h - Intel i8042 keyboard and mouse driver header */
 
-#ifndef _i8042Kbd_h
-#define _i8042Kbd_h
+#ifndef _i8042_h
+#define _i8042_h
 
 #include <sys/types.h>
 
@@ -33,7 +33,7 @@
 #define KBD_CTRL        0x0010
 #define KBD_EXT         0x0020
 #define KBD_ESC         0x0040
-#define KBD_EW          KBD_EXT | KBD_ESC
+#define KBD_EW          (KBD_EXT | KBD_ESC)
 #define KBD_E1          0x0080
 #define KBD_PRTSC       0x0100
 #define KBD_BRK         0x0200
@@ -95,5 +95,5 @@ void kbdIntr(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _i8042Kbd_h */
+#endif /* _i8042_h */
 

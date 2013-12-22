@@ -24,7 +24,7 @@
 #define _pcConsole_h
 
 #include <os/tyLib.h>
-#include <drv/input/i8042Kbd.h>
+#include <drv/input/i8042.h>
 #include <drv/video/m6845Vga.h>
 
 #define INSERT_MODE_OFF         0

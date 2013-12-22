@@ -20,7 +20,7 @@
 
 /* englishKeymap.c - English keymap */
 
-#include <drv/input/i8042Kbd.h>
+#include <drv/input/i8042.h>
 
 u_int8_t kbdEnhanced[] =
 {

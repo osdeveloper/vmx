@@ -25,7 +25,7 @@
 #include <os/iosLib.h>
 #include <os/ioLib.h>
 #include <os/tyLib.h>
-#include <drv/input/i8042Kbd.h>
+#include <drv/input/i8042.h>
 #include <drv/video/m6845Vga.h>
 #include <drv/serial/pcConsole.h>
 #include <stdlib.h>

@@ -22,7 +22,7 @@
 
 #include <vmx.h>
 #include <os/tyLib.h>
-#include <drv/input/i8042Kbd.h>
+#include <drv/input/i8042.h>
 #include <drv/serial/pcConsole.h>
 
 /* IMPORTS */

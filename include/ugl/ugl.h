@@ -549,6 +549,52 @@ UGL_STATUS uglCursorBitmapDestroy (
 
 /******************************************************************************
  *
+ * uglCursorImageGet - Get cursor image bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorImageGet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB_ID *  pImageBitmapId
+    );
+
+/******************************************************************************
+ *
+ * uglCursorImageSet - Set cursor image bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorImageSet (
+    UGL_DEVICE_ID  devId,
+    UGL_CDDB_ID    imageBitmapId
+    );
+
+/******************************************************************************
+ *
+ * uglCursorOn - Turn on cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorOn (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
+ * uglCursorOff - Turn off cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorOff (
+    UGL_DEVICE_ID  devId
+    );
+
+/******************************************************************************
+ *
  * uglCursorColorTransparentSet - Set transparent color key index for cursor
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
