@@ -88,6 +88,14 @@ UGL_DDB_ID uglVgaBitmapCreate (
         return (UGL_NULL);
     }
 
+    /* Setup bitmap header */
+    pVgaBmp->header.type   = UGL_DDB_TYPE;
+    pVgaBmp->header.width  = width;
+    pVgaBmp->header.height = height;
+    pVgaBmp->colorDepth    = numPlanes;
+    pVgaBmp->stride        = width;
+    pVgaBmp->shiftValue    = 0;
+
     /* Setup color planes */
     pVgaBmp->pPlaneArray = (UGL_UINT8 **) (((UGL_UINT8 *) pVgaBmp) +
                            sizeof (UGL_VGA_DDB));
@@ -100,13 +108,7 @@ UGL_DDB_ID uglVgaBitmapCreate (
     /* Initialize contents of color planes */
     switch(createMode) {
         case UGL_DIB_INIT_VALUE:
-            pVgaBmp->colorDepth    = devId->pMode->depth;
-            pVgaBmp->header.type   = UGL_DDB_TYPE;
-            pVgaBmp->header.width  = width;
-            pVgaBmp->header.height = height;
-            pVgaBmp->stride        = width;
-            pVgaBmp->shiftValue    = 0;
-            planeShift             = 0x01;
+            planeShift = 0x01;
 
             for (i = 0; i < numPlanes; i++) {
                 if ((UGL_UINT8) (initValue & planeShift) != 0) {
@@ -120,24 +122,6 @@ UGL_DDB_ID uglVgaBitmapCreate (
             break;
 
         case UGL_DIB_INIT_DATA:
-            pVgaBmp->colorDepth    = devId->pMode->depth;
-            pVgaBmp->header.type   = UGL_DDB_TYPE;
-            pVgaBmp->header.width  = width;
-            pVgaBmp->header.height = height;
-            pVgaBmp->stride        = width;
-            pVgaBmp->shiftValue    = 0;
-
-            /* Clear destination */
-            for (i = 0; i < numPlanes; i++) {
-                if ((UGL_UINT8)(initValue & planeShift) != 0) {
-                    memset(pVgaBmp->pPlaneArray[i], 0xff, planeSize);
-                }
-                else {
-                    memset (pVgaBmp->pPlaneArray[i], 0x00, planeSize);
-                }
-
-                planeShift <<= 1;
-            }
 
             /* Read from source */
             srcRect.left   = 0;
@@ -156,6 +140,7 @@ UGL_DDB_ID uglVgaBitmapCreate (
             }
             break;
 
+            case UGL_DIB_INIT_NONE:
             default:
                 break;
     }
@@ -682,7 +667,6 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_DRIVER *     pVgaDrv;
-    UGL_GEN_DDB *        pDrawDdb;
     UGL_RASTER_OP        rasterOp;
     volatile UGL_UINT8   tmp;
     UGL_INT32            i;
@@ -706,9 +690,6 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     pDrv    = (UGL_GENERIC_DRIVER *) devId;
     pVgaDrv = (UGL_VGA_DRIVER *) devId;
 
-    /* Get drawing page */
-    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
-
     /* Cache raster op */
     rasterOp = pDrv->gc->rasterOp;
 
@@ -722,8 +703,8 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     numPlanes        = devId->pMode->depth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
-    destStart        = (UGL_UINT8 *) pDrawDdb->pData +
-                       pDestRect->top * destBytesPerLine +
+    destStart        = (UGL_UINT8 *) pDrv->fbAddress +
+                       (pDestRect->top * destBytesPerLine) +
                        (pDestRect->left >> 3);
     srcOffset        = pSrcRect->top * srcBytesPerLine +
                        (pSrcRect->left >> 3);
@@ -841,7 +822,6 @@ UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_DRIVER *     pVgaDrv;
-    UGL_GEN_DDB *        pDrawDdb;
     UGL_RASTER_OP        rasterOp;
     UGL_INT32            i;
     UGL_INT32            y;
@@ -863,9 +843,6 @@ UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     pDrv    = (UGL_GENERIC_DRIVER *) devId;
     pVgaDrv = (UGL_VGA_DRIVER *) devId;
 
-    /* Get drawing page */
-    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
-
     /* Cache raster op */
     rasterOp = pDrv->gc->rasterOp;
 
@@ -879,8 +856,9 @@ UGL_LOCAL UGL_VOID uglVgaBltFrameBufferToColor (
     numPlanes        = pBmp->colorDepth;
     srcBytesPerLine  = pVgaDrv->bytesPerLine;
     destBytesPerLine = (pBmp->header.width + 7) / 8 + 1;
-    srcStart         = (UGL_UINT8 *) pDrawDdb->pData +
-                       pSrcRect->top * srcBytesPerLine + (pSrcRect->left >> 3);
+    srcStart         = (UGL_UINT8 *) pDrv->fbAddress +
+                       (pSrcRect->top * srcBytesPerLine) +
+                       (pSrcRect->left >> 3);
     destOffset       = pDestRect->top * destBytesPerLine +
                        (pDestRect->left >> 3);
 
@@ -1472,6 +1450,7 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
                                        (UGL_MDDB_ID) pVgaMonoBmp, &destPoint);
             break;
 
+        case UGL_DIB_INIT_NONE:
         default:
             break;
     }
@@ -1512,7 +1491,6 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     ) {
     UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_DRIVER *     pVgaDrv;
-    UGL_GEN_DDB *        pDrawDdb;
     UGL_GC_ID            gc;
     volatile UGL_UINT8   tmp;
     UGL_INT32            x;
@@ -1534,9 +1512,6 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     pDrv    = (UGL_GENERIC_DRIVER *) devId;
     pVgaDrv = (UGL_VGA_DRIVER *) devId;
 
-    /* Get drawing page */
-    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
-
     /* Get gc */
     gc = pDrv->gc;
 
@@ -1552,8 +1527,8 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     numPlanes        = devId->pMode->depth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
-    destStart        = (UGL_UINT8 *) pDrawDdb->pData +
-                       pDestRect->top * destBytesPerLine +
+    destStart        = (UGL_UINT8 *) pDrv->fbAddress +
+                       (pDestRect->top * destBytesPerLine) +
                        (pDestRect->left >> 3);
     srcOffset        = pSrcRect->top * srcBytesPerLine +
                        (pSrcRect->left >> 3);

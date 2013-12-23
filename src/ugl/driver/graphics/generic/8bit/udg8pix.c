@@ -38,7 +38,6 @@ UGL_STATUS uglGeneric8BitPixelSet (
     UGL_COLOR      c
     ) {
     UGL_GENERIC_DRIVER * pDrv;
-    UGL_GEN_DDB *        pDrawDdb;
     UGL_GC_ID            gc;
     UGL_RECT             clipRect;
     UGL_GEN_DDB *        pBmp;
@@ -46,9 +45,6 @@ UGL_STATUS uglGeneric8BitPixelSet (
 
     /* Get driver which is first in the device structure */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
-
-    /* Get drawing page */
-    pDrawDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
 
     /* Get graphics context */
     gc = pDrv->gc;
@@ -66,7 +62,7 @@ UGL_STATUS uglGeneric8BitPixelSet (
         if (gc->pDefaultBitmap == UGL_DISPLAY_ID) {
 
             /* Calculate destination address */
-            dest = ((UGL_UINT8 *) pDrawDdb->pData) +
+            dest = (UGL_UINT8 *) pDrv->fbAddress +
                    p->x + (p->y * devId->pMode->width);
 
         }

@@ -25,7 +25,7 @@
 
 #include <os/tyLib.h>
 #include <drv/input/i8042.h>
-#include <drv/video/m6845Vga.h>
+#include <drv/video/m6845.h>
 
 #define INSERT_MODE_OFF         0
 #define INSERT_MODE_ON          1

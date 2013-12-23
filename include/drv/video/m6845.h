@@ -18,10 +18,10 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* m6845Vga.h - Vga terminal header */
+/* m6845.h - Vga terminal header */
 
-#ifndef _m6845Vga_h
-#define _m6845Vga_h
+#ifndef _m6845_h
+#define _m6845_h
 
 #define N_PARAM                 16
 
@@ -141,5 +141,5 @@ int vgaWriteString(
 
 #endif /* _ASMLANGUAGE */
 
-#endif /* _m6845Vga_h */
+#endif /* _m6845_h */
 
