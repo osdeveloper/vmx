@@ -45,6 +45,7 @@
 #define UGL_CM_YIQ              0x07000000
 
 #define UGL_ARGB8888            (UGL_CM_ARGB | 0x00048888)
+#define UGL_RGB565              (UGL_CM_ARGB | 0x00020565)
 
 /* Color model */
 #define UGL_CMODEL_INDEXED              1                 /* Indexed color */
@@ -76,6 +77,7 @@ extern "C" {
 typedef UGL_INT32   UGL_COLOR_MODEL;
 typedef UGL_UINT32  UGL_COLOR_FORMAT;
 typedef UGL_UINT32  UGL_ARGB;
+typedef UGL_ARGB    UGL_RGB;
 
 /* Draw color */
 #define UGL_COLOR_TRANSPARENT           ((UGL_COLOR) 0x00010101L)

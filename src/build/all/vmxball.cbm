@@ -1,9 +1,9 @@
 /* vmxball.c - vmxball bitmap and palette */
 
-unsigned int vmxballWidth = 410;
-unsigned int vmxballHeight = 425;
+UGL_SIZE vmxballWidth = 410;
+UGL_SIZE vmxballHeight = 425;
 
-unsigned char vmxballClut[16][3] = {
+UGL_COLOR vmxballClut[16][3] = {
 	{255,255,255},
 	{255,255,  0},
 	{255,  0,255},
@@ -22,7 +22,7 @@ unsigned char vmxballClut[16][3] = {
 	{190,151,131}
 	};
 
-unsigned char vmxballData[] = {
+UGL_UINT32 vmxballData[] = {
 	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,
 	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,
 	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,

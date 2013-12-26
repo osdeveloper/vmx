@@ -38,9 +38,10 @@
 
 #include "vmxball.cbm"
 #include "pinball.cbm"
+#include "cursor.cbm"
 #include "font8x16.cfs"
 
-#define LOOP_PAL_LENGTH         16
+#define PAL_LENGTH             16
 #define BALL_SPEED              4
 #define DB_CLEAR_COLOR          0x06
 
@@ -64,7 +65,7 @@ int createDib(void)
   bgDib.width = vmxballWidth;
   bgDib.height = vmxballHeight;
   bgDib.stride = vmxballWidth;
-  bgDib.imageFormat = UGL_INDEXED_8;
+  bgDib.imageFormat = UGL_DIRECT;
   bgDib.colorFormat = UGL_DEVICE_COLOR_32;
   bgDib.clutSize = 16;
   bgDib.pClut = malloc(sizeof(UGL_COLOR) * 16);
@@ -82,7 +83,7 @@ int createDib(void)
   fgDib.width = pinballWidth;
   fgDib.height = pinballHeight;
   fgDib.stride = pinballWidth;
-  fgDib.imageFormat = UGL_INDEXED_8;
+  fgDib.imageFormat = UGL_DIRECT;
   fgDib.colorFormat = UGL_DEVICE_COLOR_32;
   fgDib.clutSize = 16;
   fgDib.pClut = malloc(sizeof(UGL_COLOR) * 16);
@@ -92,9 +93,9 @@ int createDib(void)
   }
   for (i = 0; i < 16; i++)
     ((UGL_COLOR *) fgDib.pClut)[i] = UGL_MAKE_ARGB(1,
-		    		     16 * pinballClut[i][0] / 255,
-		    		     16 * pinballClut[i][1] / 255,
-		    		     16 * pinballClut[i][2] / 255);
+		    		     pinballClut[i][0],
+		    		     pinballClut[i][1],
+		    		     pinballClut[i][2]);
   fgDib.pData = pinballData;
 
   mDib.width = pinballWidth;
@@ -102,14 +103,14 @@ int createDib(void)
   mDib.stride = pinballWidth;
   mDib.pData = pinballMask;
 
-  cDib.width = pinballWidth;
-  cDib.height = pinballHeight;
-  cDib.stride = pinballWidth;
+  cDib.width = cursorWidth;
+  cDib.height = cursorHeight;
+  cDib.stride = cursorWidth;
   cDib.hotSpot.x = 0;
   cDib.hotSpot.y = 0;
   cDib.clutSize = fgDib.clutSize;
   cDib.pClut = fgDib.pClut;
-  cDib.pData = pinballData;
+  cDib.pData = cursorData;
 
   return 0;
 }
@@ -117,18 +118,19 @@ int createDib(void)
 void setPalette(void)
 {
   int i;
-  UGL_ORD paletteIndex[LOOP_PAL_LENGTH];
-  UGL_ARGB palette[LOOP_PAL_LENGTH];
-  UGL_COLOR colors[LOOP_PAL_LENGTH];
+  UGL_ORD paletteIndex[PAL_LENGTH];
+  UGL_ARGB palette[PAL_LENGTH];
+  UGL_COLOR colors[PAL_LENGTH];
 
-  for (i = 0; i < LOOP_PAL_LENGTH; i++) {
+  for (i = 0; i < PAL_LENGTH; i++) {
     paletteIndex[i] = i;
     palette[i] = UGL_MAKE_ARGB(255,			/* ALPHA */
 			       vmxballClut[i][0],	/* RED */
 			       vmxballClut[i][1],	/* GREEN */
 			       vmxballClut[i][2]);	/* BLUE */
   }
-  uglColorAlloc(gfxDevId, palette, paletteIndex, colors, LOOP_PAL_LENGTH);
+
+  uglColorAlloc(gfxDevId, palette, paletteIndex, colors, PAL_LENGTH);
 }
 
 int mode4Enter(struct vgaHWRec *oldRegs)
@@ -1128,7 +1130,6 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
 
   pDrv = (UGL_GENERIC_DRIVER *) gfxDevId;
   pCursorData = pDrv->pCursorData;
-  uglCursorColorTransparentSet(gfxDevId, 0);
 
   pBgBmp = uglBitmapCreate(gfxDevId, &bgDib, UGL_DIB_INIT_DATA,
                            8, gfxPartId);

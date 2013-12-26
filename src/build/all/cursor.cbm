@@ -1,0 +1,48 @@
+/* Cursor bitmap data */
+
+UGL_SIZE cursorWidth = 32;
+UGL_SIZE cursorHeight = 32;
+
+UGL_UINT8 cursorData[] = {
+#define A 4,
+#define B 14,
+#define T 255,
+#define I 254,
+    T T T T T T T T T T T T A A A A A A A A T T T T T T T T T T T T
+    T T T T T T T T T A A A A A A A A A A A A A A T T T T T T T T T
+    T T T T T T T A A A A T T T A A I I I I A A A A A T T T T T T T
+    T T T T T T A A A T T T T T A A I I I I I I A A A A T T T T T T
+    T T T T T A A A T T T T T T A A I I I I I I I I I A A T T T T T
+    T T T T A A T T T T T T T B A A B I I I I I I I I A A A T T T T
+    T T T A A T T T T T T B B B A A B B B I I I I I I I I A A T T T
+    T T A A A T T T T T B B B T A A I B B B I I I I I I I A A A T T
+    T T A A T T T T T B B T T T A A I I I B B I I I I I I I A A T T
+    T A A T T T T T B B T T T T A A I I I I B B I I I I I I I A A T
+    T A A T T T T B B T T T T T A A I I I I I B B I I I I I I A A T
+    T A A T T T T B B T T T T T A A I I I I I B B I I I I I I I A A
+    A A T T T T B B T T T T T T A A I I I I I I B B I I I I I I A A
+    A A T T T T B B T T T T T T A A I I I I I I B B I I I I I I A A
+    A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A
+    A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A
+    A A I I I I B B I I I I I I A A T T T T T T B B T T T T T T A A
+    A A I I I I B B I I I I I I A A T T T T T T B B T T T T T A A A
+    A A A I I I I B B I I I I I A A T T T T T B B T T T T T T A A A
+    A A A I I I I B B I I I I I A A T T T T T B B T T T T T T A A A
+    T A A I I I I I B B I I I I A A T T T T B B T T T T T T T A A T
+    T A A I I I I I B B B B I I A A T T B B B T T T T T T T A A A T
+    T A A A I I I I I I B B B B A A B B B B T T T T T T T T A A A T
+    T T A A I I I I I I I I B B A A B B T T T T T T T T T A A A T T
+    T T A A A I I I I I I I I I A A T T T T T T T T T T T A A A T T
+    T T T A A A I I I I I I I I A A T T T T T T T T T T A A A T T T
+    T T T T A A A I I I I I I I A A T T T T T T T T T A A A T T T T
+    T T T T T A A A I I I I I I A A T T T T T T T T A A A T T T T T
+    T T T T T T A A A A I I I I A A T T T T T T T A A A T T T T T T
+    T T T T T T T A A A A A I I A A A T T T A A A A A T T T T T T T
+    T T T T T T T T T A A A A A A A A A A A A A A T T T T T T T T T
+    T T T T T T T T T T T T A A A A A A A A T T T T T T T T T T T T
+#undef A
+#undef B
+#undef T
+#undef I
+};
+

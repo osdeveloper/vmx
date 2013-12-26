@@ -92,17 +92,22 @@ UGL_STATUS uglVga4BitColorConvert (
     UGL_COLOR_FORMAT destFormat,
     UGL_SIZE         arraySize
     ) {
-    UGL_UINT8 ** pDestArray;
-    UGL_UINT8 ** pSrcArray;
-    UGL_UINT8 *  pDest;
-    UGL_UINT8 *  pSrc;
-    UGL_UINT8    destMask;
-    UGL_UINT8    srcMask;
-    UGL_COLOR *  pDestColor;
-    UGL_COLOR *  pSrcColor;
-    UGL_UINT32   i;
-    UGL_UINT32   j;
-    UGL_UINT32   size;
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_UINT8 **         pDestArray;
+    UGL_UINT8 **         pSrcArray;
+    UGL_UINT8 *          pDest;
+    UGL_UINT8 *          pSrc;
+    UGL_UINT8            destMask;
+    UGL_UINT8            srcMask;
+    UGL_COLOR *          pDestColor;
+    UGL_COLOR *          pSrcColor;
+    UGL_COLOR *          pColorBuf;
+    UGL_UINT32           i;
+    UGL_UINT32           j;
+    UGL_UINT32           size;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
     /* If destination color format is device dependent */
     if (destFormat == UGL_DEVICE_COLOR) {
@@ -159,6 +164,31 @@ UGL_STATUS uglVga4BitColorConvert (
                     }
                 }
                 break;
+
+            case UGL_ARGB8888:
+                pColorBuf = (UGL_COLOR *) uglScratchBufferAlloc (devId,
+                                                arraySize * sizeof (UGL_COLOR));
+                if (pColorBuf == UGL_NULL) {
+                    return (UGL_STATUS_ERROR);
+                }
+
+                uglGenericClutMapNearest (pDrv, (UGL_ARGB *) srcArray, UGL_NULL,
+                                          pColorBuf, arraySize);
+
+                if (uglVga4BitColorConvert (devId, pColorBuf,
+                                            UGL_DEVICE_COLOR_32,
+                                            destArray, destFormat,
+                                            arraySize) == UGL_STATUS_ERROR) {
+                    uglScratchBufferFree (devId, pColorBuf);
+                    return (UGL_STATUS_ERROR);
+                }
+
+                uglScratchBufferFree (devId, pColorBuf);
+
+                break;
+
+            default:
+                return (UGL_STATUS_ERROR);
         }
 
         return (UGL_STATUS_OK);
@@ -215,6 +245,15 @@ UGL_STATUS uglVga4BitColorConvert (
             case UGL_DEVICE_COLOR_32:
                 memcpy (destArray, srcArray, arraySize * sizeof (UGL_COLOR));
                 break;
+
+            case UGL_ARGB8888:
+                uglCommonClutMapNearest (pDrv->pClut,
+                                         (UGL_ARGB *) srcArray, UGL_NULL,
+                                         (UGL_COLOR *) destArray, arraySize);
+                break;
+
+            default:
+                return (UGL_STATUS_ERROR);
         }
     }
 

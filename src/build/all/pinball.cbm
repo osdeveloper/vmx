@@ -1,9 +1,9 @@
-/* pinball.c - pinball bitmap and palette */
+/* pinball.c - pinball bitmap, bitmask and palette */
 
-unsigned int pinballWidth = 64;
-unsigned int pinballHeight = 64;
+UGL_SIZE pinballWidth = 64;
+UGL_SIZE pinballHeight = 64;
 
-unsigned char pinballClut[16][3] = {
+UGL_COLOR pinballClut[16][3] = {
 	{255,255,255},
 	{255,255,  0},
 	{255,  0,255},
@@ -22,7 +22,7 @@ unsigned char pinballClut[16][3] = {
 	{190,151,131}
 	};
 
-unsigned char pinballData[] = {
+UGL_UINT32 pinballData[] = {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,0,0,12,12,12,12,
 	12,12,12,12,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -281,7 +281,7 @@ unsigned char pinballData[] = {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	};
 
-unsigned char pinballMask[] = {
+UGL_UINT8 pinballMask[] = {
 	0x00, 0x00, 0x00, 0x0f, 0xf0, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x01, 0xff, 0xff, 0x80, 0x00, 0x00,
 	0x00, 0x00, 0x0f, 0xff, 0xff, 0xf0, 0x00, 0x00,

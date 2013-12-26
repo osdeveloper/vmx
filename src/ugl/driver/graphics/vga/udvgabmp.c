@@ -1154,7 +1154,6 @@ UGL_STATUS uglVgaBitmapWrite (
     UGL_UINT8            startMask;
     UGL_UINT8 **         pPlaneArray;
     UGL_UINT8 *          pSrc;
-    UGL_UINT8 *          pClut;
     UGL_INT32            bpp;
     UGL_INT32            ppb;
     UGL_INT32            nPixels;
@@ -1164,6 +1163,12 @@ UGL_STATUS uglVgaBitmapWrite (
     UGL_INT32            destMask;
     UGL_COLOR            pixel;
     UGL_COLOR            planeMask;
+    UGL_INT32            index;
+    UGL_COLOR *          pSrcColor;
+    UGL_UINT8            mask;
+    UGL_RGB              rgb888;
+    UGL_INT32            rgb565;
+    UGL_COLOR *          pClut;
 
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -1204,13 +1209,110 @@ UGL_STATUS uglVgaBitmapWrite (
             startIndex       = destRect.top * destBytesPerLine + (left >> 3);
             startMask        = 0x80 >> (left & 0x07);
 
-            /* Handle case when source has a color lookup table */
-            if (pDib->imageFormat != UGL_DIRECT) {
+            if (pDib->imageFormat == UGL_DIRECT) {
 
-                /* Check if temporary clut should be generated */
+                /* No color lookup table direct color */
+                switch (pDib->colorFormat) {
+                    case UGL_DEVICE_COLOR_32:
+                        pSrcColor = (UGL_COLOR *) pDib->pData + srcRect.top *
+                                    pDib->stride;
+
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            index = startIndex;
+                            mask  = startMask;
+
+                            for (x = srcRect.left; x <= srcRect.right; x++) {
+                                pixel     = pSrcColor[x];
+                                planeMask = 0x01;
+
+                                for (planeIndex = 0;
+                                     planeIndex < numPlanes;
+                                     planeIndex++) {
+                                    if ((pixel & planeMask) != 0x00) {
+                                        pPlaneArray[planeIndex][index] |= mask;
+                                    }
+                                    else {
+                                        pPlaneArray[planeIndex][index] &= ~mask;
+                                    }
+
+                                    /* Advance plane */
+                                    planeMask <<= 1;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    index++;
+                                    mask = 0x80;
+                                }
+                            }
+
+                            /* Advance row */
+                            pSrcColor  += pDib->stride;
+                            startIndex += destBytesPerLine;
+                        }
+                        break;
+
+                    case UGL_ARGB8888:
+                    case UGL_RGB565:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            index = startIndex;
+                            mask  = startMask;
+
+                            for (x = srcRect.left; x <= srcRect.right; x++) {
+                                if (pDib->colorFormat == UGL_ARGB8888) {
+                                    rgb888 = *((UGL_RGB *) pDib->pData +
+                                               srcRect.top * pDib->stride + x);
+                                }
+                                else {
+                                    rgb565 = *((UGL_UINT16 *) pDib->pData +
+                                               srcRect.top * pDib->stride + x);
+
+                                    rgb888 = ((rgb565 & 0x001f) << 3) |
+                                             ((rgb565 & 0x07e0) << 5) |
+                                             ((rgb565 & 0xf800) << 8);
+                                }
+
+                                uglGenericClutMapNearest(pDrv, &rgb888,
+                                                         UGL_NULL, &pixel, 1);
+
+                                planeMask = 0x01;
+                                for (planeIndex = 0;
+                                     planeIndex < numPlanes;
+                                     planeIndex++) {
+                                    if ((pixel & planeMask) != 0x00) {
+                                        pPlaneArray[planeIndex][index] |= mask;
+                                    }
+                                    else {
+                                        pPlaneArray[planeIndex][index] &= ~mask;
+                                    }
+
+                                    /* Advance plane */
+                                    planeMask <<= 1;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    index++;
+                                    mask = 0x80;
+                                }
+                            }
+
+                            /* Advance row */
+                            startIndex += destBytesPerLine;
+                        }
+                        break;
+
+                    default:
+                        return (UGL_STATUS_ERROR);
+                }
+            }
+            else {
+                pClut = UGL_NULL;
+
+                /* Color lookup table for color data */
                 if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
 
-                    /* Generate */
+                    /* Generate color lookup table */
                     pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
                     if (pClut == UGL_NULL) {
                         return (UGL_STATUS_ERROR);
@@ -1226,7 +1328,7 @@ UGL_STATUS uglVgaBitmapWrite (
                     pClut = pDib->pClut;
                 }
 
-                /* Select color mode */
+                /* Select image format */
                 switch(pDib->imageFormat) {
                     case UGL_INDEXED_8:
 
@@ -1245,8 +1347,7 @@ UGL_STATUS uglVgaBitmapWrite (
                             for (x = srcRect.left; x <= srcRect.right; x++) {
 
                                 /* Initialize pixel */
-                                /* TODO: pixel = ((UGL_COLOR *) pClut) [pSrc[x]];*/
-                                pixel = pSrc[x];
+                                pixel = ((UGL_COLOR *) pClut) [pSrc[x]];
                                 planeMask = 0x01;
 
                                 /* For each plane */
@@ -1353,6 +1454,10 @@ UGL_STATUS uglVgaBitmapWrite (
 
                     default:
                         return (UGL_STATUS_ERROR);
+                }
+
+                if (pClut != UGL_NULL) {
+                    UGL_FREE (pClut);
                 }
             }
         }
