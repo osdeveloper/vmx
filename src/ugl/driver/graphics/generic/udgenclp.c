@@ -156,9 +156,9 @@ UGL_BOOL uglGenericClipDibToDdb (
 
     /* Setup source clip rect */
     srcClip.top    = 0;
-    srcClip.bottom = pDib->height;
+    srcClip.bottom = pDib->height - 1;
     srcClip.left   = 0;
-    srcClip.right  = pDib->width;
+    srcClip.right  = pDib->width - 1;
 
     /* Setup dest clip rect */
     if ((UGL_DDB_ID) *pBmpId == UGL_DISPLAY_ID) {
@@ -230,9 +230,9 @@ UGL_BOOL uglGenericClipDdbToDib (
 
     /* Setup destination clip rect */
     destClip.top    = 0;
-    destClip.bottom = pDib->height;
+    destClip.bottom = pDib->height - 1;
     destClip.left   = 0;
-    destClip.right  = pDib->width;
+    destClip.right  = pDib->width - 1;
 
     /* Setup source clip rect */
     if ((UGL_DDB_ID) *pBmpId == UGL_DISPLAY_ID) {

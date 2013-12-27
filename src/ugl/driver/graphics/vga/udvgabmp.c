@@ -1169,6 +1169,14 @@ UGL_STATUS uglVgaBitmapWrite (
     UGL_RGB              rgb888;
     UGL_INT32            rgb565;
     UGL_COLOR *          pClut;
+    UGL_COLOR_FORMAT     colorFormat;
+    UGL_VGA_DDB          tmpDdb;
+    UGL_RECT             ddbRect;
+    UGL_POINT            ddbPoint;
+    UGL_RECT             tmpSrcRect;
+    UGL_POINT            tmpDestPoint;
+    UGL_INT32            planeSize;
+    UGL_UINT8 *          pPlaneData;
 
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -1199,10 +1207,82 @@ UGL_STATUS uglVgaBitmapWrite (
         numPlanes = devId->pMode->depth;
         srcOffset = (srcRect.top * pDib->stride) + srcRect.left;
 
-        /* Handle case if the display is not the destination */
-        if (ddbId != UGL_DISPLAY_ID) {
+        if (ddbId == UGL_DISPLAY_ID) {
 
-            /* Precaculate variables */
+            /* Destination is display */
+            tmpDdb.header.type   = UGL_DDB_TYPE;
+            tmpDdb.header.width  = UGL_RECT_WIDTH (destRect);
+            tmpDdb.header.height = 1;
+            tmpDdb.stride        = tmpDdb.header.width;
+            tmpDdb.shiftValue    = 0;
+            planeSize = ((tmpDdb.header.width + 7) / 8 + 1) * pDib->height;
+            tmpDdb.pPlaneArray   = (UGL_UINT8 **) uglScratchBufferAlloc (devId,
+                                     (planeSize + sizeof (UGL_UINT8)) * 4);
+            if (tmpDdb.pPlaneArray == UGL_NULL) {
+                return (UGL_STATUS_ERROR);
+            }
+
+            pPlaneData = (UGL_UINT8 *) &tmpDdb.pPlaneArray[4];
+            for (planeIndex = 0; planeIndex < 4; planeIndex++) {
+                tmpDdb.pPlaneArray[planeIndex] = pPlaneData;
+                pPlaneData += planeSize;
+            }
+
+            colorFormat = pDib->colorFormat;
+            pClut = UGL_NULL;
+            if (pDib->imageFormat != UGL_DIRECT &&
+                pDib->colorFormat != UGL_DEVICE_COLOR_32) {
+                pClut = pDib->pClut;
+                pDib->pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
+                if (pDib->pClut != UGL_NULL) {
+                    uglVga4BitColorConvert (devId, pClut, colorFormat,
+                                            pDib->pClut, UGL_DEVICE_COLOR_32,
+                                            pDib->clutSize);
+                    pDib->colorFormat = UGL_DEVICE_COLOR_32;
+                }
+                else {
+                    pDib->pClut = pClut;
+                    pClut = UGL_NULL;
+                }
+            }
+
+            UGL_RECT_COPY (&tmpSrcRect, &srcRect);
+            tmpSrcRect.bottom = tmpSrcRect.top;
+
+            tmpDestPoint.x = destRect.left;
+            tmpDestPoint.y = destRect.top;
+
+            ddbRect.left   = 0;
+            ddbRect.top    = 0;
+            ddbRect.right  = UGL_RECT_WIDTH (destRect);
+            ddbRect.bottom = 0;
+
+            ddbPoint.x = ddbRect.left;
+            ddbPoint.y = ddbRect.top;
+
+            while (tmpSrcRect.top <= srcRect.bottom) {
+                uglVgaBitmapWrite (devId, pDib, &tmpSrcRect,
+                                   (UGL_DDB_ID) &tmpDdb, &ddbPoint);
+                uglVgaBitmapBlt (devId, (UGL_DDB_ID) &tmpDdb, &ddbRect,
+                                 UGL_DISPLAY_ID, &tmpDestPoint);
+
+                /* Advance scanline */
+                tmpSrcRect.top++;
+                tmpSrcRect.bottom++;
+                tmpDestPoint.y++;
+            }
+
+            if (pClut != UGL_NULL) {
+                UGL_FREE (pDib->pClut);
+                pDib->pClut = pClut;
+                pDib->colorFormat = colorFormat;
+            }
+
+            uglScratchBufferFree (devId, tmpDdb.pPlaneArray);
+        }
+        else {
+
+            /* Destination is bitmap */
             left             = destRect.left + pVgaBmp->shiftValue;
             destBytesPerLine = (pVgaBmp->header.width + 7) / 8 + 1;
             pPlaneArray      = pVgaBmp->pPlaneArray;

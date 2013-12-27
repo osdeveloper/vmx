@@ -668,10 +668,11 @@ int uglPoly4Test(int maxtimes, int nPoints, UGL_REGION_ID clipRegionId)
 
   return 0;
 }
+
 int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 {
   struct vgaHWRec oldRegs;
-  UGL_DDB *pDbBmp, *pBgBmp, *pFgBmp, *pSaveBmp;
+  UGL_DDB *pDbBmp, *pFgBmp, *pSaveBmp;
   UGL_RECT dbSrcRect, srcRect, saveRect;
   UGL_POINT dbPt, pt, pt0;
 
@@ -694,14 +695,23 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
     }
   }
 
-  pBgBmp = uglBitmapCreate(gfxDevId, &bgDib, UGL_DIB_INIT_DATA,
-                           8, gfxPartId);
-  if (pBgBmp == UGL_NULL) {
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  }
+
+  if (uglBitmapWrite(gfxDevId, &bgDib, 0, 0, bgDib.width, bgDib.height,
+                     gfxDevId->defaultGc->pDefaultBitmap,
+                     640 / 2 - bgDib.width / 2,
+                     480 / 2 - bgDib.height / 2) != UGL_STATUS_OK) {
     if (doubleBuffer == TRUE) {
       uglBitmapDestroy(gfxDevId, pDbBmp);
     }
     restoreConsole(&oldRegs);
-    printf("Unable to create background image\n");
+    printf("Unable to write background image\n");
     return 1;
   }
 
@@ -712,7 +722,6 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
     if (doubleBuffer == TRUE) {
       uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create foreground image\n");
     return 1;
@@ -724,7 +733,6 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
     if (doubleBuffer == TRUE) {
       uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp);
     uglBitmapDestroy(gfxDevId, pFgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
@@ -737,25 +745,6 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   dbSrcRect.bottom = 480;
   dbPt.x = 0;
   dbPt.y = 0;
-
-  srcRect.left = 0;
-  srcRect.right = pBgBmp->width;
-  srcRect.top = 0;
-  srcRect.bottom = pBgBmp->height;
-  pt.x = 640 / 2 - pBgBmp->width / 2;
-  pt.y = 480 / 2 - pBgBmp->height / 2;
-
-  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
-  if (doubleBuffer == TRUE) {
-    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
-  }
-  else {
-    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
-  }
-
-  uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-               srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-               UGL_DEFAULT_ID, pt.x, pt.y);
 
   srcRect.left = x1;
   srcRect.top = y1;
@@ -785,7 +774,6 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 
   while (pt.y < 480) {
 
-    /* Copy background */
     /* Copy background */
     if (doubleBuffer == TRUE) {
       uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
@@ -835,7 +823,6 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   if (doubleBuffer == TRUE) {
     uglBitmapDestroy(gfxDevId, pDbBmp);
   }
-  uglBitmapDestroy(gfxDevId, pBgBmp);
   uglBitmapDestroy(gfxDevId, pFgBmp);
   uglBitmapDestroy(gfxDevId, pSaveBmp);
   restoreConsole(&oldRegs);
@@ -942,7 +929,7 @@ int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 int uglTrans4Test(UGL_REGION_ID clipRegionId)
 {
   struct vgaHWRec oldRegs;
-  UGL_DDB *pDbBmp, *pBgBmp, *pSaveBmp;
+  UGL_DDB *pDbBmp, *pSaveBmp;
   UGL_TDDB *pFgBmp;
   UGL_RECT dbSrcRect, srcRect, saveRect;
   UGL_POINT dbPt, pt, pt0;
@@ -966,14 +953,23 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
     }
   }
 
-  pBgBmp = uglBitmapCreate(gfxDevId, &bgDib, UGL_DIB_INIT_DATA,
-                           8, gfxPartId);
-  if (pBgBmp == UGL_NULL) {
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, UGL_NULL);
+  }
+
+  if (uglBitmapWrite(gfxDevId, &bgDib, 0, 0, bgDib.width, bgDib.height,
+                     gfxDevId->defaultGc->pDefaultBitmap,
+                     640 / 2 - bgDib.width / 2,
+                     480 / 2 - bgDib.height / 2) != UGL_STATUS_OK) {
     if (doubleBuffer == TRUE) {
       uglBitmapDestroy(gfxDevId, pDbBmp);
     }
     restoreConsole(&oldRegs);
-    printf("Unable to create background image\n");
+    printf("Unable to write background image\n");
     return 1;
   }
 
@@ -984,7 +980,6 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
     if (doubleBuffer == TRUE) {
       uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create foreground image\n");
     return 1;
@@ -996,7 +991,6 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
     if (doubleBuffer == TRUE) {
       uglBitmapDestroy(gfxDevId, pDbBmp);
     }
-    uglBitmapDestroy(gfxDevId, pBgBmp);
     uglTransBitmapDestroy(gfxDevId, pFgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
@@ -1009,25 +1003,6 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
   dbSrcRect.bottom = 480;
   dbPt.x = 0;
   dbPt.y = 0;
-
-  srcRect.left = 0;
-  srcRect.right = pBgBmp->width;
-  srcRect.top = 0;
-  srcRect.bottom = pBgBmp->height;
-  pt.x = 640 / 2 - pBgBmp->width / 2;
-  pt.y = 480 / 2- pBgBmp->height / 2;
-
-  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
-  if (doubleBuffer == TRUE) {
-    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
-  }
-  else {
-    uglDefaultBitmapSet(gfxDevId->defaultGc, UGL_NULL);
-  }
-
-  uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-               srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-               UGL_DEFAULT_ID, pt.x, pt.y);
 
   srcRect.left = 0;
   srcRect.right = pFgBmp->width;
@@ -1094,7 +1069,6 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
   if (doubleBuffer == TRUE) {
     uglBitmapDestroy(gfxDevId, pDbBmp);
   }
-  uglBitmapDestroy(gfxDevId, pBgBmp);
   uglTransBitmapDestroy(gfxDevId, pFgBmp);
   uglBitmapDestroy(gfxDevId, pSaveBmp);
   restoreConsole(&oldRegs);
@@ -1105,10 +1079,7 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
 int uglCursor4Test(UGL_REGION_ID clipRegionId)
 {
   struct vgaHWRec oldRegs;
-  UGL_DDB *pBgBmp;
   UGL_CDDB *pFgBmp;
-  UGL_RECT srcRect;
-  UGL_POINT pt;
   UGL_GENERIC_DRIVER *pDrv;
   UGL_GEN_CURSOR_DATA *pCursorData;
 
@@ -1131,17 +1102,19 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
   pDrv = (UGL_GENERIC_DRIVER *) gfxDevId;
   pCursorData = pDrv->pCursorData;
 
-  pBgBmp = uglBitmapCreate(gfxDevId, &bgDib, UGL_DIB_INIT_DATA,
-                           8, gfxPartId);
-  if (pBgBmp == UGL_NULL) {
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+
+  if (uglBitmapWrite(gfxDevId, &bgDib, 0, 0, bgDib.width, bgDib.height,
+                     UGL_DISPLAY_ID,
+                     640 / 2 - bgDib.width / 2,
+                     480 / 2 - bgDib.height / 2) != UGL_STATUS_OK) {
     restoreConsole(&oldRegs);
-    printf("Unable to create background image\n");
+    printf("Unable to write background image\n");
     return 1;
   }
 
   pFgBmp = uglCursorBitmapCreate(gfxDevId, &cDib);
   if (pFgBmp == UGL_NULL) {
-    uglBitmapDestroy(gfxDevId, pBgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create foreground image\n");
     return 1;
@@ -1149,25 +1122,10 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
 
   if (uglCursorImageSet(gfxDevId, pFgBmp) != UGL_STATUS_OK) {
     uglCursorBitmapDestroy(gfxDevId, pFgBmp);
-    uglBitmapDestroy(gfxDevId, pBgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to set cursor image\n");
     return 1;
   }
-
-  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
-
-  srcRect.left = 0;
-  srcRect.right = pBgBmp->width;
-  srcRect.top = 0;
-  srcRect.bottom = pBgBmp->height;
-  pt.x = 640 / 2 - pBgBmp->width / 2;
-  pt.y = 480 / 2- pBgBmp->height / 2;
-
-  uglDefaultBitmapSet(gfxDevId->defaultGc, UGL_NULL);
-  uglBitmapBlt(gfxDevId->defaultGc, pBgBmp,
-               srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-               UGL_DEFAULT_ID, pt.x, pt.y);
 
   while (pCursorData->position.y < 480) {
 
@@ -1184,7 +1142,6 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
     pCursorData->position.y += BALL_SPEED;
   }
 
-  uglBitmapDestroy(gfxDevId, pBgBmp);
   uglCursorBitmapDestroy(gfxDevId, pFgBmp);
   uglCursorDeinit(gfxDevId);
   restoreConsole(&oldRegs);

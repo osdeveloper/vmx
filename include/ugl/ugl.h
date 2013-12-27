@@ -419,6 +419,25 @@ UGL_STATUS uglBitmapBlt (
     UGL_POS        destY
     );
 
+/******************************************************************************
+ *
+ * uglBitmapWrite - Write to deveice depender bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBitmapWrite (
+    UGL_DEVICE_ID  devId,
+    UGL_DIB *      pDib,
+    UGL_POS        srcLeft,
+    UGL_POS        srcTop,
+    UGL_POS        srcRight,
+    UGL_POS        srcBottom,
+    UGL_DDB_ID     destBmpId,
+    UGL_POS        destX,
+    UGL_POS        destY
+    );
+
 /* Monocrhome bitmap support functions */
 
 /******************************************************************************

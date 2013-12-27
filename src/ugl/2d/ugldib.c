@@ -177,3 +177,65 @@ UGL_STATUS uglBitmapBlt (
     return (status);
 }
 
+/******************************************************************************
+ *
+ * uglBitmapWrite - Write to deveice depender bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBitmapWrite (
+    UGL_DEVICE_ID  devId,
+    UGL_DIB *      pDib,
+    UGL_POS        srcLeft,
+    UGL_POS        srcTop,
+    UGL_POS        srcRight,
+    UGL_POS        srcBottom,
+    UGL_DDB_ID     destBmpId,
+    UGL_POS        destX,
+    UGL_POS        destY
+    ) {
+    UGL_STATUS  status;
+    UGL_RECT    srcRect;
+    UGL_POINT   destPoint;
+
+    /* Check params */
+    if (pDib == UGL_NULL || destBmpId == UGL_NULL ||
+        (destBmpId != UGL_DISPLAY_ID && destBmpId->type != UGL_DDB_TYPE)) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Check if trivial */
+    if (srcLeft > srcRight || srcTop > srcBottom) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Validate */
+    if (devId == NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock device */
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Setup geometry */
+    srcRect.left   = srcLeft;
+    srcRect.top    = srcTop;
+    srcRect.right  = srcRight;
+    srcRect.bottom = srcBottom;
+
+    destPoint.x = destX;
+    destPoint.y = destY;
+
+    /* Call driver specific method, should return UGL_NULL on failure */
+    status = (*devId->bitmapWrite) (devId, pDib, &srcRect,
+                                    destBmpId, &destPoint);
+
+    /* Unlock */
+    uglOSUnlock (devId->lockId);
+
+    return (status);
+}
+
