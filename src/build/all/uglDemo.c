@@ -57,6 +57,8 @@ UGL_RASTER_OP rasterOp = UGL_RASTER_OP_COPY;
 BOOL doubleBuffer = TRUE;
 BOOL fillPattern = FALSE;
 int animTreshold = 1;
+UGL_SIZE lineWidth = 1;
+UGL_LINE_STYLE lineStyle = UGL_LINE_STYLE_SOLID;
 
 int createDib(void)
 {
@@ -236,6 +238,8 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   }
 
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  uglLineWidthSet (gfxDevId->defaultGc, lineWidth);
+  uglLineStyleSet (gfxDevId->defaultGc, lineStyle);
 
   dbSrcRect.left = 0;
   dbSrcRect.right = 640;
@@ -318,6 +322,8 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   }
 
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  uglLineWidthSet (gfxDevId->defaultGc, lineWidth);
+  uglLineStyleSet (gfxDevId->defaultGc, lineStyle);
 
   dbSrcRect.left = 0;
   dbSrcRect.right = 640;
@@ -400,6 +406,8 @@ int uglLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   }
 
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  uglLineWidthSet (gfxDevId->defaultGc, lineWidth);
+  uglLineStyleSet (gfxDevId->defaultGc, lineStyle);
 
   dbSrcRect.left = 0;
   dbSrcRect.right = 640;
@@ -490,6 +498,8 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   }
 
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  uglLineWidthSet (gfxDevId->defaultGc, lineWidth);
+  uglLineStyleSet (gfxDevId->defaultGc, lineStyle);
 
   dbSrcRect.left = 0;
   dbSrcRect.right = 640;
@@ -614,6 +624,8 @@ int uglPoly4Test(int maxtimes, int nPoints, UGL_REGION_ID clipRegionId)
   }
 
   uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  uglLineWidthSet (gfxDevId->defaultGc, lineWidth);
+  uglLineStyleSet (gfxDevId->defaultGc, lineStyle);
 
   dbSrcRect.left = 0;
   dbSrcRect.right = 640;
@@ -1490,6 +1502,40 @@ int uglToggleFillPattern(void)
   }
 }
 
+int uglSetLineWidth(UGL_SIZE width)
+{
+    lineWidth = width;
+
+    return (int) lineWidth;
+}
+
+int uglSetLineStyle(int n)
+{
+    switch (n) {
+        case 0:
+            lineStyle = UGL_LINE_STYLE_SOLID;
+            break;
+
+        case 1:
+            lineStyle = UGL_LINE_STYLE_DASHED;
+            break;
+
+        case 2:
+            lineStyle = UGL_LINE_STYLE_DOTTED;
+            break;
+
+        case 3:
+            lineStyle = UGL_LINE_STYLE_DASH_DOTTED;
+            break;
+
+        default:
+            lineStyle = (UGL_LINE_STYLE) n;
+            break;
+    }
+
+    return (int) lineStyle;
+}
+
 int uglConvertTest(void)
 {
   int i;
@@ -1551,6 +1597,8 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglRasterOpXor", uglRasterOpXor, 0, N_TEXT | N_EXT},
   {NULL, "_uglToggleDoubleBuffer", uglToggleDoubleBuffer, 0, N_TEXT | N_EXT},
   {NULL, "_uglToggleFillPattern", uglToggleFillPattern, 0, N_TEXT | N_EXT},
+  {NULL, "_uglSetLineWidth", uglSetLineWidth, 0, N_TEXT | N_EXT},
+  {NULL, "_uglSetLineStyle", uglSetLineStyle, 0, N_TEXT | N_EXT},
   {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
   {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
 };

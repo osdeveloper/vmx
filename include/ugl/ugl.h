@@ -195,6 +195,30 @@ UGL_STATUS uglRasterModeSet (
 
 /******************************************************************************
  *
+ * uglLineStyleSet - Set graphics context line style
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglLineStyleSet (
+    UGL_GC_ID       gc,
+    UGL_LINE_STYLE  lineStyle
+    );
+
+/******************************************************************************
+ *
+ * uglLineWidthSet - Set graphics context line width
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglLineWidthSet (
+    UGL_GC_ID  gc,
+    UGL_SIZE   lineWidth
+    );
+
+/******************************************************************************
+ *
  * uglFillPatternSet - Set graphics context fill pattern
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

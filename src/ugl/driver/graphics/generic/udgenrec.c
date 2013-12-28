@@ -24,9 +24,9 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
-/* Locals */
+/* Globals */
 
-UGL_LOCAL UGL_STATUS uglGenericRectFill (
+UGL_STATUS uglGenericRectFill (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pRect
     );
@@ -136,7 +136,7 @@ UGL_STATUS uglGenericRectangle (
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_LOCAL UGL_STATUS uglGenericRectFill (
+UGL_STATUS uglGenericRectFill (
     UGL_DEVICE_ID  devId,
     UGL_RECT *     pRect
     ) {

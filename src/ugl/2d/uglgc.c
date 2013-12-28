@@ -523,6 +523,74 @@ UGL_STATUS uglRasterModeSet (
 
 /******************************************************************************
  *
+ * uglLineWidthSet - Set graphics context line width
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglLineWidthSet (
+    UGL_GC_ID  gc,
+    UGL_SIZE   lineWidth
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Change line style if needed */
+    if (gc->lineWidth != lineWidth) {
+        gc->lineWidth = lineWidth;
+        gc->changed |= UGL_GC_LINE_WIDTH_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOSUnlock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglLineStyleSet - Set graphics context line style
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglLineStyleSet (
+    UGL_GC_ID       gc,
+    UGL_LINE_STYLE  lineStyle
+    ) {
+
+    if (gc == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Change line style if needed */
+    if (gc->lineStyle != lineStyle) {
+        gc->lineStyle = lineStyle;
+        gc->changed |= UGL_GC_LINE_STYLE_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOSUnlock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglFillPatternSet - Set graphics context fill pattern
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

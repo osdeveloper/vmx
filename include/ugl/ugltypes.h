@@ -24,19 +24,21 @@
 #define _ugltypes_h
 
 /* UGL_STATUS */
-#define UGL_STATUS_FINISHED     1
-#define UGL_STATUS_OK           0
-#define UGL_STATUS_ERROR        -1
+#define UGL_STATUS_FINISHED             1
+#define UGL_STATUS_OK                   0
+#define UGL_STATUS_ERROR                -1
 
 /* UGL_RASTER_OP */
-#define UGL_RASTER_OP_COPY      0x02020101
-#define UGL_RASTER_OP_AND       0x00020002
-#define UGL_RASTER_OP_OR        0x00020003
-#define UGL_RASTER_OP_XOR       0x00020004
+#define UGL_RASTER_OP_COPY              0x02020101
+#define UGL_RASTER_OP_AND               0x00020002
+#define UGL_RASTER_OP_OR                0x00020003
+#define UGL_RASTER_OP_XOR               0x00020004
 
 /* UGL_LINE_STYLE */
-#define UGL_LINE_STYLE_SOLID    0xffffffff
-#define UGL_LINE_STYLE_DASHED   0xf0f0f0f0
+#define UGL_LINE_STYLE_SOLID            0xffffffff
+#define UGL_LINE_STYLE_DASHED           0xf0f0f0f0
+#define UGL_LINE_STYLE_DOTTED           0x10101010
+#define UGL_LINE_STYLE_DASH_DOTTED      0x1c471c47
 
 #ifndef _ASMLANGUAGE
 

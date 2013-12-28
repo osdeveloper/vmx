@@ -24,6 +24,13 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
+/* Imports */
+
+UGL_STATUS uglGenericRectFill (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pRect
+    );
+
 /* Globals */
 
 UGL_STATUS uglLineDataGetBoundary (
@@ -59,6 +66,7 @@ UGL_STATUS uglGenericLine (
     UGL_GENERIC_DRIVER * pDrv;
     UGL_GC_ID            gc;
     UGL_LINE_STYLE       lineStyle;
+    UGL_LINE_STYLE       lineMask;
     UGL_SIZE             lineWidth;
     UGL_COLOR            fg;
     UGL_COLOR            bg;
@@ -81,14 +89,27 @@ UGL_STATUS uglGenericLine (
     UGL_INT32            startError;
     UGL_INT32            majorErrorInc;
     UGL_INT32            minorErrorInc;
+    UGL_INT32            errorValue;
     UGL_BOOL             xMajor;
     UGL_POINT            startPoint;
     UGL_POINT            endPoint;
     UGL_BOOL             startPointFound;
     UGL_BOOL             endPointFound;
     UGL_ORD              numPoints;
-    UGL_INT32            errorValue;
-    UGL_STATUS           status;
+    UGL_POINT *          pLineData;
+    UGL_POINT *          pBuf;
+    UGL_UINT32           index;
+    UGL_UINT32           onLen;
+    UGL_UINT32           offLen;
+    UGL_INT32            endIndex;
+    UGL_INT32            len;
+    UGL_POINT            point;
+    UGL_INT32            loOffset;
+    UGL_INT32            hiOffset;
+    UGL_MDDB_ID          patBmpId;
+    UGL_RECT             rect;
+    UGL_POINT            polyPoints[7];
+    UGL_STATUS           status = UGL_STATUS_OK;
 
     /* Get driver */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -113,263 +134,456 @@ UGL_STATUS uglGenericLine (
         return (UGL_STATUS_OK);
     }
 
-    /* Copy geometry */
-    UGL_POINT_COPY (&pt1, p1);
-    UGL_POINT_COPY (&pt2, p2);
+    if (lineStyle != UGL_LINE_STYLE_SOLID) {
 
-    /* Adjust to viewport */
-    UGL_POINT_MOVE (pt1, gc->viewPort.left, gc->viewPort.top);
-    UGL_POINT_MOVE (pt2, gc->viewPort.left, gc->viewPort.top);
-
-    /* Drawing methods shall set status */
-    status = UGL_STATUS_OK;
-
-    /* Check for horizontal and vertical lines */
-    if (x1 == x2 || y1 == y2) {
-        UGL_CLIP_LOOP_START (gc, clipRect)
-
-        /* Cache coordinates */
-        x1 = pt1.x;
-        y1 = pt1.y;
-        x2 = pt2.x;
-        y2 = pt2.y;
-
-        /* If horizontal line */
-        if (y1 == y2 && y1 >= clipRect.top && y1 <= clipRect.bottom) {
-            if (x1 > x2) {
-                UGL_INT_SWAP (x1, x2);
-            }
-
-            /* Clip */
-            if (x1 < clipRect.left) {
-                x1 = clipRect.left;
-            }
-
-            if (x2 > clipRect.right) {
-                x2 = clipRect.right;
-            }
-
-            /* Draw horizontal line */
-            if (x2 >= x1) {
-                status =  (*pDrv->hLine) (pDrv, y1, x1, x2, fg);
-            }
-        }
-        else if (x1 == x2 && x1 >= clipRect.left && x1 <= clipRect.right) {
-            if (y1 > y2) {
-                coord = y1;
-                y1 = y2;
-                y2 = coord;
-            }
-
-            /* Clip */
-            if (y1 < clipRect.top) {
-                y1 = clipRect.top;
-            }
-
-            if (y2 > clipRect.bottom) {
-                y2 = clipRect.bottom;
-            }
-
-            /* Draw vertical line */
-            if (y2 >= y1) {
-                status = (*pDrv->vLine) (pDrv, x1, y1, y2, fg);
-            }
+        /* This part handles pattern line styles */
+        lineMask = 0x80000000;
+        uglLineDataGet (p1, p2, &pLineData, -1, &numPoints);
+        if (pLineData == UGL_NULL) {
+            return (UGL_STATUS_ERROR);
         }
 
-        UGL_CLIP_LOOP_END
-    }
-    else {
-        dx = x2 - x1;
-        ex = 2 * dx;
-        dy = y2 - y1;
-        ey = 2 * dy;
+        /* Adjust for solid line segment */
+        gc->lineStyle = UGL_LINE_STYLE_SOLID;
+        if (lineWidth > 1) {
+            index = 0;
+            onLen = 0;
 
-        if (abs (dx) >= abs (dy)) {
-            /* slope is <= 45 degrees */
-            xMajor = UGL_TRUE;
+            while (index < numPoints) {
 
-            majorInc = (dx > 0) ? 1 : -1;
-            minorInc = (dy > 0) ? 1 : -1;
+                if ((lineStyle & lineMask) != 0x00000000) {
+                    onLen = 0;
+                    while ((lineStyle & lineMask) != 0x00000000) {
+                        onLen++;
+                        if (lineMask == 0x00000001) {
+                            lineMask = 0x80000000;
+                        }
+                        else {
+                            lineMask >>= 1;
+                        }
+                    }
 
-            majorErrorInc = abs (ey);
-            minorErrorInc = -abs (ex);
+                    /* Advance point index */
+                    onLen *= lineWidth;
+                    endIndex = min (index + onLen - 1, numPoints - 1);
+
+                    UGL_POINT_COPY (&pt1, &pLineData[index]);
+                    UGL_POINT_COPY (&pt2, &pLineData[endIndex]);
+                    status = uglGenericLine (devId, &pt1, &pt2);
+                }
+                else {
+                    offLen = 0;
+                    while (((~lineStyle) & lineMask) != 0x00000000) {
+                        offLen++;
+                        if (lineMask == 0x00000001) {
+                            lineMask = 0x80000000;
+                        }
+                        else {
+                            lineMask >>= 1;
+                        }
+                    }
+
+                    /* Advance point index */
+                    offLen *= lineWidth;
+                    index += onLen + offLen + lineWidth - 1;
+                }
+            }
         }
         else {
-            /* slope is > 45 degrees */
-            xMajor = UGL_FALSE;
 
-            majorInc = (dy > 0) ? 1 : -1;
-            minorInc = (dx > 0) ? 1 : -1;
+            index = 0;
+            pBuf  = pLineData;
 
-            majorErrorInc = abs (ex);
-            minorErrorInc = -abs (ey);
+            while (index < numPoints) {
+
+                if ((lineStyle & lineMask) != 0x00000000) {
+                    onLen = 0;
+                    while ((lineStyle & lineMask) != 0x00000000) {
+                        onLen++;
+                        if (lineMask == 0x00000001) {
+                            lineMask = 0x80000000;
+                        }
+                        else {
+                            lineMask >>= 1;
+                        }
+                    }
+
+                    /* Advance point index */
+                    len = min (onLen, numPoints - index);
+                    index += len;
+
+                    while (len--) {
+                        UGL_POINT_COPY (&point, pBuf);
+                        status = (*devId->pixelSet) (devId, &point, fg);
+                        pBuf++;
+                    }
+                }
+                else {
+                    offLen = 0;
+                    while (((~lineStyle) & lineMask) != 0x00000000) {
+                        offLen++;
+                        if (lineMask == 0x00000001) {
+                            lineMask = 0x80000000;
+                        }
+                        else {
+                            lineMask >>= 1;
+                        }
+                    }
+
+                    /* Advance point index */
+                    index += offLen;
+                    pBuf += offLen;
+                }
+            }
         }
 
-        startError = majorErrorInc + minorErrorInc / 2;
+        /* Restore style and cleanup */
+        gc->lineStyle = lineStyle;
+        UGL_FREE (pLineData);
+    }
+    else if (gc->lineWidth > 1) {
 
-        /* Start clip loop */
-        UGL_CLIP_LOOP_START (gc, clipRect)
+        /* This part handles thick lines */
+        loOffset = (lineWidth - 1) / 2;
+        hiOffset = lineWidth / 2;
 
-        /* Clear variables */
-        startPointFound = UGL_FALSE;
-        endPointFound   = UGL_FALSE;
-        startPoint.x = 0;
-        startPoint.y = 0;
-        endPoint.x = 0;
-        endPoint.y = 0;
+        /* Temporary change gc to fit line attributes */
+        patBmpId = gc->pPatternBitmap;
+        gc->pPatternBitmap = UGL_NULL;
+        gc->backgroundColor = fg;
+        gc->foregroundColor = UGL_COLOR_TRANSPARENT;
+        gc->changed |= UGL_GC_PATTERN_BITMAP_CHANGED |
+                       UGL_GC_BACKGROUND_COLOR_CHANGED |
+                       UGL_GC_FOREGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+        UGL_GC_SET (devId, gc);
 
-        /* Cache coordinates */
-        x1 = pt1.x;
-        y1 = pt1.y;
-        x2 = pt2.x;
-        y2 = pt2.y;
-
-        /* Check if start point is within clip rectangle */
-        if (UGL_POINT_IN_RECT (pt1, clipRect) == UGL_TRUE) {
-            UGL_POINT_COPY (&startPoint, &pt1);
-            startPointFound = UGL_TRUE;
+        if (x1 > x2) {
+            UGL_INT_SWAP (x1, x2);
+            UGL_INT_SWAP (y1, y2);
         }
 
-        /* Check if end point is within clip rectangle */
-        if (UGL_POINT_IN_RECT (pt2, clipRect) == UGL_TRUE) {
-            UGL_POINT_COPY (&endPoint, &pt2);
-            endPointFound = UGL_TRUE;
-        }
+        if (y1 == y2 || x1 == x2) {
 
-        /* Get intersection point to the left of clip rectangle */
-        if ((startPointFound == UGL_FALSE &&
-             x1 < clipRect.left && x2 > clipRect.left) ||
-            (endPointFound == UGL_FALSE &&
-             x1 > clipRect.left && x2 < clipRect.left)) {
-            x = clipRect.left - x1;
-
-            if (ey >= 0) {
-                y = y1 + (ey * x + dx) / ex;
+            /* Line can be drawn using a rectangle */
+            rect.left  = x1 - loOffset;
+            rect.right = x2 + hiOffset;
+            if (y1 <= y2) {
+                rect.top    = y1 - loOffset;
+                rect.bottom = y2 + hiOffset;
             }
             else {
-                y = y1 + (ey * x - dx) / ex;
+                rect.top    = y2 - loOffset;
+                rect.bottom = y1 + hiOffset;
             }
 
-            if (y >= clipRect.top && y <= clipRect.bottom) {
+            status = uglGenericRectFill (devId, &rect);
+        }
+        else {
+
+            /* Line must be drawn using a polygon */
+            if (y1 < y2) {
+                polyPoints[0].x = x1 - loOffset;
+                polyPoints[0].y = y1 - loOffset;
+                polyPoints[1].x = x1 + hiOffset;
+                polyPoints[1].y = y1 - loOffset;
+                polyPoints[2].x = x2 + hiOffset;
+                polyPoints[2].y = y2 - loOffset;
+                polyPoints[3].x = x2 + hiOffset;
+                polyPoints[3].y = y2 + hiOffset;
+                polyPoints[4].x = x2 - loOffset;
+                polyPoints[4].y = y2 + hiOffset;
+                polyPoints[5].x = x1 - loOffset;
+                polyPoints[5].y = y1 + hiOffset;
+            }
+            else {
+                polyPoints[0].x = x1 - loOffset;
+                polyPoints[0].y = y1 - loOffset;
+                polyPoints[1].x = x2 - loOffset;
+                polyPoints[1].y = y2 - loOffset;
+                polyPoints[2].x = x2 + hiOffset;
+                polyPoints[2].y = y2 - loOffset;
+                polyPoints[3].x = x2 + hiOffset;
+                polyPoints[3].y = y2 + hiOffset;
+                polyPoints[4].x = x1 + hiOffset;
+                polyPoints[4].y = y1 + hiOffset;
+                polyPoints[5].x = x1 - loOffset;
+                polyPoints[5].y = y1 + hiOffset;
+            }
+
+            /* Close polygon */
+            polyPoints[6].x = polyPoints[0].x;
+            polyPoints[6].y = polyPoints[0].y;
+
+            status = (devId->polygon) (devId, polyPoints, 7);
+        }
+
+        /* Restore graphics context */
+        gc->pPatternBitmap = patBmpId;
+        gc->foregroundColor = fg;
+        gc->backgroundColor = bg;
+        gc->changed |= UGL_GC_PATTERN_BITMAP_CHANGED |
+                       UGL_GC_BACKGROUND_COLOR_CHANGED |
+                       UGL_GC_FOREGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+    else {
+
+        /* This part handles thin solid lines */
+        UGL_POINT_COPY (&pt1, p1);
+        UGL_POINT_COPY (&pt2, p2);
+
+        /* Adjust to viewport */
+        UGL_POINT_MOVE (pt1, gc->viewPort.left, gc->viewPort.top);
+        UGL_POINT_MOVE (pt2, gc->viewPort.left, gc->viewPort.top);
+
+        /* Check for horizontal and vertical lines */
+        if (x1 == x2 || y1 == y2) {
+            UGL_CLIP_LOOP_START (gc, clipRect)
+
+            /* Cache coordinates */
+            x1 = pt1.x;
+            y1 = pt1.y;
+            x2 = pt2.x;
+            y2 = pt2.y;
+
+            /* If horizontal line */
+            if (y1 == y2 && y1 >= clipRect.top && y1 <= clipRect.bottom) {
+                if (x1 > x2) {
+                    UGL_INT_SWAP (x1, x2);
+                }
+
+                /* Clip */
                 if (x1 < clipRect.left) {
-                    startPoint.x = clipRect.left;
-                    startPoint.y = y;
-                    startPointFound = UGL_TRUE;
+                    x1 = clipRect.left;
                 }
-                else {
-                    endPoint.x = clipRect.left;
-                    endPoint.y = y;
-                    endPointFound = UGL_TRUE;
+
+                if (x2 > clipRect.right) {
+                    x2 = clipRect.right;
+                }
+
+                /* Draw horizontal line */
+                if (x2 >= x1) {
+                    status =  (*pDrv->hLine) (pDrv, y1, x1, x2, fg);
                 }
             }
-        }
+            else if (x1 == x2 && x1 >= clipRect.left && x1 <= clipRect.right) {
+                if (y1 > y2) {
+                    coord = y1;
+                    y1 = y2;
+                    y2 = coord;
+                }
 
-        /* Get intersection point above clip rectangle */
-        if ((startPointFound == UGL_FALSE &&
-             y1 < clipRect.top && y2 > clipRect.top) ||
-            (endPointFound == UGL_FALSE &&
-             y1 > clipRect.top && y2 < clipRect.top)) {
-            y = clipRect.top - y1;
-
-            if (ex >= 0) {
-                x = x1 + (ex * y + dy) / ey;
-            }
-            else {
-                x = x1 + (ex * y - dy) / ey;
-            }
-
-            if (x >= clipRect.left && x <= clipRect.right) {
+                /* Clip */
                 if (y1 < clipRect.top) {
-                    startPoint.x = x;
-                    startPoint.y = clipRect.top;
-                    startPointFound = UGL_TRUE;
+                    y1 = clipRect.top;
                 }
-                else {
-                    endPoint.x = x;
-                    endPoint.y = clipRect.top;
-                    endPointFound = UGL_TRUE;
+
+                if (y2 > clipRect.bottom) {
+                    y2 = clipRect.bottom;
+                }
+
+                /* Draw vertical line */
+                if (y2 >= y1) {
+                    status = (*pDrv->vLine) (pDrv, x1, y1, y2, fg);
                 }
             }
+
+            UGL_CLIP_LOOP_END
         }
+        else {
+            dx = x2 - x1;
+            ex = 2 * dx;
+            dy = y2 - y1;
+            ey = 2 * dy;
 
-        /* Get intersection point to the right of clip rectangle */
-        if ((startPointFound == UGL_FALSE &&
-            x1 > clipRect.right && x2 < clipRect.right) ||
-            (endPointFound == UGL_FALSE &&
-            x1 < clipRect.right && x2 > clipRect.right)) {
-            x = clipRect.right - x1;
+            if (abs (dx) >= abs (dy)) {
+                /* slope is <= 45 degrees */
+                xMajor = UGL_TRUE;
 
-            if (ey >= 0) {
-                y = y1 + (ey * x + dx) / ex;
+                majorInc = (dx > 0) ? 1 : -1;
+                minorInc = (dy > 0) ? 1 : -1;
+
+                majorErrorInc = abs (ey);
+                minorErrorInc = -abs (ex);
             }
             else {
-                y = y1 + (ey * x - dx) / ex;
+                /* slope is > 45 degrees */
+                xMajor = UGL_FALSE;
+
+                majorInc = (dy > 0) ? 1 : -1;
+                minorInc = (dx > 0) ? 1 : -1;
+
+                majorErrorInc = abs (ex);
+                minorErrorInc = -abs (ey);
             }
 
-            if (y >= clipRect.top && y <= clipRect.bottom) {
-                if (x1 > clipRect.right) {
-                    startPoint.x = clipRect.right;
-                    startPoint.y = y;
-                    startPointFound = UGL_TRUE;
+            startError = majorErrorInc + minorErrorInc / 2;
+
+            /* Start clip loop */
+            UGL_CLIP_LOOP_START (gc, clipRect)
+
+            /* Clear variables */
+            startPointFound = UGL_FALSE;
+            endPointFound   = UGL_FALSE;
+            startPoint.x = 0;
+            startPoint.y = 0;
+            endPoint.x = 0;
+            endPoint.y = 0;
+
+            /* Cache coordinates */
+            x1 = pt1.x;
+            y1 = pt1.y;
+            x2 = pt2.x;
+            y2 = pt2.y;
+
+            /* Check if start point is within clip rectangle */
+            if (UGL_POINT_IN_RECT (pt1, clipRect) == UGL_TRUE) {
+                UGL_POINT_COPY (&startPoint, &pt1);
+                startPointFound = UGL_TRUE;
+            }
+
+            /* Check if end point is within clip rectangle */
+            if (UGL_POINT_IN_RECT (pt2, clipRect) == UGL_TRUE) {
+                UGL_POINT_COPY (&endPoint, &pt2);
+                endPointFound = UGL_TRUE;
+            }
+
+            /* Get intersection point to the left of clip rectangle */
+            if ((startPointFound == UGL_FALSE &&
+                 x1 < clipRect.left && x2 > clipRect.left) ||
+                (endPointFound == UGL_FALSE &&
+                 x1 > clipRect.left && x2 < clipRect.left)) {
+                x = clipRect.left - x1;
+
+                if (ey >= 0) {
+                    y = y1 + (ey * x + dx) / ex;
                 }
                 else {
-                    endPoint.x = clipRect.right;
-                    endPoint.y = y;
-                    endPointFound = UGL_TRUE;
+                    y = y1 + (ey * x - dx) / ex;
+                }
+
+                if (y >= clipRect.top && y <= clipRect.bottom) {
+                    if (x1 < clipRect.left) {
+                        startPoint.x = clipRect.left;
+                        startPoint.y = y;
+                        startPointFound = UGL_TRUE;
+                    }
+                    else {
+                        endPoint.x = clipRect.left;
+                        endPoint.y = y;
+                        endPointFound = UGL_TRUE;
+                    }
                 }
             }
-        }
 
-        /* Get intersection point below clip rectangle */
-        if ((startPointFound == UGL_FALSE &&
-             y1 > clipRect.bottom && y2 < clipRect.bottom) ||
-            (endPointFound == UGL_FALSE &&
-             y1 < clipRect.bottom && y2 > clipRect.bottom)) {
-            y = clipRect.bottom - y1;
+            /* Get intersection point above clip rectangle */
+            if ((startPointFound == UGL_FALSE &&
+                 y1 < clipRect.top && y2 > clipRect.top) ||
+                (endPointFound == UGL_FALSE &&
+                 y1 > clipRect.top && y2 < clipRect.top)) {
+                y = clipRect.top - y1;
 
-            if (ex >= 0) {
-                x = x1 + (ex * y + dy) / ey;
-            }
-            else {
-                x = x1 + (ex * y - dy) / ey;
-            }
-
-            if (x >= clipRect.left && x <= clipRect.right) {
-                if (y1 > clipRect.bottom) {
-                    startPoint.x = x;
-                    startPoint.y = clipRect.bottom;
-                    startPointFound = UGL_TRUE;
+                if (ex >= 0) {
+                    x = x1 + (ex * y + dy) / ey;
                 }
                 else {
-                    endPoint.x = x;
-                    endPoint.y = clipRect.bottom;
-                    endPointFound = UGL_TRUE;
+                    x = x1 + (ex * y - dy) / ey;
+                }
+
+                if (x >= clipRect.left && x <= clipRect.right) {
+                    if (y1 < clipRect.top) {
+                        startPoint.x = x;
+                        startPoint.y = clipRect.top;
+                        startPointFound = UGL_TRUE;
+                    }
+                    else {
+                        endPoint.x = x;
+                        endPoint.y = clipRect.top;
+                        endPointFound = UGL_TRUE;
+                    }
                 }
             }
-        }
 
-        /* Draw line */
-        if (startPointFound == UGL_TRUE && endPointFound == UGL_TRUE) {
-            if (xMajor == UGL_TRUE) {
-                numPoints = abs (endPoint.x - startPoint.x) + 1;
-                errorValue = startError +
-                             (abs (startPoint.x - x1) * majorErrorInc) +
-                             (abs (startPoint.y - y1) * minorErrorInc);
+            /* Get intersection point to the right of clip rectangle */
+            if ((startPointFound == UGL_FALSE &&
+                x1 > clipRect.right && x2 < clipRect.right) ||
+                (endPointFound == UGL_FALSE &&
+                x1 < clipRect.right && x2 > clipRect.right)) {
+                x = clipRect.right - x1;
+
+                if (ey >= 0) {
+                    y = y1 + (ey * x + dx) / ex;
+                }
+                else {
+                    y = y1 + (ey * x - dx) / ex;
+                }
+
+                if (y >= clipRect.top && y <= clipRect.bottom) {
+                    if (x1 > clipRect.right) {
+                        startPoint.x = clipRect.right;
+                        startPoint.y = y;
+                        startPointFound = UGL_TRUE;
+                    }
+                    else {
+                        endPoint.x = clipRect.right;
+                        endPoint.y = y;
+                        endPointFound = UGL_TRUE;
+                    }
+                }
             }
-            else {
-                numPoints = abs (endPoint.y - startPoint.y) + 1;
-                errorValue = startError +
-                             (abs (startPoint.y - y1) * majorErrorInc) +
-                             (abs (startPoint.x - x1) * minorErrorInc);
+
+            /* Get intersection point below clip rectangle */
+            if ((startPointFound == UGL_FALSE &&
+                 y1 > clipRect.bottom && y2 < clipRect.bottom) ||
+                (endPointFound == UGL_FALSE &&
+                 y1 < clipRect.bottom && y2 > clipRect.bottom)) {
+                y = clipRect.bottom - y1;
+
+                if (ex >= 0) {
+                    x = x1 + (ex * y + dy) / ey;
+                }
+                else {
+                    x = x1 + (ex * y - dy) / ey;
+                }
+
+                if (x >= clipRect.left && x <= clipRect.right) {
+                    if (y1 > clipRect.bottom) {
+                        startPoint.x = x;
+                        startPoint.y = clipRect.bottom;
+                        startPointFound = UGL_TRUE;
+                    }
+                    else {
+                        endPoint.x = x;
+                        endPoint.y = clipRect.bottom;
+                        endPointFound = UGL_TRUE;
+                    }
+                }
             }
 
-            /* Call driver specific method */
-            (*pDrv->bresenhamLine) (pDrv, &startPoint, numPoints, xMajor,
-                                    majorInc, minorInc, errorValue,
-                                    majorErrorInc, minorErrorInc);
-        }
+            /* Draw line */
+            if (startPointFound == UGL_TRUE && endPointFound == UGL_TRUE) {
+                if (xMajor == UGL_TRUE) {
+                    numPoints = abs (endPoint.x - startPoint.x) + 1;
+                    errorValue = startError +
+                                 (abs (startPoint.x - x1) * majorErrorInc) +
+                                 (abs (startPoint.y - y1) * minorErrorInc);
+                }
+                else {
+                    numPoints = abs (endPoint.y - startPoint.y) + 1;
+                    errorValue = startError +
+                                 (abs (startPoint.y - y1) * majorErrorInc) +
+                                 (abs (startPoint.x - x1) * minorErrorInc);
+                }
 
-        UGL_CLIP_LOOP_END
+                /* Call driver specific method */
+                (*pDrv->bresenhamLine) (pDrv, &startPoint, numPoints, xMajor,
+                                        majorInc, minorInc, errorValue,
+                                        majorErrorInc, minorErrorInc);
+            }
+
+            UGL_CLIP_LOOP_END
+        }
     }
 
     return (status);
@@ -405,7 +619,7 @@ UGL_LOCAL UGL_STATUS uglLineDataGet (
     minBufSize = max (abs (p2->x - p1->x) + 1, abs (p2->y - p1->y) + 1);
 
     if (bufSize == -1) {
-        pBuf = (UGL_POINT *) UGL_MALLOC (bufSize * sizeof (UGL_POINT));
+        pBuf = (UGL_POINT *) UGL_MALLOC (minBufSize * sizeof (UGL_POINT));
         if (pBuf == UGL_NULL) {
             return (UGL_STATUS_ERROR);
         }
@@ -424,7 +638,7 @@ UGL_LOCAL UGL_STATUS uglLineDataGet (
     ax = abs (dx) << 1;
     ay = abs (dy) << 1;
     sx = (dx > 0) ? 1 : -1;
-    dy = (dy > 0) ? 1 : -1;
+    sy = (dy > 0) ? 1 : -1;
 
     x = p1->x;
     y = p1->y;
