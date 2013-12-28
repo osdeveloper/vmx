@@ -71,10 +71,11 @@ typedef UGL_UINT32              UGL_LINE_STYLE;
 typedef UGL_UINT32              UGL_COLOR;
 typedef UGL_UINT32              UGL_TIMESTAMP;
 typedef UGL_UINT32              UGL_TIMEOUT;
-typedef void*                   UGL_ID;
+typedef void *                  UGL_ID;
 typedef int                     UGL_SIZE;
 typedef int                     UGL_ORD;
 typedef int                     UGL_POS;
+typedef void *                  UGL_SEARCH_ID;
 
 /* Misc */
 #define UGL_NULL                ((void *) 0)

@@ -33,6 +33,7 @@
 #include <ugl/uglregn.h>
 #include <ugl/uglpage.h>
 #include <ugl/uglugi.h>
+#include <ugl/uglfont.h>
 
 #ifndef _ASMLANGUAGE
 
@@ -720,6 +721,67 @@ UGL_STATUS uglBatchStart (
 
 UGL_STATUS uglBatchEnd (
     UGL_GC_ID  gc
+    );
+
+/* Font support functions */
+
+/******************************************************************************
+ *
+ * uglFontDriverInfo - Get information about font driver
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontDriverInfo (
+    UGL_FONT_DRIVER_ID  fontDriverId,
+    UGL_INFO_REQ        infoRequest,
+    void *              pInfo
+    );
+
+/******************************************************************************
+ *
+ * uglFontDriverDestroy - Destroy font driver
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontDriverDestroy (
+    UGL_FONT_DRIVER_ID  fontDriverId
+    );
+
+/******************************************************************************
+ *
+ * uglFontFindFirst - Get the first avilable font
+ *
+ * RETURNS: UGL_SEARCH_ID or UGL_NULL
+ */
+
+UGL_SEARCH_ID uglFontFindFirst (
+    UGL_FONT_DRIVER_ID  fontDriverId,
+    UGL_FONT_DESC *     pFontDescriptor
+    );
+
+/******************************************************************************
+ *
+ * uglFontCreate - Create font
+ *
+ * RETURNS: UGL_FONT_ID or UGL_NULL
+ */
+
+UGL_FONT_ID uglFontCreate (
+    UGL_FONT_DRIVER_ID  fontDriverId,
+    UGL_FONT_DEF *      pFontDefinition
+    );
+
+/******************************************************************************
+ *
+ * uglFontDestroy - Destroy font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontDestroy (
+    UGL_FONT_ID  fontId
     );
 
 #ifdef __cplusplus

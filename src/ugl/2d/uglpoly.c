@@ -18,7 +18,7 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* uglpolygon.c - Universal graphics library polygon drawing support */
+/* uglpoly.c - Universal graphics library polygon drawing support */
 
 #include <ugl/ugl.h>
 
