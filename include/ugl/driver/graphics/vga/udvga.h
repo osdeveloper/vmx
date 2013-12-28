@@ -283,6 +283,23 @@ UGL_STATUS uglVgaBitmapWrite (
 
 /******************************************************************************
  *
+ * uglVgaBitmapRead - Read from vga bitmap to device independent bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_DDB_ID     ddbId,
+    UGL_RECT *     pSrcRect,
+    UGL_DIB *      pDib,
+    UGL_POINT *    pDestPoint
+    );
+
+/* Monochrome bitmap support functions */
+
+/******************************************************************************
+ *
  * uglVgaMonoBitmapCreate - Create vga monocrhome bitmap
  *
  * RETURNS: Pointer to monochrome bitmap

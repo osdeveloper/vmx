@@ -833,10 +833,10 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
 {
   struct vgaHWRec oldRegs;
-  UGL_MDDB *pMddb;
-  UGL_DDB *pSaveBmp;
-  UGL_RECT srcRect, saveRect;
-  UGL_POINT pt, pt0;
+  UGL_MDDB *pFgBmp;
+  UGL_DDB *pDbBmp, *pSaveBmp;
+  UGL_RECT dbSrcRect, srcRect, saveRect;
+  UGL_POINT dbPt, pt, pt0;
 
   if (mode4Enter(&oldRegs)) {
     restoreConsole(&oldRegs);
@@ -847,70 +847,136 @@ int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   /* Set palette */
   setPalette();
 
-  pMddb = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
-			         0, gfxPartId);
-  if (pMddb == UGL_NULL) {
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             DB_CLEAR_COLOR, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  }
+
+  uglForegroundColorSet(gfxDevId->defaultGc, 14);
+  uglBackgroundColorSet(gfxDevId->defaultGc, 4);
+
+  if (uglBitmapWrite(gfxDevId, &bgDib, 0, 0, bgDib.width, bgDib.height,
+                     gfxDevId->defaultGc->pDefaultBitmap,
+                     640 / 2 - bgDib.width / 2,
+                     480 / 2 - bgDib.height / 2) != UGL_STATUS_OK) {
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
     restoreConsole(&oldRegs);
-    printf("Unable to create monochrome image\n");
+    printf("Unable to write background image\n");
+    return 1;
+  }
+
+  pFgBmp = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
+                               0, gfxPartId);
+
+  if (pFgBmp == UGL_NULL) {
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
+    restoreConsole(&oldRegs);
+    printf("Unable to create foreground image\n");
     return 1;
   }
 
   pSaveBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_VALUE,
                              0, gfxPartId);
   if (pSaveBmp == UGL_NULL) {
-    uglMonoBitmapDestroy(gfxDevId, pMddb);
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
+    uglMonoBitmapDestroy(gfxDevId, pFgBmp);
     restoreConsole(&oldRegs);
     printf("Unable to create background save image\n");
     return 1;
   }
 
-  uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
-  uglForegroundColorSet(gfxDevId->defaultGc, 14);
-  uglBackgroundColorSet(gfxDevId->defaultGc, 4);
-  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 640;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 480;
+  dbPt.x = 0;
+  dbPt.y = 0;
 
   srcRect.left = x1;
   srcRect.top = y1;
   if (x2 == 0) {
-    srcRect.right = pMddb->width;
+    srcRect.right = pFgBmp->width;
   }
   else {
     srcRect.right = x2;
   }
 
   if (y2 == 0) {
-    srcRect.bottom = pMddb->height;
+    srcRect.bottom = pFgBmp->height;
   }
   else {
     srcRect.bottom = y2;
   }
 
-  pt.x = -pMddb->width;
-  pt.y = -pMddb->height;
+  pt.x = -pFgBmp->width;
+  pt.y = -pFgBmp->height;
 
   saveRect.left = pt.x;
-  saveRect.right = pt.x + pMddb->width;
+  saveRect.right = pt.x + pFgBmp->width;
   saveRect.top = pt.y;
-  saveRect.bottom = pt.y + pMddb->height;
-  pt0.x = pt.x;
-  pt0.y = pt.y;
+  saveRect.bottom = pt.y + pFgBmp->height;
+  pt0.x = 0;
+  pt0.y = 0;
 
   while (pt.y < 480) {
-    uglBitmapBlt(gfxDevId->defaultGc, UGL_DISPLAY_ID,
-                 saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
-                 pSaveBmp, pt0.x, pt0.y);
 
-    uglBitmapBlt(gfxDevId->defaultGc, pMddb,
+    /* Copy background */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
+                   pSaveBmp, pt0.x, pt0.y);
+    }
+    else {
+      uglBitmapBlt(gfxDevId->defaultGc, UGL_DISPLAY_ID,
+                   saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
+                   pSaveBmp, pt0.x, pt0.y);
+    }
+
+    /* Set raster operation and draw ball */
+    uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
+
+    uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
                  UGL_DEFAULT_ID, pt.x, pt.y);
+
+    uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
 
     /* Delay */
     taskDelay(animTreshold);
 
+    /* Erase ball */
     uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
                  srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
-                 UGL_DISPLAY_ID, pt.x, pt.y);
+                 UGL_DEFAULT_ID, pt.x, pt.y);
 
+    /* Move ball */
     pt.x += BALL_SPEED;
     pt.y += BALL_SPEED;
     saveRect.left += BALL_SPEED;
@@ -919,7 +985,10 @@ int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
     saveRect.bottom += BALL_SPEED;
   }
 
-  uglMonoBitmapDestroy(gfxDevId, pMddb);
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
+  }
+  uglBitmapDestroy(gfxDevId, pFgBmp);
   uglBitmapDestroy(gfxDevId, pSaveBmp);
   restoreConsole(&oldRegs);
 

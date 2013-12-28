@@ -1185,12 +1185,8 @@ UGL_STATUS uglVgaBitmapWrite (
     pVgaBmp = (UGL_VGA_DDB *) ddbId;
 
     /* Get dimensions */
-    srcRect.top    = pSrcRect->top;
-    srcRect.bottom = pSrcRect->bottom;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
-    destPoint.x = pDestPoint->x;
-    destPoint.y = pDestPoint->y;
+    UGL_RECT_COPY (&srcRect, pSrcRect);
+    UGL_POINT_COPY (&destPoint, pDestPoint);
 
     if (uglGenericClipDibToDdb (devId, pDib, &srcRect,
                                 (UGL_BMAP_ID *) &pVgaBmp,
@@ -1539,6 +1535,167 @@ UGL_STATUS uglVgaBitmapWrite (
                 if (pClut != UGL_NULL) {
                     UGL_FREE (pClut);
                 }
+            }
+        }
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglVgaBitmapRead - Read from vga bitmap to device independent bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglVgaBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_DDB_ID     ddbId,
+    UGL_RECT *     pSrcRect,
+    UGL_DIB *      pDib,
+    UGL_POINT *    pDestPoint
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_VGA_DDB *        pVgaBmp;
+    UGL_COLOR *          pColor;
+    UGL_INT32            stride;
+    UGL_RECT             srcRect;
+    UGL_POINT            destPoint;
+    UGL_INT32            x;
+    UGL_INT32            y;
+    UGL_INT32            width;
+    UGL_INT32            height;
+    UGL_INT32            numPlanes;
+    UGL_INT32            plane;
+    UGL_INT32            srcBytesPerLine;
+    UGL_INT32            index;
+    UGL_INT32            len;
+    UGL_UINT8            startMask;
+    UGL_UINT8            planeMask;
+    UGL_UINT8            pixelMask;
+    UGL_UINT8 *          pSrc;
+    UGL_UINT8 *          pDest;
+    UGL_UINT8 *          pBuf;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get vga bitmap */
+    pVgaBmp = (UGL_VGA_DDB *) ddbId;
+
+    /* Get geometry */
+    UGL_RECT_COPY (&srcRect, pSrcRect);
+    UGL_POINT_COPY (&destPoint, pDestPoint);
+
+    /* Clip */
+    if (uglGenericClipDdbToDib (devId, (UGL_BMAP_ID *) &pVgaBmp,
+                                &srcRect, (UGL_DIB *) pDib,
+                                &destPoint) == UGL_TRUE) {
+        /* Setup variables */
+        stride = pDib->stride;
+        pColor = (UGL_COLOR *) pDib->pData + (destPoint.y * stride) +
+                 destPoint.x;
+
+        if ((UGL_DDB_ID) pVgaBmp == UGL_DISPLAY_ID) {
+
+            /* Read from display */
+            width           = UGL_RECT_WIDTH (srcRect);
+            height          = UGL_RECT_HEIGHT (srcRect);
+            numPlanes       = devId->pMode->depth;
+            srcBytesPerLine = ((UGL_VGA_DRIVER *) devId)->bytesPerLine;
+            pSrc            = (UGL_UINT8 *) pDrv->fbAddress +
+                              (srcRect.top * srcBytesPerLine) +
+                              (srcRect.left >> 3);
+            startMask       = 0x80 >> (srcRect.left & 0x07);
+            len             = (srcRect.right >> 3) - (srcRect.left >> 3) + 1;
+            pBuf            = UGL_MALLOC (len);
+            if (pBuf == UGL_NULL) {
+                return (UGL_STATUS_ERROR);
+            }
+
+            /* Read plane */
+            UGL_OUT_BYTE (0x3ce, 0x04);
+
+            for (y = 0; y < height; y++) {
+                planeMask = 0x01;
+                memset (pColor, 0, width * sizeof (UGL_COLOR));
+
+                for (plane = 0; plane < numPlanes; plane++) {
+                    pDest     = pBuf;
+                    pixelMask = startMask;
+                    index     = 0;
+
+                    UGL_OUT_BYTE (0x3cf, (UGL_UINT8) plane);
+                    memcpy (pDest, pSrc, len);
+
+                    for (x = 0; x < width; x++) {
+                        if ((pBuf[index] & pixelMask) != 0x00) {
+                            pColor[x] |= planeMask;
+                        }
+                        else {
+                            pColor[x] &= ~planeMask;
+                        }
+
+                        /* Advance column */
+                        if ((pixelMask >>= 1) == 0x00) {
+                            pixelMask = 0x80;
+                            index++;
+                        }
+                    }
+
+                    /* Advance plane */
+                    planeMask <<= 1;
+                }
+
+                /* Advance line */
+                pColor += stride;
+                pSrc   += srcBytesPerLine;
+            }
+
+            UGL_FREE (pBuf);
+        }
+        else {
+
+            /* Read from bitmap */
+            width           = UGL_RECT_WIDTH (srcRect);
+            height          = UGL_RECT_HEIGHT (srcRect);
+            numPlanes       = devId->pMode->depth;
+            srcBytesPerLine = (pVgaBmp->header.width + 7) / 8 + 1;
+            x               = srcRect.left + pVgaBmp->shiftValue;
+            index           = srcRect.top * srcBytesPerLine + (x >> 3);
+            startMask       = 0x80 >> (x & 0x07);
+
+            for (y = 0; y < height; y++) {
+                planeMask = 0x01;
+                memset (pColor, 0, width * sizeof (UGL_COLOR));
+
+                for (plane = 0; plane < numPlanes; plane++) {
+                    pSrc = &pVgaBmp->pPlaneArray[plane][index];
+                    pixelMask = startMask;
+
+                    for (x = 0; x < width; x++) {
+                        if ((*pSrc & pixelMask) != 0x00) {
+                            pColor[x] |= planeMask;
+                        }
+                        else {
+                            pColor[x] &= ~planeMask;
+                        }
+
+                        /* Advance column */
+                        if ((pixelMask >>= 1) == 0x00) {
+                            pixelMask = 0x80;
+                            pSrc++;
+                        }
+                    }
+
+                    /* Advance plane */
+                    planeMask <<= 1;
+                }
+
+                /* Advance row */
+                pColor += stride;
+                index  += srcBytesPerLine;
             }
         }
     }

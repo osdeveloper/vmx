@@ -306,6 +306,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->bitmapDestroy            = uglVgaBitmapDestroy;
             devId->bitmapBlt                = uglVgaBitmapBlt;
             devId->bitmapWrite              = uglVgaBitmapWrite;
+            devId->bitmapRead               = uglVgaBitmapRead;
             devId->monoBitmapCreate         = uglVgaMonoBitmapCreate;
             devId->monoBitmapDestroy        = uglVgaMonoBitmapDestroy;
             devId->monoBitmapBlt            = uglVgaMonoBitmapBlt;

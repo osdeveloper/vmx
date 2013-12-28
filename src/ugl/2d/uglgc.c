@@ -39,8 +39,6 @@ UGL_GC_ID uglGcCreate (
     UGL_DEVICE_ID  devId
     ) {
     UGL_GC_ID  gc;
-    UGL_POS    width;
-    UGL_POS    height;
 
     if (devId == UGL_NULL) {
         return (UGL_NULL);
@@ -51,25 +49,23 @@ UGL_GC_ID uglGcCreate (
         return (UGL_NULL);
     }
 
-    /* Create driver specific gc and clear */
+    /* Create driver specific gc */
     gc = (*devId->gcCreate) (devId);
     if (gc == UGL_NULL) {
         uglOSUnlock (devId->lockId);
         return (UGL_NULL);
     }
 
+    uglOSUnlock (devId->lockId);
+
+    /* Clear gc structure */
     memset(gc, 0, sizeof (UGL_GC));
 
     /* Create lock semaphore */
     gc->lockId = uglOSLockCreate ();
     if (gc->lockId == UGL_NULL) {
-        uglOSUnlock (devId->lockId);
         return (UGL_NULL);
     }
-
-    /* Get dimensions */
-    width  = (UGL_POS) devId->pMode->width;
-    height = (UGL_POS) devId->pMode->height;
 
     /* Initialize driver reference */
     gc->pDriver = devId;
@@ -80,20 +76,14 @@ UGL_GC_ID uglGcCreate (
     /* Initialize bounding rectagle */
     gc->boundRect.left   = 0;
     gc->boundRect.top    = 0;
-    gc->boundRect.right  = width - 1;
-    gc->boundRect.bottom = height - 1;
+    gc->boundRect.right  = devId->pMode->width - 1;
+    gc->boundRect.bottom = devId->pMode->height - 1;
 
     /* Initialize viewport */
-    gc->viewPort.left   = 0;
-    gc->viewPort.top    = 0;
-    gc->viewPort.right  = width - 1;
-    gc->viewPort.bottom = height - 1;
+    UGL_RECT_COPY (&gc->viewPort, &gc->boundRect);
 
     /* Initialize clipping rectagle */
-    gc->clipRect.left   = 0;
-    gc->clipRect.top    = 0;
-    gc->clipRect.right  = width - 1;
-    gc->clipRect.bottom = height - 1;
+    UGL_RECT_COPY (&gc->clipRect, &gc->boundRect);
 
     /* Initialize colors */
     gc->foregroundColor = 1;
@@ -110,10 +100,7 @@ UGL_GC_ID uglGcCreate (
     gc->changed = 0xffffffff;
 
     /* Set context magic number id */
-    gc->magicNumber = uglMagicNumber;
-
-    /* Unlock */
-    uglOSUnlock (devId->lockId);
+    gc->magicNumber = uglMagicNumber++;
 
     return (gc);
 }
@@ -214,6 +201,7 @@ UGL_STATUS uglDefaultBitmapSet (
     UGL_DDB_ID  bmpId
     ) {
     UGL_DEVICE_ID  devId;
+    UGL_RECT       vpRect;
 
     if (gc == UGL_NULL) {
         return (UGL_STATUS_ERROR);
@@ -257,6 +245,25 @@ UGL_STATUS uglDefaultBitmapSet (
 
         gc->changed |= UGL_GC_DEFAULT_BITMAP_CHANGED;
         UGL_GC_CHANGED_SET (gc);
+
+        /* Hide cursors */
+        if (devId->cursorHide != UGL_NULL &&
+            gc->pDefaultBitmap == UGL_DISPLAY_ID &&
+            devId->magicNumber == gc->magicNumber &&
+            devId->batchCount > 0) {
+
+            UGL_RECT_COPY (&vpRect, &gc->clipRect);
+            vpRect.left   += gc->viewPort.left;
+            vpRect.top    += gc->viewPort.top;
+            vpRect.right  += gc->viewPort.left;
+            vpRect.bottom += gc->viewPort.top;
+
+            if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+                return (UGL_STATUS_ERROR);
+            }
+            (*devId->cursorHide) (devId, &vpRect);
+            uglOSUnlock (devId->lockId);
+        }
     }
 
     /* Unlock */
@@ -347,7 +354,26 @@ UGL_STATUS uglClipRectSet (
         return (UGL_STATUS_ERROR);
     }
 
-    /* Align clip rectangle and store */
+    /* Intersect width region and viewport */
+    UGL_RECT_MOVE (clipRect, gc->viewPort.left, gc->viewPort.top);
+    UGL_RECT_INTERSECT (clipRect, gc->boundRect, clipRect);
+    UGL_RECT_INTERSECT (clipRect, gc->viewPort, clipRect);
+
+    /* Hide cursor */
+    if (devId->cursorHide != UGL_NULL &&
+        gc->pDefaultBitmap == UGL_DISPLAY_ID &&
+        devId->magicNumber == gc->magicNumber &&
+        devId->batchCount > 0) {
+
+        /* Lock device */
+        if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+            return (UGL_STATUS_ERROR);
+        }
+        (*devId->cursorHide) (devId, &clipRect);
+        uglOSUnlock (devId->lockId);
+    }
+
+    /* Restore clip rectangle and store */
     UGL_RECT_MOVE (clipRect, -gc->viewPort.left, -gc->viewPort.top);
     UGL_RECT_COPY (&gc->clipRect, &clipRect);
 

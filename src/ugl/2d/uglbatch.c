@@ -32,7 +32,9 @@
 UGL_STATUS uglBatchStart (
     UGL_GC_ID  gc
     ) {
-    UGL_DEVICE_ID  devId;
+    UGL_DEVICE_ID    devId;
+    UGL_RECT         clipRect;
+    const UGL_RECT * pRect;
 
     if (gc == UGL_NULL) {
         return (UGL_STATUS_ERROR);
@@ -49,6 +51,19 @@ UGL_STATUS uglBatchStart (
     /* Lock GC */
     if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
         return (UGL_STATUS_ERROR);
+    }
+
+    /* If not nested */
+    if (++devId->batchCount == 1) {
+
+        /* Protect cursors */
+        if (devId->cursorHide != UGL_NULL &&
+            gc->pDefaultBitmap == UGL_DISPLAY_ID) {
+
+            while (uglClipListGet (gc, &clipRect, &pRect) == UGL_STATUS_OK) {
+                (*devId->cursorHide) (devId, &clipRect);
+            }
+        }
     }
 
     /* Set graphics context as current */
@@ -75,6 +90,13 @@ UGL_STATUS uglBatchEnd (
 
     /* Get device */
     devId = gc->pDriver;
+
+    /* If end of nesting */
+    if (--devId->batchCount == 0) {
+        if (devId->cursorShow != UGL_NULL) {
+            (*devId->cursorShow) (devId);
+        }
+    }
 
     /* Unlock device */
     uglOSLock (devId->lockId);

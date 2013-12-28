@@ -421,7 +421,7 @@ UGL_STATUS uglBitmapBlt (
 
 /******************************************************************************
  *
- * uglBitmapWrite - Write to deveice depender bitmap
+ * uglBitmapWrite - Write to devece dependet bitmap
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
@@ -434,6 +434,25 @@ UGL_STATUS uglBitmapWrite (
     UGL_POS        srcRight,
     UGL_POS        srcBottom,
     UGL_DDB_ID     destBmpId,
+    UGL_POS        destX,
+    UGL_POS        destY
+    );
+
+/******************************************************************************
+ *
+ * uglBitmapRead - Read from device dependet bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_DDB_ID     srcBmpId,
+    UGL_POS        srcLeft,
+    UGL_POS        srcTop,
+    UGL_POS        srcRight,
+    UGL_POS        srcBottom,
+    UGL_DIB *      pDib,
     UGL_POS        destX,
     UGL_POS        destY
     );
@@ -465,6 +484,25 @@ UGL_DDB_ID uglMonoBitmapCreate (
 UGL_STATUS uglMonoBitmapDestroy (
     UGL_DEVICE_ID    devId,
     UGL_MDDB *       pMddb
+    );
+
+/******************************************************************************
+ *
+ * uglMonoBitmapWrite - Write monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglMonoBitmapWrite (
+    UGL_GC_ID    gc,
+    UGL_MDIB *   pMdib,
+    UGL_POS      srcLeft,
+    UGL_POS      srcTop,
+    UGL_POS      srcRight,
+    UGL_POS      srcBottom,
+    UGL_MDDB_ID  mDdbId,
+    UGL_POS      destX,
+    UGL_POS      destY
     );
 
 /******************************************************************************

@@ -224,6 +224,14 @@ typedef struct ugl_ugi_driver {
         UGL_POINT *             pDestPoint
         );
 
+    UGL_STATUS   (*bitmapRead) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_DDB *               pDdb,
+        UGL_RECT *              pSrcRect,
+        UGL_DIB *               pDib,
+        UGL_POINT *             pDestPoint
+        );
+
     UGL_MDDB *   (*monoBitmapCreate) (
         struct ugl_ugi_driver * pDrv,
         UGL_MDIB *              pMdib,

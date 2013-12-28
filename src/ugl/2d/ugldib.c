@@ -114,6 +114,7 @@ UGL_STATUS uglBitmapBlt (
     UGL_DEVICE_ID  devId;
     UGL_RECT       srcRect;
     UGL_RECT       destRect;
+    UGL_RECT       vpRect;
 
     /* Check if visible */
     if (srcTop > srcBottom || srcLeft > srcRight) {
@@ -139,6 +140,26 @@ UGL_STATUS uglBitmapBlt (
     destRect.top    = destY;
     destRect.right  = destRect.left + UGL_RECT_WIDTH (srcRect) - 1;
     destRect.bottom = destRect.top + UGL_RECT_HEIGHT (srcRect) - 1;
+
+    /* Hide cursor during drawing */
+    if (devId->cursorHide != UGL_NULL) {
+        if (srcBmpId == UGL_DISPLAY_ID) {
+            (*devId->cursorHide) (devId, &srcRect);
+        }
+        else if (srcBmpId == UGL_DEFAULT_ID &&
+                 gc->pDefaultBitmap == UGL_DISPLAY_ID) {
+            UGL_RECT_COPY (&vpRect, &srcRect);
+            vpRect.left   += gc->viewPort.left;
+            vpRect.top    += gc->viewPort.top;
+            vpRect.right  += gc->viewPort.left;
+            vpRect.bottom += gc->viewPort.bottom;
+            (*devId->cursorHide) (devId, &vpRect);
+        }
+
+        if (destBmpId == UGL_DISPLAY_ID) {
+            (*devId->cursorHide) (devId, &destRect);
+        }
+    }
 
     if ((destBmpId == UGL_DEFAULT_ID) || (destBmpId == UGL_DISPLAY_ID) ||
         (destBmpId->type == UGL_DDB_TYPE)) {
@@ -179,7 +200,7 @@ UGL_STATUS uglBitmapBlt (
 
 /******************************************************************************
  *
- * uglBitmapWrite - Write to deveice depender bitmap
+ * uglBitmapWrite - Write to device dependet bitmap
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
@@ -198,6 +219,7 @@ UGL_STATUS uglBitmapWrite (
     UGL_STATUS  status;
     UGL_RECT    srcRect;
     UGL_POINT   destPoint;
+    UGL_RECT    cursorRect;
 
     /* Check params */
     if (pDib == UGL_NULL || destBmpId == UGL_NULL ||
@@ -229,9 +251,85 @@ UGL_STATUS uglBitmapWrite (
     destPoint.x = destX;
     destPoint.y = destY;
 
+    /* Hide cursor */
+    if (devId->cursorHide != UGL_NULL && destBmpId == UGL_DISPLAY_ID) {
+        cursorRect.left   = destPoint.x;
+        cursorRect.top    = destPoint.y;
+        cursorRect.top    = cursorRect.left + UGL_RECT_WIDTH (srcRect) - 1;
+        cursorRect.bottom = cursorRect.top + UGL_RECT_HEIGHT (srcRect) - 1;
+        (*devId->cursorHide) (devId, &cursorRect);
+    }
+
     /* Call driver specific method, should return UGL_NULL on failure */
     status = (*devId->bitmapWrite) (devId, pDib, &srcRect,
                                     destBmpId, &destPoint);
+
+    /* Unlock */
+    uglOSUnlock (devId->lockId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBitmapRead - Read from device dependet bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_DDB_ID     srcBmpId,
+    UGL_POS        srcLeft,
+    UGL_POS        srcTop,
+    UGL_POS        srcRight,
+    UGL_POS        srcBottom,
+    UGL_DIB *      pDib,
+    UGL_POS        destX,
+    UGL_POS        destY
+    ) {
+    UGL_STATUS  status;
+    UGL_RECT    srcRect;
+    UGL_POINT   destPoint;
+
+    /* Check params */
+    if (pDib == UGL_NULL || srcBmpId == UGL_NULL ||
+        (srcBmpId != UGL_DISPLAY_ID && srcBmpId->type != UGL_DDB_TYPE)) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Check if trivial */
+    if ((pDib->width == 0) || (pDib->height == 0)) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Validate */
+    if (devId == NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock device */
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Setup geometry */
+    srcRect.left   = srcLeft;
+    srcRect.top    = srcTop;
+    srcRect.right  = srcRight;
+    srcRect.bottom = srcBottom;
+
+    destPoint.x = destX;
+    destPoint.y = destY;
+
+    /* Hide cursor */
+    if (devId->cursorHide != UGL_NULL && srcBmpId == UGL_DISPLAY_ID) {
+        (*devId->cursorHide) (devId, &srcRect);
+    }
+
+    /* Call driver specific method, should return UGL_NULL on failure */
+    status = (*devId->bitmapRead) (devId, srcBmpId, &srcRect,
+                                   pDib, &destPoint);
 
     /* Unlock */
     uglOSUnlock (devId->lockId);
