@@ -28,6 +28,14 @@
 #define UGL_FONT_FACE_NAME_MAX_LENGTH   80
 #define UGL_FONT_FAMILY_NAME_MAX_LENGTH 40
 
+/* Used by uglFontDriverInfo */
+#define UGL_FONT_ENGINE_VERSION_GET     100
+#define UGL_FONT_DRIVER_VERSION_GET     101
+#define UGL_FONT_TEXT_ORIGIN            110
+
+#define UGL_FONT_TEXT_BASELINE          0
+#define UGL_FONT_TEXT_UPPER_LEFT        1
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus

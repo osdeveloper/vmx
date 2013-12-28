@@ -35,6 +35,7 @@
 #include <ugl/driver/graphics/vga/udvga.h>
 #include <ugl/driver/graphics/vga/udvgamode.h>
 #include <ugl/driver/graphics/generic/udgen.h>
+#include <ugl/driver/font/udbmffnt.h>
 
 #include "vmxball.cbm"
 #include "pinball.cbm"
@@ -1575,6 +1576,31 @@ UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
   return (pRect);
 }
 
+int uglFontDriverTest(void)
+{
+  UGL_FONT_DRIVER_ID drvId;
+  UGL_INT32 data = -1;
+
+  drvId = uglBMFFontDriverCreate (gfxDevId);
+  if (drvId == UGL_NULL) {
+    printf("Unable to create font driver.\n");
+    return 1;
+  }
+
+  if (uglFontDriverInfo (drvId, UGL_FONT_DRIVER_VERSION_GET,
+                         &data) != UGL_STATUS_OK) {
+    uglFontDriverDestroy (drvId);
+    printf("Unable to retreive font driver version.\n");
+    return 1;
+  }
+
+  printf("Font driver version: %d\n", data);
+
+  uglFontDriverDestroy (drvId);
+
+  return 0;
+}
+
 void uglDemoInit()
 {
 static SYMBOL symTableUglDemo[] = {
@@ -1600,6 +1626,7 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglSetLineWidth", uglSetLineWidth, 0, N_TEXT | N_EXT},
   {NULL, "_uglSetLineStyle", uglSetLineStyle, 0, N_TEXT | N_EXT},
   {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
+  {NULL, "_uglFontDriverTest", uglFontDriverTest, 0, N_TEXT | N_EXT},
   {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
 };
 
