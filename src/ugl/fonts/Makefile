@@ -2,7 +2,7 @@
 #
 
 OBJS =
-SUBDIRS = 2d driver os fonts
-LIB_TGT =
+SUBDIRS = bmf
+LIB_TGT = ugl-fonts
 
 include $(VMX_BASE)/include/make/build.defaults

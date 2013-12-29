@@ -28,6 +28,10 @@
 #define UGL_BMF_FONT_ENGINE_VERSION     1
 #define UGL_BMF_FONT_DRIVER_VERSION     1
 
+/* Imports */
+
+extern const UGL_BMF_FONT_DESC * uglBMFFontData[];
+
 /* Locals */
 
 UGL_LOCAL UGL_STATUS uglBMFFontDriverInfo (
@@ -53,6 +57,10 @@ UGL_FONT_DRIVER_ID uglBMFFontDriverCreate (
     UGL_BMF_FONT_DRIVER * pBmfDrv;
     UGL_FONT_DRIVER *     pDrv;
     UGL_LOCK_ID           lockId;
+
+    if (uglBMFFontData == NULL) {
+        return (UGL_NULL);
+    }
 
     /* Allocate memory for driver */
     pBmfDrv =

@@ -48,6 +48,13 @@
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_12;
+
+/* Exports */
+const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
+    &uglBMFFont_Courier_Bold_Oblique_12,
+    UGL_NULL
+};
 
 PART_ID gfxPartId;
 UGL_DEVICE_ID gfxDevId;
@@ -1581,7 +1588,7 @@ int uglFontDriverTest(void)
   UGL_FONT_DRIVER_ID drvId;
   UGL_INT32 data = -1;
 
-  drvId = uglBMFFontDriverCreate (gfxDevId);
+  drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
   if (drvId == UGL_NULL) {
     printf("Unable to create font driver.\n");
     return 1;

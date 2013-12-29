@@ -28,6 +28,18 @@
 #define UGL_FONT_FACE_NAME_MAX_LENGTH   80
 #define UGL_FONT_FAMILY_NAME_MAX_LENGTH 40
 
+#define UGL_FONT_BOLD_OFF               0
+#define UGL_FONT_BOLD                   50
+
+#define UGL_FONT_UPRIGHT                0
+#define UGL_FONT_ITALIC                 1
+
+#define UGL_FONT_MONO_SPACED            0
+#define UGL_FONT_PROPORTIONAL           1
+
+#define UGL_FONT_ISO_8859_1             0
+#define UGL_FONT_UNICODE                1
+
 /* Used by uglFontDriverInfo */
 #define UGL_FONT_ENGINE_VERSION_GET     100
 #define UGL_FONT_DRIVER_VERSION_GET     101

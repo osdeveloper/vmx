@@ -33,12 +33,61 @@ extern "C" {
 #include <ugl/uglfont.h>
 #include <ugl/uglugi.h>
 
+/* Defines */
+
+#define UGL_BMF_DRIVER_NAME             "BMF Font"
+#define UGL_FONT_DRIVER_CREATE          uglBMFFontDriverCreate
+
+#define UGL_BMF_GLYPH_CACHE_SIZE_MAX    -1
+#define UGL_BMF_GLYPH_CACHE_SIZE_NONE   0
+#define UGL_BMF_GLYPH_CACHE_SIZE_MIN    UGL_BMF_GLPYH_CACHE_SIZE_NONE
+
 /* Types */
 
+typedef void * UGL_FONT_PAGE[256];
+
+typedef struct ugl_bmf_font_desc {
+    UGL_FONT_DESC             header;
+    UGL_SIZE                  leading;
+    UGL_SIZE                  maxAscent;
+    UGL_SIZE                  maxDescent;
+    UGL_SIZE                  maxAdvance;
+    const UGL_UINT8 * const * pageData;
+} UGL_BMF_FONT_DESC;
+
+typedef struct ugl_bmf_font {
+    UGL_FONT              header;
+    UGL_ORD               textOrigin;
+    UGL_FONT_DESC *       pBMFFontDesc;
+    UGL_UINT32            referenceCount;
+    UGL_FONT_PAGE         pageZero;
+    struct ugl_bmf_font * pNextFont;
+    struct ugl_bmf_font * pPrevFont;
+} UGL_BMF_FONT;
+
+typedef struct ugl_glyph_cache_element {
+    UGL_UINT16                       cacheFlag;
+    UGL_UINT8                        width;
+    UGL_UINT8                        height;
+    UGL_UINT8                        ascent;
+    UGL_RECT                         bitmapRect;
+    UGL_MDDB_ID                      bitmapId;
+    void *                           pGlyphData;
+    void **                          ppPageElement;
+    struct ugl_glyph_cache_element * pNext;
+    struct ugl_glyph_cache_element * pPrev;
+} UGL_GLYPH_CACHE_ELEMENT;
+
 typedef struct ugl_bmf_font_driver {
-    UGL_FONT_DRIVER  header;
-    UGL_ORD          textOrigin;
-    UGL_LOCK_ID      lockId;
+    UGL_FONT_DRIVER           header;
+    UGL_BMF_FONT *            pFirstFont;
+    UGL_BMF_FONT *            pLastFont;
+    UGL_FONT_DESC *           pFontList;
+    UGL_SIZE                  numCachedGlyphs;
+    UGL_ORD                   textOrigin;
+    UGL_LOCK_ID               lockId;
+    UGL_GLYPH_CACHE_ELEMENT * pFistCacheElement;
+    UGL_GLYPH_CACHE_ELEMENT * pListCacheElement;
 } UGL_BMF_FONT_DRIVER;
 
 /* Functions */
