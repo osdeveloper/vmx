@@ -96,6 +96,56 @@ UGL_SEARCH_ID uglFontFindFirst (
 
 /******************************************************************************
  *
+ * uglFontFindNext - Get the next avilable font
+ *
+ * RETURNS: UGL_STATUS_OK, UGL_STATUS_FINISHED or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontFindNext (
+    UGL_FONT_DRIVER_ID  fontDriverId,
+    UGL_FONT_DESC *     pFontDescriptor,
+    UGL_SEARCH_ID       searchId
+    ) {
+    UGL_STATUS  status;
+
+    /* Validate */
+    if (fontDriverId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Call driver specific method */
+    status = (*fontDriverId->fontFindNext) (fontDriverId, pFontDescriptor,
+                                            searchId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglFontFindClose - Terminate font search
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontFindClose (
+    UGL_FONT_DRIVER_ID  fontDriverId,
+    UGL_SEARCH_ID       searchId
+    ) {
+    UGL_STATUS  status;
+
+    /* Validate */
+    if (fontDriverId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Call driver specific method */
+    status = (*fontDriverId->fontFindClose) (fontDriverId, searchId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
  * uglFontCreate - Create font
  *
  * RETURNS: UGL_FONT_ID or UGL_NULL

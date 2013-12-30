@@ -49,10 +49,24 @@
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_24;
 
 /* Exports */
 const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
     &uglBMFFont_Courier_Bold_Oblique_12,
+    &uglBMFFont_Courier_Bold_12,
+    &uglBMFFont_Courier_Oblique_12,
+    &uglBMFFont_Courier_12,
+    &uglBMFFont_Courier_Bold_Oblique_24,
+    &uglBMFFont_Courier_Bold_24,
+    &uglBMFFont_Courier_Oblique_24,
+    &uglBMFFont_Courier_24,
     UGL_NULL
 };
 
@@ -1586,6 +1600,8 @@ UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
 int uglFontDriverTest(void)
 {
   UGL_FONT_DRIVER_ID drvId;
+  UGL_FONT_DESC fontDesc;
+  UGL_SEARCH_ID searchId;
   UGL_INT32 data = -1;
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
@@ -1602,6 +1618,24 @@ int uglFontDriverTest(void)
   }
 
   printf("Font driver version: %d\n", data);
+  printf("Searching for fonts.\n");
+
+  searchId = uglFontFindFirst(drvId, &fontDesc);
+  if (searchId == UGL_NULL) {
+    uglFontDriverDestroy (drvId);
+    printf("Unable to retreive fonts.\n");
+    return 1;
+  }
+
+  do {
+    printf("%-012s %-032s %02d %04s %06s\n",
+           fontDesc.familyName, fontDesc.faceName,
+           fontDesc.pixelSize.min,
+           (fontDesc.weight.min == UGL_FONT_BOLD) ? "bold" : "",
+           (fontDesc.italic == UGL_FONT_ITALIC) ? "italic" : "");
+  } while (uglFontFindNext(drvId, &fontDesc, searchId) == UGL_STATUS_OK);
+
+  uglFontFindClose(drvId, searchId);
 
   uglFontDriverDestroy (drvId);
 

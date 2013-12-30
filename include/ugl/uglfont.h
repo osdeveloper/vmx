@@ -60,16 +60,6 @@ struct ugl_font_driver;
 
 /* Types */
 
-typedef struct ugl_font_def {
-    UGL_SIZE   structSize;
-    UGL_RANGE  pixelSize;
-    UGL_RANGE  weight;
-    UGL_ORD    italic;
-    UGL_ORD    charSet;
-    char       faceName[UGL_FONT_FACE_NAME_MAX_LENGTH];
-    char       familyName[UGL_FONT_FAMILY_NAME_MAX_LENGTH];
-} UGL_FONT_DEF;
-
 typedef struct ugl_font_desc {
     UGL_RANGE  pixelSize;
     UGL_RANGE  weight;
@@ -79,6 +69,16 @@ typedef struct ugl_font_desc {
     char       faceName[UGL_FONT_FACE_NAME_MAX_LENGTH];
     char       familyName[UGL_FONT_FAMILY_NAME_MAX_LENGTH];
 } UGL_FONT_DESC;
+
+typedef struct ugl_font_def {
+    UGL_SIZE  structSize;
+    UGL_SIZE  pixelSize;
+    UGL_SIZE  weight;
+    UGL_ORD   italic;
+    UGL_ORD   charSet;
+    char      faceName[UGL_FONT_FACE_NAME_MAX_LENGTH];
+    char      familyName[UGL_FONT_FAMILY_NAME_MAX_LENGTH];
+} UGL_FONT_DEF;
 
 typedef struct ugl_font {
     struct ugl_font_driver * pFontDriver;
@@ -101,6 +101,17 @@ typedef struct ugl_font_driver {
     UGL_SEARCH_ID (*fontFindFirst) (
         struct ugl_font_driver * pFontDriver,
         struct ugl_font_desc *   pFontDesc
+        );
+
+    UGL_STATUS (*fontFindNext) (
+        struct ugl_font_driver * pFontDriver,
+        struct ugl_font_desc *   pFontDesc,
+        UGL_SEARCH_ID            searchId
+        );
+
+    UGL_STATUS (*fontFindClose) (
+        struct ugl_font_driver * pFontDriver,
+        UGL_SEARCH_ID            searchId
         );
 
     UGL_FONT *    (*fontCreate) (

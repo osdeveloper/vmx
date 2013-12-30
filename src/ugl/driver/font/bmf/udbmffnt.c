@@ -44,6 +44,22 @@ UGL_LOCAL UGL_STATUS uglBMFFontDriverDestroy (
     UGL_FONT_DRIVER_ID  drvId
     );
 
+UGL_LOCAL UGL_SEARCH_ID uglBMFFontFindFirst (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_FONT_DESC *     pFontDescriptor
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFFontFindNext (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_FONT_DESC *     pFontDescriptor,
+    UGL_SEARCH_ID       searchId
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFFontFindClose (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_SEARCH_ID       searchId
+    );
+
 /******************************************************************************
  *
  * uglBMFFontDriverCreate - Create bitmap font driver
@@ -56,9 +72,16 @@ UGL_FONT_DRIVER_ID uglBMFFontDriverCreate (
     ) {
     UGL_BMF_FONT_DRIVER * pBmfDrv;
     UGL_FONT_DRIVER *     pDrv;
+    UGL_SIZE              numFonts;
     UGL_LOCK_ID           lockId;
 
     if (uglBMFFontData == NULL) {
+        return (UGL_NULL);
+    }
+
+    /* Check number of fonts */
+    for (numFonts = 0; uglBMFFontData[numFonts] != UGL_NULL; numFonts++);
+    if (numFonts == 0) {
         return (UGL_NULL);
     }
 
@@ -81,6 +104,9 @@ UGL_FONT_DRIVER_ID uglBMFFontDriverCreate (
     pDrv->pDriver = devId;
     pDrv->fontDriverInfo    = uglBMFFontDriverInfo;
     pDrv->fontDriverDestroy = uglBMFFontDriverDestroy;
+    pDrv->fontFindFirst     = uglBMFFontFindFirst;
+    pDrv->fontFindNext      = uglBMFFontFindNext;
+    pDrv->fontFindClose     = uglBMFFontFindClose;
 
     /* Setup driver specific part of struct */
     pBmfDrv->textOrigin = UGL_FONT_TEXT_BASELINE;
@@ -157,6 +183,81 @@ UGL_LOCAL UGL_STATUS uglBMFFontDriverDestroy (
     UGL_STATUS            status = UGL_STATUS_OK;
 
     uglOSLockDestroy (pDrv->lockId);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontFindFirst - Find first font in font driver
+ *
+ * RETURNS: UGL_SEARCH_ID or UGL_NULL
+ */
+
+UGL_LOCAL UGL_SEARCH_ID uglBMFFontFindFirst (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_FONT_DESC *     pFontDescriptor
+    ) {
+    UGL_SEARCH_ID  searchId = UGL_NULL;
+
+    if (uglBMFFontData != UGL_NULL) {
+        searchId = (UGL_SEARCH_ID) UGL_MALLOC (sizeof (UGL_SEARCH_ID));
+        if (searchId != UGL_NULL) {
+            *pFontDescriptor = *(UGL_FONT_DESC *) uglBMFFontData[0];
+            *(UGL_UINT32 *) searchId = 1;
+        }
+    }
+
+    return (searchId);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontFindNext - Find next font in font driver
+ *
+ * RETURNS: UGL_STATUS_OK, UGL_STATUS_FINISHED or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFFontFindNext (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_FONT_DESC *     pFontDescriptor,
+    UGL_SEARCH_ID       searchId
+    ) {
+    UGL_UINT32  index;
+    UGL_STATUS  status = UGL_STATUS_ERROR;
+
+    if (searchId != UGL_NULL) {
+        index = *(UGL_UINT32 *) searchId;
+        if (uglBMFFontData[index] != UGL_NULL) {
+            *pFontDescriptor = *(UGL_FONT_DESC *) uglBMFFontData[index++];
+            *(UGL_UINT32 *) searchId = index;
+            status = UGL_STATUS_OK;
+        }
+        else {
+            status = UGL_STATUS_FINISHED;
+        }
+    }
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontFindClose - Terminate font search for font driver
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFFontFindClose (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_SEARCH_ID       searchId
+    ) {
+    UGL_STATUS  status = UGL_STATUS_ERROR;
+
+    if (searchId != UGL_NULL) {
+        UGL_FREE (searchId);
+        status = UGL_STATUS_OK;
+    }
 
     return (status);
 }
