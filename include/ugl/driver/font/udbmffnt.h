@@ -42,9 +42,12 @@ extern "C" {
 #define UGL_BMF_GLYPH_CACHE_SIZE_NONE   0
 #define UGL_BMF_GLYPH_CACHE_SIZE_MIN    UGL_BMF_GLPYH_CACHE_SIZE_NONE
 
+#define UGL_BMF_FONT_PAGE_SIZE          256
+#define UGL_BMF_FONT_PAGE_TABLE_SIZE    256
+
 /* Types */
 
-typedef void * UGL_FONT_PAGE[256];
+typedef void * UGL_FONT_PAGE[UGL_BMF_FONT_PAGE_SIZE];
 
 typedef struct ugl_bmf_font_desc {
     UGL_FONT_DESC             header;
@@ -56,13 +59,14 @@ typedef struct ugl_bmf_font_desc {
 } UGL_BMF_FONT_DESC;
 
 typedef struct ugl_bmf_font {
-    UGL_FONT              header;
-    UGL_ORD               textOrigin;
-    UGL_FONT_DESC *       pBMFFontDesc;
-    UGL_UINT32            referenceCount;
-    UGL_FONT_PAGE         pageZero;
-    struct ugl_bmf_font * pNextFont;
-    struct ugl_bmf_font * pPrevFont;
+    UGL_FONT                  header;
+    UGL_ORD                   textOrigin;
+    const UGL_BMF_FONT_DESC * pBMFFontDesc;
+    UGL_UINT32                referenceCount;
+    UGL_FONT_PAGE             pageZero;
+    UGL_FONT_PAGE *           pageTable[UGL_BMF_FONT_PAGE_TABLE_SIZE];
+    struct ugl_bmf_font *     pNextFont;
+    struct ugl_bmf_font *     pPrevFont;
 } UGL_BMF_FONT;
 
 typedef struct ugl_glyph_cache_element {

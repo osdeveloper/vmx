@@ -40,10 +40,15 @@
 #define UGL_FONT_ISO_8859_1             0
 #define UGL_FONT_UNICODE                1
 
+#define UGL_FONT_BITMAPPED              0
+
 /* Used by uglFontDriverInfo */
 #define UGL_FONT_ENGINE_VERSION_GET     100
 #define UGL_FONT_DRIVER_VERSION_GET     101
 #define UGL_FONT_TEXT_ORIGIN            110
+
+#define UGL_FONT_TEXT_ORIGIN_SET        30
+#define UGL_FONT_TEXT_ORIGIN_GET        31
 
 #define UGL_FONT_TEXT_BASELINE          0
 #define UGL_FONT_TEXT_UPPER_LEFT        1
@@ -85,6 +90,23 @@ typedef struct ugl_font {
 } UGL_FONT;
 typedef UGL_FONT * UGL_FONT_ID;
 
+typedef struct ugl_font_metrics {
+    UGL_SIZE  pixelSize;
+    UGL_SIZE  weight;
+    UGL_ORD   italic;
+    UGL_SIZE  height;
+    UGL_SIZE  maxAscent;
+    UGL_SIZE  maxDescent;
+    UGL_SIZE  maxAdvance;
+    UGL_SIZE  leading;
+    UGL_ORD   spacing;
+    UGL_ORD   fontType;
+    UGL_ORD   charSet;
+    UGL_BOOL  scalable;
+    char      faceName[UGL_FONT_FACE_NAME_MAX_LENGTH];
+    char      familyName[UGL_FONT_FAMILY_NAME_MAX_LENGTH];
+} UGL_FONT_METRICS;
+
 typedef struct ugl_font_driver {
     UGL_UGI_DRIVER * pDriver;
 
@@ -121,6 +143,17 @@ typedef struct ugl_font_driver {
 
     UGL_STATUS    (*fontDestroy) (
         struct ugl_font * pFont
+        );
+
+    UGL_STATUS    (*fontInfo) (
+        struct ugl_font * pFont,
+        UGL_INFO_REQ      infoRequest,
+        void *            pInfo
+        );
+
+    UGL_STATUS    (*fontMetricsGet) (
+        struct ugl_font *         pFont,
+        struct ugl_font_metrics * pFontMetrics
         );
 
 } UGL_FONT_DRIVER;

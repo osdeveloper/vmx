@@ -197,3 +197,66 @@ UGL_STATUS uglFontDestroy (
     return (status);
 }
 
+/******************************************************************************
+ *
+ * uglFontInfo - Get information about font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontInfo (
+    UGL_FONT_ID   fontId,
+    UGL_INFO_REQ  infoRequest,
+    void *        pInfo
+    ) {
+    UGL_FONT_DRIVER_ID  drvId;
+    UGL_STATUS          status;
+
+    /* Validate */
+    if (fontId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get font driver */
+    drvId = fontId->pFontDriver;
+    if (drvId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Call driver specific method */
+    status = (*drvId->fontInfo) (fontId, infoRequest, pInfo);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglFontMetricsGet - Get metrics information about font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglMetricsGet (
+    UGL_FONT_ID        fontId,
+    UGL_FONT_METRICS * pFontMetrics
+    ) {
+    UGL_FONT_DRIVER_ID  drvId;
+    UGL_STATUS          status;
+
+    /* Validate */
+    if (fontId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get font driver */
+    drvId = fontId->pFontDriver;
+    if (drvId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Call driver specific method */
+    status = (*drvId->fontMetricsGet) (fontId, pFontMetrics);
+
+    return (status);
+}
+

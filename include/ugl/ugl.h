@@ -809,6 +809,31 @@ UGL_STATUS uglFontDestroy (
     UGL_FONT_ID  fontId
     );
 
+/******************************************************************************
+ *
+ * uglFontInfo - Get information about font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontInfo (
+    UGL_FONT_ID   fontId,
+    UGL_INFO_REQ  infoRequest,
+    void *        pInfo
+    );
+
+/******************************************************************************
+ *
+ * uglFontMetricsGet - Get metrics information about font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglMetricsGet (
+    UGL_FONT_ID        fontId,
+    UGL_FONT_METRICS * pFontMetrics
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -1597,11 +1597,16 @@ UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
   return (pRect);
 }
 
-int uglFontDriverTest(void)
+int uglFontDriverTest(int index)
 {
   UGL_FONT_DRIVER_ID drvId;
   UGL_FONT_DESC fontDesc;
+  UGL_FONT_DESC desiredFontDesc;
+  UGL_FONT_DEF  fontDef;
   UGL_SEARCH_ID searchId;
+  UGL_FONT_ID fontId;
+  UGL_FONT_METRICS metrics;
+  UGL_INT32 i = 1;
   UGL_INT32 data = -1;
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
@@ -1610,7 +1615,7 @@ int uglFontDriverTest(void)
     return 1;
   }
 
-  if (uglFontDriverInfo (drvId, UGL_FONT_DRIVER_VERSION_GET,
+  if (uglFontDriverInfo(drvId, UGL_FONT_DRIVER_VERSION_GET,
                          &data) != UGL_STATUS_OK) {
     uglFontDriverDestroy (drvId);
     printf("Unable to retreive font driver version.\n");
@@ -1628,14 +1633,59 @@ int uglFontDriverTest(void)
   }
 
   do {
-    printf("%-012s %-032s %02d %04s %06s\n",
-           fontDesc.familyName, fontDesc.faceName,
+    printf("%d : %-012s %-032s %02d %04s %06s\n",
+           i, fontDesc.familyName, fontDesc.faceName,
            fontDesc.pixelSize.min,
            (fontDesc.weight.min == UGL_FONT_BOLD) ? "bold" : "",
            (fontDesc.italic == UGL_FONT_ITALIC) ? "italic" : "");
+    if (i == index) {
+        memcpy (&desiredFontDesc, &fontDesc, sizeof (UGL_FONT_DESC));
+    }
+    i++;
   } while (uglFontFindNext(drvId, &fontDesc, searchId) == UGL_STATUS_OK);
 
   uglFontFindClose(drvId, searchId);
+
+  if (index > 0) {
+    fontDef.structSize = sizeof (UGL_FONT_DEF);
+    fontDef.pixelSize  = desiredFontDesc.pixelSize.min;
+    fontDef.weight = desiredFontDesc.weight.min;
+    fontDef.italic = desiredFontDesc.italic;
+    fontDef.charSet = desiredFontDesc.charSet;
+    strcpy (fontDef.faceName, desiredFontDesc.faceName);
+    strcpy (fontDef.familyName, desiredFontDesc.familyName);
+
+    fontId = uglFontCreate (drvId, &fontDef);
+    if (fontId == UGL_NULL) {
+      uglFontDriverDestroy (drvId);
+      printf("Unable to load font %s.\n", desiredFontDesc.faceName);
+      return 1;
+    }
+
+    if (uglMetricsGet(fontId, &metrics) != UGL_STATUS_OK) {
+      uglFontDestroy (fontId);
+      uglFontDriverDestroy (drvId);
+      printf("Unable to retreive metrics for font.\n", fontDef.faceName);
+      return 1;
+    }
+
+    printf("Font: %s\n", metrics.faceName);
+    printf("Family: %s\n", metrics.familyName);
+    printf("Pixel size: %d\n", metrics.pixelSize);
+    printf("Bold: %s\n",(metrics.weight == UGL_FONT_BOLD) ? "yes" : "no");
+    printf("Italic: %s\n", (metrics.italic == UGL_FONT_ITALIC) ? "yes" : "no");
+    printf("Height: %d\n", metrics.height);
+    printf("Max ascent: %d\n", metrics.maxAscent);
+    printf("Max descent: %d\n", metrics.maxDescent);
+    printf("Max advance: %d\n", metrics.maxAdvance);
+    printf("Leading: %d\n", metrics.leading);
+    printf("Spacing: %d\n", metrics.spacing);
+    printf("Font type: %d\n", metrics.fontType);
+    printf("Characeter set: %d\n", metrics.charSet);
+    printf("Scalable: %s\n", (metrics.scalable == UGL_TRUE) ? "yes" : "no");
+
+    uglFontDestroy (fontId);
+  }
 
   uglFontDriverDestroy (drvId);
 

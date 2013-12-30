@@ -60,6 +60,26 @@ UGL_LOCAL UGL_STATUS uglBMFFontFindClose (
     UGL_SEARCH_ID       searchId
     );
 
+UGL_LOCAL UGL_FONT_ID uglBMFFontCreate (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_FONT_DEF *      pFontDefinition
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFFontDestroy (
+    UGL_FONT_ID  fontId 
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFFontInfo (
+    UGL_FONT_ID   fontId,
+    UGL_INFO_REQ  infoRequest,
+    void *        pInfo
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFFontMetricsGet (
+    UGL_FONT_ID        fontId,
+    UGL_FONT_METRICS * pFontMetrics
+    );
+
 /******************************************************************************
  *
  * uglBMFFontDriverCreate - Create bitmap font driver
@@ -70,7 +90,7 @@ UGL_LOCAL UGL_STATUS uglBMFFontFindClose (
 UGL_FONT_DRIVER_ID uglBMFFontDriverCreate (
     UGL_DEVICE_ID  devId
     ) {
-    UGL_BMF_FONT_DRIVER * pBmfDrv;
+    UGL_BMF_FONT_DRIVER * pBMFDrv;
     UGL_FONT_DRIVER *     pDrv;
     UGL_SIZE              numFonts;
     UGL_LOCK_ID           lockId;
@@ -86,33 +106,37 @@ UGL_FONT_DRIVER_ID uglBMFFontDriverCreate (
     }
 
     /* Allocate memory for driver */
-    pBmfDrv =
+    pBMFDrv =
         (UGL_BMF_FONT_DRIVER *) UGL_CALLOC (1, sizeof (UGL_BMF_FONT_DRIVER));
-    if (pBmfDrv == UGL_NULL) {
+    if (pBMFDrv == UGL_NULL) {
         return (UGL_NULL);
     }
 
     /* Create lock */
     lockId = uglOSLockCreate ();
     if (lockId == UGL_NULL) {
-        UGL_FREE (pBmfDrv);
+        UGL_FREE (pBMFDrv);
         return (UGL_NULL);
     }
 
     /* Setup struct */
-    pDrv = (UGL_FONT_DRIVER *) pBmfDrv;
+    pDrv = (UGL_FONT_DRIVER *) pBMFDrv;
     pDrv->pDriver = devId;
     pDrv->fontDriverInfo    = uglBMFFontDriverInfo;
     pDrv->fontDriverDestroy = uglBMFFontDriverDestroy;
     pDrv->fontFindFirst     = uglBMFFontFindFirst;
     pDrv->fontFindNext      = uglBMFFontFindNext;
     pDrv->fontFindClose     = uglBMFFontFindClose;
+    pDrv->fontCreate        = uglBMFFontCreate;
+    pDrv->fontDestroy       = uglBMFFontDestroy;
+    pDrv->fontInfo          = uglBMFFontInfo;
+    pDrv->fontMetricsGet    = uglBMFFontMetricsGet;
 
     /* Setup driver specific part of struct */
-    pBmfDrv->textOrigin = UGL_FONT_TEXT_BASELINE;
-    pBmfDrv->lockId     = lockId;
+    pBMFDrv->textOrigin = UGL_FONT_TEXT_BASELINE;
+    pBMFDrv->lockId     = lockId;
 
-    return (UGL_FONT_DRIVER_ID) pBmfDrv;
+    return (UGL_FONT_DRIVER_ID) pBMFDrv;
 }
 
 /******************************************************************************
@@ -260,5 +284,314 @@ UGL_LOCAL UGL_STATUS uglBMFFontFindClose (
     }
 
     return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontCreate - Create font for font driver
+ *
+ * RETURNS: UGL_FONT_ID or UGL_NULL
+ */
+
+UGL_LOCAL UGL_FONT_ID uglBMFFontCreate (
+    UGL_FONT_DRIVER_ID  drvId,
+    UGL_FONT_DEF *      pFontDefinition
+    ) {
+    UGL_INT32             i;
+    UGL_INT32             pageIndex;
+    UGL_INT32             page;
+    UGL_INT32             index;
+    UGL_UINT32            size;
+    UGL_BMF_FONT *        pBMFFont;
+    const UGL_UINT8 *     pPageData;
+    UGL_FONT *            pFont   = UGL_NULL;
+    UGL_BMF_FONT_DRIVER * pBMFDrv = (UGL_BMF_FONT_DRIVER *) drvId;
+
+    if (uglOSLock(pBMFDrv->lockId) == UGL_STATUS_ERROR) {
+        return (UGL_NULL);
+    }
+
+    /* Get first created font */
+    pBMFFont = pBMFDrv->pFirstFont;
+
+    /* Check if matching font exists */
+    if (pBMFFont != UGL_NULL) {
+        for (pFont = (UGL_FONT *) pBMFFont;
+             pFont != UGL_NULL;
+             pBMFFont = pBMFFont->pNextFont, pFont = (UGL_FONT *) pBMFFont) {
+            if (pFontDefinition->structSize == sizeof (UGL_FONT_DEF) &&
+                pBMFFont->pBMFFontDesc->header.pixelSize.min ==
+                pFontDefinition->pixelSize &&
+                pBMFFont->pBMFFontDesc->header.weight.min ==
+                pFontDefinition->weight &&
+                pBMFFont->pBMFFontDesc->header.italic ==
+                pFontDefinition->italic &&
+                pBMFFont->pBMFFontDesc->header.charSet ==
+                pFontDefinition->charSet &&
+                (strncmp(pBMFFont->pBMFFontDesc->header.faceName,
+                 pFontDefinition->faceName,
+                 UGL_FONT_FACE_NAME_MAX_LENGTH - 1) == 0) &&
+                (strncmp(pBMFFont->pBMFFontDesc->header.familyName,
+                 pFontDefinition->familyName,
+                 UGL_FONT_FAMILY_NAME_MAX_LENGTH - 1) == 0)) {
+
+                /* Found match */
+                pBMFFont->referenceCount++;
+                uglOSUnlock (pBMFDrv->lockId);
+                return (UGL_FONT_ID) pBMFFont;
+            }
+        }
+    }
+
+    /* Font needs to be created */
+    pBMFFont = (UGL_BMF_FONT *) UGL_CALLOC (1, sizeof (UGL_BMF_FONT));
+    if (pBMFFont != UGL_NULL) {
+        pageIndex = 0;
+        pFont = (UGL_FONT *) pBMFFont;
+
+        /* Search font array for match */
+        for (i = 0; uglBMFFontData[i] != UGL_NULL; i++) {
+            if (pFontDefinition->structSize == sizeof (UGL_FONT_DEF) &&
+                uglBMFFontData[i]->header.pixelSize.min ==
+                pFontDefinition->pixelSize &&
+                uglBMFFontData[i]->header.weight.min ==
+                pFontDefinition->weight &&
+                uglBMFFontData[i]->header.italic ==
+                pFontDefinition->italic &&
+                uglBMFFontData[i]->header.charSet ==
+                pFontDefinition->charSet &&
+                (strncmp(uglBMFFontData[i]->header.faceName,
+                 pFontDefinition->faceName,
+                 UGL_FONT_FACE_NAME_MAX_LENGTH - 1) == 0) &&
+                (strncmp(uglBMFFontData[i]->header.familyName,
+                 pFontDefinition->familyName,
+                 UGL_FONT_FAMILY_NAME_MAX_LENGTH - 1) == 0)) {
+
+                /* Found exact match */
+                pFont->pFontDriver = drvId;
+                pBMFFont->pBMFFontDesc   = uglBMFFontData[i];
+                pBMFFont->referenceCount = 1;
+                pBMFFont->pageTable[0]   = &pBMFFont->pageZero;
+
+                while (uglBMFFontData[i]->pageData[pageIndex] != UGL_NULL) {
+                    pPageData = uglBMFFontData[i]->pageData[pageIndex];
+                    size = 0;
+
+                    while (1) {
+
+                        /* Get page and advance */
+                        page = *pPageData;
+                        pPageData++;
+
+                        /* Get index and advance */
+                        index = *pPageData;
+                        pPageData++;
+
+                        /* Get size */
+                        size  = (*pPageData) << 8;
+                        size += *(pPageData + 1);
+
+                        /* Check if end of data */
+                        if (size == 0) {
+                            break;
+                        }
+
+                        /* Create font page if needed */
+                        if (pBMFFont->pageTable[page] == UGL_NULL) {
+                            pBMFFont->pageTable[page] = (UGL_FONT_PAGE *)
+                                UGL_CALLOC (1, sizeof (UGL_FONT_PAGE));
+                        }
+
+                        /* Set page table pointer */
+                        if (pBMFFont->pageTable[page] != UGL_NULL) {
+                            (*pBMFFont->pageTable[page])[index] = (UGL_UINT8 *)
+                                pPageData;
+                        }
+
+                        /* Advance to next glyph */
+                        pPageData += (size + 1);
+                    }
+
+                    /* Advance to next page */
+                    pageIndex++;
+                }
+
+                /* Setup rest of bmf font structure */
+                pBMFFont->textOrigin = pBMFDrv->textOrigin;
+
+                /* Add created font to font list */
+                if (pBMFDrv->pFirstFont != UGL_NULL) {
+                    pBMFFont->pPrevFont = pBMFDrv->pLastFont;
+                    pBMFDrv->pLastFont->pNextFont = pBMFFont;
+                    pBMFDrv->pLastFont = pBMFFont;
+                }
+                else {
+                    pBMFDrv->pFirstFont = pBMFFont;
+                    pBMFDrv->pLastFont  = pBMFFont;
+                }
+
+                /* Unlock and return */
+                uglOSUnlock (pBMFDrv->lockId);
+                return (UGL_FONT_ID) pBMFFont;
+            }
+        }
+    }
+
+    uglOSUnlock (pBMFDrv->lockId);
+    return (UGL_NULL);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontDestroy - Destroy font for bitmap font driver
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFFontDestroy (
+    UGL_FONT_ID  fontId
+    ) {
+    UGL_INT32             i;
+    UGL_INT32             j;
+    UGL_BMF_FONT *        pBMFLoopFont;
+    UGL_FONT_DRIVER *     pDrv     = fontId->pFontDriver;
+    UGL_BMF_FONT_DRIVER * pBMFDrv  =
+        (UGL_BMF_FONT_DRIVER *) fontId->pFontDriver;
+    UGL_BMF_FONT *        pBMFFont = (UGL_BMF_FONT *) fontId;
+    UGL_STATUS            status   = UGL_STATUS_OK;
+
+    if (uglOSLock(pBMFDrv->lockId) == UGL_STATUS_ERROR) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    if (--pBMFFont->referenceCount == 0) {
+        if (pBMFFont == pBMFDrv->pFirstFont) {
+            pBMFDrv->pFirstFont = pBMFFont->pNextFont;
+            if (pBMFDrv->pFirstFont != UGL_NULL) {
+                pBMFDrv->pFirstFont->pPrevFont = UGL_NULL;
+            }
+        }
+        else if (pBMFFont == pBMFDrv->pLastFont) {
+            pBMFDrv->pLastFont = pBMFFont->pPrevFont;
+            if (pBMFDrv->pLastFont != UGL_NULL) {
+                pBMFDrv->pLastFont->pNextFont = UGL_NULL;
+            }
+        }
+        else {
+            for (pBMFLoopFont = pBMFDrv->pFirstFont;
+                 pBMFLoopFont != UGL_NULL &&
+                     pBMFLoopFont->pNextFont != (UGL_BMF_FONT *) fontId;
+                 pBMFLoopFont = pBMFLoopFont->pNextFont);
+
+            if (pBMFLoopFont == UGL_NULL) {
+                status = UGL_STATUS_ERROR;
+            }
+            else {
+                pBMFLoopFont->pNextFont = ((UGL_BMF_FONT *) fontId)->pNextFont;
+                if (pBMFLoopFont->pNextFont != UGL_NULL) {
+                    pBMFLoopFont->pNextFont->pPrevFont = pBMFLoopFont;
+                }
+                pBMFFont = pBMFLoopFont;
+            }
+        }
+
+        if (status == UGL_STATUS_OK) {
+            for (i = 0; i < UGL_BMF_FONT_PAGE_TABLE_SIZE; i++) {
+                if (pBMFFont->pageTable[i] != UGL_NULL) {
+                    for (j = 0; j < UGL_BMF_FONT_PAGE_SIZE; j++) {
+                        if (i > 0 && pBMFFont->pageTable[i] != UGL_NULL) {
+                            UGL_FREE (pBMFFont->pageTable[i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        UGL_FREE (fontId);
+    }
+
+    uglOSUnlock (pBMFDrv->lockId);
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontInfo - Get information about bitmap font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFFontInfo (
+    UGL_FONT_ID   fontId,
+    UGL_INFO_REQ  infoRequest,
+    void *        pInfo
+    ) {
+    UGL_BMF_FONT * pBMFFont = (UGL_BMF_FONT *) fontId;
+    UGL_STATUS     status   = UGL_STATUS_ERROR;
+
+    switch (infoRequest) {
+        case UGL_FONT_TEXT_ORIGIN_SET:
+            if (pInfo != UGL_NULL) {
+                if (*(UGL_ORD *) pInfo == UGL_FONT_TEXT_UPPER_LEFT ||
+                    *(UGL_ORD *) pInfo == UGL_FONT_TEXT_BASELINE) {
+                    pBMFFont->textOrigin = *(UGL_ORD *) pInfo;
+                    status = UGL_STATUS_OK;
+                }
+            }
+            break;
+
+        case UGL_FONT_TEXT_ORIGIN_GET:
+            if (pInfo != UGL_NULL) {
+                *(UGL_ORD *) pInfo = pBMFFont->textOrigin;
+                status = UGL_STATUS_OK;
+            }
+            break;
+
+        default:
+            if (pInfo != UGL_NULL) {
+                *(UGL_BOOL *) pInfo = UGL_FALSE;
+            }
+            break;
+    }
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBMFFontMetricsGet - Get metrics for bitmap font
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFFontMetricsGet (
+    UGL_FONT_ID        fontId,
+    UGL_FONT_METRICS * pFontMetrics
+    ) {
+    UGL_BMF_FONT * pBMFFont = (UGL_BMF_FONT *) fontId;
+
+    pFontMetrics->pixelSize  = pBMFFont->pBMFFontDesc->header.pixelSize.min;
+    pFontMetrics->weight     = pBMFFont->pBMFFontDesc->header.weight.min;
+    pFontMetrics->italic     = pBMFFont->pBMFFontDesc->header.italic;
+    pFontMetrics->maxAscent  = pBMFFont->pBMFFontDesc->maxAscent;
+    pFontMetrics->maxDescent = pBMFFont->pBMFFontDesc->maxDescent;
+    pFontMetrics->maxAdvance = pBMFFont->pBMFFontDesc->maxAdvance;
+    pFontMetrics->leading    = pBMFFont->pBMFFontDesc->leading;
+    pFontMetrics->spacing    = pBMFFont->pBMFFontDesc->header.spacing;
+    pFontMetrics->fontType   = UGL_FONT_BITMAPPED;
+    pFontMetrics->scalable   = UGL_FALSE;
+    pFontMetrics->charSet    = pBMFFont->pBMFFontDesc->header.charSet;
+    pFontMetrics->height     =
+        pFontMetrics->maxAscent + pFontMetrics->maxDescent;
+    strncpy (pFontMetrics->faceName,
+             pBMFFont->pBMFFontDesc->header.faceName,
+             UGL_FONT_FACE_NAME_MAX_LENGTH);
+    pFontMetrics->faceName[UGL_FONT_FACE_NAME_MAX_LENGTH - 1] = '\0';
+    strncpy (pFontMetrics->familyName,
+             pBMFFont->pBMFFontDesc->header.familyName,
+             UGL_FONT_FAMILY_NAME_MAX_LENGTH);
+    pFontMetrics->familyName[UGL_FONT_FAMILY_NAME_MAX_LENGTH - 1] = '\0';
+
+    return (UGL_STATUS_OK);
 }
 
