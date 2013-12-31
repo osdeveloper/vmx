@@ -114,13 +114,15 @@ UGL_STATUS uglGenericRectangle (
     if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
         UGL_RECT_COPY (&fillRect, pRect);
 
-        adjust = (gc->lineWidth + 2) / 2;
-        fillRect.left += adjust;
-        fillRect.top  += adjust;
+        if (gc->foregroundColor != UGL_COLOR_TRANSPARENT && gc->lineWidth > 0) {
+            adjust = (gc->lineWidth + 2) / 2;
+            fillRect.left += adjust;
+            fillRect.top  += adjust;
 
-        adjust = -(gc->lineWidth + 1) / 2;
-        fillRect.right  += adjust;
-        fillRect.bottom += adjust;
+            adjust = -(gc->lineWidth + 1) / 2;
+            fillRect.right  += adjust;
+            fillRect.bottom += adjust;
+        }
 
         uglGenericRectFill (devId, &fillRect);
     }

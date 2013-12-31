@@ -236,7 +236,7 @@ UGL_STATUS uglFontInfo (
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglMetricsGet (
+UGL_STATUS uglFontMetricsGet (
     UGL_FONT_ID        fontId,
     UGL_FONT_METRICS * pFontMetrics
     ) {
@@ -256,6 +256,82 @@ UGL_STATUS uglMetricsGet (
 
     /* Call driver specific method */
     status = (*drvId->fontMetricsGet) (fontId, pFontMetrics);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglTextSizeGet - Get text size
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglTextSizeGet (
+    UGL_FONT_ID      fontId,
+    UGL_SIZE *       pWidth,
+    UGL_SIZE *       pHeight,
+    UGL_SIZE         length,
+    const UGL_CHAR * pText
+    ) {
+    UGL_FONT_DRIVER_ID  drvId;
+    UGL_STATUS          status;
+
+    /* Validate */
+    if (fontId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get font driver */
+    drvId = fontId->pFontDriver;
+    if (drvId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Call driver specific method */
+    status = (*drvId->textSizeGet) (fontId, pWidth, pHeight, length, pText);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglTextDraw - Draw text
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglTextDraw (
+    UGL_GC_ID        gc,
+    UGL_POS          x,
+    UGL_POS          y,
+    UGL_SIZE         length,
+    const UGL_CHAR * pText
+    ) {
+    UGL_FONT_DRIVER_ID  drvId;
+    UGL_STATUS          status;
+
+    /* Start batch job */
+    if ((uglBatchStart (gc)) == UGL_STATUS_ERROR) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Validate */
+    if (gc->pFont == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get font driver */
+    drvId = gc->pFont->pFontDriver;
+    if (drvId == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Call driver specific method */
+    status = (*drvId->textDraw) (gc, x, y, length, pText);
+
+    /* End batch job */
+    uglBatchEnd (gc);
 
     return (status);
 }

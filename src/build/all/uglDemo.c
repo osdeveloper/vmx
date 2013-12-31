@@ -70,6 +70,9 @@ const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
     UGL_NULL
 };
 
+UGL_MEM_POOL_ID uglBMFGlyphCachePoolId = UGL_NULL;
+UGL_SIZE uglBMFGlyphCacheSize = 256;
+
 PART_ID gfxPartId;
 UGL_DEVICE_ID gfxDevId;
 UGL_DIB bgDib, fgDib;
@@ -1597,8 +1600,9 @@ UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
   return (pRect);
 }
 
-int uglFontDriverTest(int index)
+int uglText4Test(int index, char *str)
 {
+  struct vgaHWRec oldRegs;
   UGL_FONT_DRIVER_ID drvId;
   UGL_FONT_DESC fontDesc;
   UGL_FONT_DESC desiredFontDesc;
@@ -1608,6 +1612,7 @@ int uglFontDriverTest(int index)
   UGL_FONT_METRICS metrics;
   UGL_INT32 i = 1;
   UGL_INT32 data = -1;
+  UGL_SIZE width, height;
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
   if (drvId == UGL_NULL) {
@@ -1662,27 +1667,63 @@ int uglFontDriverTest(int index)
       return 1;
     }
 
-    if (uglMetricsGet(fontId, &metrics) != UGL_STATUS_OK) {
+    if (uglFontMetricsGet(fontId, &metrics) != UGL_STATUS_OK) {
       uglFontDestroy (fontId);
       uglFontDriverDestroy (drvId);
       printf("Unable to retreive metrics for font.\n", fontDef.faceName);
       return 1;
     }
 
-    printf("Font: %s\n", metrics.faceName);
-    printf("Family: %s\n", metrics.familyName);
-    printf("Pixel size: %d\n", metrics.pixelSize);
-    printf("Bold: %s\n",(metrics.weight == UGL_FONT_BOLD) ? "yes" : "no");
-    printf("Italic: %s\n", (metrics.italic == UGL_FONT_ITALIC) ? "yes" : "no");
-    printf("Height: %d\n", metrics.height);
-    printf("Max ascent: %d\n", metrics.maxAscent);
-    printf("Max descent: %d\n", metrics.maxDescent);
-    printf("Max advance: %d\n", metrics.maxAdvance);
-    printf("Leading: %d\n", metrics.leading);
-    printf("Spacing: %d\n", metrics.spacing);
-    printf("Font type: %d\n", metrics.fontType);
-    printf("Characeter set: %d\n", metrics.charSet);
-    printf("Scalable: %s\n", (metrics.scalable == UGL_TRUE) ? "yes" : "no");
+    printf("Font face:\t%s\n", metrics.faceName);
+    printf("Font family:\t%s\n", metrics.familyName);
+    printf("Pixel size:\t%d\n", metrics.pixelSize);
+    printf("Style bold:\t%s\n",
+           (metrics.weight == UGL_FONT_BOLD) ? "yes" : "no");
+    printf("Style italic:\t%s\n",
+           (metrics.italic == UGL_FONT_ITALIC) ? "yes" : "no");
+    printf("Avrage height:\t%d\n", metrics.height);
+    printf("Max ascent:\t%d\n", metrics.maxAscent);
+    printf("Max descent:\t%d\n", metrics.maxDescent);
+    printf("Max advance:\t%d\n", metrics.maxAdvance);
+    printf("Leading:\t%d\n", metrics.leading);
+    printf("Spacing:\t%d\n", metrics.spacing);
+    printf("Font type:\t%d\n", metrics.fontType);
+    printf("Character set:\t%d\n", metrics.charSet);
+    printf("Scalable:\t%s\n", (metrics.scalable == UGL_TRUE) ? "yes" : "no");
+
+    if (str != UGL_NULL) {
+      if (uglTextSizeGet(fontId, &width, &height,
+                         strlen (str), str) != UGL_STATUS_OK) {
+        uglFontDestroy (fontId);
+        uglFontDriverDestroy (drvId);
+        printf("Unable to retreive text size for %s.\n", str);
+        return 1;
+      }
+
+      printf("Text size for %s\nwidth = %d, height = %d\n",
+             str, width, height);
+      printf("Press key to draw text, and key again to return to console.\n");
+
+      getchar();
+
+      if (mode4Enter(&oldRegs)) {
+        uglFontDestroy (fontId);
+        uglFontDriverDestroy (drvId);
+        restoreConsole(&oldRegs);
+        printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+        return 1;
+      }
+
+      uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+      uglForegroundColorSet(gfxDevId->defaultGc, 14);
+      uglBackgroundColorSet(gfxDevId->defaultGc, 4);
+      uglFontSet(gfxDevId->defaultGc, fontId);
+      uglTextDraw(gfxDevId->defaultGc, metrics.pixelSize, metrics.pixelSize,
+                  strlen(str), str);
+
+      getchar();
+      restoreConsole(&oldRegs);
+    }
 
     uglFontDestroy (fontId);
   }
@@ -1717,13 +1758,14 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglSetLineWidth", uglSetLineWidth, 0, N_TEXT | N_EXT},
   {NULL, "_uglSetLineStyle", uglSetLineStyle, 0, N_TEXT | N_EXT},
   {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
-  {NULL, "_uglFontDriverTest", uglFontDriverTest, 0, N_TEXT | N_EXT},
+  {NULL, "_uglText4Test", uglText4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
 };
 
     int i;
 
     gfxPartId = memSysPartId;
+    uglBMFGlyphCachePoolId = memSysPartId;
     uglMemDefaultPoolSet(gfxPartId);
     createDib();
     gfxDevId = UGL_GRAPHICS_CREATE(0, 0, 0);

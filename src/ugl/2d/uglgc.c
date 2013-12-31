@@ -625,6 +625,42 @@ UGL_STATUS uglFillPatternSet (
 
 /******************************************************************************
  *
+ * uglFontSet - Set font for graphics context
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontSet (
+    UGL_GC_ID    gc,
+    UGL_FONT_ID  fontId
+    ) {
+
+    /* Check paramenters */
+    if (gc == UGL_NULL || fontId == UGL_NULL ||
+        gc->pDriver != fontId->pFontDriver->pDriver) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock GC */
+    if (uglOSLock (gc->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set font in needed */
+    if (gc->pFont != fontId) {
+        gc->pFont = fontId;
+        gc->changed |= UGL_GC_FONT_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+    }
+
+    /* Unlock */
+    uglOSUnlock (gc->lockId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglClipListSortedGet - Get sorted clip rectangles from graphics context
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR

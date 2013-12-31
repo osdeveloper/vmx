@@ -45,6 +45,8 @@ extern "C" {
 #define UGL_BMF_FONT_PAGE_SIZE          256
 #define UGL_BMF_FONT_PAGE_TABLE_SIZE    256
 
+#define UGL_BMF_GLYPH_IN_CACHE          0xabcd
+
 /* Types */
 
 typedef void * UGL_FONT_PAGE[UGL_BMF_FONT_PAGE_SIZE];
@@ -90,8 +92,8 @@ typedef struct ugl_bmf_font_driver {
     UGL_SIZE                  numCachedGlyphs;
     UGL_ORD                   textOrigin;
     UGL_LOCK_ID               lockId;
-    UGL_GLYPH_CACHE_ELEMENT * pFistCacheElement;
-    UGL_GLYPH_CACHE_ELEMENT * pListCacheElement;
+    UGL_GLYPH_CACHE_ELEMENT * pFirstCacheElement;
+    UGL_GLYPH_CACHE_ELEMENT * pLastCacheElement;
 } UGL_BMF_FONT_DRIVER;
 
 /* Functions */

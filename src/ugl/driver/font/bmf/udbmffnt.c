@@ -27,10 +27,19 @@
 
 #define UGL_BMF_FONT_ENGINE_VERSION     1
 #define UGL_BMF_FONT_DRIVER_VERSION     1
+#define UGL_BMF_RETRY_SLEEP_TIME        100
+#define UGL_BMF_RETRY_TIMES             100
+#define UGL_BMF_GLYPH_WIDTH_INDEX       2
+#define UGL_BMF_GLYPH_HEIGHT_INDEX      3
+#define UGL_BMF_GLYPH_ASCENT_INDEX      4
+#define UGL_BMF_GLYPH_BMP_INDEX         5
+#define UGL_BMF_LONG_TEXT               0xfff
 
 /* Imports */
 
 extern const UGL_BMF_FONT_DESC * uglBMFFontData[];
+extern UGL_MEM_POOL_ID           uglBMFGlyphCachePoolId;
+extern UGL_SIZE                  uglBMFGlyphCacheSize;
 
 /* Locals */
 
@@ -78,6 +87,32 @@ UGL_LOCAL UGL_STATUS uglBMFFontInfo (
 UGL_LOCAL UGL_STATUS uglBMFFontMetricsGet (
     UGL_FONT_ID        fontId,
     UGL_FONT_METRICS * pFontMetrics
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFTextSizeGet (
+    UGL_FONT_ID        fontId,
+    UGL_SIZE *         pWidth,
+    UGL_SIZE *         pHeight,
+    UGL_SIZE           length,
+    const UGL_CHAR *   pText
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFTextDraw (
+    UGL_GC_ID          gc,
+    UGL_POS            x,
+    UGL_POS            y,
+    UGL_SIZE           length,
+    const UGL_CHAR *   pText
+    );
+
+UGL_LOCAL UGL_GLYPH_CACHE_ELEMENT * uglBMFGlyphCacheAlloc (
+    UGL_FONT_DRIVER_ID  drvId,
+    void **             ppPageElement
+    );
+
+UGL_LOCAL UGL_STATUS uglBMFGlyphCacheFree (
+    UGL_FONT_DRIVER_ID  drvId,
+    void **             ppPageElement
     );
 
 /******************************************************************************
@@ -131,6 +166,8 @@ UGL_FONT_DRIVER_ID uglBMFFontDriverCreate (
     pDrv->fontDestroy       = uglBMFFontDestroy;
     pDrv->fontInfo          = uglBMFFontInfo;
     pDrv->fontMetricsGet    = uglBMFFontMetricsGet;
+    pDrv->textSizeGet       = uglBMFTextSizeGet;
+    pDrv->textDraw          = uglBMFTextDraw;
 
     /* Setup driver specific part of struct */
     pBMFDrv->textOrigin = UGL_FONT_TEXT_BASELINE;
@@ -591,6 +628,333 @@ UGL_LOCAL UGL_STATUS uglBMFFontMetricsGet (
              pBMFFont->pBMFFontDesc->header.familyName,
              UGL_FONT_FAMILY_NAME_MAX_LENGTH);
     pFontMetrics->familyName[UGL_FONT_FAMILY_NAME_MAX_LENGTH - 1] = '\0';
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglBMFTextSizeGet - Get text message size
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFTextSizeGet (
+    UGL_FONT_ID        fontId,
+    UGL_SIZE *         pWidth,
+    UGL_SIZE *         pHeight,
+    UGL_SIZE           length,
+    const UGL_CHAR *   pText
+    ) {
+    UGL_INT32      i;
+    UGL_INT32      textWidth  = 0;
+    UGL_BMF_FONT * pBMFFont   = (UGL_BMF_FONT *) fontId;
+    void **        ppPageZero = pBMFFont->pageZero;
+    UGL_UINT8 *    pGlyphData;
+
+    if (length < 0) {
+        length = UGL_BMF_LONG_TEXT;
+    }
+
+    /* Calculate text width */
+    if (pWidth != UGL_NULL) {
+        if (pText != UGL_NULL && pText[0] != '\0') {
+            for (i = 0; *pText != '\0' && i < length; i++) {
+                pGlyphData = (UGL_UINT8 *) ppPageZero[(UGL_UINT8) *pText];
+                pText++;
+
+                if (pGlyphData != UGL_NULL) {
+                    textWidth += pGlyphData[UGL_BMF_GLYPH_WIDTH_INDEX];
+                }
+            }
+        }
+
+        *pWidth = textWidth;
+    }
+
+    if (pHeight != UGL_NULL) {
+        *pHeight = pBMFFont->pBMFFontDesc->maxAscent +
+                   pBMFFont->pBMFFontDesc->maxDescent;
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglBMFTextDraw - Draw text using bitmap font driver
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFTextDraw (
+    UGL_GC_ID          gc,
+    UGL_POS            x,
+    UGL_POS            y,
+    UGL_SIZE           length,
+    const UGL_CHAR *   pText
+    ) {
+    void **                   ppPageElement;
+    UGL_SIZE                  width;
+    UGL_SIZE                  height;
+    UGL_COLOR                 color;
+    UGL_POS                   pos;
+    UGL_POINT                 point;
+    UGL_RECT                  rect;
+    UGL_INT32                 i;
+    UGL_GLYPH_CACHE_ELEMENT * pCacheElement;
+    UGL_UGI_DRIVER *          pDrv       = gc->pDriver;
+    UGL_BMF_FONT *            pBMFFont   = (UGL_BMF_FONT *) gc->pFont;
+    UGL_SIZE                  maxAscent  = pBMFFont->pBMFFontDesc->maxAscent;
+    void **                   ppPageZero = pBMFFont->pageZero;
+    UGL_FONT_DRIVER *         pFntDrv    =
+        (UGL_FONT_DRIVER *)   pBMFFont->header.pFontDriver;
+    UGL_STATUS                status     = UGL_STATUS_OK;
+
+    if (pBMFFont == UGL_NULL || pText == UGL_NULL || pText[0] == '\0') {
+        return (UGL_STATUS_ERROR);
+    }
+
+    if (length < 0) {
+        length = UGL_BMF_LONG_TEXT;
+    }
+
+    if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
+        (*pFntDrv->textSizeGet) (gc->pFont, &width, &height, length, pText);
+        if (pBMFFont->textOrigin == UGL_FONT_TEXT_UPPER_LEFT) {
+            rect.left   = x;
+            rect.top    = y;
+            rect.right  = x + width - 1;
+            rect.bottom = y + height - 1;
+        }
+        else if (pBMFFont->textOrigin == UGL_FONT_TEXT_BASELINE) {
+            pos = y - maxAscent;
+            rect.left   = x;
+            rect.top    = pos;
+            rect.right  = x + width - 1;
+            rect.bottom = pos + height - 1;
+        }
+        else {
+            return (UGL_STATUS_ERROR);
+        }
+
+        color = gc->foregroundColor;
+        gc->foregroundColor = UGL_COLOR_TRANSPARENT;
+        gc->changed |= UGL_GC_FOREGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+        UGL_GC_SET (pDrv, gc);
+
+        (*pDrv->rectangle) (pDrv, &rect);
+
+        gc->foregroundColor = color;
+        gc->changed |= UGL_GC_FOREGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+        UGL_GC_SET (pDrv, gc);
+    }
+
+    color = gc->backgroundColor;
+    gc->backgroundColor = UGL_COLOR_TRANSPARENT;
+    gc->changed |= UGL_GC_BACKGROUND_COLOR_CHANGED;
+    UGL_GC_CHANGED_SET (gc);
+    UGL_GC_SET (pDrv, gc);
+
+    for (i = 0; *pText != '\0' && i < length; i++) {
+        ppPageElement = &ppPageZero[(UGL_UINT8) *pText];
+        pCacheElement = (UGL_GLYPH_CACHE_ELEMENT *) *ppPageElement;
+
+        if (pCacheElement == UGL_NULL) {
+            continue;
+        }
+
+        if (pCacheElement->cacheFlag != UGL_BMF_GLYPH_IN_CACHE) {
+            pCacheElement = uglBMFGlyphCacheAlloc (pFntDrv, ppPageElement);
+            if (pCacheElement == UGL_NULL) {
+                status = UGL_STATUS_ERROR;
+                break;
+            }
+        }
+
+        /* Draw glyph to screen */
+        if (pBMFFont->textOrigin == UGL_FONT_TEXT_UPPER_LEFT) {
+            point.x = x;
+            point.y = y + maxAscent - (UGL_POS) pCacheElement->ascent;
+        }
+        else if (pBMFFont->textOrigin == UGL_FONT_TEXT_BASELINE) {
+            point.x = x;
+            point.y = y - (UGL_POS) pCacheElement->ascent;
+        }
+        else {
+            status = UGL_STATUS_ERROR;
+            break;
+        }
+
+        status = (*pDrv->monoBitmapBlt) (pDrv, pCacheElement->bitmapId,
+                                         &pCacheElement->bitmapRect,
+                                         UGL_DEFAULT_ID, &point);
+
+        /* Advance */
+        x += (UGL_POS) pCacheElement->width;
+        pText++;
+    }
+
+    gc->backgroundColor = color;
+    gc->changed |= UGL_GC_BACKGROUND_COLOR_CHANGED;
+    UGL_GC_CHANGED_SET (gc);
+    UGL_GC_SET (pDrv, gc);
+
+    return (status);
+}
+
+/******************************************************************************
+ *
+ * uglBMFGlyphCacheAlloc - Allocate cache for glyphs
+ *
+ * RETURNS: Pointer to glypha cache element or UGL_NULL
+ */
+
+UGL_LOCAL UGL_GLYPH_CACHE_ELEMENT * uglBMFGlyphCacheAlloc (
+    UGL_FONT_DRIVER_ID  drvId,
+    void **             ppPageElement
+    ) {
+    UGL_INT32                 i;
+    UGL_GLYPH_CACHE_ELEMENT * pCacheElement;
+    UGL_MDIB                  mDib;
+    UGL_BMF_FONT_DRIVER *     pBMFDrv    = (UGL_BMF_FONT_DRIVER *) drvId;
+    UGL_UGI_DRIVER *          pDrv       = drvId->pDriver;
+    UGL_UINT8 *               pGlyphData = (UGL_UINT8 *) *ppPageElement;
+
+    if (uglBMFGlyphCacheSize >= 0 &&
+        pBMFDrv->numCachedGlyphs >= uglBMFGlyphCacheSize) {
+        if (uglBMFGlyphCacheFree (drvId,
+                pBMFDrv->pLastCacheElement->ppPageElement) != UGL_STATUS_OK) {
+            return (UGL_NULL);
+        }
+    }
+
+    i = 0;
+    pCacheElement = (UGL_GLYPH_CACHE_ELEMENT *)
+        uglOSMemCalloc (uglBMFGlyphCachePoolId,
+                        1, sizeof (UGL_GLYPH_CACHE_ELEMENT));
+    while (pCacheElement == UGL_NULL) {
+        if (uglBMFGlyphCacheFree (drvId,
+                pBMFDrv->pLastCacheElement->ppPageElement) != UGL_STATUS_OK) {
+            return (UGL_NULL);
+        }
+
+        pCacheElement = (UGL_GLYPH_CACHE_ELEMENT *)
+            uglOSMemCalloc (uglBMFGlyphCachePoolId,
+                            1, sizeof (UGL_GLYPH_CACHE_ELEMENT));
+
+        if (pCacheElement == UGL_NULL) {
+            uglOSTaskDelay (UGL_BMF_RETRY_SLEEP_TIME);
+            if (++i == UGL_BMF_RETRY_TIMES) {
+                return (UGL_NULL);
+            }
+        }
+    }
+
+    /* Setup struct */
+    pCacheElement->pGlyphData        = pGlyphData;
+    pCacheElement->ppPageElement     = ppPageElement;
+    pCacheElement->cacheFlag         = UGL_BMF_GLYPH_IN_CACHE;
+    pCacheElement->width             = pGlyphData[UGL_BMF_GLYPH_WIDTH_INDEX];
+    pCacheElement->height            = pGlyphData[UGL_BMF_GLYPH_HEIGHT_INDEX];
+    pCacheElement->ascent            = pGlyphData[UGL_BMF_GLYPH_ASCENT_INDEX];
+    pCacheElement->bitmapRect.left   = 0;
+    pCacheElement->bitmapRect.right  = (UGL_POS) pCacheElement->width - 1;
+    pCacheElement->bitmapRect.top    = 0;
+    pCacheElement->bitmapRect.bottom = (UGL_POS) pCacheElement->height - 1;
+
+    /* Setup monochrome bitmap struct */
+    mDib.width  = (UGL_SIZE) pCacheElement->width;
+    mDib.height = (UGL_SIZE) pCacheElement->height;
+    mDib.stride = mDib.width;
+    mDib.pData  = &pGlyphData[UGL_BMF_GLYPH_BMP_INDEX];
+
+    /* Create device bitmap */
+    i = 0;
+    if (pCacheElement->width > 0 && pCacheElement->height > 0) {
+        pCacheElement->bitmapId = (*pDrv->monoBitmapCreate) (
+            pDrv, &mDib, UGL_DIB_INIT_DATA, 0, uglBMFGlyphCachePoolId);
+
+        while (pCacheElement->bitmapId == UGL_NULL) {
+            if (uglBMFGlyphCacheFree (drvId,
+                  pBMFDrv->pLastCacheElement->ppPageElement) != UGL_STATUS_OK) {
+                uglOSMemFree (pCacheElement);
+                return (UGL_NULL);
+            }
+
+            pCacheElement->bitmapId = (*pDrv->monoBitmapCreate) (
+                pDrv, &mDib, UGL_DIB_INIT_DATA, 0, uglBMFGlyphCachePoolId);
+
+            if (pCacheElement->bitmapId == UGL_NULL) {
+                uglOSTaskDelay (UGL_BMF_RETRY_SLEEP_TIME);
+                if (++i == UGL_BMF_RETRY_TIMES) {
+                    uglOSMemFree (pCacheElement);
+                    return (UGL_NULL);
+                }
+            }
+        }
+    }
+
+    /* Add cache element to list */
+    pCacheElement->pNext = pBMFDrv->pFirstCacheElement;
+    if (pBMFDrv->pFirstCacheElement != UGL_NULL) {
+        pBMFDrv->pFirstCacheElement->pPrev = pCacheElement;
+    }
+    pBMFDrv->pFirstCacheElement = pCacheElement;
+    if (pBMFDrv->pLastCacheElement == UGL_NULL) {
+        pBMFDrv->pLastCacheElement = pCacheElement;
+    }
+
+    *ppPageElement = pCacheElement;
+    pBMFDrv->numCachedGlyphs++;
+
+    return (pCacheElement);
+}
+
+/******************************************************************************
+ *
+ * uglBMFGlyphCacheFree - Free cache for glyphs
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglBMFGlyphCacheFree (
+    UGL_FONT_DRIVER_ID  drvId,
+    void **             ppPageElement
+    ) {
+    UGL_BMF_FONT_DRIVER *     pBMFDrv       = (UGL_BMF_FONT_DRIVER *) drvId;
+    UGL_GLYPH_CACHE_ELEMENT * pCacheElement =
+        (UGL_GLYPH_CACHE_ELEMENT *) *ppPageElement;
+    UGL_UGI_DRIVER *          pDrv          = drvId->pDriver;
+
+    if (pCacheElement == UGL_NULL || pBMFDrv->numCachedGlyphs < 1) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Remove element from list */
+    if (pCacheElement->pPrev != UGL_NULL) {
+        pCacheElement->pPrev->pNext = pCacheElement->pNext;
+    }
+    else {
+        pBMFDrv->pFirstCacheElement = pCacheElement->pNext;
+    }
+    if (pCacheElement->pNext != UGL_NULL) {
+        pCacheElement->pNext->pPrev = pCacheElement->pPrev;
+    }
+    else {
+        pBMFDrv->pLastCacheElement = pCacheElement->pPrev;
+    }
+
+    /* Destroy font bitmap */
+    if (pCacheElement->bitmapId != UGL_NULL) {
+        (*pDrv->monoBitmapDestroy) (pDrv, pCacheElement->bitmapId);
+    }
+
+    *ppPageElement = pCacheElement->pGlyphData;
+    pBMFDrv->numCachedGlyphs--;
+    uglOSMemFree (pCacheElement);
 
     return (UGL_STATUS_OK);
 }

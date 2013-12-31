@@ -232,6 +232,18 @@ UGL_STATUS uglFillPatternSet (
 
 /******************************************************************************
  *
+ * uglFontSet - Set font for graphics context
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglFontSet (
+    UGL_GC_ID    gc,
+    UGL_FONT_ID  fontId
+    );
+
+/******************************************************************************
+ *
  * uglClipListSortedGet - Get sorted clip rectangles from graphics context
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -829,9 +841,39 @@ UGL_STATUS uglFontInfo (
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglMetricsGet (
+UGL_STATUS uglFontMetricsGet (
     UGL_FONT_ID        fontId,
     UGL_FONT_METRICS * pFontMetrics
+    );
+
+/******************************************************************************
+ *
+ * uglTextSizeGet - Get text size
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglTextSizeGet (
+    UGL_FONT_ID      fontId,
+    UGL_SIZE *       pWidth,
+    UGL_SIZE *       pHeight,
+    UGL_SIZE         length,
+    const UGL_CHAR * pText
+    );
+
+/******************************************************************************
+ *
+ * uglTextDraw - Draw text
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglTextDraw (
+    UGL_GC_ID        gc,
+    UGL_POS          x,
+    UGL_POS          y,
+    UGL_SIZE         length,
+    const UGL_CHAR * pText
     );
 
 #ifdef __cplusplus

@@ -156,6 +156,22 @@ typedef struct ugl_font_driver {
         struct ugl_font_metrics * pFontMetrics
         );
 
+    UGL_STATUS    (*textSizeGet) (
+        struct ugl_font * pFont,
+        UGL_SIZE *        pWidth,
+        UGL_SIZE *        pHeight,
+        UGL_SIZE          length,
+        const UGL_CHAR *  pText
+        );
+
+    UGL_STATUS    (*textDraw) (
+        struct ugl_gc *  pGc,
+        UGL_POS          x,
+        UGL_POS          y,
+        UGL_SIZE         length,
+        const UGL_CHAR * pText
+        );
+
 } UGL_FONT_DRIVER;
 typedef UGL_FONT_DRIVER * UGL_FONT_DRIVER_ID;
 

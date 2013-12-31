@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-/* Graphics context change flags */
+/* Defines */
 
 #define UGL_GC_DEFAULT_BITMAP_CHANGED           0x00000001
 #define UGL_GC_VIEW_PORT_CHANGED                0x00000002
@@ -41,6 +41,13 @@ extern "C" {
 #define UGL_GC_LINE_WIDTH_CHANGED               0x00000080
 #define UGL_GC_LINE_STYLE_CHANGED               0x00000100
 #define UGL_GC_PATTERN_BITMAP_CHANGED           0x00000200
+#define UGL_GC_FONT_CHANGED                     0x00000400
+
+/* Structs */
+
+struct ugl_font;
+
+/* Types */
 
 typedef struct ugl_gc {
     struct ugl_ugi_driver * pDriver;            /* Current driver */
@@ -55,6 +62,7 @@ typedef struct ugl_gc {
     UGL_SIZE                lineWidth;          /* Line width */
     UGL_LINE_STYLE          lineStyle;          /* Line style pattern */
     UGL_MDDB *              pPatternBitmap;     /* Fill pattern bitmap */
+    struct ugl_font *       pFont;              /* Font for text drawing */
     UGL_UINT32              changed;            /* Changed flags */
     UGL_UINT32              magicNumber;        /* GC id and changed status */
     UGL_LOCK_ID             lockId;             /* Mutex */
