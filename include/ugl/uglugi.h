@@ -79,8 +79,6 @@ typedef struct ugl_ugi_driver {
     UGL_GC_ID    defaultGc;                     /* Default graphics context*/
     void *       pScratchBuf;                   /* Scratch buffer */
     UGL_BOOL     scratchBufFree;                /* Is scratch buffer in use */
-    UGL_COLOR    cursorColorTransparent;        /* Transparent key for cursor */
-    UGL_COLOR    cursorColorInvert;             /* Invert key for cursor */
 
     /* Device support methods */
 

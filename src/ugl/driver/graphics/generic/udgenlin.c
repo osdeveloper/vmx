@@ -24,13 +24,6 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
-/* Imports */
-
-UGL_STATUS uglGenericRectFill (
-    UGL_DEVICE_ID  devId,
-    UGL_RECT *     pRect
-    );
-
 /* Globals */
 
 UGL_STATUS uglLineDataGetBoundary (
@@ -277,7 +270,7 @@ UGL_STATUS uglGenericLine (
                 rect.bottom = y1 + hiOffset;
             }
 
-            status = uglGenericRectFill (devId, &rect);
+            status = (*devId->rectangle) (devId, &rect);
         }
         else {
 
@@ -326,6 +319,7 @@ UGL_STATUS uglGenericLine (
                        UGL_GC_BACKGROUND_COLOR_CHANGED |
                        UGL_GC_FOREGROUND_COLOR_CHANGED;
         UGL_GC_CHANGED_SET (gc);
+        UGL_GC_SET (devId, gc);
     }
     else {
 

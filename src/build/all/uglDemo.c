@@ -2,7 +2,7 @@
 *   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 *
 *   This file is part of Real VMX.
-*   Copyright (C) 2008 - 2009 Surplus Users Ham Society
+*   Copyright (C) 2014 Surplus Users Ham Society
 *
 *   Real VMX is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU Lesser General Public License as published by
@@ -1198,7 +1198,7 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
   /* Set palette */
   setPalette();
 
-  if (uglCursorInit (gfxDevId, cDib.width, cDib.height, 320, 240)
+  if (uglCursorInit (gfxDevId, cDib.width, cDib.height, 0, 0)
                      != UGL_STATUS_OK) {
       restoreConsole(&oldRegs);
       printf("Unable to initialize cursor.\n");
@@ -1613,6 +1613,7 @@ int uglText4Test(int index, char *str)
   UGL_INT32 i = 1;
   UGL_INT32 data = -1;
   UGL_SIZE width, height;
+  UGL_GC_ID gc;
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
   if (drvId == UGL_NULL) {
@@ -1622,7 +1623,7 @@ int uglText4Test(int index, char *str)
 
   if (uglFontDriverInfo(drvId, UGL_FONT_DRIVER_VERSION_GET,
                          &data) != UGL_STATUS_OK) {
-    uglFontDriverDestroy (drvId);
+    uglFontDriverDestroy(drvId);
     printf("Unable to retreive font driver version.\n");
     return 1;
   }
@@ -1632,7 +1633,7 @@ int uglText4Test(int index, char *str)
 
   searchId = uglFontFindFirst(drvId, &fontDesc);
   if (searchId == UGL_NULL) {
-    uglFontDriverDestroy (drvId);
+    uglFontDriverDestroy(drvId);
     printf("Unable to retreive fonts.\n");
     return 1;
   }
@@ -1662,14 +1663,14 @@ int uglText4Test(int index, char *str)
 
     fontId = uglFontCreate (drvId, &fontDef);
     if (fontId == UGL_NULL) {
-      uglFontDriverDestroy (drvId);
+      uglFontDriverDestroy(drvId);
       printf("Unable to load font %s.\n", desiredFontDesc.faceName);
       return 1;
     }
 
     if (uglFontMetricsGet(fontId, &metrics) != UGL_STATUS_OK) {
-      uglFontDestroy (fontId);
-      uglFontDriverDestroy (drvId);
+      uglFontDestroy(fontId);
+      uglFontDriverDestroy(drvId);
       printf("Unable to retreive metrics for font.\n", fontDef.faceName);
       return 1;
     }
@@ -1694,8 +1695,8 @@ int uglText4Test(int index, char *str)
     if (str != UGL_NULL) {
       if (uglTextSizeGet(fontId, &width, &height,
                          strlen (str), str) != UGL_STATUS_OK) {
-        uglFontDestroy (fontId);
-        uglFontDriverDestroy (drvId);
+        uglFontDestroy(fontId);
+        uglFontDriverDestroy(drvId);
         printf("Unable to retreive text size for %s.\n", str);
         return 1;
       }
@@ -1707,28 +1708,38 @@ int uglText4Test(int index, char *str)
       getchar();
 
       if (mode4Enter(&oldRegs)) {
-        uglFontDestroy (fontId);
-        uglFontDriverDestroy (drvId);
+        uglFontDestroy(fontId);
+        uglFontDriverDestroy(drvId);
         restoreConsole(&oldRegs);
         printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
         return 1;
       }
 
-      uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
-      uglForegroundColorSet(gfxDevId->defaultGc, 14);
-      uglBackgroundColorSet(gfxDevId->defaultGc, 4);
-      uglFontSet(gfxDevId->defaultGc, fontId);
-      uglTextDraw(gfxDevId->defaultGc, metrics.pixelSize, metrics.pixelSize,
-                  strlen(str), str);
+      gc = uglGcCreate(gfxDevId);
+      if (gc == UGL_NULL) {
+        uglFontDestroy(fontId);
+        uglFontDriverDestroy(drvId);
+        restoreConsole(&oldRegs);
+        printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+        return 1;
+      }
+
+      uglDefaultBitmapSet(gc, NULL);
+      uglForegroundColorSet(gc, 14);
+      uglBackgroundColorSet(gc, 4);
+      uglFontSet(gc, fontId);
+      //uglRectangle(gc, 128, 128, 256, 256);
+      uglTextDraw(gc, metrics.pixelSize, metrics.pixelSize, strlen(str), str);
 
       getchar();
       restoreConsole(&oldRegs);
     }
 
-    uglFontDestroy (fontId);
+    uglFontDestroy(fontId);
+    uglGcDestroy(gc);
   }
 
-  uglFontDriverDestroy (drvId);
+  uglFontDriverDestroy(drvId);
 
   return 0;
 }

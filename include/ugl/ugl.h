@@ -687,30 +687,6 @@ UGL_STATUS uglCursorOff (
     UGL_DEVICE_ID  devId
     );
 
-/******************************************************************************
- *
- * uglCursorColorTransparentSet - Set transparent color key index for cursor
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglCursorColorTransparentSet (
-    UGL_DEVICE_ID  devId,
-    UGL_COLOR      color
-    );
-
-/******************************************************************************
- *
- * uglCursorColorInvertSet - Set invert color key index for cursor
- *
- * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
- */
-
-UGL_STATUS uglCursorColorInvertSet (
-    UGL_DEVICE_ID  devId,
-    UGL_COLOR      color
-    );
-
 /* Batch job support functions */
 
 /******************************************************************************

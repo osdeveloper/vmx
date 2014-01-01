@@ -239,10 +239,10 @@ UGL_CDDB_ID uglGenericCursorBitmapCreate (
         maskIndex = 0;
 
         for (x = 0; x < pCdib->width; x++) {
-            if (pSrc[x] == devId->cursorColorTransparent) {
+            if (pSrc[x] == UGL_CURSOR_COLOR_TRANSPARENT) {
                 pDest[x] = (UGL_UINT8) (dib.clutSize - 1);
             }
-            else if (pSrc[x] == devId->cursorColorInvert) {
+            else if (pSrc[x] == UGL_CURSOR_COLOR_INVERT) {
                 pDest[x] = (UGL_UINT8) (dib.clutSize - 1);
                 pMask[maskIndex] |= mask;
             }

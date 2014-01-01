@@ -647,7 +647,7 @@ UGL_LOCAL UGL_STATUS uglBMFTextSizeGet (
     const UGL_CHAR *   pText
     ) {
     UGL_INT32      i;
-    UGL_INT32      textWidth  = 0;
+    UGL_SIZE       textWidth  = 0;
     UGL_BMF_FONT * pBMFFont   = (UGL_BMF_FONT *) fontId;
     void **        ppPageZero = pBMFFont->pageZero;
     UGL_UINT8 *    pGlyphData;
@@ -664,7 +664,8 @@ UGL_LOCAL UGL_STATUS uglBMFTextSizeGet (
                 pText++;
 
                 if (pGlyphData != UGL_NULL) {
-                    textWidth += pGlyphData[UGL_BMF_GLYPH_WIDTH_INDEX];
+                    textWidth +=
+                        (UGL_SIZE) pGlyphData[UGL_BMF_GLYPH_WIDTH_INDEX];
                 }
             }
         }
@@ -694,14 +695,9 @@ UGL_LOCAL UGL_STATUS uglBMFTextDraw (
     UGL_SIZE           length,
     const UGL_CHAR *   pText
     ) {
-    void **                   ppPageElement;
-    UGL_SIZE                  width;
-    UGL_SIZE                  height;
-    UGL_COLOR                 color;
-    UGL_POS                   pos;
-    UGL_POINT                 point;
-    UGL_RECT                  rect;
     UGL_INT32                 i;
+    UGL_POINT                 point;
+    void **                   ppPageElement;
     UGL_GLYPH_CACHE_ELEMENT * pCacheElement;
     UGL_UGI_DRIVER *          pDrv       = gc->pDriver;
     UGL_BMF_FONT *            pBMFFont   = (UGL_BMF_FONT *) gc->pFont;
@@ -718,45 +714,6 @@ UGL_LOCAL UGL_STATUS uglBMFTextDraw (
     if (length < 0) {
         length = UGL_BMF_LONG_TEXT;
     }
-
-    if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
-        (*pFntDrv->textSizeGet) (gc->pFont, &width, &height, length, pText);
-        if (pBMFFont->textOrigin == UGL_FONT_TEXT_UPPER_LEFT) {
-            rect.left   = x;
-            rect.top    = y;
-            rect.right  = x + width - 1;
-            rect.bottom = y + height - 1;
-        }
-        else if (pBMFFont->textOrigin == UGL_FONT_TEXT_BASELINE) {
-            pos = y - maxAscent;
-            rect.left   = x;
-            rect.top    = pos;
-            rect.right  = x + width - 1;
-            rect.bottom = pos + height - 1;
-        }
-        else {
-            return (UGL_STATUS_ERROR);
-        }
-
-        color = gc->foregroundColor;
-        gc->foregroundColor = UGL_COLOR_TRANSPARENT;
-        gc->changed |= UGL_GC_FOREGROUND_COLOR_CHANGED;
-        UGL_GC_CHANGED_SET (gc);
-        UGL_GC_SET (pDrv, gc);
-
-        (*pDrv->rectangle) (pDrv, &rect);
-
-        gc->foregroundColor = color;
-        gc->changed |= UGL_GC_FOREGROUND_COLOR_CHANGED;
-        UGL_GC_CHANGED_SET (gc);
-        UGL_GC_SET (pDrv, gc);
-    }
-
-    color = gc->backgroundColor;
-    gc->backgroundColor = UGL_COLOR_TRANSPARENT;
-    gc->changed |= UGL_GC_BACKGROUND_COLOR_CHANGED;
-    UGL_GC_CHANGED_SET (gc);
-    UGL_GC_SET (pDrv, gc);
 
     for (i = 0; *pText != '\0' && i < length; i++) {
         ppPageElement = &ppPageZero[(UGL_UINT8) *pText];
@@ -796,11 +753,6 @@ UGL_LOCAL UGL_STATUS uglBMFTextDraw (
         x += (UGL_POS) pCacheElement->width;
         pText++;
     }
-
-    gc->backgroundColor = color;
-    gc->changed |= UGL_GC_BACKGROUND_COLOR_CHANGED;
-    UGL_GC_CHANGED_SET (gc);
-    UGL_GC_SET (pDrv, gc);
 
     return (status);
 }
