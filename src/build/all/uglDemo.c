@@ -48,10 +48,26 @@
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_10;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_12;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_12;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_12;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_18;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_24;
@@ -59,10 +75,26 @@ IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_24;
 
 /* Exports */
 const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
+    &uglBMFFont_Courier_Bold_Oblique_8,
+    &uglBMFFont_Courier_Bold_8,
+    &uglBMFFont_Courier_Oblique_8,
+    &uglBMFFont_Courier_8,
+    &uglBMFFont_Courier_Bold_Oblique_10,
+    &uglBMFFont_Courier_Bold_10,
+    &uglBMFFont_Courier_Oblique_10,
+    &uglBMFFont_Courier_10,
     &uglBMFFont_Courier_Bold_Oblique_12,
     &uglBMFFont_Courier_Bold_12,
     &uglBMFFont_Courier_Oblique_12,
     &uglBMFFont_Courier_12,
+    &uglBMFFont_Courier_Bold_Oblique_14,
+    &uglBMFFont_Courier_Bold_14,
+    &uglBMFFont_Courier_Oblique_14,
+    &uglBMFFont_Courier_14,
+    &uglBMFFont_Courier_Bold_Oblique_18,
+    &uglBMFFont_Courier_Bold_18,
+    &uglBMFFont_Courier_Oblique_18,
+    &uglBMFFont_Courier_18,
     &uglBMFFont_Courier_Bold_Oblique_24,
     &uglBMFFont_Courier_Bold_24,
     &uglBMFFont_Courier_Oblique_24,
@@ -1639,7 +1671,7 @@ int uglText4Test(int index, char *str)
   }
 
   do {
-    printf("%d : %-012s %-032s %02d %04s %06s\n",
+    printf("%-02d : %-012s %-032s %02d %04s %06s\n",
            i, fontDesc.familyName, fontDesc.faceName,
            fontDesc.pixelSize.min,
            (fontDesc.weight.min == UGL_FONT_BOLD) ? "bold" : "",
@@ -1728,7 +1760,6 @@ int uglText4Test(int index, char *str)
       uglForegroundColorSet(gc, 14);
       uglBackgroundColorSet(gc, 4);
       uglFontSet(gc, fontId);
-      //uglRectangle(gc, 128, 128, 256, 256);
       uglTextDraw(gc, metrics.pixelSize, metrics.pixelSize, strlen(str), str);
 
       getchar();

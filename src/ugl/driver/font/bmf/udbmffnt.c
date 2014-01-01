@@ -240,12 +240,25 @@ UGL_LOCAL UGL_STATUS uglBMFFontDriverInfo (
 UGL_LOCAL UGL_STATUS uglBMFFontDriverDestroy (
     UGL_FONT_DRIVER_ID  drvId
     ) {
-    UGL_BMF_FONT_DRIVER * pDrv   = (UGL_BMF_FONT_DRIVER *) drvId;
-    UGL_STATUS            status = UGL_STATUS_OK;
+    UGL_BMF_FONT *        pBMFFont;
+    UGL_BMF_FONT *        pNextBMFFont;
+    UGL_BMF_FONT_DRIVER * pBMFDrv = (UGL_BMF_FONT_DRIVER *) drvId;
 
-    uglOSLockDestroy (pDrv->lockId);
+    /* Destroy fonts */
+    if (pBMFDrv->pFirstFont != UGL_NULL) {
+        pBMFFont = pBMFDrv->pFirstFont;
+        while (pBMFFont != UGL_NULL) {
+            pNextBMFFont = pBMFFont->pNextFont;
+            pBMFFont->referenceCount = 1;
+            (*drvId->fontDestroy) ((UGL_FONT *) pBMFFont);
+            pBMFFont = pNextBMFFont;
+        }
+    }
 
-    return (status);
+    uglOSLockDestroy (pBMFDrv->lockId);
+    UGL_FREE (pBMFDrv);
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************
@@ -488,14 +501,16 @@ UGL_LOCAL UGL_FONT_ID uglBMFFontCreate (
 UGL_LOCAL UGL_STATUS uglBMFFontDestroy (
     UGL_FONT_ID  fontId
     ) {
-    UGL_INT32             i;
-    UGL_INT32             j;
-    UGL_BMF_FONT *        pBMFLoopFont;
-    UGL_FONT_DRIVER *     pDrv     = fontId->pFontDriver;
-    UGL_BMF_FONT_DRIVER * pBMFDrv  =
+    UGL_INT32                 i;
+    UGL_INT32                 j;
+    UGL_BMF_FONT *            pBMFLoopFont;
+    void **                   ppPageData;
+    UGL_GLYPH_CACHE_ELEMENT * pCacheElement;
+    UGL_FONT_DRIVER *         pDrv     = fontId->pFontDriver;
+    UGL_BMF_FONT_DRIVER *     pBMFDrv  =
         (UGL_BMF_FONT_DRIVER *) fontId->pFontDriver;
-    UGL_BMF_FONT *        pBMFFont = (UGL_BMF_FONT *) fontId;
-    UGL_STATUS            status   = UGL_STATUS_OK;
+    UGL_BMF_FONT *            pBMFFont = (UGL_BMF_FONT *) fontId;
+    UGL_STATUS                status   = UGL_STATUS_OK;
 
     if (uglOSLock(pBMFDrv->lockId) == UGL_STATUS_ERROR) {
         return (UGL_STATUS_ERROR);
@@ -536,6 +551,18 @@ UGL_LOCAL UGL_STATUS uglBMFFontDestroy (
             for (i = 0; i < UGL_BMF_FONT_PAGE_TABLE_SIZE; i++) {
                 if (pBMFFont->pageTable[i] != UGL_NULL) {
                     for (j = 0; j < UGL_BMF_FONT_PAGE_SIZE; j++) {
+
+                        ppPageData = &(*pBMFFont->pageTable[i])[j];
+                        pCacheElement = (UGL_GLYPH_CACHE_ELEMENT *) *ppPageData;
+                        if (pCacheElement == UGL_NULL) {
+                            continue;
+                        }
+
+                        if (pCacheElement->cacheFlag ==
+                            UGL_BMF_GLYPH_IN_CACHE) {
+                            uglBMFGlyphCacheFree (pDrv, ppPageData);
+                        }
+
                         if (i > 0 && pBMFFont->pageTable[i] != UGL_NULL) {
                             UGL_FREE (pBMFFont->pageTable[i]);
                         }
