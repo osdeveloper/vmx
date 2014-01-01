@@ -1960,7 +1960,7 @@ const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_18 = {
         {UGL_FONT_BOLD, UGL_FONT_BOLD}, /* weight */
         UGL_FONT_UPRIGHT,               /* italic */
         UGL_FONT_MONO_SPACED,           /* spacing */
-        UGL_FONT_ISO_8859_1,            /* char set */
+        UGL_FONT_ISO_8859_1,            /* charSet */
         "Courier Bold",                 /* faceName */
         "Courier"                       /* familyName */
     },

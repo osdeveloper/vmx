@@ -1,5 +1,5 @@
 /*
- * $XConsortium: helvR10.bdf,v 1.13 95/01/26 18:02:53 gildea Exp $
+ * $XConsortium: timI10.bdf,v 1.14 95/01/26 18:06:44 gildea Exp $
  * 
  * +
  *  Copyright 1984-1989, 1994 Adobe Systems Incorporated.
@@ -24,7 +24,7 @@
  * -
  */
 
-/* ufhnr10.c - Helvetica_10 font */
+/* uftni10.c - Times_Italic_10 font */
 
 /*
  * This file was converted to C from BDF using bdf2bmf.py
@@ -40,7 +40,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
      32,        /* index */
       0,        /* size (MSB) */
       5,        /* size (LSB) */
-      3,        /* width */
+      2,        /* width */
       1,        /* height */
       1,        /* ascent */
     0x00, 
@@ -51,59 +51,59 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       7,        /* size (LSB) */
       3,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x49, 0x24, 0x82, 
+      7,        /* height */
+      7,        /* ascent */
+    0x25, 0x28, 0x20, 
 
     /* 0x0022 ('"') */
       0,        /* page */
      34,        /* index */
       0,        /* size (MSB) */
-      5,        /* size (LSB) */
+      6,        /* size (LSB) */
       4,        /* width */
-      2,        /* height */
+      3,        /* height */
       8,        /* ascent */
-    0x55, 
+    0x55, 0x50, 
 
     /* 0x0023 ('#') */
       0,        /* page */
      35,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
+     11,        /* size (LSB) */
+      7,        /* width */
       7,        /* height */
       7,        /* ascent */
-    0x28, 0xa7, 0xca, 0xf9, 0x45, 0x00, 
+    0x14, 0x29, 0xf9, 0x4f, 0xca, 0x14, 0x00, 
 
     /* 0x0024 ('$') */
       0,        /* page */
      36,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      6,        /* width */
+     10,        /* size (LSB) */
+      5,        /* width */
       9,        /* height */
       8,        /* ascent */
-    0x21, 0xca, 0xa8, 0x70, 0xaa, 0x9c, 0x20, 
+    0x11, 0xd2, 0xc3, 0x0a, 0x5c, 0x40, 
 
     /* 0x0025 ('%') */
       0,        /* page */
      37,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
+     12,        /* size (LSB) */
       9,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x64, 0x4a, 0x1a, 0x01, 0x01, 0x00, 0xb0, 0xa4, 0x4c, 
+      7,        /* height */
+      7,        /* ascent */
+    0x32, 0x2e, 0x15, 0x05, 0x41, 0x51, 0x28, 0x88, 
 
     /* 0x0026 ('&') */
       0,        /* page */
      38,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
+     11,        /* size (LSB) */
       8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x10, 0x28, 0x28, 0x30, 0x52, 0x4c, 0x4c, 0x32, 
+      7,        /* height */
+      7,        /* ascent */
+    0x18, 0x28, 0x30, 0x66, 0x94, 0x98, 0xec, 
 
     /* 0x0027 (''') */
       0,        /* page */
@@ -121,9 +121,9 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       4,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x24, 0x48, 0x88, 0x84, 0x42, 
+      9,        /* height */
+      7,        /* ascent */
+    0x34, 0x48, 0x88, 0x88, 0x40, 
 
     /* 0x0029 (')') */
       0,        /* page */
@@ -131,29 +131,29 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       4,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x42, 0x21, 0x11, 0x12, 0x24, 
+      9,        /* height */
+      7,        /* ascent */
+    0x21, 0x11, 0x11, 0x22, 0xc0, 
 
     /* 0x002a ('*') */
       0,        /* page */
      42,        /* index */
       0,        /* size (MSB) */
       6,        /* size (LSB) */
-      4,        /* width */
+      5,        /* width */
       3,        /* height */
-      8,        /* ascent */
-    0xa4, 0xa0, 
+      7,        /* ascent */
+    0x28, 0x8a, 
 
     /* 0x002b ('+') */
       0,        /* page */
      43,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      6,        /* width */
+      9,        /* size (LSB) */
+      7,        /* width */
       5,        /* height */
-      6,        /* ascent */
-    0x20, 0x8f, 0x88, 0x20, 
+      5,        /* ascent */
+    0x20, 0x43, 0xe1, 0x02, 0x00, 
 
     /* 0x002c (',') */
       0,        /* page */
@@ -172,8 +172,8 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       5,        /* size (LSB) */
       7,        /* width */
       1,        /* height */
-      4,        /* ascent */
-    0x7c, 
+      3,        /* ascent */
+    0x78, 
 
     /* 0x002e ('.') */
       0,        /* page */
@@ -183,47 +183,47 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       3,        /* width */
       1,        /* height */
       1,        /* ascent */
-    0x40, 
+    0x80, 
 
     /* 0x002f ('/') */
       0,        /* page */
      47,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
-      3,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x25, 0x24, 0xa4, 
+      8,        /* size (LSB) */
+      4,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x11, 0x24, 0x48, 0x80, 
 
     /* 0x0030 ('0') */
       0,        /* page */
      48,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x72, 0x28, 0xa2, 0x8a, 0x28, 0x9c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x32, 0x53, 0x19, 0x49, 0x80, 
 
     /* 0x0031 ('1') */
       0,        /* page */
      49,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x21, 0x82, 0x08, 0x20, 0x82, 0x08, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x30, 0x88, 0x44, 0x23, 0x80, 
 
     /* 0x0032 ('2') */
       0,        /* page */
      50,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x72, 0x20, 0x82, 0x31, 0x08, 0x3e, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x32, 0x42, 0x22, 0x27, 0xc0, 
 
     /* 0x0033 ('3') */
       0,        /* page */
@@ -231,19 +231,19 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      10,        /* size (LSB) */
       6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x72, 0x20, 0x8c, 0x08, 0x28, 0x9c, 
+      7,        /* height */
+      7,        /* ascent */
+    0x18, 0x90, 0x8c, 0x0a, 0x27, 0x00, 
 
     /* 0x0034 ('4') */
       0,        /* page */
      52,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x10, 0xc5, 0x14, 0x93, 0xe1, 0x04, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x19, 0x55, 0x2f, 0x90, 0x80, 
 
     /* 0x0035 ('5') */
       0,        /* page */
@@ -251,59 +251,59 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      10,        /* size (LSB) */
       6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0xfa, 0x08, 0x3c, 0x08, 0x28, 0x9c, 
+      7,        /* height */
+      7,        /* ascent */
+    0x1c, 0x42, 0x04, 0x0a, 0x27, 0x00, 
 
     /* 0x0036 ('6') */
       0,        /* page */
      54,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x72, 0x28, 0x2c, 0xca, 0x28, 0x9c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x19, 0x11, 0x49, 0x49, 0x80, 
 
     /* 0x0037 ('7') */
       0,        /* page */
      55,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0xf8, 0x21, 0x04, 0x20, 0x84, 0x10, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x7a, 0x44, 0x42, 0x21, 0x00, 
 
     /* 0x0038 ('8') */
       0,        /* page */
      56,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x72, 0x28, 0x9c, 0x8a, 0x28, 0x9c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x32, 0x4c, 0xc9, 0x49, 0x80, 
 
     /* 0x0039 ('9') */
       0,        /* page */
      57,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x72, 0x28, 0xa6, 0x68, 0x28, 0x9c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x32, 0x52, 0x51, 0x13, 0x00, 
 
     /* 0x003a (':') */
       0,        /* page */
      58,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
+      6,        /* size (LSB) */
       3,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x40, 0x00, 0x80, 
+      5,        /* height */
+      5,        /* ascent */
+    0x40, 0x08, 
 
     /* 0x003b (';') */
       0,        /* page */
@@ -311,59 +311,59 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       7,        /* size (LSB) */
       3,        /* width */
-      8,        /* height */
-      6,        /* ascent */
-    0x40, 0x00, 0x94, 
+      7,        /* height */
+      5,        /* ascent */
+    0x20, 0x04, 0xa0, 
 
     /* 0x003c ('<') */
       0,        /* page */
      60,        /* index */
       0,        /* size (MSB) */
       8,        /* size (LSB) */
-      6,        /* width */
+      5,        /* width */
       5,        /* height */
-      6,        /* ascent */
-    0x10, 0x84, 0x08, 0x10, 
+      5,        /* ascent */
+    0x11, 0x10, 0x41, 0x00, 
 
     /* 0x003d ('=') */
       0,        /* page */
      61,        /* index */
       0,        /* size (MSB) */
-      6,        /* size (LSB) */
-      5,        /* width */
+      7,        /* size (LSB) */
+      7,        /* width */
       3,        /* height */
-      5,        /* ascent */
-    0xf0, 0x3c, 
+      4,        /* ascent */
+    0xf8, 0x03, 0xe0, 
 
     /* 0x003e ('>') */
       0,        /* page */
      62,        /* index */
       0,        /* size (MSB) */
       8,        /* size (LSB) */
-      6,        /* width */
+      5,        /* width */
       5,        /* height */
-      6,        /* ascent */
-    0x40, 0x81, 0x08, 0x40, 
+      5,        /* ascent */
+    0x41, 0x04, 0x44, 0x00, 
 
     /* 0x003f ('?') */
       0,        /* page */
      63,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x31, 0x20, 0x84, 0x20, 0x80, 0x08, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x32, 0x44, 0x44, 0x01, 0x00, 
 
     /* 0x0040 ('@') */
       0,        /* page */
      64,        /* index */
       0,        /* size (MSB) */
-     18,        /* size (LSB) */
-     11,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x1f, 0x04, 0x11, 0x35, 0x49, 0x2a, 0x25, 0x49, 0x29, 0x24, 0xd8, 0x40, 0x07, 0xc0, 
+     16,        /* size (LSB) */
+     10,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x1e, 0x08, 0x44, 0xaa, 0x52, 0xa4, 0xab, 0x49, 0x21, 0x00, 0x3c, 0x00, 
 
     /* 0x0041 ('A') */
       0,        /* page */
@@ -371,9 +371,9 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x10, 0x20, 0xa1, 0x44, 0x4f, 0xa0, 0xc1, 
+      7,        /* height */
+      7,        /* ascent */
+    0x04, 0x18, 0x51, 0x23, 0xc8, 0xbb, 0x80, 
 
     /* 0x0042 ('B') */
       0,        /* page */
@@ -381,29 +381,29 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x78, 0x89, 0x13, 0xc4, 0x48, 0x91, 0x3c, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3c, 0x24, 0x89, 0xe4, 0x48, 0xbe, 0x00, 
 
     /* 0x0043 ('C') */
       0,        /* page */
      67,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
-      8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x3c, 0x42, 0x40, 0x40, 0x40, 0x40, 0x42, 0x3c, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x1e, 0x45, 0x02, 0x08, 0x11, 0x1c, 0x00, 
 
     /* 0x0044 ('D') */
       0,        /* page */
      68,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
+     11,        /* size (LSB) */
       8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x78, 0x44, 0x42, 0x42, 0x42, 0x42, 0x44, 0x78, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3e, 0x11, 0x21, 0x22, 0x42, 0x44, 0xf8, 
 
     /* 0x0045 ('E') */
       0,        /* page */
@@ -411,69 +411,69 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x7c, 0x81, 0x03, 0xe4, 0x08, 0x10, 0x3e, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3e, 0x24, 0x81, 0xc4, 0x08, 0xbe, 0x00, 
 
     /* 0x0046 ('F') */
       0,        /* page */
      70,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x7d, 0x04, 0x1e, 0x41, 0x04, 0x10, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x3e, 0x24, 0x81, 0xc4, 0x08, 0x38, 0x00, 
 
     /* 0x0047 ('G') */
       0,        /* page */
      71,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
+     11,        /* size (LSB) */
       8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x3c, 0x42, 0x40, 0x40, 0x46, 0x42, 0x46, 0x3a, 
+      7,        /* height */
+      7,        /* ascent */
+    0x1e, 0x22, 0x40, 0x4e, 0x84, 0x88, 0x78, 
 
     /* 0x0048 ('H') */
       0,        /* page */
      72,        /* index */
       0,        /* size (MSB) */
      12,        /* size (LSB) */
-      8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x42, 0x42, 0x42, 0x7e, 0x42, 0x42, 0x42, 0x42, 
+      9,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x3b, 0x88, 0x88, 0x87, 0xc4, 0x42, 0x23, 0xb8, 
 
     /* 0x0049 ('I') */
       0,        /* page */
      73,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
-      3,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x49, 0x24, 0x92, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x38, 0x88, 0x44, 0x23, 0x80, 
 
     /* 0x004a ('J') */
       0,        /* page */
      74,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x10, 0x84, 0x21, 0x0a, 0x4c, 
+     10,        /* size (LSB) */
+      6,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x1c, 0x21, 0x04, 0x22, 0x8c, 0x00, 
 
     /* 0x004b ('K') */
       0,        /* page */
      75,        /* index */
       0,        /* size (MSB) */
      11,        /* size (LSB) */
-      7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x44, 0x91, 0x43, 0x84, 0x89, 0x11, 0x22, 
+      8,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x3b, 0x12, 0x24, 0x38, 0x48, 0x44, 0xee, 
 
     /* 0x004c ('L') */
       0,        /* page */
@@ -481,39 +481,39 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      10,        /* size (LSB) */
       6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x41, 0x04, 0x10, 0x41, 0x04, 0x1e, 
+      7,        /* height */
+      7,        /* ascent */
+    0x38, 0x42, 0x08, 0x41, 0x1f, 0xc0, 
 
     /* 0x004d ('M') */
       0,        /* page */
      77,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
-      9,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x41, 0x31, 0x98, 0xca, 0xa5, 0x52, 0x49, 0x24, 0x92, 
+     14,        /* size (LSB) */
+     11,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x30, 0x62, 0x18, 0xa5, 0x15, 0x24, 0xa8, 0x99, 0x3a, 0x70, 
 
     /* 0x004e ('N') */
       0,        /* page */
      78,        /* index */
       0,        /* size (MSB) */
      12,        /* size (LSB) */
-      8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x62, 0x62, 0x52, 0x52, 0x4a, 0x4a, 0x46, 0x46, 
+      9,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x33, 0x88, 0x8a, 0x45, 0x44, 0xa2, 0x23, 0x90, 
 
     /* 0x004f ('O') */
       0,        /* page */
      79,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
-      8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x3c, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x1c, 0x45, 0x0a, 0x28, 0x51, 0x1c, 0x00, 
 
     /* 0x0050 ('P') */
       0,        /* page */
@@ -521,19 +521,19 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x78, 0x89, 0x13, 0xc4, 0x08, 0x10, 0x20, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3c, 0x24, 0x89, 0xe4, 0x08, 0x38, 0x00, 
 
     /* 0x0051 ('Q') */
       0,        /* page */
      81,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
-      8,        /* width */
+     12,        /* size (LSB) */
+      7,        /* width */
       9,        /* height */
-      8,        /* ascent */
-    0x3c, 0x42, 0x42, 0x42, 0x42, 0x4a, 0x46, 0x3e, 0x01, 
+      7,        /* ascent */
+    0x1c, 0x45, 0x0a, 0x28, 0x51, 0x1c, 0x24, 0xf0, 
 
     /* 0x0052 ('R') */
       0,        /* page */
@@ -541,39 +541,39 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x78, 0x89, 0x13, 0xc4, 0x48, 0x91, 0x22, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3c, 0x24, 0x89, 0xe4, 0x88, 0xb9, 0x80, 
 
     /* 0x0053 ('S') */
       0,        /* page */
      83,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x38, 0x89, 0x01, 0xc0, 0x48, 0x91, 0x1c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x3a, 0x50, 0x41, 0x4b, 0x80, 
 
     /* 0x0054 ('T') */
       0,        /* page */
      84,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0xf9, 0x08, 0x42, 0x10, 0x84, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x7f, 0x28, 0x81, 0x04, 0x08, 0x38, 0x00, 
 
     /* 0x0055 ('U') */
       0,        /* page */
      85,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
+     11,        /* size (LSB) */
       8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+      7,        /* height */
+      7,        /* ascent */
+    0x77, 0x22, 0x44, 0x44, 0x88, 0x88, 0x70, 
 
     /* 0x0056 ('V') */
       0,        /* page */
@@ -581,29 +581,29 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x83, 0x05, 0x12, 0x24, 0x45, 0x0a, 0x08, 
+      7,        /* height */
+      7,        /* ascent */
+    0xee, 0x89, 0x22, 0x85, 0x0c, 0x10, 0x00, 
 
     /* 0x0057 ('W') */
       0,        /* page */
      87,        /* index */
       0,        /* size (MSB) */
      13,        /* size (LSB) */
-      9,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x88, 0xc4, 0x52, 0x49, 0x25, 0x51, 0x10, 0x88, 0x44, 
+     10,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0xed, 0xd2, 0x24, 0x91, 0x24, 0x5a, 0x1b, 0x04, 0x80, 
 
     /* 0x0058 ('X') */
       0,        /* page */
      88,        /* index */
       0,        /* size (MSB) */
      11,        /* size (LSB) */
-      7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x44, 0x88, 0xa0, 0x82, 0x85, 0x11, 0x22, 
+      8,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x37, 0x12, 0x14, 0x18, 0x28, 0x48, 0xdc, 
 
     /* 0x0059 ('Y') */
       0,        /* page */
@@ -611,9 +611,9 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x82, 0x89, 0x11, 0x42, 0x82, 0x04, 0x08, 
+      7,        /* height */
+      7,        /* ascent */
+    0x76, 0x48, 0xa1, 0x82, 0x08, 0x38, 0x00, 
 
     /* 0x005a ('Z') */
       0,        /* page */
@@ -621,59 +621,59 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x7c, 0x08, 0x20, 0x81, 0x04, 0x10, 0x3e, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3e, 0x48, 0x20, 0x82, 0x09, 0x3e, 0x00, 
 
     /* 0x005b ('[') */
       0,        /* page */
      91,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      3,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x69, 0x24, 0x92, 0x4c, 
+      9,        /* size (LSB) */
+      4,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x32, 0x24, 0x44, 0x88, 0xc0, 
 
     /* 0x005c ('\') */
       0,        /* page */
      92,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
-      3,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x91, 0x24, 0x89, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x42, 0x08, 0x42, 0x08, 0x40, 
 
     /* 0x005d (']') */
       0,        /* page */
      93,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      3,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0xc9, 0x24, 0x92, 0x58, 
+      9,        /* size (LSB) */
+      4,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x31, 0x12, 0x22, 0x44, 0xc0, 
 
     /* 0x005e ('^') */
       0,        /* page */
      94,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      6,        /* width */
-      5,        /* height */
-      8,        /* ascent */
-    0x20, 0x85, 0x14, 0x88, 
+      6,        /* size (LSB) */
+      5,        /* width */
+      3,        /* height */
+      7,        /* ascent */
+    0x22, 0x94, 
 
     /* 0x005f ('_') */
       0,        /* page */
      95,        /* index */
       0,        /* size (MSB) */
       6,        /* size (LSB) */
-      6,        /* width */
-      2,        /* height */
+      5,        /* width */
+      3,        /* height */
       0,        /* ascent */
-    0x03, 0xf0, 
+    0x00, 0x3e, 
 
     /* 0x0060 ('`') */
       0,        /* page */
@@ -683,7 +683,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       3,        /* width */
       3,        /* height */
       8,        /* ascent */
-    0x52, 0x00, 
+    0x29, 0x00, 
 
     /* 0x0061 ('a') */
       0,        /* page */
@@ -691,19 +691,19 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       8,        /* size (LSB) */
       5,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0xe0, 0x9d, 0x29, 0x34, 
+      5,        /* height */
+      5,        /* ascent */
+    0x32, 0xa5, 0x4d, 0x00, 
 
     /* 0x0062 ('b') */
       0,        /* page */
      98,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x82, 0x0b, 0x32, 0x8a, 0x2c, 0xac, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x61, 0x18, 0xa9, 0x53, 0x00, 
 
     /* 0x0063 ('c') */
       0,        /* page */
@@ -711,19 +711,19 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       8,        /* size (LSB) */
       5,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x64, 0xa1, 0x09, 0x30, 
+      5,        /* height */
+      5,        /* ascent */
+    0x32, 0xa1, 0x2e, 0x00, 
 
     /* 0x0064 ('d') */
       0,        /* page */
     100,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x08, 0x26, 0xa6, 0x8a, 0x29, 0x9a, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x18, 0x4c, 0xa9, 0x51, 0x40, 
 
     /* 0x0065 ('e') */
       0,        /* page */
@@ -731,59 +731,59 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       8,        /* size (LSB) */
       5,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x64, 0xbd, 0x09, 0x30, 
+      5,        /* height */
+      5,        /* ascent */
+    0x32, 0xb9, 0x2e, 0x00, 
 
     /* 0x0066 ('f') */
       0,        /* page */
     102,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      4,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x34, 0xe4, 0x44, 0x44, 
+     12,        /* size (LSB) */
+      6,        /* width */
+     10,        /* height */
+      7,        /* ascent */
+    0x0c, 0x43, 0xc4, 0x10, 0x82, 0x08, 0x23, 0x00, 
 
     /* 0x0067 ('g') */
       0,        /* page */
     103,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
+      9,        /* size (LSB) */
+      5,        /* width */
       8,        /* height */
-      6,        /* ascent */
-    0x6a, 0x68, 0xa2, 0x99, 0xa0, 0x9c, 
+      5,        /* ascent */
+    0x3a, 0x94, 0x46, 0x4a, 0x4c, 
 
     /* 0x0068 ('h') */
       0,        /* page */
     104,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x82, 0x0b, 0x32, 0x8a, 0x28, 0xa2, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x61, 0x0c, 0xa5, 0x52, 0xc0, 
 
     /* 0x0069 ('i') */
       0,        /* page */
     105,        /* index */
       0,        /* size (MSB) */
-      6,        /* size (LSB) */
-      2,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x8a, 0xaa, 
+      7,        /* size (LSB) */
+      3,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x23, 0x25, 0x30, 
 
     /* 0x006a ('j') */
       0,        /* page */
     106,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
-      2,        /* width */
-      9,        /* height */
-      8,        /* ascent */
-    0x8a, 0xaa, 0x80, 
+     11,        /* size (LSB) */
+      5,        /* width */
+     10,        /* height */
+      7,        /* ascent */
+    0x08, 0x0c, 0x21, 0x10, 0x84, 0xa6, 0x00, 
 
     /* 0x006b ('k') */
       0,        /* page */
@@ -791,49 +791,49 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x84, 0x25, 0x4c, 0x52, 0x52, 
+      7,        /* height */
+      7,        /* ascent */
+    0x61, 0x12, 0xae, 0x52, 0x60, 
 
     /* 0x006c ('l') */
       0,        /* page */
     108,        /* index */
       0,        /* size (MSB) */
-      6,        /* size (LSB) */
-      2,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0xaa, 0xaa, 
+      7,        /* size (LSB) */
+      3,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x65, 0x29, 0x30, 
 
     /* 0x006d ('m') */
       0,        /* page */
     109,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      8,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0xec, 0x92, 0x92, 0x92, 0x92, 0x92, 
+      9,        /* size (LSB) */
+      7,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0xac, 0xa9, 0x55, 0x4a, 0xc0, 
 
     /* 0x006e ('n') */
       0,        /* page */
     110,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      6,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0xb3, 0x28, 0xa2, 0x8a, 0x20, 
+      8,        /* size (LSB) */
+      5,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0xb2, 0x95, 0x4b, 0x00, 
 
     /* 0x006f ('o') */
       0,        /* page */
     111,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      6,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x72, 0x28, 0xa2, 0x89, 0xc0, 
+      8,        /* size (LSB) */
+      5,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0x72, 0xa5, 0x4e, 0x00, 
 
     /* 0x0070 ('p') */
       0,        /* page */
@@ -842,18 +842,18 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
      10,        /* size (LSB) */
       6,        /* width */
       8,        /* height */
-      6,        /* ascent */
-    0xb3, 0x28, 0xa2, 0xca, 0xc8, 0x20, 
+      5,        /* ascent */
+    0x38, 0x52, 0x4a, 0x31, 0x04, 0x38, 
 
     /* 0x0071 ('q') */
       0,        /* page */
     113,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
+      9,        /* size (LSB) */
+      5,        /* width */
       8,        /* height */
-      6,        /* ascent */
-    0x6a, 0x68, 0xa2, 0x99, 0xa0, 0x82, 
+      5,        /* ascent */
+    0x3a, 0xa5, 0x46, 0x11, 0x1c, 
 
     /* 0x0072 ('r') */
       0,        /* page */
@@ -861,29 +861,29 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       7,        /* size (LSB) */
       4,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0xac, 0x88, 0x88, 
+      5,        /* height */
+      5,        /* ascent */
+    0x56, 0x48, 0x80, 
 
     /* 0x0073 ('s') */
       0,        /* page */
     115,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      5,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x64, 0x98, 0x29, 0x30, 
+      7,        /* size (LSB) */
+      4,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0x68, 0x42, 0xc0, 
 
     /* 0x0074 ('t') */
       0,        /* page */
     116,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
+      7,        /* size (LSB) */
       4,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x44, 0xe4, 0x44, 0x46, 
+      6,        /* height */
+      6,        /* ascent */
+    0x2f, 0x48, 0x8c, 
 
     /* 0x0075 ('u') */
       0,        /* page */
@@ -891,39 +891,39 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       8,        /* size (LSB) */
       5,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x94, 0xa5, 0x29, 0x38, 
+      5,        /* height */
+      5,        /* ascent */
+    0xd2, 0xa9, 0x4d, 0x00, 
 
     /* 0x0076 ('v') */
       0,        /* page */
     118,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      6,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x8a, 0x25, 0x14, 0x20, 0x80, 
+      8,        /* size (LSB) */
+      5,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0xd2, 0x94, 0xc4, 0x00, 
 
     /* 0x0077 ('w') */
       0,        /* page */
     119,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      8,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x92, 0x92, 0x54, 0x54, 0x28, 0x28, 
+      9,        /* size (LSB) */
+      7,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0xd4, 0xa9, 0x53, 0xc5, 0x00, 
 
     /* 0x0078 ('x') */
       0,        /* page */
     120,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      6,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0x89, 0x42, 0x14, 0x8a, 0x20, 
+      8,        /* size (LSB) */
+      5,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0x49, 0x88, 0xa9, 0x00, 
 
     /* 0x0079 ('y') */
       0,        /* page */
@@ -932,28 +932,28 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       9,        /* size (LSB) */
       5,        /* width */
       8,        /* height */
-      6,        /* ascent */
-    0x94, 0xa9, 0x46, 0x21, 0x10, 
+      5,        /* ascent */
+    0x69, 0x4a, 0x61, 0x10, 0x98, 
 
     /* 0x007a ('z') */
       0,        /* page */
     122,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      5,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0xf0, 0x88, 0x88, 0x78, 
+      7,        /* size (LSB) */
+      4,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0x71, 0x24, 0xe0, 
 
     /* 0x007b ('{') */
       0,        /* page */
     123,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      3,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x29, 0x28, 0x92, 0x44, 
+     10,        /* size (LSB) */
+      5,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x19, 0x08, 0x88, 0x21, 0x08, 0x60, 
 
     /* 0x007c ('|') */
       0,        /* page */
@@ -961,36 +961,36 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       8,        /* size (LSB) */
       3,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x49, 0x24, 0x92, 0x48, 
+      9,        /* height */
+      7,        /* ascent */
+    0x24, 0xa4, 0xa4, 0x80, 
 
     /* 0x007d ('}') */
       0,        /* page */
     125,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      3,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x89, 0x22, 0x92, 0x50, 
+     10,        /* size (LSB) */
+      5,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x30, 0x84, 0x20, 0x88, 0x84, 0xc0, 
 
     /* 0x007e ('~') */
       0,        /* page */
     126,        /* index */
       0,        /* size (MSB) */
       6,        /* size (LSB) */
-      7,        /* width */
+      6,        /* width */
       2,        /* height */
-      5,        /* ascent */
-    0x65, 0x30, 
+      4,        /* ascent */
+    0x66, 0x60, 
 
     /* 0x00a0 */
       0,        /* page */
     160,        /* index */
       0,        /* size (MSB) */
       5,        /* size (LSB) */
-      3,        /* width */
+      2,        /* width */
       1,        /* height */
       1,        /* ascent */
     0x00, 
@@ -999,51 +999,51 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* page */
     161,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
-      3,        /* width */
-      8,        /* height */
-      6,        /* ascent */
-    0x41, 0x24, 0x92, 
+      8,        /* size (LSB) */
+      4,        /* width */
+      7,        /* height */
+      5,        /* ascent */
+    0x10, 0x24, 0x48, 0x80, 
 
     /* 0x00a2 */
       0,        /* page */
     162,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      7,        /* ascent */
-    0x11, 0xca, 0xa8, 0xa2, 0xa7, 0x10, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      6,        /* ascent */
+    0x13, 0xab, 0x4c, 0x3a, 0x00, 
 
     /* 0x00a3 */
       0,        /* page */
     163,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x31, 0x24, 0x38, 0x41, 0x04, 0xac, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x19, 0x48, 0xe2, 0x66, 0xc0, 
 
     /* 0x00a4 */
       0,        /* page */
     164,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      5,        /* width */
+      9,        /* size (LSB) */
+      6,        /* width */
       6,        /* height */
       7,        /* ascent */
-    0x93, 0x25, 0x26, 0x48, 
+    0x85, 0xe4, 0x92, 0x7a, 0x10, 
 
     /* 0x00a5 */
       0,        /* page */
     165,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x8a, 0x25, 0x14, 0xf8, 0x8f, 0x88, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x76, 0x4b, 0xb9, 0x8f, 0x84, 0x1c, 0x00, 
 
     /* 0x00a6 */
       0,        /* page */
@@ -1051,19 +1051,19 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       8,        /* size (LSB) */
       3,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x49, 0x20, 0x12, 0x48, 
+      9,        /* height */
+      7,        /* ascent */
+    0x25, 0x20, 0x94, 0x80, 
 
     /* 0x00a7 */
       0,        /* page */
     167,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
+     11,        /* size (LSB) */
       6,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x72, 0x2c, 0x1c, 0x9b, 0x27, 0x06, 0x89, 0xc0, 
+      9,        /* height */
+      7,        /* ascent */
+    0x18, 0x93, 0x16, 0x49, 0xa3, 0x24, 0x60, 
 
     /* 0x00a8 */
       0,        /* page */
@@ -1072,7 +1072,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       5,        /* size (LSB) */
       3,        /* width */
       1,        /* height */
-      8,        /* ascent */
+      7,        /* ascent */
     0xa0, 
 
     /* 0x00a9 */
@@ -1089,21 +1089,21 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* page */
     170,        /* index */
       0,        /* size (MSB) */
-      7,        /* size (LSB) */
-      4,        /* width */
+      8,        /* size (LSB) */
+      5,        /* width */
       5,        /* height */
-      8,        /* ascent */
-    0xe2, 0xa0, 0xe0, 
+      7,        /* ascent */
+    0x32, 0x9e, 0x0e, 0x00, 
 
     /* 0x00ab */
       0,        /* page */
     171,        /* index */
       0,        /* size (MSB) */
       8,        /* size (LSB) */
-      6,        /* width */
+      5,        /* width */
       5,        /* height */
       5,        /* ascent */
-    0x29, 0x4a, 0x14, 0x28, 
+    0x2a, 0xa9, 0x45, 0x00, 
 
     /* 0x00ac */
       0,        /* page */
@@ -1112,8 +1112,8 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       7,        /* size (LSB) */
       7,        /* width */
       3,        /* height */
-      5,        /* ascent */
-    0x7c, 0x08, 0x10, 
+      4,        /* ascent */
+    0xf8, 0x10, 0x20, 
 
     /* 0x00ad */
       0,        /* page */
@@ -1122,7 +1122,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       5,        /* size (LSB) */
       4,        /* width */
       1,        /* height */
-      4,        /* ascent */
+      3,        /* ascent */
     0xe0, 
 
     /* 0x00ae */
@@ -1142,7 +1142,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       5,        /* size (LSB) */
       3,        /* width */
       1,        /* height */
-      8,        /* ascent */
+      7,        /* ascent */
     0xe0, 
 
     /* 0x00b0 */
@@ -1159,11 +1159,11 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* page */
     177,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
+     11,        /* size (LSB) */
+      7,        /* width */
       7,        /* height */
       7,        /* ascent */
-    0x20, 0x8f, 0x88, 0x20, 0x0f, 0x80, 
+    0x20, 0x43, 0xe1, 0x02, 0x00, 0x3e, 0x00, 
 
     /* 0x00b2 */
       0,        /* page */
@@ -1193,7 +1193,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       3,        /* width */
       2,        /* height */
       8,        /* ascent */
-    0x50, 
+    0x28, 
 
     /* 0x00b5 */
       0,        /* page */
@@ -1202,18 +1202,18 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       9,        /* size (LSB) */
       5,        /* width */
       8,        /* height */
-      6,        /* ascent */
-    0x94, 0xa5, 0x29, 0x7a, 0x10, 
+      5,        /* ascent */
+    0x69, 0x54, 0xa6, 0xc2, 0x18, 
 
     /* 0x00b6 */
       0,        /* page */
     182,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
-      6,        /* width */
+     13,        /* size (LSB) */
+      7,        /* width */
      10,        /* height */
-      8,        /* ascent */
-    0x7f, 0xae, 0xba, 0x68, 0xa2, 0x8a, 0x28, 0xa0, 
+      7,        /* ascent */
+    0x3e, 0xeb, 0xd7, 0x4e, 0x8a, 0x14, 0x50, 0xa1, 0x40, 
 
     /* 0x00b7 */
       0,        /* page */
@@ -1222,8 +1222,8 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       5,        /* size (LSB) */
       3,        /* width */
       1,        /* height */
-      4,        /* ascent */
-    0xc0, 
+      3,        /* ascent */
+    0x80, 
 
     /* 0x00b8 */
       0,        /* page */
@@ -1243,7 +1243,7 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       3,        /* width */
       4,        /* height */
       7,        /* ascent */
-    0x59, 0x20, 
+    0xc9, 0x70, 
 
     /* 0x00ba */
       0,        /* page */
@@ -1252,358 +1252,358 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       7,        /* size (LSB) */
       4,        /* width */
       5,        /* height */
-      8,        /* ascent */
-    0xea, 0xe0, 0xe0, 
+      7,        /* ascent */
+    0x35, 0x60, 0xe0, 
 
     /* 0x00bb */
       0,        /* page */
     187,        /* index */
       0,        /* size (MSB) */
       8,        /* size (LSB) */
-      6,        /* width */
+      5,        /* width */
       5,        /* height */
       5,        /* ascent */
-    0xa1, 0x42, 0x94, 0xa0, 
+    0x51, 0x4a, 0xaa, 0x00, 
 
     /* 0x00bc */
       0,        /* page */
     188,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
-      9,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x42, 0x62, 0x11, 0x09, 0x00, 0x90, 0x98, 0x5e, 0x42, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0xc4, 0x91, 0x27, 0xa2, 0xcb, 0xe2, 0x00, 
 
     /* 0x00bd */
       0,        /* page */
     189,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
-      9,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x42, 0x62, 0x11, 0x09, 0x00, 0xb0, 0xa8, 0x48, 0x4e, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0xc4, 0x91, 0x27, 0xb2, 0xa8, 0xa3, 0x80, 
 
     /* 0x00be */
       0,        /* page */
     190,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
-      9,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0xe2, 0x22, 0x09, 0x19, 0x00, 0x90, 0x98, 0x5e, 0x42, 
+     11,        /* size (LSB) */
+      7,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0xe4, 0x90, 0xa6, 0xa2, 0xcb, 0xe2, 0x00, 
 
     /* 0x00bf */
       0,        /* page */
     191,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      6,        /* ascent */
-    0x10, 0x01, 0x04, 0x21, 0x04, 0x8c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      5,        /* ascent */
+    0x08, 0x04, 0x44, 0x49, 0x80, 
 
     /* 0x00c0 */
       0,        /* page */
     192,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x20, 0x20, 0x00, 0x81, 0x05, 0x0a, 0x22, 0x7d, 0x06, 0x08, 
+     10,        /* height */
+     10,        /* ascent */
+    0x08, 0x08, 0x00, 0x20, 0xc2, 0x89, 0x1e, 0x45, 0xdc, 
 
     /* 0x00c1 */
       0,        /* page */
     193,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x08, 0x20, 0x00, 0x81, 0x05, 0x0a, 0x22, 0x7d, 0x06, 0x08, 
+     10,        /* height */
+     10,        /* ascent */
+    0x02, 0x08, 0x00, 0x20, 0xc2, 0x89, 0x1e, 0x45, 0xdc, 
 
     /* 0x00c2 */
       0,        /* page */
     194,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x10, 0x50, 0x00, 0x81, 0x05, 0x0a, 0x22, 0x7d, 0x06, 0x08, 
+     10,        /* height */
+     10,        /* ascent */
+    0x04, 0x14, 0x00, 0x20, 0xc2, 0x89, 0x1e, 0x45, 0xdc, 
 
     /* 0x00c3 */
       0,        /* page */
     195,        /* index */
       0,        /* size (MSB) */
      14,        /* size (LSB) */
-      7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x14, 0x50, 0x00, 0x81, 0x05, 0x0a, 0x22, 0x7d, 0x06, 0x08, 
+      8,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x05, 0x0a, 0x00, 0x04, 0x0c, 0x14, 0x24, 0x3c, 0x44, 0xee, 
 
     /* 0x00c4 */
       0,        /* page */
     196,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
+     12,        /* size (LSB) */
       7,        /* width */
-     10,        /* height */
-     10,        /* ascent */
-    0x28, 0x00, 0x40, 0x82, 0x85, 0x11, 0x3e, 0x83, 0x04, 
+      9,        /* height */
+      9,        /* ascent */
+    0x0a, 0x00, 0x10, 0x61, 0x44, 0x8f, 0x22, 0xee, 
 
     /* 0x00c5 */
       0,        /* page */
     197,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x10, 0x50, 0x40, 0x81, 0x05, 0x0a, 0x22, 0x7d, 0x06, 0x08, 
+     10,        /* height */
+     10,        /* ascent */
+    0x04, 0x14, 0x10, 0x20, 0xc2, 0x89, 0x1e, 0x45, 0xdc, 
 
     /* 0x00c6 */
       0,        /* page */
     198,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
-     10,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x1f, 0x86, 0x02, 0x80, 0xbe, 0x48, 0x1e, 0x08, 0x82, 0x3e, 
+     12,        /* size (LSB) */
+      9,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x0f, 0x86, 0x45, 0x04, 0xc3, 0x82, 0x4b, 0xbc, 
 
     /* 0x00c7 */
       0,        /* page */
     199,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
-      8,        /* width */
-     10,        /* height */
-      8,        /* ascent */
-    0x3c, 0x42, 0x40, 0x40, 0x40, 0x40, 0x42, 0x3c, 0x08, 0x18, 
+     12,        /* size (LSB) */
+      7,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x1e, 0x45, 0x02, 0x08, 0x11, 0x1c, 0x10, 0x60, 
 
     /* 0x00c8 */
       0,        /* page */
     200,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x20, 0x20, 0x03, 0xe4, 0x08, 0x1f, 0x20, 0x40, 0x81, 0xf0, 
+     10,        /* height */
+     10,        /* ascent */
+    0x10, 0x10, 0x01, 0xf1, 0x24, 0x0e, 0x20, 0x45, 0xf0, 
 
     /* 0x00c9 */
       0,        /* page */
     201,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x08, 0x20, 0x03, 0xe4, 0x08, 0x1f, 0x20, 0x40, 0x81, 0xf0, 
+     10,        /* height */
+     10,        /* ascent */
+    0x02, 0x08, 0x01, 0xf1, 0x24, 0x0e, 0x20, 0x45, 0xf0, 
 
     /* 0x00ca */
       0,        /* page */
     202,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x10, 0x50, 0x03, 0xe4, 0x08, 0x10, 0x3e, 0x40, 0x81, 0xf0, 
+     10,        /* height */
+     10,        /* ascent */
+    0x08, 0x28, 0x01, 0xf1, 0x24, 0x0e, 0x20, 0x45, 0xf0, 
 
     /* 0x00cb */
       0,        /* page */
     203,        /* index */
       0,        /* size (MSB) */
-     13,        /* size (LSB) */
+     12,        /* size (LSB) */
       7,        /* width */
-     10,        /* height */
-     10,        /* ascent */
-    0x28, 0x01, 0xf2, 0x04, 0x0f, 0x90, 0x20, 0x40, 0xf8, 
+      9,        /* height */
+      9,        /* ascent */
+    0x14, 0x00, 0xf8, 0x92, 0x07, 0x10, 0x22, 0xf8, 
 
     /* 0x00cc */
       0,        /* page */
     204,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      3,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x88, 0x24, 0x92, 0x49, 0x00, 
+     11,        /* size (LSB) */
+      5,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x20, 0x80, 0x71, 0x10, 0x88, 0x47, 0x00, 
 
     /* 0x00cd */
       0,        /* page */
     205,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      3,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x28, 0x24, 0x92, 0x49, 0x00, 
+     11,        /* size (LSB) */
+      5,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x08, 0x80, 0x71, 0x10, 0x88, 0x47, 0x00, 
 
     /* 0x00ce */
       0,        /* page */
     206,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      3,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x54, 0x24, 0x92, 0x49, 0x00, 
+     11,        /* size (LSB) */
+      5,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x11, 0x40, 0x71, 0x10, 0x88, 0x47, 0x00, 
 
     /* 0x00cf */
       0,        /* page */
     207,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      3,        /* width */
-     10,        /* height */
-     10,        /* ascent */
-    0xa1, 0x24, 0x92, 0x48, 
+     10,        /* size (LSB) */
+      5,        /* width */
+      9,        /* height */
+      9,        /* ascent */
+    0x28, 0x0e, 0x22, 0x11, 0x08, 0xe0, 
 
     /* 0x00d0 */
       0,        /* page */
     208,        /* index */
       0,        /* size (MSB) */
-     12,        /* size (LSB) */
+     11,        /* size (LSB) */
       8,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x78, 0x44, 0x42, 0xf2, 0x42, 0x42, 0x44, 0x78, 
+      7,        /* height */
+      7,        /* ascent */
+    0x3e, 0x11, 0x21, 0x72, 0x22, 0x44, 0xf8, 
 
     /* 0x00d1 */
       0,        /* page */
     209,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
-      8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x14, 0x28, 0x00, 0x62, 0x62, 0x52, 0x52, 0x4a, 0x4a, 0x46, 0x46, 
+     16,        /* size (LSB) */
+      9,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x05, 0x05, 0x00, 0x06, 0x71, 0x11, 0x48, 0xa8, 0x94, 0x44, 0x72, 0x00, 
 
     /* 0x00d2 */
       0,        /* page */
     210,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
-      8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x10, 0x08, 0x00, 0x3c, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     13,        /* size (LSB) */
+      7,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x08, 0x08, 0x00, 0xe2, 0x28, 0x51, 0x42, 0x88, 0xe0, 
 
     /* 0x00d3 */
       0,        /* page */
     211,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
-      8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x04, 0x08, 0x00, 0x3c, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     13,        /* size (LSB) */
+      7,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x02, 0x08, 0x00, 0xe2, 0x28, 0x51, 0x42, 0x88, 0xe0, 
 
     /* 0x00d4 */
       0,        /* page */
     212,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
-      8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x08, 0x14, 0x00, 0x3c, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     13,        /* size (LSB) */
+      7,        /* width */
+     10,        /* height */
+     10,        /* ascent */
+    0x04, 0x14, 0x00, 0xe2, 0x28, 0x51, 0x42, 0x88, 0xe0, 
 
     /* 0x00d5 */
       0,        /* page */
     213,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
+     14,        /* size (LSB) */
       8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x14, 0x28, 0x00, 0x3c, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     10,        /* height */
+     10,        /* ascent */
+    0x05, 0x0a, 0x00, 0x1c, 0x22, 0x42, 0x44, 0x84, 0x88, 0x70, 
 
     /* 0x00d6 */
       0,        /* page */
     214,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
-      8,        /* width */
-     10,        /* height */
-     10,        /* ascent */
-    0x24, 0x00, 0x3c, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     12,        /* size (LSB) */
+      7,        /* width */
+      9,        /* height */
+      9,        /* ascent */
+    0x0a, 0x00, 0x71, 0x14, 0x28, 0xa1, 0x44, 0x70, 
 
     /* 0x00d7 */
       0,        /* page */
     215,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      6,        /* width */
+      9,        /* size (LSB) */
+      7,        /* width */
       5,        /* height */
-      6,        /* ascent */
-    0x89, 0x42, 0x14, 0x88, 
+      5,        /* ascent */
+    0x88, 0xa0, 0x82, 0x88, 0x80, 
 
     /* 0x00d8 */
       0,        /* page */
     216,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
-      8,        /* width */
-     10,        /* height */
-      9,        /* ascent */
-    0x02, 0x3c, 0x46, 0x4a, 0x4a, 0x52, 0x52, 0x62, 0x3c, 0x40, 
+     15,        /* size (LSB) */
+      9,        /* width */
+      9,        /* height */
+      8,        /* ascent */
+    0x00, 0x87, 0x84, 0xc4, 0xa2, 0xa2, 0x91, 0x90, 0xf0, 0x80, 0x00, 
 
     /* 0x00d9 */
       0,        /* page */
     217,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
+     14,        /* size (LSB) */
       8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x10, 0x08, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     10,        /* height */
+     10,        /* ascent */
+    0x10, 0x08, 0x00, 0x77, 0x22, 0x44, 0x44, 0x88, 0x88, 0x70, 
 
     /* 0x00da */
       0,        /* page */
     218,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
+     14,        /* size (LSB) */
       8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x08, 0x10, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     10,        /* height */
+     10,        /* ascent */
+    0x04, 0x08, 0x00, 0x77, 0x22, 0x44, 0x44, 0x88, 0x88, 0x70, 
 
     /* 0x00db */
       0,        /* page */
     219,        /* index */
       0,        /* size (MSB) */
-     15,        /* size (LSB) */
+     14,        /* size (LSB) */
       8,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x08, 0x14, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+     10,        /* height */
+     10,        /* ascent */
+    0x08, 0x14, 0x00, 0x77, 0x22, 0x44, 0x44, 0x88, 0x88, 0x70, 
 
     /* 0x00dc */
       0,        /* page */
     220,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     13,        /* size (LSB) */
       8,        /* width */
-     10,        /* height */
-     10,        /* ascent */
-    0x24, 0x00, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3c, 
+      9,        /* height */
+      9,        /* ascent */
+    0x14, 0x00, 0x77, 0x22, 0x44, 0x44, 0x88, 0x88, 0x70, 
 
     /* 0x00dd */
       0,        /* page */
     221,        /* index */
       0,        /* size (MSB) */
-     14,        /* size (LSB) */
+     12,        /* size (LSB) */
       7,        /* width */
-     11,        /* height */
-     11,        /* ascent */
-    0x08, 0x20, 0x04, 0x14, 0x48, 0x8a, 0x14, 0x10, 0x20, 0x40, 
+      9,        /* height */
+      9,        /* ascent */
+    0x14, 0x01, 0xd9, 0x22, 0x86, 0x08, 0x20, 0xe0, 
 
     /* 0x00de */
       0,        /* page */
@@ -1611,59 +1611,59 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
      11,        /* size (LSB) */
       7,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x40, 0x81, 0xe2, 0x24, 0x4f, 0x10, 0x20, 
+      7,        /* height */
+      7,        /* ascent */
+    0x30, 0x38, 0x89, 0x17, 0xc8, 0x38, 0x00, 
 
     /* 0x00df */
       0,        /* page */
     223,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
-      5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x64, 0xa5, 0x49, 0x4a, 0x54, 
+     12,        /* size (LSB) */
+      7,        /* width */
+      9,        /* height */
+      7,        /* ascent */
+    0x1c, 0x24, 0x51, 0x12, 0x2a, 0x96, 0x20, 0x80, 
 
     /* 0x00e0 */
       0,        /* page */
     224,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x41, 0x01, 0xc1, 0x3a, 0x52, 0x68, 
+      8,        /* height */
+      8,        /* ascent */
+    0x41, 0x00, 0x65, 0x4a, 0x9a, 
 
     /* 0x00e1 */
       0,        /* page */
     225,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x11, 0x01, 0xc1, 0x3a, 0x52, 0x68, 
+      8,        /* height */
+      8,        /* ascent */
+    0x11, 0x00, 0x65, 0x4a, 0x9a, 
 
     /* 0x00e2 */
       0,        /* page */
     226,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x22, 0x81, 0xc1, 0x3a, 0x52, 0x68, 
+      8,        /* height */
+      8,        /* ascent */
+    0x22, 0x80, 0x65, 0x4a, 0x9a, 
 
     /* 0x00e3 */
       0,        /* page */
     227,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x55, 0x01, 0xc1, 0x3a, 0x52, 0x68, 
+      8,        /* height */
+      8,        /* ascent */
+    0x2a, 0x80, 0x65, 0x4a, 0x9a, 
 
     /* 0x00e4 */
       0,        /* page */
@@ -1671,29 +1671,29 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x50, 0x38, 0x27, 0x4a, 0x4d, 
+      7,        /* height */
+      7,        /* ascent */
+    0x50, 0x0c, 0xa9, 0x53, 0x40, 
 
     /* 0x00e5 */
       0,        /* page */
     229,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x22, 0x89, 0xc1, 0x3a, 0x52, 0x68, 
+      8,        /* height */
+      8,        /* ascent */
+    0x22, 0x88, 0x65, 0x4a, 0x9a, 
 
     /* 0x00e6 */
       0,        /* page */
     230,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      8,        /* width */
-      6,        /* height */
-      6,        /* ascent */
-    0xec, 0x12, 0x7e, 0x90, 0x92, 0x6c, 
+      9,        /* size (LSB) */
+      7,        /* width */
+      5,        /* height */
+      5,        /* ascent */
+    0x3c, 0xaa, 0x65, 0x9d, 0xc0, 
 
     /* 0x00e7 */
       0,        /* page */
@@ -1701,39 +1701,39 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       5,        /* width */
-      8,        /* height */
-      6,        /* ascent */
-    0x64, 0xa1, 0x09, 0x30, 0x8c, 
+      7,        /* height */
+      5,        /* ascent */
+    0x32, 0xa1, 0x2e, 0x23, 0x00, 
 
     /* 0x00e8 */
       0,        /* page */
     232,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x41, 0x00, 0xc9, 0x7a, 0x12, 0x60, 
+      8,        /* height */
+      8,        /* ascent */
+    0x41, 0x00, 0x65, 0x72, 0x5c, 
 
     /* 0x00e9 */
       0,        /* page */
     233,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x22, 0x00, 0xc9, 0x7a, 0x12, 0x60, 
+      8,        /* height */
+      8,        /* ascent */
+    0x11, 0x00, 0x65, 0x72, 0x5c, 
 
     /* 0x00ea */
       0,        /* page */
     234,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x22, 0x80, 0xc9, 0x7a, 0x12, 0x60, 
+      8,        /* height */
+      8,        /* ascent */
+    0x22, 0x80, 0x65, 0x72, 0x5c, 
 
     /* 0x00eb */
       0,        /* page */
@@ -1741,39 +1741,39 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x50, 0x19, 0x2f, 0x42, 0x4c, 
+      7,        /* height */
+      7,        /* ascent */
+    0x50, 0x0c, 0xae, 0x4b, 0x80, 
 
     /* 0x00ec */
       0,        /* page */
     236,        /* index */
       0,        /* size (MSB) */
       7,        /* size (LSB) */
-      2,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x91, 0x55, 0x40, 
+      3,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x88, 0x64, 0xa6, 
 
     /* 0x00ed */
       0,        /* page */
     237,        /* index */
       0,        /* size (MSB) */
       7,        /* size (LSB) */
-      2,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x62, 0xaa, 0x80, 
+      3,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x50, 0x64, 0xa6, 
 
     /* 0x00ee */
       0,        /* page */
     238,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
+      7,        /* size (LSB) */
       3,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x54, 0x24, 0x92, 0x40, 
+      8,        /* height */
+      8,        /* ascent */
+    0x54, 0x64, 0xa6, 
 
     /* 0x00ef */
       0,        /* page */
@@ -1781,129 +1781,129 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       7,        /* size (LSB) */
       3,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0xa1, 0x24, 0x92, 
+      7,        /* height */
+      7,        /* ascent */
+    0xa3, 0x25, 0x30, 
 
     /* 0x00f0 */
       0,        /* page */
     240,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      6,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x51, 0x89, 0x1e, 0x8a, 0x28, 0xa2, 0x70, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x43, 0xa8, 0xe5, 0x4a, 0x9c, 
 
     /* 0x00f1 */
       0,        /* page */
     241,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x55, 0x01, 0xc9, 0x4a, 0x52, 0x90, 
+      8,        /* height */
+      8,        /* ascent */
+    0x2a, 0x81, 0x65, 0x2a, 0x96, 
 
     /* 0x00f2 */
       0,        /* page */
     242,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      6,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x40, 0x80, 0x1c, 0x8a, 0x28, 0xa2, 0x70, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x41, 0x00, 0xe5, 0x4a, 0x9c, 
 
     /* 0x00f3 */
       0,        /* page */
     243,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      6,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x10, 0x80, 0x1c, 0x8a, 0x28, 0xa2, 0x70, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x11, 0x00, 0xe5, 0x4a, 0x9c, 
 
     /* 0x00f4 */
       0,        /* page */
     244,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      6,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x21, 0x40, 0x1c, 0x8a, 0x28, 0xa2, 0x70, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x22, 0x80, 0xe5, 0x4a, 0x9c, 
 
     /* 0x00f5 */
       0,        /* page */
     245,        /* index */
       0,        /* size (MSB) */
-     11,        /* size (LSB) */
-      6,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x29, 0x40, 0x1c, 0x8a, 0x28, 0xa2, 0x70, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      8,        /* height */
+      8,        /* ascent */
+    0x2a, 0x80, 0xe5, 0x4a, 0x9c, 
 
     /* 0x00f6 */
       0,        /* page */
     246,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
-      6,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x50, 0x07, 0x22, 0x8a, 0x28, 0x9c, 
+      9,        /* size (LSB) */
+      5,        /* width */
+      7,        /* height */
+      7,        /* ascent */
+    0x50, 0x1c, 0xa9, 0x53, 0x80, 
 
     /* 0x00f7 */
       0,        /* page */
     247,        /* index */
       0,        /* size (MSB) */
-      8,        /* size (LSB) */
-      6,        /* width */
+      9,        /* size (LSB) */
+      7,        /* width */
       5,        /* height */
-      6,        /* ascent */
-    0x20, 0x0f, 0x80, 0x20, 
+      5,        /* ascent */
+    0x20, 0x03, 0xe0, 0x02, 0x00, 
 
     /* 0x00f8 */
       0,        /* page */
     248,        /* index */
       0,        /* size (MSB) */
-      9,        /* size (LSB) */
+     10,        /* size (LSB) */
       6,        /* width */
-      6,        /* height */
+      7,        /* height */
       6,        /* ascent */
-    0x76, 0x6a, 0xb2, 0x89, 0xc0, 
+    0x04, 0xe2, 0x92, 0x51, 0xc8, 0x00, 
 
     /* 0x00f9 */
       0,        /* page */
     249,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x41, 0x01, 0x29, 0x4a, 0x52, 0x70, 
+      8,        /* height */
+      8,        /* ascent */
+    0x41, 0x01, 0xa5, 0x52, 0x9a, 
 
     /* 0x00fa */
       0,        /* page */
     250,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x22, 0x01, 0x29, 0x4a, 0x52, 0x70, 
+      8,        /* height */
+      8,        /* ascent */
+    0x11, 0x01, 0xa5, 0x52, 0x9a, 
 
     /* 0x00fb */
       0,        /* page */
     251,        /* index */
       0,        /* size (MSB) */
-     10,        /* size (LSB) */
+      9,        /* size (LSB) */
       5,        /* width */
-      9,        /* height */
-      9,        /* ascent */
-    0x22, 0x81, 0x29, 0x4a, 0x52, 0x70, 
+      8,        /* height */
+      8,        /* ascent */
+    0x22, 0x81, 0xa5, 0x52, 0x9a, 
 
     /* 0x00fc */
       0,        /* page */
@@ -1911,9 +1911,9 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
       0,        /* size (MSB) */
       9,        /* size (LSB) */
       5,        /* width */
-      8,        /* height */
-      8,        /* ascent */
-    0x50, 0x25, 0x29, 0x4a, 0x4e, 
+      7,        /* height */
+      7,        /* ascent */
+    0x50, 0x34, 0xaa, 0x53, 0x40, 
 
     /* 0x00fd */
       0,        /* page */
@@ -1922,8 +1922,8 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
      11,        /* size (LSB) */
       5,        /* width */
      11,        /* height */
-      9,        /* ascent */
-    0x11, 0x01, 0x29, 0x52, 0x8c, 0x42, 0x20, 
+      8,        /* ascent */
+    0x08, 0x80, 0xd2, 0x94, 0xc4, 0x21, 0x30, 
 
     /* 0x00fe */
       0,        /* page */
@@ -1932,8 +1932,8 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
      12,        /* size (LSB) */
       6,        /* width */
      10,        /* height */
-      8,        /* ascent */
-    0x82, 0x0b, 0x32, 0x8a, 0x2c, 0xac, 0x82, 0x00, 
+      7,        /* ascent */
+    0x18, 0x21, 0x85, 0x24, 0xa3, 0x10, 0x43, 0x80, 
 
     /* 0x00ff */
       0,        /* page */
@@ -1942,8 +1942,8 @@ UGL_LOCAL const UGL_UINT8 page0Data[] = {
      11,        /* size (LSB) */
       5,        /* width */
      10,        /* height */
-      8,        /* ascent */
-    0x50, 0x25, 0x2a, 0x51, 0x88, 0x44, 0x00, 
+      7,        /* ascent */
+    0x28, 0x1a, 0x52, 0x98, 0x84, 0x26, 0x00, 
 
     /* End of page */
     0, 0, 0, 0
@@ -1954,21 +1954,21 @@ UGL_LOCAL const UGL_UINT8 * const pageArray[] = {
     UGL_NULL
 };
 
-const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_10 = {
+const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_10 = {
     {
         {10, 10},                               /* pixelSize */
         {UGL_FONT_BOLD_OFF, UGL_FONT_BOLD_OFF}, /* weight */
-        UGL_FONT_UPRIGHT,                       /* italic */
+        UGL_FONT_ITALIC,                        /* italic */
         UGL_FONT_PROPORTIONAL,                  /* spacing */
         UGL_FONT_ISO_8859_1,                    /* charSet */
-        "Helvetica",                            /* faceName */
-        "Helvetica"                             /* familyName */
+        "Times Italic",                         /* faceName */
+        "Times"                                 /* familyName */
     },
 
       1,                /* leading */
-     11,                /* maxAscent */
-      2,                /* maxDescent */
-     11,                /* maxAdvance */
+     10,                /* maxAscent */
+      3,                /* maxDescent */
+     10,                /* maxAdvance */
     pageArray           /* pageData */
 };
 

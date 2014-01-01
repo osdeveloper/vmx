@@ -24,7 +24,7 @@
  * -
  */
 
-/* ufhni18.c - Helvetica_Oblique_18 font for BMF font driver */
+/* ufhni18.c - Helvetica_Oblique_18 font */
 
 /*
  * This file was converted to C from BDF using bdf2bmf.py

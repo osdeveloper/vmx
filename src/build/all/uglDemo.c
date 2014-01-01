@@ -96,6 +96,30 @@ IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_24;
 
 /* Exports */
 const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
@@ -147,6 +171,29 @@ const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
     &uglBMFFont_Helvetica_Bold_24,
     &uglBMFFont_Helvetica_Oblique_24,
     &uglBMFFont_Helvetica_24,
+    &uglBMFFont_Times_Bold_Italic_8,
+    &uglBMFFont_Times_Bold_8,
+    &uglBMFFont_Times_Italic_8,
+    &uglBMFFont_Times_Roman_8,
+    &uglBMFFont_Times_Bold_Italic_10,
+    &uglBMFFont_Times_Bold_10,
+    &uglBMFFont_Times_Italic_10,
+    &uglBMFFont_Times_Roman_10,
+    &uglBMFFont_Times_Bold_Italic_12,
+    &uglBMFFont_Times_Bold_12,
+    &uglBMFFont_Times_Italic_12,
+    &uglBMFFont_Times_Roman_12,
+    &uglBMFFont_Times_Bold_Italic_14,
+    &uglBMFFont_Times_Bold_14,
+    &uglBMFFont_Times_Italic_14,
+    &uglBMFFont_Times_Roman_14,
+    &uglBMFFont_Times_Bold_Italic_18,
+    &uglBMFFont_Times_Bold_18,
+    &uglBMFFont_Times_Roman_18,
+    &uglBMFFont_Times_Bold_Italic_24,
+    &uglBMFFont_Times_Bold_24,
+    &uglBMFFont_Times_Italic_24,
+    &uglBMFFont_Times_Roman_24,
     UGL_NULL
 };
 
