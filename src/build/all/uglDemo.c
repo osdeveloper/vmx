@@ -72,6 +72,30 @@ IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_24;
 IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_8;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_10;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_12;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_14;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_18;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_24;
+IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_24;
 
 /* Exports */
 const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
@@ -99,6 +123,30 @@ const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
     &uglBMFFont_Courier_Bold_24,
     &uglBMFFont_Courier_Oblique_24,
     &uglBMFFont_Courier_24,
+    &uglBMFFont_Helvetica_Bold_Oblique_8,
+    &uglBMFFont_Helvetica_Bold_8,
+    &uglBMFFont_Helvetica_Oblique_8,
+    &uglBMFFont_Helvetica_8,
+    &uglBMFFont_Helvetica_Bold_Oblique_10,
+    &uglBMFFont_Helvetica_Bold_10,
+    &uglBMFFont_Helvetica_Oblique_10,
+    &uglBMFFont_Helvetica_10,
+    &uglBMFFont_Helvetica_Bold_Oblique_12,
+    &uglBMFFont_Helvetica_Bold_12,
+    &uglBMFFont_Helvetica_Oblique_12,
+    &uglBMFFont_Helvetica_12,
+    &uglBMFFont_Helvetica_Bold_Oblique_14,
+    &uglBMFFont_Helvetica_Bold_14,
+    &uglBMFFont_Helvetica_Oblique_14,
+    &uglBMFFont_Helvetica_14,
+    &uglBMFFont_Helvetica_Bold_Oblique_18,
+    &uglBMFFont_Helvetica_Bold_18,
+    &uglBMFFont_Helvetica_Oblique_18,
+    &uglBMFFont_Helvetica_18,
+    &uglBMFFont_Helvetica_Bold_Oblique_24,
+    &uglBMFFont_Helvetica_Bold_24,
+    &uglBMFFont_Helvetica_Oblique_24,
+    &uglBMFFont_Helvetica_24,
     UGL_NULL
 };
 
