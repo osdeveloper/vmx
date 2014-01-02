@@ -108,7 +108,7 @@ extern const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_24;
 
 /* Macros */
 
-#define UGL_BMF_FONT_COURIER \
+#define UGL_BMF_FONT_FAMILY_COURIER \
     &uglBMFFont_Courier_Bold_Oblique_8, \
     &uglBMFFont_Courier_Bold_8, \
     &uglBMFFont_Courier_Oblique_8, \
@@ -134,7 +134,7 @@ extern const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_24;
     &uglBMFFont_Courier_Oblique_24, \
     &uglBMFFont_Courier_24
 
-#define UGL_BMF_FONT_HELVETICA \
+#define UGL_BMF_FONT_FAMILY_HELVETICA \
     &uglBMFFont_Helvetica_Bold_Oblique_8, \
     &uglBMFFont_Helvetica_Bold_8, \
     &uglBMFFont_Helvetica_Oblique_8, \
@@ -160,7 +160,7 @@ extern const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_24;
     &uglBMFFont_Helvetica_Oblique_24, \
     &uglBMFFont_Helvetica_24
 
-#define UGL_BMF_FONT_TIMES \
+#define UGL_BMF_FONT_FAMILY_TIMES \
     &uglBMFFont_Times_Bold_Italic_8, \
     &uglBMFFont_Times_Bold_8, \
     &uglBMFFont_Times_Italic_8, \

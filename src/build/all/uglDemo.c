@@ -46,6 +46,8 @@
 #define PAL_LENGTH             16
 #define BALL_SPEED             4
 #define DB_CLEAR_COLOR         0x06
+#define TEXT_FG_COLOR          0
+#define TEXT_BG_COLOR          DB_CLEAR_COLOR
 #define MAX_FONTS              32
 
 /* Imports */
@@ -53,9 +55,9 @@ IMPORT SYMTAB_ID sysSymTable;
 
 /* Exports */
 const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
-    UGL_BMF_FONT_COURIER,
-    UGL_BMF_FONT_HELVETICA,
-    UGL_BMF_FONT_TIMES,
+    UGL_BMF_FONT_FAMILY_COURIER,
+    UGL_BMF_FONT_FAMILY_HELVETICA,
+    UGL_BMF_FONT_FAMILY_TIMES,
     UGL_NULL
 };
 
@@ -1727,8 +1729,8 @@ int uglText4Test(char *fontfam, char *str)
   }
 
   uglDefaultBitmapSet(gc, NULL);
-  uglForegroundColorSet(gc, 14);
-  uglBackgroundColorSet(gc, 4);
+  uglForegroundColorSet(gc, TEXT_FG_COLOR);
+  uglBackgroundColorSet(gc, TEXT_BG_COLOR);
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
   if (drvId == UGL_NULL) {
@@ -1777,7 +1779,7 @@ int uglText4Test(char *fontfam, char *str)
     return 1;
   }
 
-  for (i = 0, y = 24; i < numFonts; i++) {
+  for (i = 0; i < numFonts; i++) {
 
     if (uglTextSizeGet(fontId[i], UGL_NULL, &height,
                        strlen(str), str) != UGL_STATUS_OK) {
@@ -1787,10 +1789,16 @@ int uglText4Test(char *fontfam, char *str)
       return 1;
     }
 
+    if (i == 0) {
+        y = height;
+    }
+
     uglFontSet(gc, fontId[i]);
     uglTextDraw(gc, 0, y, strlen(str), str);
 
-    y += height;
+    if (i != 0) {
+      y += height;
+    }
   }
 
   getchar();
