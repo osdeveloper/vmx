@@ -66,6 +66,7 @@ UGL_SIZE uglBMFGlyphCacheSize = 256;
 
 PART_ID gfxPartId;
 UGL_DEVICE_ID gfxDevId;
+UGL_FONT_DRIVER_ID fntDrvId;
 UGL_DIB bgDib, fgDib;
 UGL_MDIB mDib;
 UGL_CDIB cDib;
@@ -1589,7 +1590,6 @@ UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
 int uglFontList(int index)
 {
   struct vgaHWRec oldRegs;
-  UGL_FONT_DRIVER_ID drvId;
   UGL_FONT_DESC fontDesc;
   UGL_FONT_DESC desiredFontDesc;
   UGL_FONT_DEF  fontDef;
@@ -1599,15 +1599,8 @@ int uglFontList(int index)
   UGL_INT32 i = 1;
   UGL_INT32 data = -1;
 
-  drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
-  if (drvId == UGL_NULL) {
-    printf("Unable to create font driver.\n");
-    return 1;
-  }
-
-  if (uglFontDriverInfo(drvId, UGL_FONT_DRIVER_VERSION_GET,
+  if (uglFontDriverInfo(fntDrvId, UGL_FONT_DRIVER_VERSION_GET,
                          &data) != UGL_STATUS_OK) {
-    uglFontDriverDestroy(drvId);
     printf("Unable to retreive font driver version.\n");
     return 1;
   }
@@ -1615,9 +1608,8 @@ int uglFontList(int index)
   printf("Font driver version: %d\n", data);
   printf("Searching for fonts.\n");
 
-  searchId = uglFontFindFirst(drvId, &fontDesc);
+  searchId = uglFontFindFirst(fntDrvId, &fontDesc);
   if (searchId == UGL_NULL) {
-    uglFontDriverDestroy(drvId);
     printf("Unable to retreive fonts.\n");
     return 1;
   }
@@ -1632,9 +1624,9 @@ int uglFontList(int index)
         memcpy (&desiredFontDesc, &fontDesc, sizeof (UGL_FONT_DESC));
     }
     i++;
-  } while (uglFontFindNext(drvId, &fontDesc, searchId) == UGL_STATUS_OK);
+  } while (uglFontFindNext(fntDrvId, &fontDesc, searchId) == UGL_STATUS_OK);
 
-  uglFontFindClose(drvId, searchId);
+  uglFontFindClose(fntDrvId, searchId);
 
   if (index > 0) {
     fontDef.structSize = sizeof (UGL_FONT_DEF);
@@ -1645,16 +1637,14 @@ int uglFontList(int index)
     strcpy (fontDef.faceName, desiredFontDesc.faceName);
     strcpy (fontDef.familyName, desiredFontDesc.familyName);
 
-    fontId = uglFontCreate (drvId, &fontDef);
+    fontId = uglFontCreate (fntDrvId, &fontDef);
     if (fontId == UGL_NULL) {
-      uglFontDriverDestroy(drvId);
       printf("Unable to load font %s.\n", desiredFontDesc.faceName);
       return 1;
     }
 
     if (uglFontMetricsGet(fontId, &metrics) != UGL_STATUS_OK) {
       uglFontDestroy(fontId);
-      uglFontDriverDestroy(drvId);
       printf("Unable to retreive metrics for font.\n", fontDef.faceName);
       return 1;
     }
@@ -1679,8 +1669,6 @@ int uglFontList(int index)
     uglFontDestroy(fontId);
   }
 
-  uglFontDriverDestroy(drvId);
-
   return 0;
 }
 
@@ -1689,7 +1677,6 @@ int uglText4Test(char *fontfam, char *str)
   static char defFnt[] = "Times";
   static char defStr[] = "Hello World!";
   struct vgaHWRec oldRegs;
-  UGL_FONT_DRIVER_ID drvId;
   UGL_FONT_DESC fontDesc;
   UGL_FONT_DEF  fontDef;
   UGL_SEARCH_ID searchId;
@@ -1709,7 +1696,6 @@ int uglText4Test(char *fontfam, char *str)
   }
 
   if (mode4Enter(&oldRegs)) {
-    uglFontDriverDestroy(drvId);
     restoreConsole(&oldRegs);
     printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
     return 1;
@@ -1717,7 +1703,6 @@ int uglText4Test(char *fontfam, char *str)
 
   gc = uglGcCreate(gfxDevId);
   if (gc == UGL_NULL) {
-    uglFontDriverDestroy(drvId);
     restoreConsole(&oldRegs);
     printf("Unable to create graphics context.\n");
     return 1;
@@ -1731,16 +1716,8 @@ int uglText4Test(char *fontfam, char *str)
   uglRasterModeSet(gc, rasterOp);
   uglForegroundColorSet(gc, TEXT_FG_COLOR);
 
-  drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
-  if (drvId == UGL_NULL) {
-    restoreConsole(&oldRegs);
-    printf("Unable to create font driver.\n");
-    return 1;
-  }
-
-  searchId = uglFontFindFirst(drvId, &fontDesc);
+  searchId = uglFontFindFirst(fntDrvId, &fontDesc);
   if (searchId == UGL_NULL) {
-    uglFontDriverDestroy(drvId);
     restoreConsole(&oldRegs);
     printf("Unable to retreive fonts.\n");
     return 1;
@@ -1756,9 +1733,8 @@ int uglText4Test(char *fontfam, char *str)
       strcpy (fontDef.faceName, fontDesc.faceName);
       strcpy (fontDef.familyName, fontDesc.familyName);
 
-      fontId[numFonts] = uglFontCreate (drvId, &fontDef);
+      fontId[numFonts] = uglFontCreate (fntDrvId, &fontDef);
       if (fontId[numFonts] == UGL_NULL) {
-        uglFontDriverDestroy(drvId);
         restoreConsole(&oldRegs);
         printf("Unable to load font %s.\n", fontDesc.faceName);
         return 1;
@@ -1767,12 +1743,11 @@ int uglText4Test(char *fontfam, char *str)
         break;
       }
     }
-  } while (uglFontFindNext(drvId, &fontDesc, searchId) == UGL_STATUS_OK);
+  } while (uglFontFindNext(fntDrvId, &fontDesc, searchId) == UGL_STATUS_OK);
 
-  uglFontFindClose(drvId, searchId);
+  uglFontFindClose(fntDrvId, searchId);
 
   if (numFonts == 0) {
-    uglFontDriverDestroy(drvId);
     restoreConsole(&oldRegs);
     printf("No fonts found for font family %s.\n", fontfam);
     return 1;
@@ -1782,7 +1757,6 @@ int uglText4Test(char *fontfam, char *str)
 
     if (uglTextSizeGet(fontId[i], UGL_NULL, &height,
                        strlen(str), str) != UGL_STATUS_OK) {
-      uglFontDriverDestroy(drvId);
       restoreConsole(&oldRegs);
       printf("Unable to retreive text size for %s.\n", str);
       return 1;
@@ -1796,14 +1770,13 @@ int uglText4Test(char *fontfam, char *str)
 
   getchar();
 
-  uglFontDriverDestroy(drvId);
   uglGcDestroy(gc);
   restoreConsole(&oldRegs);
 
   return 0;
 }
 
-void uglDemoInit()
+int uglDemoInit(void)
 {
 static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglPixel4Test", uglPixel4Test, 0, N_TEXT | N_EXT},
@@ -1840,10 +1813,22 @@ static SYMBOL symTableUglDemo[] = {
     uglMemDefaultPoolSet(gfxPartId);
     createDib();
     gfxDevId = UGL_GRAPHICS_CREATE(0, 0, 0);
+    if (gfxDevId == UGL_NULL) {
+      printf("Unable to create graphics device.\n");
+      return 1;
+    }
+
+    fntDrvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
+    if (fntDrvId == UGL_NULL) {
+      printf("Unable to create font driver for graphics device.\n");
+      return 1;
+    }
 
     for (i = 0; i < NELEMENTS(symTableUglDemo); i++)
     {
         symTableAdd(sysSymTable, &symTableUglDemo[i]);
     }
+
+    return 0;
 }
 
