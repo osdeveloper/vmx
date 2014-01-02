@@ -36,6 +36,7 @@
 #include <ugl/driver/graphics/vga/udvgamode.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 #include <ugl/driver/font/udbmffnt.h>
+#include <ugl/fonts/uglbmf.h>
 
 #include "vmxball.cbm"
 #include "pinball.cbm"
@@ -43,157 +44,18 @@
 #include "font8x16.cfs"
 
 #define PAL_LENGTH             16
-#define BALL_SPEED              4
-#define DB_CLEAR_COLOR          0x06
+#define BALL_SPEED             4
+#define DB_CLEAR_COLOR         0x06
+#define MAX_FONTS              32
 
 /* Imports */
 IMPORT SYMTAB_ID sysSymTable;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_Oblique_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Bold_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_Oblique_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Courier_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_Oblique_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Bold_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_Oblique_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Helvetica_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_8;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_10;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_12;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_14;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_18;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_Italic_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Bold_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Italic_24;
-IMPORT const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_24;
 
 /* Exports */
 const UGL_BMF_FONT_DESC * uglBMFFontData[] = {
-    &uglBMFFont_Courier_Bold_Oblique_8,
-    &uglBMFFont_Courier_Bold_8,
-    &uglBMFFont_Courier_Oblique_8,
-    &uglBMFFont_Courier_8,
-    &uglBMFFont_Courier_Bold_Oblique_10,
-    &uglBMFFont_Courier_Bold_10,
-    &uglBMFFont_Courier_Oblique_10,
-    &uglBMFFont_Courier_10,
-    &uglBMFFont_Courier_Bold_Oblique_12,
-    &uglBMFFont_Courier_Bold_12,
-    &uglBMFFont_Courier_Oblique_12,
-    &uglBMFFont_Courier_12,
-    &uglBMFFont_Courier_Bold_Oblique_14,
-    &uglBMFFont_Courier_Bold_14,
-    &uglBMFFont_Courier_Oblique_14,
-    &uglBMFFont_Courier_14,
-    &uglBMFFont_Courier_Bold_Oblique_18,
-    &uglBMFFont_Courier_Bold_18,
-    &uglBMFFont_Courier_Oblique_18,
-    &uglBMFFont_Courier_18,
-    &uglBMFFont_Courier_Bold_Oblique_24,
-    &uglBMFFont_Courier_Bold_24,
-    &uglBMFFont_Courier_Oblique_24,
-    &uglBMFFont_Courier_24,
-    &uglBMFFont_Helvetica_Bold_Oblique_8,
-    &uglBMFFont_Helvetica_Bold_8,
-    &uglBMFFont_Helvetica_Oblique_8,
-    &uglBMFFont_Helvetica_8,
-    &uglBMFFont_Helvetica_Bold_Oblique_10,
-    &uglBMFFont_Helvetica_Bold_10,
-    &uglBMFFont_Helvetica_Oblique_10,
-    &uglBMFFont_Helvetica_10,
-    &uglBMFFont_Helvetica_Bold_Oblique_12,
-    &uglBMFFont_Helvetica_Bold_12,
-    &uglBMFFont_Helvetica_Oblique_12,
-    &uglBMFFont_Helvetica_12,
-    &uglBMFFont_Helvetica_Bold_Oblique_14,
-    &uglBMFFont_Helvetica_Bold_14,
-    &uglBMFFont_Helvetica_Oblique_14,
-    &uglBMFFont_Helvetica_14,
-    &uglBMFFont_Helvetica_Bold_Oblique_18,
-    &uglBMFFont_Helvetica_Bold_18,
-    &uglBMFFont_Helvetica_Oblique_18,
-    &uglBMFFont_Helvetica_18,
-    &uglBMFFont_Helvetica_Bold_Oblique_24,
-    &uglBMFFont_Helvetica_Bold_24,
-    &uglBMFFont_Helvetica_Oblique_24,
-    &uglBMFFont_Helvetica_24,
-    &uglBMFFont_Times_Bold_Italic_8,
-    &uglBMFFont_Times_Bold_8,
-    &uglBMFFont_Times_Italic_8,
-    &uglBMFFont_Times_Roman_8,
-    &uglBMFFont_Times_Bold_Italic_10,
-    &uglBMFFont_Times_Bold_10,
-    &uglBMFFont_Times_Italic_10,
-    &uglBMFFont_Times_Roman_10,
-    &uglBMFFont_Times_Bold_Italic_12,
-    &uglBMFFont_Times_Bold_12,
-    &uglBMFFont_Times_Italic_12,
-    &uglBMFFont_Times_Roman_12,
-    &uglBMFFont_Times_Bold_Italic_14,
-    &uglBMFFont_Times_Bold_14,
-    &uglBMFFont_Times_Italic_14,
-    &uglBMFFont_Times_Roman_14,
-    &uglBMFFont_Times_Bold_Italic_18,
-    &uglBMFFont_Times_Bold_18,
-    &uglBMFFont_Times_Roman_18,
-    &uglBMFFont_Times_Bold_Italic_24,
-    &uglBMFFont_Times_Bold_24,
-    &uglBMFFont_Times_Italic_24,
-    &uglBMFFont_Times_Roman_24,
+    UGL_BMF_FONT_COURIER,
+    UGL_BMF_FONT_HELVETICA,
+    UGL_BMF_FONT_TIMES,
     UGL_NULL
 };
 
@@ -1727,7 +1589,7 @@ UGL_RECT* uglRectCreate(int x1, int y1, int x2, int y2)
   return (pRect);
 }
 
-int uglText4Test(int index, char *str)
+int uglFontList(int index)
 {
   struct vgaHWRec oldRegs;
   UGL_FONT_DRIVER_ID drvId;
@@ -1735,12 +1597,10 @@ int uglText4Test(int index, char *str)
   UGL_FONT_DESC desiredFontDesc;
   UGL_FONT_DEF  fontDef;
   UGL_SEARCH_ID searchId;
-  UGL_FONT_ID fontId;
   UGL_FONT_METRICS metrics;
+  UGL_FONT_ID fontId;
   UGL_INT32 i = 1;
   UGL_INT32 data = -1;
-  UGL_SIZE width, height;
-  UGL_GC_ID gc;
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
   if (drvId == UGL_NULL) {
@@ -1819,53 +1679,125 @@ int uglText4Test(int index, char *str)
     printf("Character set:\t%d\n", metrics.charSet);
     printf("Scalable:\t%s\n", (metrics.scalable == UGL_TRUE) ? "yes" : "no");
 
-    if (str != UGL_NULL) {
-      if (uglTextSizeGet(fontId, &width, &height,
-                         strlen (str), str) != UGL_STATUS_OK) {
-        uglFontDestroy(fontId);
-        uglFontDriverDestroy(drvId);
-        printf("Unable to retreive text size for %s.\n", str);
-        return 1;
-      }
-
-      printf("Text size for %s\nwidth = %d, height = %d\n",
-             str, width, height);
-      printf("Press key to draw text, and key again to return to console.\n");
-
-      getchar();
-
-      if (mode4Enter(&oldRegs)) {
-        uglFontDestroy(fontId);
-        uglFontDriverDestroy(drvId);
-        restoreConsole(&oldRegs);
-        printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
-        return 1;
-      }
-
-      gc = uglGcCreate(gfxDevId);
-      if (gc == UGL_NULL) {
-        uglFontDestroy(fontId);
-        uglFontDriverDestroy(drvId);
-        restoreConsole(&oldRegs);
-        printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
-        return 1;
-      }
-
-      uglDefaultBitmapSet(gc, NULL);
-      uglForegroundColorSet(gc, 14);
-      uglBackgroundColorSet(gc, 4);
-      uglFontSet(gc, fontId);
-      uglTextDraw(gc, metrics.pixelSize, metrics.pixelSize, strlen(str), str);
-
-      getchar();
-      restoreConsole(&oldRegs);
-    }
-
     uglFontDestroy(fontId);
-    uglGcDestroy(gc);
   }
 
   uglFontDriverDestroy(drvId);
+
+  return 0;
+}
+
+int uglText4Test(char *fontfam, char *str)
+{
+  static char defFnt[] = "Times";
+  static char defStr[] = "Hello World!";
+  struct vgaHWRec oldRegs;
+  UGL_FONT_DRIVER_ID drvId;
+  UGL_FONT_DESC fontDesc;
+  UGL_FONT_DEF  fontDef;
+  UGL_SEARCH_ID searchId;
+  UGL_FONT_ID fontId[MAX_FONTS + 1];
+  UGL_SIZE height;
+  UGL_GC_ID gc;
+  UGL_INT32 i;
+  UGL_POS y;
+  UGL_INT32 numFonts = 0;
+
+  if (fontfam == UGL_NULL) {
+      fontfam = defFnt;
+  }
+
+  if (str == UGL_NULL) {
+      str = defStr;
+  }
+
+  if (mode4Enter(&oldRegs)) {
+    uglFontDriverDestroy(drvId);
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 640x480 @60Hz, 16 color.\n");
+    return 1;
+  }
+
+  gc = uglGcCreate(gfxDevId);
+  if (gc == UGL_NULL) {
+    uglFontDriverDestroy(drvId);
+    restoreConsole(&oldRegs);
+    printf("Unable to create graphics context.\n");
+    return 1;
+  }
+
+  uglDefaultBitmapSet(gc, NULL);
+  uglForegroundColorSet(gc, 14);
+  uglBackgroundColorSet(gc, 4);
+
+  drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
+  if (drvId == UGL_NULL) {
+    restoreConsole(&oldRegs);
+    printf("Unable to create font driver.\n");
+    return 1;
+  }
+
+  searchId = uglFontFindFirst(drvId, &fontDesc);
+  if (searchId == UGL_NULL) {
+    uglFontDriverDestroy(drvId);
+    restoreConsole(&oldRegs);
+    printf("Unable to retreive fonts.\n");
+    return 1;
+  }
+
+  do {
+    if (strcmp(fontfam, fontDesc.familyName) == 0) {
+      fontDef.structSize = sizeof (UGL_FONT_DEF);
+      fontDef.pixelSize  = fontDesc.pixelSize.min;
+      fontDef.weight = fontDesc.weight.min;
+      fontDef.italic = fontDesc.italic;
+      fontDef.charSet = fontDesc.charSet;
+      strcpy (fontDef.faceName, fontDesc.faceName);
+      strcpy (fontDef.familyName, fontDesc.familyName);
+
+      fontId[numFonts] = uglFontCreate (drvId, &fontDef);
+      if (fontId[numFonts] == UGL_NULL) {
+        uglFontDriverDestroy(drvId);
+        restoreConsole(&oldRegs);
+        printf("Unable to load font %s.\n", fontDesc.faceName);
+        return 1;
+      }
+      if (++numFonts == MAX_FONTS) {
+        break;
+      }
+    }
+  } while (uglFontFindNext(drvId, &fontDesc, searchId) == UGL_STATUS_OK);
+
+  uglFontFindClose(drvId, searchId);
+
+  if (numFonts == 0) {
+    uglFontDriverDestroy(drvId);
+    restoreConsole(&oldRegs);
+    printf("No fonts found for font family %s.\n", fontfam);
+    return 1;
+  }
+
+  for (i = 0, y = 24; i < numFonts; i++) {
+
+    if (uglTextSizeGet(fontId[i], UGL_NULL, &height,
+                       strlen(str), str) != UGL_STATUS_OK) {
+      uglFontDriverDestroy(drvId);
+      restoreConsole(&oldRegs);
+      printf("Unable to retreive text size for %s.\n", str);
+      return 1;
+    }
+
+    uglFontSet(gc, fontId[i]);
+    uglTextDraw(gc, 0, y, strlen(str), str);
+
+    y += height;
+  }
+
+  getchar();
+
+  uglFontDriverDestroy(drvId);
+  uglGcDestroy(gc);
+  restoreConsole(&oldRegs);
 
   return 0;
 }
@@ -1895,6 +1827,7 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglSetLineWidth", uglSetLineWidth, 0, N_TEXT | N_EXT},
   {NULL, "_uglSetLineStyle", uglSetLineStyle, 0, N_TEXT | N_EXT},
   {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
+  {NULL, "_uglFontList", uglFontList, 0, N_TEXT | N_EXT},
   {NULL, "_uglText4Test", uglText4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
 };
