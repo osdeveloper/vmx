@@ -179,6 +179,7 @@ extern const UGL_BMF_FONT_DESC uglBMFFont_Times_Roman_24;
     &uglBMFFont_Times_Roman_14, \
     &uglBMFFont_Times_Bold_Italic_18, \
     &uglBMFFont_Times_Bold_18, \
+    &uglBMFFont_Times_Italic_18, \
     &uglBMFFont_Times_Roman_18, \
     &uglBMFFont_Times_Bold_Italic_24, \
     &uglBMFFont_Times_Bold_24, \

@@ -748,11 +748,6 @@ UGL_LOCAL UGL_STATUS uglBMFTextDraw (
     }
 
     if (gc->foregroundColor != UGL_COLOR_TRANSPARENT) {
-
-        /* Avoid cache problem */
-        color = gc->backgroundColor;
-        gc->backgroundColor = color;
-
         (*pFntDrv->textSizeGet) (gc->pFont, &width, &height, length, pText);
 
         if (pBMFFont->textOrigin == UGL_FONT_TEXT_UPPER_LEFT) {

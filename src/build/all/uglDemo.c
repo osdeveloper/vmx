@@ -1697,7 +1697,7 @@ int uglText4Test(char *fontfam, char *str)
   UGL_SIZE height;
   UGL_GC_ID gc;
   UGL_INT32 i;
-  UGL_POS y;
+  UGL_POS y = 0;
   UGL_INT32 numFonts = 0;
 
   if (fontfam == UGL_NULL) {
@@ -1724,8 +1724,12 @@ int uglText4Test(char *fontfam, char *str)
   }
 
   uglDefaultBitmapSet(gc, NULL);
-  uglForegroundColorSet(gc, TEXT_FG_COLOR);
+  uglForegroundColorSet(gc, UGL_COLOR_TRANSPARENT);
   uglBackgroundColorSet(gc, TEXT_BG_COLOR);
+  uglRectangle(gc, 0, 0, 639, 479);
+
+  uglRasterModeSet(gc, rasterOp);
+  uglForegroundColorSet(gc, TEXT_FG_COLOR);
 
   drvId = UGL_FONT_DRIVER_CREATE (gfxDevId);
   if (drvId == UGL_NULL) {
@@ -1784,16 +1788,10 @@ int uglText4Test(char *fontfam, char *str)
       return 1;
     }
 
-    if (i == 0) {
-        y = height;
-    }
+    y += height;
 
     uglFontSet(gc, fontId[i]);
     uglTextDraw(gc, 0, y, strlen(str), str);
-
-    if (i != 0) {
-      y += height;
-    }
   }
 
   getchar();
