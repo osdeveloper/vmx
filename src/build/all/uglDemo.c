@@ -1224,19 +1224,14 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
     return 1;
   }
 
+  uglCursorOn(gfxDevId);
   while (pCursorData->position.y < 480) {
-
-    uglCursorOn(gfxDevId);
+    uglCursorMove (gfxDevId,
+                   pCursorData->position.x + BALL_SPEED,
+                   pCursorData->position.y + BALL_SPEED);
 
     /* Delay */
     taskDelay(animTreshold);
-
-    if (uglCursorOff(gfxDevId) != UGL_STATUS_OK) {
-        break;
-    }
-
-    pCursorData->position.x += BALL_SPEED;
-    pCursorData->position.y += BALL_SPEED;
   }
 
   uglCursorBitmapDestroy(gfxDevId, pFgBmp);

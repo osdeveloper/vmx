@@ -300,3 +300,41 @@ UGL_STATUS uglCursorOff (
     return (status);
 }
 
+/******************************************************************************
+ *
+ * uglCursorMove - Move cursor to position
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorMove (
+    UGL_DEVICE_ID  devId,
+    UGL_POS        x,
+    UGL_POS        y
+    ) {
+    UGL_POINT   position;
+    UGL_STATUS  status;
+
+    /* Validate */
+    if (devId == UGL_NULL || uglCursorInitialized == UGL_FALSE) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Lock device */
+    if (uglOSLock (devId->lockId) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Set position */
+    position.x = x;
+    position.y = y;
+
+    /* Call driver specific method */
+    status = (*devId->cursorMove) (devId, &position);
+
+    /* Unlock */
+    uglOSUnlock (devId->lockId);
+
+    return (status);
+}
+

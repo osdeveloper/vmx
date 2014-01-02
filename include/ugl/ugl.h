@@ -687,6 +687,19 @@ UGL_STATUS uglCursorOff (
     UGL_DEVICE_ID  devId
     );
 
+/******************************************************************************
+ *
+ * uglCursorMove - Move cursor to position
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCursorMove (
+    UGL_DEVICE_ID  devId,
+    UGL_POS        x,
+    UGL_POS        y
+    );
+
 /* Batch job support functions */
 
 /******************************************************************************

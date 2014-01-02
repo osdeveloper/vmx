@@ -329,6 +329,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->cursorOff           = uglGenericCursorOff;
             devId->cursorHide          = uglGenericCursorHide;
             devId->cursorShow          = uglGenericCursorShow;
+            devId->cursorMove          = uglGenericCursorMove;
 
             /* Set write mode 3 */
             UGL_OUT_BYTE (0x3ce, 0x05);

@@ -355,6 +355,11 @@ typedef struct ugl_ugi_driver {
         struct ugl_ugi_driver * pDrv
         );
 
+    UGL_STATUS   (*cursorMove) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_POINT *             position
+        );
+
 } UGL_UGI_DRIVER;
 
 typedef struct ugl_ugi_driver * UGL_DEVICE_ID;

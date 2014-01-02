@@ -568,6 +568,18 @@ UGL_STATUS uglGenericCursorShow (
     UGL_DEVICE_ID  devId
     );
 
+/******************************************************************************
+ *
+ * uglGenericCursorMove - Move cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorMove (
+    UGL_DEVICE_ID  devId,
+    UGL_POINT *    pCursorPos
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

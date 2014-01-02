@@ -628,3 +628,150 @@ UGL_STATUS uglGenericCursorShow (
     return (UGL_STATUS_OK);
 }
 
+/******************************************************************************
+ *
+ * uglGenericCursorMove - Move cursor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericCursorMove (
+    UGL_DEVICE_ID  devId,
+    UGL_POINT *    pCursorPos
+    ) {
+    UGL_GENERIC_DRIVER *  pDrv;
+    UGL_GEN_CURSOR_DATA * pCursorData;
+    UGL_DDB_ID            ddbId;
+    UGL_GEN_CDDB *        pCddb;
+    UGL_RECT              srcRect;
+    UGL_POINT             destPoint;
+    UGL_RECT              currRect;
+    UGL_RECT              nextRect;
+    UGL_RECT              intersectRect;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Get cursor data field */
+    pCursorData = (UGL_GEN_CURSOR_DATA *) pDrv->pCursorData;
+    if (pCursorData == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Check if cursor needs to be redrawn */
+    if (pCursorData->on == UGL_TRUE && pCursorData->hidden == UGL_FALSE) {
+        pCddb = pCursorData->imageBitmap;
+
+        currRect.left   = pCursorData->position.x - pCddb->hotSpot.x;
+        currRect.top    = pCursorData->position.x - pCddb->hotSpot.y;
+        currRect.right  = currRect.left + pCddb->tddb.header.width - 1;
+        currRect.bottom = currRect.top + pCddb->tddb.header.height - 1;
+
+        UGL_RECT_COPY (&nextRect, &currRect);
+        UGL_RECT_MOVE_TO (nextRect, pCursorPos->x - pCddb->hotSpot.x,
+                          pCursorPos->y - pCddb->hotSpot.y);
+
+        UGL_GC_SET (devId, pCursorData->gc);
+
+        /* Check if next position overlaps current */
+        UGL_RECT_INTERSECT (currRect, nextRect, intersectRect);
+        if (UGL_RECT_WIDTH (intersectRect) > 0 &&
+            UGL_RECT_HEIGHT (intersectRect) > 0) {
+
+            /* Copy background to scratch bitmap */
+            UGL_RECT_COPY (&srcRect, &nextRect);
+            destPoint.x = 0;
+            destPoint.y = 0;
+            (*devId->bitmapBlt) (devId, UGL_DISPLAY_ID, &srcRect,
+                                 pCursorData->scratchBitmap, &destPoint);
+
+            /* Update changed portion of scratch bitmap */
+            srcRect.left   = intersectRect.left - currRect.left;
+            srcRect.top    = intersectRect.top - currRect.top;
+            srcRect.right  = intersectRect.right - currRect.left;
+            srcRect.bottom = intersectRect.bottom - currRect.top;
+            destPoint.x = intersectRect.left - nextRect.left;
+            destPoint.y = intersectRect.top - nextRect.top;
+            (*devId->bitmapBlt) (devId, pCursorData->screenBitmap, &srcRect,
+                                 pCursorData->scratchBitmap, &destPoint);
+
+            /* Draw cursor image to screen bitmap */
+            srcRect.left   = 0;
+            srcRect.top    = 0;
+            srcRect.right  = UGL_RECT_WIDTH (currRect) - 1;
+            srcRect.bottom = UGL_RECT_HEIGHT (currRect) - 1;
+            destPoint.x = nextRect.left - currRect.left;
+            destPoint.y = nextRect.top - currRect.top;
+            (*devId->transBitmapBlt) (
+                devId, (UGL_TDDB *) &pCursorData->imageBitmap->tddb, &srcRect,
+                (UGL_DDB *) pCursorData->screenBitmap, &destPoint);
+
+            /* Draw cursor to screen */
+            srcRect.left   = 0;
+            srcRect.top    = 0;
+            srcRect.right  = UGL_RECT_WIDTH (nextRect) - 1;
+            srcRect.bottom = UGL_RECT_HEIGHT (nextRect) - 1;
+            destPoint.x = nextRect.left;
+            destPoint.y = nextRect.top;
+            (*devId->transBitmapBlt) (
+                devId, (UGL_TDDB *) &pCursorData->imageBitmap->tddb, &srcRect,
+                UGL_DISPLAY_ID, &destPoint);
+
+            /* Erase cursor at old position */
+            srcRect.left   = 0;
+            srcRect.top    = 0;
+            srcRect.right  = UGL_RECT_WIDTH (currRect) - 1;
+            srcRect.bottom = UGL_RECT_HEIGHT (currRect) - 1;
+            destPoint.x = currRect.left;
+            destPoint.y = currRect.top;
+            (*devId->bitmapBlt) (devId, pCursorData->screenBitmap,
+                                 &srcRect, UGL_DISPLAY_ID, &destPoint);
+
+            /* Swap screen bitmap and scratch bitmap */
+            ddbId = pCursorData->screenBitmap;
+            pCursorData->screenBitmap = pCursorData->scratchBitmap;
+            pCursorData->scratchBitmap = ddbId;
+        }
+        else {
+
+            /* Copy background to scratch bitmap */
+            UGL_RECT_COPY (&srcRect, &nextRect);
+            destPoint.x = 0;
+            destPoint.y = 0;
+            (*devId->bitmapBlt) (devId, UGL_DISPLAY_ID, &srcRect,
+                                 pCursorData->scratchBitmap, &destPoint);
+
+            /* Draw cursor at new location on screen */
+            srcRect.left   = 0;
+            srcRect.top    = 0;
+            srcRect.right  = pCursorData->imageBitmap->tddb.header.width - 1;
+            srcRect.bottom = pCursorData->imageBitmap->tddb.header.height - 1;
+            destPoint.x = nextRect.left;
+            destPoint.y = nextRect.top;
+            (*devId->transBitmapBlt) (
+                devId, (UGL_TDDB *) &pCursorData->imageBitmap->tddb, &srcRect,
+                UGL_DISPLAY_ID, &destPoint);
+
+            /* Copy contents at current location of screen */
+            srcRect.left   = 0;
+            srcRect.top    = 0;
+            srcRect.right  = pCursorData->imageBitmap->tddb.header.width - 1;
+            srcRect.bottom = pCursorData->imageBitmap->tddb.header.height - 1;
+            destPoint.x = currRect.left;
+            destPoint.y = currRect.top;
+            (*devId->bitmapBlt) (devId, pCursorData->screenBitmap, &srcRect,
+                                 UGL_DISPLAY_ID, &destPoint);
+
+            /* Swap screen bitmap and scratch bitmap */
+            ddbId = pCursorData->screenBitmap;
+            pCursorData->screenBitmap = pCursorData->scratchBitmap;
+            pCursorData->scratchBitmap = ddbId;
+        }
+    }
+
+    /* Update cursor position */
+    UGL_POINT_COPY (&pCursorData->position, pCursorPos);
+
+    return (UGL_STATUS_OK);
+}
+
