@@ -66,6 +66,10 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
     UGL_MODE *     pMode
     );
 
+UGL_LOCAL UGL_STATUS uglVgaGpWait (
+    UGL_GENERIC_DRIVER * pDrv
+    );
+
 /******************************************************************************
  *
  * uglVgaDevCreate - Create vga graphics driver
@@ -215,6 +219,9 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->bytesPerLine = devId->pMode->width;
             pDrv->colorPlanes  = devId->pMode->colorDepth;
 
+            /* Set generic driver methods */
+            pDrv->generic.gpWait        = uglVgaGpWait;
+
             /* Setup first drawing page */
             devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
                                                         sizeof (UGL_GEN_DDB));
@@ -267,6 +274,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->generic.vLine =         uglVgaVLine;
             pDrv->generic.bresenhamLine = uglVgaBresenhamLine;
             pDrv->generic.fill          = uglGenericFill;
+            pDrv->generic.gpWait        = uglVgaGpWait;
 
             /* Setup first drawing page */
             devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
@@ -352,6 +360,20 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
         default:
             return (UGL_STATUS_ERROR);
     }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglVgaGpWait - Wait for graphics processor
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_LOCAL UGL_STATUS uglVgaGpWait (
+    UGL_GENERIC_DRIVER * pDrv
+    ) {
 
     return (UGL_STATUS_OK);
 }

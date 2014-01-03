@@ -116,6 +116,10 @@ typedef struct ugl_generic_driver {
         UGL_POS **                  ppFillData
         );
 
+    UGL_STATUS      (*gpWait) (
+        struct ugl_generic_driver * pDrv
+        );
+
 } UGL_GENERIC_DRIVER;
 
 /* Generic mode support functions */
