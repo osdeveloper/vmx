@@ -165,7 +165,7 @@ int mode4Enter(struct vgaHWRec *oldRegs)
   /* Enter video mode */
   gfxMode.width = 640;
   gfxMode.height = 480;
-  gfxMode.depth = 4;
+  gfxMode.colorDepth = 4;
   gfxMode.refreshRate = 60;
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 
@@ -1255,7 +1255,7 @@ int mode8Enter(struct vgaHWRec *oldRegs)
   /* Enter video mode */
   gfxMode.width = 320;
   gfxMode.height = 200;
-  gfxMode.depth = 8;
+  gfxMode.colorDepth = 8;
   gfxMode.refreshRate = 60;
   gfxMode.flags = UGL_MODE_INDEXED_COLOR;
 

@@ -213,7 +213,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
 
             /* Set releated info */
             pDrv->bytesPerLine = devId->pMode->width;
-            pDrv->colorPlanes  = devId->pMode->depth;
+            pDrv->colorPlanes  = devId->pMode->colorDepth;
 
             /* Setup first drawing page */
             devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
@@ -226,7 +226,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDdb->header.width  = devId->pMode->width;
             pDdb->header.height = devId->pMode->height;
             pDdb->header.type   = UGL_DDB_TYPE;
-            pDdb->colorDepth    = devId->pMode->depth;
+            pDdb->colorDepth    = devId->pMode->colorDepth;
             pDdb->stride        = devId->pMode->width;
             pDdb->pData         = pDrv->generic.fbAddress;
 
@@ -260,7 +260,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
         case 1:
             /* Set releated info */
             pDrv->bytesPerLine = devId->pMode->width / 8;
-            pDrv->colorPlanes  = devId->pMode->depth;
+            pDrv->colorPlanes  = devId->pMode->colorDepth;
 
             /* Set generic driver methods */
             pDrv->generic.hLine =         uglVgaHLine;
@@ -279,7 +279,7 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDdb->header.width  = devId->pMode->width;
             pDdb->header.height = devId->pMode->height;
             pDdb->header.type   = UGL_DDB_TYPE;
-            pDdb->colorDepth    = devId->pMode->depth;
+            pDdb->colorDepth    = devId->pMode->colorDepth;
             pDdb->stride        = devId->pMode->width;
             pDdb->pData         = pDrv->generic.fbAddress;
 

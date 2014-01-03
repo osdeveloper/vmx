@@ -422,7 +422,7 @@ int vgaInitMode(UGL_MODE *mode, struct vgaHWRec *regs)
     regs->CRTC[CRTC_V_SYNC_START]   = mode->vSyncStart & 0xFF;
     regs->CRTC[CRTC_V_SYNC_END]     = (mode->vSyncEnd & 0x0F) | 0x20;
     regs->CRTC[CRTC_V_DISP_END]     = (mode->vDisplay -1) & 0xFF;
-    regs->CRTC[CRTC_OFFSET] 	    = mode->width >> (8 - mode->depth);  /* just a guess */
+    regs->CRTC[CRTC_OFFSET] 	    = mode->width >> (8 - mode->colorDepth);
     regs->CRTC[CRTC_UNDERLINE]      = 0x00;
     regs->CRTC[CRTC_V_BLANK_START]  = (vblankstart - 1) & 0xFF; 
     regs->CRTC[CRTC_V_BLANK_END]    = (vblankend - 1) & 0xFF;

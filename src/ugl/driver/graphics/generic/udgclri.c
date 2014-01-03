@@ -181,7 +181,7 @@ UGL_STATUS uglGenericColorFreeIndexed (
     /* Setup vars */
     pDrv  = (UGL_GENERIC_DRIVER *) devId;
     pClut = pDrv->pClut;
-    mask  = (1 << devId->pMode->depth);
+    mask  = (1 << devId->pMode->colorDepth);
 
     return uglCommonClutFree (pClut, pColors, numColors, mask);
 }

@@ -63,8 +63,8 @@ UGL_STATUS uglVgaInfo (
             colorInfo = (UGL_COLOR_INFO *) info;
             colorInfo->cmodel   = UGL_CMODEL_INDEXED;
             colorInfo->cspace   = UGL_CSPACE_RGB;
-            colorInfo->clutSize = 1 << devId->pMode->depth;
-            colorInfo->depth    = devId->pMode->depth;
+            colorInfo->clutSize = 1 << devId->pMode->colorDepth;
+            colorInfo->depth    = devId->pMode->colorDepth;
             colorInfo->flags    = UGL_CLUT_WRITE;
             break;
 
@@ -72,8 +72,8 @@ UGL_STATUS uglVgaInfo (
             modeInfo = (UGL_MODE_INFO *) info;
             modeInfo->width      = devId->pMode->width;
             modeInfo->height     = devId->pMode->height;
-            modeInfo->colorDepth = devId->pMode->depth;
-            modeInfo->clutSize   = 1 << devId->pMode->depth;
+            modeInfo->colorDepth = devId->pMode->colorDepth;
+            modeInfo->clutSize   = 1 << devId->pMode->colorDepth;
             if (modeInfo->colorDepth == 8) {
                 modeInfo->colorModel = UGL_INDEXED_8;
                 modeInfo->colorFormat = 0;

@@ -50,7 +50,7 @@ UGL_INT32 uglGenericModeFind(
         /* Check if mode is correct */
         if (pList[i].width == pReqMode->width &&
             pList[i].height == pReqMode->height &&
-            pList[i].depth == pReqMode->depth &&
+            pList[i].colorDepth == pReqMode->colorDepth &&
             pList[i].flags == pReqMode->flags) {
 
             /* Calculate refreshrate delta and store if smaller */

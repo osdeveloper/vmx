@@ -700,7 +700,7 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToFrameBuffer (
     /* Setup variables for blit */
     width            = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
     height           = UGL_RECT_HEIGHT (*pDestRect);
-    numPlanes        = devId->pMode->depth;
+    numPlanes        = devId->pMode->colorDepth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
     destStart        = (UGL_UINT8 *) pDrv->fbAddress +
@@ -1200,7 +1200,7 @@ UGL_STATUS uglVgaBitmapWrite (
                           UGL_RECT_HEIGHT (srcRect));
 
         /* Precaculate variables */
-        numPlanes = devId->pMode->depth;
+        numPlanes = devId->pMode->colorDepth;
         srcOffset = (srcRect.top * pDib->stride) + srcRect.left;
 
         if (ddbId == UGL_DISPLAY_ID) {
@@ -1602,7 +1602,7 @@ UGL_STATUS uglVgaBitmapRead (
             /* Read from display */
             width           = UGL_RECT_WIDTH (srcRect);
             height          = UGL_RECT_HEIGHT (srcRect);
-            numPlanes       = devId->pMode->depth;
+            numPlanes       = devId->pMode->colorDepth;
             srcBytesPerLine = ((UGL_VGA_DRIVER *) devId)->bytesPerLine;
             pSrc            = (UGL_UINT8 *) pDrv->fbAddress +
                               (srcRect.top * srcBytesPerLine) +
@@ -1660,7 +1660,7 @@ UGL_STATUS uglVgaBitmapRead (
             /* Read from bitmap */
             width           = UGL_RECT_WIDTH (srcRect);
             height          = UGL_RECT_HEIGHT (srcRect);
-            numPlanes       = devId->pMode->depth;
+            numPlanes       = devId->pMode->colorDepth;
             srcBytesPerLine = (pVgaBmp->header.width + 7) / 8 + 1;
             x               = srcRect.left + pVgaBmp->shiftValue;
             index           = srcRect.top * srcBytesPerLine + (x >> 3);
@@ -1866,7 +1866,7 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
 
     /* Setup variables for blit */
     width            = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
-    numPlanes        = devId->pMode->depth;
+    numPlanes        = devId->pMode->colorDepth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
     destStart        = (UGL_UINT8 *) pDrv->fbAddress +

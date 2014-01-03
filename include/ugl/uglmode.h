@@ -58,7 +58,7 @@ typedef struct ugl_mode {
     UGL_CHAR *  name;                   /* Mode name */
     UGL_UINT16  width;                  /* Display width */
     UGL_UINT16  height;                 /* Display height */
-    UGL_UINT8   depth;                  /* BitsPerPixel */
+    UGL_UINT8   colorDepth;             /* BitsPerPixel */
     UGL_ORD     refreshRate;            /* Monitor refresh rate */
     UGL_UINT16  monitorType;            /* Monitor type */
     UGL_UINT32  flags;                  /* Misc Flags */
