@@ -114,14 +114,12 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     devId->gcCreate         = uglGenericGcCreate;
     devId->gcCopy           = uglGenericGcCopy;
     devId->gcDestroy        = uglGenericGcDestroy;
-    devId->gcSet            = uglVgaGcSet;
 
-    /* Set color support methods */
+    /* Setup color support methods */
     devId->colorAlloc       = uglGenericColorAllocIndexed;
     devId->colorFree        = uglGenericColorFreeIndexed;
     devId->clutGet          = uglVgaClutGet;
     devId->clutSet          = uglVgaClutSet;
-    devId->colorConvert     = uglVga4BitColorConvert;
 
     return (devId);
 }
@@ -249,7 +247,13 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
                 return (UGL_STATUS_ERROR);
             }
 
-            /* Set graphics primitives support methods */
+            /* Setup graphics context support methods */
+            devId->gcSet = uglGenericGcSet;
+
+            /* Setup color support methods */
+            devId->colorConvert = uglGeneric8BitColorConvert;
+
+            /* Setup graphics primitives support methods */
             devId->pixelSet = uglGeneric8BitPixelSet;
 
             /* Setup bitmap support methods */
@@ -303,7 +307,13 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
                 return (UGL_STATUS_ERROR);
             }
 
-            /* Set graphics primitives support methods */
+            /* Setup graphics context support methods */
+            devId->gcSet = uglVgaGcSet;
+
+            /* Setup color support methods */
+            devId->colorConvert = uglVga4BitColorConvert;
+
+            /* Setup graphics primitives support methods */
             devId->pixelSet  = uglVgaPixelSet;
             devId->line      = uglGenericLine;
             devId->rectangle = uglGenericRectangle;

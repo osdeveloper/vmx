@@ -24,8 +24,6 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/common/udcomm.h>
 
-#define LARGE_BUF_LIMIT       10
-
 /******************************************************************************
  *
  * uglCommonByteCopy - Copy data bytewise using raster operation
@@ -39,10 +37,10 @@ UGL_VOID uglCommonByteCopy (
     int            nBytes,
     UGL_RASTER_OP  rasterOp
     ) {
-    int          sz;
-    const void * src;
-    void *       dest;
-    int          count;
+    int               sz;
+    const UGL_UINT8 * src;
+    UGL_UINT8 *       dest;
+    int               count;
 
     if (rasterOp == UGL_RASTER_OP_COPY) {
         memcpy (pDest, pSrc, nBytes);
@@ -52,257 +50,67 @@ UGL_VOID uglCommonByteCopy (
         if (sz <= 0 || sz >= nBytes) {
 
             /* Perform forward copy */
-            src   = pSrc;
-            dest  = pDest;
+            src   = (UGL_UINT8 *) pSrc;
+            dest  = (UGL_UINT8 *) pDest;
             count = nBytes;
 
-            if (rasterOp == UGL_RASTER_OP_AND) {
-
-                /* If larget data set to copy */
-                if (count >= LARGE_BUF_LIMIT) {
-                    while (((int) dest & 0x03) != 0x00) {
-                        *(UGL_UINT8 *) dest &= *(UGL_UINT8 *) src;
-                        (UGL_UINT8 *) dest++;
-                        (UGL_UINT8 *) src++;
-                        count--;
+            switch (rasterOp) {
+                case UGL_RASTER_OP_AND:
+                    while (--count >= 0) {
+                        *dest &= *src;
+                        dest++;
+                        src++;
                     }
+                    break;
 
-                    if (((int) src & 0x03) == 0x00) {
-
-                        /* Copy 32-bit chunks */
-                        while (count >= 4) {
-                            *(UGL_UINT32 *) dest &= *(UGL_UINT32 *) src;
-                            (UGL_UINT32 *) dest++;
-                            (UGL_UINT32 *) src++;
-                            count -= 4;
-                        }
+                case UGL_RASTER_OP_OR:
+                    while (--count >= 0) {
+                        *dest |= *src;
+                        dest++;
+                        src++;
                     }
-                    else if (((int) src & 0x01) == 0x00) {
+                    break;
 
-                        /* Copy 16-bit chunks */
-                        while (count >= 2) {
-                            *(UGL_UINT16 *) dest &= *(UGL_UINT16 *) src;
-                            (UGL_UINT16 *) dest++;
-                            (UGL_UINT16 *) src++;
-                            count -= 2;
-                        }
+                case UGL_RASTER_OP_XOR:
+                    while (--count >= 0) {
+                        *dest ^= *src;
+                        dest++;
+                        src++;
                     }
-                }
-
-                /* Small copy bytewise */
-                while (--count >= 0) {
-                    *(UGL_UINT8 *) dest &= *(UGL_UINT8 *) src;
-                    (UGL_UINT8 *) dest++;
-                    (UGL_UINT8 *) src++;
-                }
-            }
-            else if (rasterOp == UGL_RASTER_OP_OR) {
-
-                /* If larget data set to copy */
-                if (count >= LARGE_BUF_LIMIT) {
-                    while (((int) dest & 0x03) != 0x00) {
-                        *(UGL_UINT8 *) dest |= *(UGL_UINT8 *) src;
-                        (UGL_UINT8 *) dest++;
-                        (UGL_UINT8 *) src++;
-                        count--;
-                    }
-
-                    if (((int) src & 0x03) == 0x00) {
-
-                        /* Copy 32-bit chunks */
-                        while (count >= 4) {
-                            *(UGL_UINT32 *) dest |= *(UGL_UINT32 *) src;
-                            (UGL_UINT32 *) dest++;
-                            (UGL_UINT32 *) src++;
-                            count -= 4;
-                        }
-                    }
-                    else if (((int) src & 0x01) == 0x00) {
-
-                        /* Copy 16-bit chunks */
-                        while (count >= 2) {
-                            *(UGL_UINT16 *) dest |= *(UGL_UINT16 *) src;
-                            (UGL_UINT16 *) dest++;
-                            (UGL_UINT16 *) src++;
-                            count -= 2;
-                        }
-                    }
-                }
-
-                /* Small copy bytewise */
-                while (--count >= 0) {
-                    *(UGL_UINT8 *) dest |= *(UGL_UINT8 *) src;
-                    (UGL_UINT8 *) dest++;
-                    (UGL_UINT8 *) src++;
-                }
-            }
-            else if (rasterOp == UGL_RASTER_OP_XOR) {
-
-                /* If larget data set to copy */
-                if (count >= LARGE_BUF_LIMIT) {
-                    while (((int) dest & 0x03) != 0x00) {
-                        *(UGL_UINT8 *) dest ^= *(UGL_UINT8 *) src;
-                        (UGL_UINT8 *) dest++;
-                        (UGL_UINT8 *) src++;
-                        count--;
-                    }
-
-                    if (((int) src & 0x03) == 0x00) {
-
-                        /* Copy 32-bit chunks */
-                        while (count >= 4) {
-                            *(UGL_UINT32 *) dest ^= *(UGL_UINT32 *) src;
-                            (UGL_UINT32 *) dest++;
-                            (UGL_UINT32 *) src++;
-                            count -= 4;
-                        }
-                    }
-                    else if (((int) src & 0x01) == 0x00) {
-
-                        /* Copy 16-bit chunks */
-                        while (count >= 2) {
-                            *(UGL_UINT16 *) dest ^= *(UGL_UINT16 *) src;
-                            (UGL_UINT16 *) dest++;
-                            (UGL_UINT16 *) src++;
-                            count -= 2;
-                        }
-                    }
-                }
-
-                /* Small copy bytewise */
-                while (--count >= 0) {
-                    *(UGL_UINT8 *) dest ^= *(UGL_UINT8 *) src;
-                    (UGL_UINT8 *) dest++;
-                    (UGL_UINT8 *) src++;
-                }
+                    break;
             }
         }
         else {
 
             /* Backward copy */
-            src   = (void *) ((char *) pSrc + nBytes);
-            dest  = (void *) ((char *) pDest + nBytes);
+            src   = (char *) pSrc + nBytes;
+            dest  = (char *) pDest + nBytes;
             count = nBytes;
 
-            if (rasterOp == UGL_RASTER_OP_AND) {
-
-                /* If larget data set to copy */
-                if (count >= LARGE_BUF_LIMIT) {
-                    while (((int) dest & 0x03) != 0x00) {
-                        (UGL_UINT8 *) dest--;
-                        (UGL_UINT8 *) src--;
-                        *(UGL_UINT8 *) dest &= *(UGL_UINT8 *) src;
-                        count--;
+            switch (rasterOp) {
+                case UGL_RASTER_OP_AND:
+                    while (--count >= 0) {
+                        dest--;
+                        src--;
+                        *dest &= *src;
                     }
+                    break;
 
-                    if (((int) src & 0x03) == 0x00) {
-
-                        /* Copy 32-bit chunks */
-                        while (count >= 4) {
-                            (UGL_UINT32 *) dest--;
-                            (UGL_UINT32 *) src--;
-                            *(UGL_UINT32 *) dest &= *(UGL_UINT32 *) src;
-                            count -= 4;
-                        }
+                case UGL_RASTER_OP_OR:
+                    while (--count >= 0) {
+                        dest--;
+                        src--;
+                        *dest |= *src;
                     }
-                    else if (((int) src & 0x01) == 0x00) {
+                    break;
 
-                        /* Copy 16-bit chunks */
-                        while (count >= 2) {
-                            (UGL_UINT16 *) dest--;
-                            (UGL_UINT16 *) src--;
-                            *(UGL_UINT16 *) dest &= *(UGL_UINT16 *) src;
-                            count -= 2;
-                        }
+                case UGL_RASTER_OP_XOR:
+                    while (--count >= 0) {
+                        dest--;
+                        src--;
+                        *dest ^= *src;
                     }
-                }
-
-                /* Small copy bytewise */
-                while (--count >= 0) {
-                    (UGL_UINT8 *) dest--;
-                    (UGL_UINT8 *) src--;
-                    *(UGL_UINT8 *) dest &= *(UGL_UINT8 *) src;
-                }
-            }
-            else if (rasterOp == UGL_RASTER_OP_OR) {
-
-                /* If larget data set to copy */
-                if (count >= LARGE_BUF_LIMIT) {
-                    while (((int) dest & 0x03) != 0x00) {
-                        (UGL_UINT8 *) dest--;
-                        (UGL_UINT8 *) src--;
-                        *(UGL_UINT8 *) dest |= *(UGL_UINT8 *) src;
-                        count--;
-                    }
-
-                    if (((int) src & 0x03) == 0x00) {
-
-                        /* Copy 32-bit chunks */
-                        while (count >= 4) {
-                            (UGL_UINT32 *) dest--;
-                            (UGL_UINT32 *) src--;
-                            *(UGL_UINT32 *) dest |= *(UGL_UINT32 *) src;
-                            count -= 4;
-                        }
-                    }
-                    else if (((int) src & 0x01) == 0x00) {
-
-                        /* Copy 16-bit chunks */
-                        while (count >= 2) {
-                            (UGL_UINT16 *) dest--;
-                            (UGL_UINT16 *) src--;
-                            *(UGL_UINT16 *) dest |= *(UGL_UINT16 *) src;
-                            count -= 2;
-                        }
-                    }
-                }
-
-                /* Small copy bytewise */
-                while (--count >= 0) {
-                    (UGL_UINT8 *) dest--;
-                    (UGL_UINT8 *) src--;
-                    *(UGL_UINT8 *) dest |= *(UGL_UINT8 *) src;
-                }
-            }
-            else if (rasterOp == UGL_RASTER_OP_XOR) {
-
-                /* If larget data set to copy */
-                if (count >= LARGE_BUF_LIMIT) {
-                    while (((int) dest & 0x03) != 0x00) {
-                        (UGL_UINT8 *) dest--;
-                        (UGL_UINT8 *) src--;
-                        *(UGL_UINT8 *) dest ^= *(UGL_UINT8 *) src;
-                        count--;
-                    }
-
-                    if (((int) src & 0x03) == 0x00) {
-
-                        /* Copy 32-bit chunks */
-                        while (count >= 4) {
-                            (UGL_UINT32 *) dest--;
-                            (UGL_UINT32 *) src--;
-                            *(UGL_UINT32 *) dest ^= *(UGL_UINT32 *) src;
-                            count -= 4;
-                        }
-                    }
-                    else if (((int) src & 0x01) == 0x00) {
-
-                        /* Copy 16-bit chunks */
-                        while (count >= 2) {
-                            (UGL_UINT16 *) dest--;
-                            (UGL_UINT16 *) src--;
-                            *(UGL_UINT16 *) dest ^= *(UGL_UINT16 *) src;
-                            count -= 2;
-                        }
-                    }
-                }
-
-                /* Small copy bytewise */
-                while (--count >= 0) {
-                    (UGL_UINT8 *) dest--;
-                    (UGL_UINT8 *) src--;
-                    *(UGL_UINT8 *) dest ^= *(UGL_UINT8 *) src;
-                }
+                    break;
             }
         }
     }

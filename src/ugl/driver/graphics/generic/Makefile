@@ -2,7 +2,7 @@
 #
 
 OBJS = udgclri.o udgenclp.o udgengc.o udgmode.o udgtbmp.o udgenlin.o \
-       udgenfil.o udgenrec.o udgenply.o udgencrs.o
+       udgenfil.o udgenrec.o udgenply.o udgencrs.o udg8clr.o
 SUBDIRS = 8bit
 LIB_TGT = ugl-driver
 

@@ -21,6 +21,7 @@
 /* udg8bmp.c - 8-Bit general bitmap */
 
 #include <ugl/ugl.h>
+#include <ugl/driver/graphics/common/udcomm.h>
 #include <ugl/driver/graphics/generic/udgen8.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
@@ -184,52 +185,12 @@ UGL_LOCAL void uglGeneric8BitBltColorToColor (
            pDestRect->left + (pDestRect->top * destStride);
 
     /* Blit */
-    switch(rasterOp) {
-        case UGL_RASTER_OP_COPY:
-            for (j = 0; j < height; j++) {
-                memcpy (dest, src, width);
+    for (j = 0; j < height; j++) {
+        uglCommonByteCopy (src, dest, width, rasterOp);
 
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_AND:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] &= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_OR:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] |= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_XOR:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] ^= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
+        /* Advance to next line */
+        src  += srcStride;
+        dest += destStride;
     }
 }
 
@@ -276,52 +237,12 @@ UGL_LOCAL void uglGeneric8BitBltColorToFrameBuffer (
            pDestRect->left + (pDestRect->top * destStride);
 
     /* Blit */
-    switch(rasterOp) {
-        case UGL_RASTER_OP_COPY:
-            for (j = 0; j < height; j++) {
-                memcpy(dest, src, width);
+    for (j = 0; j < height; j++) {
+        uglCommonByteCopy (src, dest, width, rasterOp);
 
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_AND:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] &= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_OR:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] |= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_XOR:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] ^= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
+        /* Advance to next line */
+        src  += srcStride;
+        dest += destStride;
     }
 }
 
@@ -368,52 +289,12 @@ UGL_LOCAL void uglGeneric8BitBltFrameBufferToColor (
           pDestRect->left + (pDestRect->top * destStride);
 
     /* Blit */
-    switch(rasterOp) {
-        case UGL_RASTER_OP_COPY:
-            for (j = 0; j < height; j++) {
-                memcpy(dest, src, width);
+    for (j = 0; j < height; j++) {
+        uglCommonByteCopy (src, dest, width, rasterOp);
 
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_AND:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] &= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_OR:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] |= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
-
-        case UGL_RASTER_OP_XOR:
-            for (j = 0; j < height; j++) {
-                for (i = 0; i < width; i++) {
-                    dest[i] ^= src[i];
-                }
-
-                /* Advance to next line */
-                src  += srcStride;
-                dest += destStride;
-            }
-            break;
+        /* Advance to next line */
+        src  += srcStride;
+        dest += destStride;
     }
 }
 
@@ -529,6 +410,7 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
     UGL_INT32            width;
     UGL_INT32            height;
     UGL_INT32            srcOffset;
+    UGL_INT32            numBytes;
     UGL_CLUT *           pClut;
 
     /* Get driver first in device struct */
@@ -549,64 +431,109 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
 
     /* Clip */
     if (uglGenericClipDibToDdb (devId, pDib, &srcRect, (UGL_BMAP_ID *) &pDdb,
-                                &destPoint) != UGL_TRUE) {
-        return (UGL_STATUS_ERROR);
-    }
+                                &destPoint) == UGL_TRUE) {
 
-    /* Calculate variables */
-    width      = UGL_RECT_WIDTH(srcRect);
-    height     = UGL_RECT_HEIGHT(srcRect);
-    srcOffset  = srcRect.top * pDib->stride + srcRect.left;
-    destStride = pDdb->stride;
-    dest       = (UGL_UINT8 *) pDdb->pData +
-                 destPoint.y * destStride + destPoint.x;
+        /* Calculate variables */
+        width      = UGL_RECT_WIDTH(srcRect);
+        height     = UGL_RECT_HEIGHT(srcRect);
+        srcOffset  = srcRect.top * pDib->stride + srcRect.left;
+        destStride = pDdb->stride;
+        dest       = (UGL_UINT8 *) pDdb->pData +
+                     destPoint.y * destStride + destPoint.x;
 
-    /* Handle case when source has a color lookup table */
-    if (pDib->imageFormat != UGL_DIRECT) {
-
-        /* Check if temporary clut should be generated */
-        if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
-
-            pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
-            if (pClut == UGL_NULL) {
+        if (pDrv->gpBusy == UGL_TRUE) {
+            if ((*pDrv->gpWait) (pDrv) != UGL_STATUS_OK) {
                 return (UGL_STATUS_ERROR);
             }
+        }
 
-            /* Convert to 32-bit color */
-            if ((*devId->colorConvert) (devId, pDib->pClut,
-                                        pDib->colorFormat, pClut,
-                                        UGL_DEVICE_COLOR_32,
-                                        pDib->clutSize) == UGL_STATUS_ERROR) {
-                UGL_FREE (pClut);
-                return (UGL_STATUS_ERROR);
+        if (pDib->imageFormat == UGL_DIRECT) {
+
+            /* Select color format */
+            switch (pDib->colorFormat) {
+                case UGL_DEVICE_COLOR:
+                    srcStride  = pDib->stride;
+                    src = (UGL_UINT8 *) pDib->pData + srcOffset;
+
+                    /* While source height */
+                    while (--height >= 0) {
+                        memcpy (dest, src, width);
+
+                        /* Advance to next line */
+                        src  += srcStride;
+                        dest += destStride;
+                    }
+                    break;
+
+                 default:
+                    if (pDib->colorFormat == UGL_DEVICE_COLOR_32) {
+                        numBytes = sizeof (UGL_COLOR);
+                    }
+                    else {
+                        /* TODO */ numBytes = 1;
+                    }
+
+                    srcStride = pDib->stride * numBytes;
+                    src = (UGL_UINT8 *) pDib->pData + (srcOffset * numBytes);
+
+                    /* While source height */
+                    while (--height >= 0) {
+                        (*devId->colorConvert) (devId, src, pDib->colorFormat,
+                                                dest, UGL_DEVICE_COLOR, width);
+
+                        /* Advance to next line */
+                        src  += srcStride;
+                        dest += destStride;
+                    }
+                    break;
             }
         }
         else {
-            pClut = pDib->pClut;
-        }
 
-        /* Select color mode */
-        switch(pDib->imageFormat) {
-            case UGL_INDEXED_8:
-                srcStride = pDib->stride;
-                src       = (UGL_UINT8 *) pDib->pData + srcOffset;
+            /* Check if temporary clut should be generated */
+            if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
 
-                /* While source height */
-                while (--height) {
-                    memcpy(dest, src, width);
-
-                    /* Advance to next line */
-                    src  += srcStride;
-                    dest += destStride;
-                }
-                break;
-
-                default:
+                pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
+                if (pClut == UGL_NULL) {
                     return (UGL_STATUS_ERROR);
-                    break;
+                }
+
+                /* Convert to 32-bit color */
+                if ((*devId->colorConvert) (devId, pDib->pClut,
+                                            pDib->colorFormat, pClut,
+                                            UGL_DEVICE_COLOR_32,
+                                            pDib->clutSize
+                                            ) == UGL_STATUS_ERROR) {
+                    UGL_FREE (pClut);
+                    return (UGL_STATUS_ERROR);
+                }
             }
+            else {
+                pClut = pDib->pClut;
+            }
+
+            /* Select color mode */
+            switch(pDib->imageFormat) {
+                case UGL_INDEXED_8:
+                    srcStride = pDib->stride;
+                    src = (UGL_UINT8 *) pDib->pData + srcOffset;
+
+                    /* While source height */
+                    while (--height >= 0) {
+                        memcpy(dest, src, width);
+
+                        /* Advance to next line */
+                        src  += srcStride;
+                        dest += destStride;
+                    }
+                    break;
+
+                    default:
+                        return (UGL_STATUS_ERROR);
+            }
+        }
     }
 
-    return UGL_STATUS_OK;
+    return (UGL_STATUS_OK);
 }
 

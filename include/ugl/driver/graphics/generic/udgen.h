@@ -78,6 +78,7 @@ typedef struct ugl_generic_driver {
     UGL_GEN_DDB *   scratchBitmap;      /* Scratch bitmap */
     UGL_ORD         transBitmapCount;   /* Scratch bitmap reference count */
     UGL_CLUT *      pClut;              /* Palette */
+    UGL_BOOL        gpBusy;             /* Wait for graphics processor */
     void *          pCursorData;        /* Cursor data storage */
 
     /* Generic methods */
@@ -582,6 +583,24 @@ UGL_STATUS uglGenericCursorShow (
 UGL_STATUS uglGenericCursorMove (
     UGL_DEVICE_ID  devId,
     UGL_POINT *    pCursorPos
+    );
+
+/* Generic color support methods */
+
+/******************************************************************************
+ *
+ * uglGeneric8BitColorConvert - Color convert for 8-bit color
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitColorConvert (
+    UGL_DEVICE_ID     devId,
+    void *            srcArray,
+    UGL_COLOR_FORMAT  srcFormat,
+    void *            destArray,
+    UGL_COLOR_FORMAT  destFormat,
+    UGL_SIZE          arraySize
     );
 
 #ifdef __cplusplus
