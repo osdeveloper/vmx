@@ -143,163 +143,6 @@ UGL_STATUS uglGeneric8BitBitmapDestroy (
 
 /******************************************************************************
  *
- * uglGeneric8BitBltColorToColor - Blit from memory to memory bitmap
- *
- * RETURNS: N/A
- */
-
-UGL_LOCAL void uglGeneric8BitBltColorToColor (
-    UGL_DEVICE_ID  devId,
-    UGL_GEN_DDB *  pSrcBmp,
-    UGL_RECT *     pSrcRect,
-    UGL_GEN_DDB *  pDestBmp,
-    UGL_RECT *     pDestRect
-    ) {
-    UGL_GENERIC_DRIVER * pDrv;
-    UGL_RASTER_OP        rasterOp;
-    UGL_SIZE             width;
-    UGL_SIZE             height;
-    UGL_SIZE             srcStride;
-    UGL_SIZE             destStride;
-    UGL_UINT8 *          src;
-    UGL_UINT8 *          dest;
-    UGL_UINT32           i;
-    UGL_UINT32           j;
-
-    /* Get driver first in device struct */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
-
-    /* Get variables */
-    rasterOp   = devId->defaultGc->rasterOp;
-    width      = UGL_RECT_WIDTH (*pSrcRect);
-    height     = UGL_RECT_HEIGHT (*pSrcRect) - 1;
-    srcStride  = pSrcBmp->stride;
-    destStride = pDestBmp->stride;
-
-    /* Calculate source address */
-    src = ((UGL_UINT8 *) pSrcBmp->pData) +
-          pSrcRect->left + (pSrcRect->top * srcStride);
-
-    /* Calculate destination address */
-    dest = ((UGL_UINT8 *) pDestBmp->pData) +
-           pDestRect->left + (pDestRect->top * destStride);
-
-    /* Blit */
-    for (j = 0; j < height; j++) {
-        uglCommonByteCopy (src, dest, width, rasterOp);
-
-        /* Advance to next line */
-        src  += srcStride;
-        dest += destStride;
-    }
-}
-
-/******************************************************************************
- *
- * uglGeneric8BitBltColorToFrameBuffer - Blit from mem-bitmap to frame buffer
- *
- * RETURNS: N/A
- */
-
-UGL_LOCAL void uglGeneric8BitBltColorToFrameBuffer (
-    UGL_DEVICE_ID  devId,
-    UGL_GEN_DDB *  pBmp,
-    UGL_RECT *     pSrcRect,
-    UGL_RECT *     pDestRect
-    ) {
-    UGL_GENERIC_DRIVER * pDrv;
-    UGL_RASTER_OP        rasterOp;
-    UGL_SIZE             width;
-    UGL_SIZE             height;
-    UGL_SIZE             srcStride;
-    UGL_SIZE             destStride;
-    UGL_UINT8 *          src;
-    UGL_UINT8 *          dest;
-    UGL_UINT32           i;
-    UGL_UINT32           j;
-
-    /* Get driver first in device struct */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
-
-    /* Get variables */
-    rasterOp   = devId->defaultGc->rasterOp;
-    width      = UGL_RECT_WIDTH (*pSrcRect);
-    height     = UGL_RECT_HEIGHT (*pSrcRect) - 1;
-    srcStride  = pBmp->stride;
-    destStride = devId->pMode->width;
-
-    /* Calculate source address */
-    src = ((UGL_UINT8 *) pBmp->pData) +
-          pSrcRect->left + (pSrcRect->top * srcStride);
-
-    /* Calculate destination address */
-    dest = (UGL_UINT8 *) pDrv->fbAddress +
-           pDestRect->left + (pDestRect->top * destStride);
-
-    /* Blit */
-    for (j = 0; j < height; j++) {
-        uglCommonByteCopy (src, dest, width, rasterOp);
-
-        /* Advance to next line */
-        src  += srcStride;
-        dest += destStride;
-    }
-}
-
-/******************************************************************************
- *
- * uglGeneric8BitBltFrameBufferToColor - Blit from frame buffer to memry bitmap
- *
- * RETURNS: N/A
- */
-
-UGL_LOCAL void uglGeneric8BitBltFrameBufferToColor (
-    UGL_DEVICE_ID  devId,
-    UGL_RECT *     pSrcRect,
-    UGL_GEN_DDB *  pBmp,
-    UGL_RECT *     pDestRect
-    ) {
-    UGL_GENERIC_DRIVER * pDrv;
-    UGL_RASTER_OP        rasterOp;
-    UGL_SIZE             width;
-    UGL_SIZE             height;
-    UGL_SIZE             srcStride;
-    UGL_SIZE             destStride;
-    UGL_UINT8 *          src;
-    UGL_UINT8 *          dest;
-    UGL_UINT32           i;
-    UGL_UINT32           j;
-
-    /* Get driver first in device struct */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
-
-    /* Get variables */
-    rasterOp   = devId->defaultGc->rasterOp;
-    width      = UGL_RECT_WIDTH (*pSrcRect);
-    height     = UGL_RECT_HEIGHT (*pSrcRect) - 1;
-    srcStride  = devId->pMode->width;
-    destStride = pBmp->stride;
-
-    /* Calculate source address */
-    src = (UGL_UINT8 *) pDrv->fbAddress +
-          pSrcRect->left + (pSrcRect->top * srcStride);
-
-    /* Calculate destination address */
-    dest = ((UGL_UINT8 *) pBmp->pData) +
-          pDestRect->left + (pDestRect->top * destStride);
-
-    /* Blit */
-    for (j = 0; j < height; j++) {
-        uglCommonByteCopy (src, dest, width, rasterOp);
-
-        /* Advance to next line */
-        src  += srcStride;
-        dest += destStride;
-    }
-}
-
-/******************************************************************************
- *
  * uglGeneric8BitBitmapBlt - Blit from one bitmap memory area to another
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
@@ -317,69 +160,132 @@ UGL_STATUS uglGeneric8BitBitmapBlt (
     UGL_GEN_DDB *        pSrcBmp;
     UGL_GEN_DDB *        pDestBmp;
     UGL_RECT             srcRect;
-    UGL_RECT             destRect;
     UGL_RECT             clipRect;
+    UGL_RECT             destRect;
     UGL_POINT            destPoint;
+    const UGL_RECT *     pRect;
+    UGL_BLT_DIR          rectOrder;
+    UGL_INT32            width;
+    UGL_INT32            height;
+    UGL_RASTER_OP        rasterOp;
+    UGL_UINT8 *          pSrc;
+    UGL_INT32            srcStride;
+    UGL_UINT8 *          pDest;
+    UGL_INT32            destStride;
 
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
 
-    /* Get gc */
+    /* Get gc and raster mode */
     gc = pDrv->gc;
+    rasterOp = gc->rasterOp;
 
-    /* Store source and dest */
-    pSrcBmp  = (UGL_GEN_DDB *) srcBmpId;
-    pDestBmp = (UGL_GEN_DDB *) destBmpId;
+    /* Clear clipping variables */
+    pRect     = UGL_NULL;
+    rectOrder = 0;
 
-    /* Store starting point */
-    destPoint.x = pDestPoint->x;
-    destPoint.y = pDestPoint->y;
+    if (srcBmpId == UGL_DEFAULT_ID) {
+        UGL_RECT_MOVE (*pSrcRect, gc->viewPort.left, gc->viewPort.top);
+    }
 
-    /* Store source rectangle */
-    srcRect.top    = pSrcRect->top;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
-    srcRect.bottom = pSrcRect->bottom;
-
-    /* Store destination rectangle */
-    destRect.top    = pDestPoint->y;
-    destRect.left   = pDestPoint->x;
-    destRect.right  = pDestPoint->x;
-    destRect.bottom = pDestPoint->y;
-
-    /* Store clip rectangle */
     if (destBmpId == UGL_DEFAULT_ID) {
-        clipRect.top    = 0;
-        clipRect.bottom = devId->pMode->height;
-        clipRect.left   = 0;
-        clipRect.right  = devId->pMode->width;
+        UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
+
+        if (pDestPoint->x > pSrcRect->left) {
+            rectOrder |= UGL_BLT_RIGHT;
+        }
+
+        if (pDestPoint->y > pSrcRect->top) {
+            rectOrder |= UGL_BLT_DOWN;
+        }
+
+        if (uglClipListSortedGet (gc, &clipRect, &pRect,
+                                  rectOrder) != UGL_STATUS_OK) {
+            return (UGL_STATUS_OK);
+        }
     }
 
-    /* Clip */
-    if (uglGenericClipDdbToDdb (devId, &clipRect,
-                           (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
-                           (UGL_BMAP_ID *) &pDestBmp, &destPoint) != UGL_TRUE) {
-        return UGL_STATUS_ERROR;
-    }
+    do {
 
-    /* Calculate destination */
-    UGL_RECT_MOVE_TO_POINT (destRect, destPoint);
-    UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
-                      UGL_RECT_HEIGHT (srcRect));
+        /* Store source and dest */
+        pSrcBmp  = (UGL_GEN_DDB *) srcBmpId;
+        pDestBmp = (UGL_GEN_DDB *) destBmpId;
 
-    /* Blit */
-    if (srcBmpId != UGL_DISPLAY_ID && destBmpId == UGL_DISPLAY_ID) {
-        uglGeneric8BitBltColorToFrameBuffer (devId, pSrcBmp, &srcRect,
-                                             &destRect);
-    }
-    else if (srcBmpId == UGL_DISPLAY_ID && destBmpId != UGL_DISPLAY_ID) {
-        uglGeneric8BitBltFrameBufferToColor (devId, &srcRect, pDestBmp,
-                                             &destRect);
-    }
-    else {
-        uglGeneric8BitBltColorToColor (devId, pSrcBmp, &srcRect, pDestBmp,
-                                       &destRect);
-    }
+        /* Store geometry */
+        UGL_RECT_COPY (&srcRect, pSrcRect);
+        UGL_POINT_COPY (&destPoint, pDestPoint);
+
+        /* Clip */
+        if (uglGenericClipDdbToDdb (devId, &clipRect,
+                                    (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
+                                    (UGL_BMAP_ID *) &pDestBmp,
+                                    &destPoint) == UGL_TRUE) {
+
+            /* Setup dimensions for copy */
+            width  = UGL_RECT_WIDTH (srcRect);
+            height = UGL_RECT_HEIGHT (srcRect);
+
+            if ((UGL_DDB_ID) pSrcBmp == UGL_DISPLAY_ID) {
+                pSrcBmp = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+            }
+
+            if ((UGL_DDB_ID) pDestBmp == UGL_DISPLAY_ID) {
+                pDestBmp = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+            }
+
+            /* If vertical overlap */
+            if ((pSrcBmp == pDestBmp) && (srcRect.top < destPoint.y)) {
+
+                /* Setup source for copy */
+                pSrc      = (UGL_UINT8 *) pSrcBmp->pData +
+                            (srcRect.bottom * pSrcBmp->stride) + srcRect.left;
+                srcStride = -pSrcBmp->stride;
+
+                destRect.left = destPoint.x;
+                destRect.top = destPoint.y;
+                UGL_RECT_SIZE_TO (destRect, width, height);
+
+                /* Setup destination for copy */
+                pDest      = (UGL_UINT8 *) pDestBmp->pData +
+                             (destRect.bottom * pDestBmp->stride) +
+                             destRect.left;
+                destStride = -pDestBmp->stride;
+            }
+            else {
+
+                /* Setup source for copy */
+                srcStride  = pSrcBmp->stride;
+                pSrc       = (UGL_UINT8 *) pSrcBmp->pData +
+                             (srcRect.top * srcStride) + srcRect.left;
+
+                /* Setup destination for copy */
+                destStride = pDestBmp->stride;
+                pDest      = (UGL_UINT8 *) pDestBmp->pData+
+                             (destPoint.y * destStride) + destPoint.x;
+            }
+
+            if (pDrv->gpBusy == UGL_TRUE) {
+                if ((*pDrv->gpWait) (pDrv) != UGL_STATUS_OK) {
+                    return (UGL_STATUS_ERROR);
+                }
+            }
+
+            /* Blit */
+            while (--height >= 0) {
+                uglCommonByteCopy (pSrc, pDest, width, rasterOp);
+
+                /* Advance line */
+                pSrc  += srcStride;
+                pDest += destStride;
+            }
+        }
+
+        if (destBmpId != UGL_DEFAULT_ID) {
+            break;
+        }
+
+    } while (uglClipListSortedGet (gc, &clipRect, &pRect,
+                                   rectOrder) == UGL_STATUS_OK);
 
     return (UGL_STATUS_OK);
 }
