@@ -46,6 +46,12 @@ typedef struct ugl_gen_ddb {
     void *           pData;             /* Image data */
 } UGL_GEN_DDB;
 
+typedef struct ugl_gen_mddb {
+    UGL_BMAP_HEADER  header;            /* Header */
+    UGL_UINT16       stride;            /* Pixels per line */
+    void *           pData;             /* Image data */
+} UGL_GEN_MDDB;
+
 typedef struct ugl_gen_tddb {
     UGL_BMAP_HEADER  header;            /* Header */
     UGL_MDDB *       mask;              /* Bitmask */
@@ -449,6 +455,48 @@ UGL_STATUS uglGenericTransBitmapLinearBlt (
     UGL_TDDB_ID    srcBmpId,
     UGL_RECT *     pSrcRect,
     UGL_DDB_ID     destBmpId,
+    UGL_POINT *    pDestPoint
+    );
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapCreate - Create 8-bit monochrome bitmap
+ *
+ * RETURNS: Bitmap id or UGL_NULL
+ */
+
+UGL_MDDB_ID uglGeneric8BitMonoBitmapCreate (
+    UGL_DEVICE_ID        devId,
+    UGL_MDIB *           pMdib,
+    UGL_DIB_CREATE_MODE  createMode,
+    UGL_UINT8            initValue,
+    UGL_MEM_POOL_ID      poolId
+    );
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapDestroy - Free monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK
+ */
+
+UGL_STATUS uglGeneric8BitMonoBitmapDestroy (
+    UGL_DEVICE_ID   devId,
+    UGL_MDDB_ID     mDdbId
+    );
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapWrite - Write monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitMonoBitmapWrite (
+    UGL_DEVICE_ID  devId,
+    UGL_MDIB *     pMdib,
+    UGL_RECT *     pSrcRect,
+    UGL_MDDB_ID    mDdbId,
     UGL_POINT *    pDestPoint
     );
 

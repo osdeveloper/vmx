@@ -47,6 +47,22 @@ UGL_VOID uglCommonByteCopy (
     UGL_RASTER_OP  rasterOp
     );
 
+/******************************************************************************
+ *
+ * uglCommonBitCopy - Copy data bitwise using raster operation
+ *
+ * RETURNS: N/A
+ */
+
+UGL_VOID uglCommonBitCopy (
+    const void *   pSrc,
+    int            srcBitOffset,
+    void *         pDest,
+    int            destBitOffset,
+    int            nBits,
+    UGL_RASTER_OP  rasterOp
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

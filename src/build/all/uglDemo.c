@@ -1457,6 +1457,167 @@ int uglBlt8Test(void)
   return 0;
 }
 
+int uglMono8Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
+{
+  int i, j;
+  struct vgaHWRec oldRegs;
+  UGL_MDDB *pFgBmp;
+  UGL_DDB *pDbBmp, *pSaveBmp;
+  UGL_RECT dbSrcRect, srcRect, saveRect;
+  UGL_POINT dbPt, pt, pt0;
+
+  if (mode8Enter(&oldRegs)) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
+    return 1;
+  }
+
+  /* Set palette */
+  setPalette();
+
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             DB_CLEAR_COLOR, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  uglClipRegionSet (gfxDevId->defaultGc, clipRegionId);
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gfxDevId->defaultGc, NULL);
+  }
+
+  uglForegroundColorSet(gfxDevId->defaultGc, 14);
+  uglBackgroundColorSet(gfxDevId->defaultGc, 4);
+
+  /* Draw background */
+  for (j = 0; j < 200; j++) {
+    for(i = 0; i < 320; i++) {
+      uglPixelSet(gfxDevId->defaultGc, i, j, (i + j) % 255);
+    }
+  }
+
+  pFgBmp = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
+                               0, gfxPartId);
+
+  if (pFgBmp == UGL_NULL) {
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
+    restoreConsole(&oldRegs);
+    printf("Unable to create foreground image\n");
+    return 1;
+  }
+
+  pSaveBmp = uglBitmapCreate(gfxDevId, &fgDib, UGL_DIB_INIT_VALUE,
+                             0, gfxPartId);
+  if (pSaveBmp == UGL_NULL) {
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
+    uglMonoBitmapDestroy(gfxDevId, pFgBmp);
+    restoreConsole(&oldRegs);
+    printf("Unable to create background save image\n");
+    return 1;
+  }
+
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 320;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 200;
+  dbPt.x = 0;
+  dbPt.y = 0;
+
+  srcRect.left = x1;
+  srcRect.top = y1;
+  if (x2 == 0) {
+    srcRect.right = pFgBmp->width;
+  }
+  else {
+    srcRect.right = x2;
+  }
+
+  if (y2 == 0) {
+    srcRect.bottom = pFgBmp->height;
+  }
+  else {
+    srcRect.bottom = y2;
+  }
+
+  pt.x = -pFgBmp->width;
+  pt.y = -pFgBmp->height;
+
+  saveRect.left = pt.x;
+  saveRect.right = pt.x + pFgBmp->width;
+  saveRect.top = pt.y;
+  saveRect.bottom = pt.y + pFgBmp->height;
+  pt0.x = 0;
+  pt0.y = 0;
+
+  while (pt.y < 200) {
+
+    /* Copy background */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
+                   pSaveBmp, pt0.x, pt0.y);
+    }
+    else {
+      uglBitmapBlt(gfxDevId->defaultGc, UGL_DISPLAY_ID,
+                   saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
+                   pSaveBmp, pt0.x, pt0.y);
+    }
+
+    /* Set raster operation and draw ball */
+    uglRasterModeSet(gfxDevId->defaultGc, rasterOp);
+
+    uglBitmapBlt(gfxDevId->defaultGc, pFgBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DEFAULT_ID, pt.x, pt.y);
+
+    uglRasterModeSet(gfxDevId->defaultGc, UGL_RASTER_OP_COPY);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gfxDevId->defaultGc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
+
+    /* Delay */
+    taskDelay(animTreshold);
+
+    /* Erase ball */
+    uglBitmapBlt(gfxDevId->defaultGc, pSaveBmp,
+                 srcRect.left, srcRect.top, srcRect.right, srcRect.bottom,
+                 UGL_DEFAULT_ID, pt.x, pt.y);
+
+    /* Move ball */
+    pt.x += BALL_SPEED;
+    pt.y += BALL_SPEED;
+    saveRect.left += BALL_SPEED;
+    saveRect.right += BALL_SPEED;
+    saveRect.top += BALL_SPEED;
+    saveRect.bottom += BALL_SPEED;
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
+  }
+  uglBitmapDestroy(gfxDevId, pFgBmp);
+  uglBitmapDestroy(gfxDevId, pSaveBmp);
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
 int uglSetAnimTreshold(int value)
 {
   if (value < 0) {
@@ -1791,6 +1952,7 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglCursor4Test", uglCursor4Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglPixel8Test", uglPixel8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt8Test", uglBlt8Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglMono8Test", uglMono8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglSetAnimTreshold", uglSetAnimTreshold, 0, N_TEXT | N_EXT},
   {NULL, "_uglRasterOpCopy", uglRasterOpCopy, 0, N_TEXT | N_EXT},
   {NULL, "_uglRasterOpAnd", uglRasterOpAnd, 0, N_TEXT | N_EXT},

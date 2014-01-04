@@ -68,7 +68,7 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
 
     /* Allocate memory */
     pGenBmp = (UGL_GEN_DDB *) uglOSMemCalloc (poolId, 1,
-                                            sizeof (UGL_GEN_DDB) + size);
+                                              sizeof (UGL_GEN_DDB) + size);
     if (pGenBmp == NULL) {
         return (UGL_NULL);
     }
@@ -325,15 +325,9 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
     /* Store bitmap */
     pDdb = (UGL_GEN_DDB *) ddbId;
 
-    /* Store source rect */
-    srcRect.top    = pSrcRect->top;
-    srcRect.bottom = pSrcRect->bottom;
-    srcRect.left   = pSrcRect->left;
-    srcRect.right  = pSrcRect->right;
-
-    /* Store destination point */
-    destPoint.x = pDestPoint->x;
-    destPoint.y = pDestPoint->y;
+    /* Get geometry */
+    UGL_RECT_COPY (&srcRect, pSrcRect);
+    UGL_POINT_COPY (&destPoint, pDestPoint);
 
     /* Clip */
     if (uglGenericClipDibToDdb (devId, pDib, &srcRect, (UGL_BMAP_ID *) &pDdb,
@@ -437,6 +431,531 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
                     default:
                         return (UGL_STATUS_ERROR);
             }
+        }
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapCreate - Create 8-bit monochrome bitmap
+ *
+ * RETURNS: Bitmap id or UGL_NULL
+ */
+
+UGL_MDDB_ID uglGeneric8BitMonoBitmapCreate (
+    UGL_DEVICE_ID        devId,
+    UGL_MDIB *           pMdib,
+    UGL_DIB_CREATE_MODE  createMode,
+    UGL_UINT8            initValue,
+    UGL_MEM_POOL_ID      poolId
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_GEN_MDDB *       pGenMonoBmp;
+    UGL_RECT             srcRect;
+    UGL_POINT            destPoint;
+    UGL_SIZE             width;
+    UGL_SIZE             height;
+    UGL_SIZE             stride;
+    UGL_INT32            planeSize;
+
+    /* Get bitmap info, from screen if NULL MDIB */
+    if (pMdib == UGL_NULL) {
+        width  = devId->pMode->width;
+        height = devId->pMode->height;
+    }
+    else {
+        width  = pMdib->width;
+        height = pMdib->height;
+    }
+
+    /* Calcualte stride */
+    stride = ((width + 7) / 8 + 1) * 8;
+
+    /* Caclulate plane size */
+    planeSize = (stride >> 3) * height;
+
+    /* Allocate memory for bitmap */
+    pGenMonoBmp = (UGL_GEN_MDDB *) uglOSMemCalloc (poolId, 1,
+                                                   sizeof (UGL_GEN_MDDB) +
+                                                   planeSize);
+    if (pGenMonoBmp == UGL_NULL) {
+        return (UGL_NULL);
+    }
+
+    /* Initialize structure */
+    pGenMonoBmp->header.width  = pMdib->width;
+    pGenMonoBmp->header.height = pMdib->height;
+    pGenMonoBmp->header.type   = UGL_MDDB_TYPE;
+    pGenMonoBmp->stride        = stride;
+    pGenMonoBmp->pData         = (void *) ((UGL_UINT8 *) pGenMonoBmp +
+                                 sizeof (UGL_GEN_MDDB));
+
+    /* Intiaialize data */
+    switch(createMode) {
+        case UGL_DIB_INIT_VALUE:
+            memset (pGenMonoBmp->pData, initValue, planeSize);
+            break;
+
+        case UGL_DIB_INIT_DATA:
+            srcRect.left   = 0;
+            srcRect.top    = 0;
+            srcRect.right  = width - 1;
+            srcRect.bottom = height - 1;
+            destPoint.x    = 0;
+            destPoint.y    = 0;
+            (*devId->monoBitmapWrite) (devId, pMdib, &srcRect,
+                                       (UGL_MDDB_ID) pGenMonoBmp, &destPoint);
+            break;
+
+        case UGL_DIB_INIT_NONE:
+        default:
+            break;
+    }
+
+    return (UGL_MDDB_ID) pGenMonoBmp;
+}
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapDestroy - Free monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK
+ */
+
+UGL_STATUS uglGeneric8BitMonoBitmapDestroy (
+    UGL_DEVICE_ID   devId,
+    UGL_MDDB_ID     mDdbId
+    ) {
+
+    /* Free memory */
+    uglOSMemFree (mDdbId);
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapBlt - Blit monochrome bitmap to color bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitMonoBitmapBlt (
+    UGL_DEVICE_ID  devId,
+    UGL_MDDB_ID    srcBmpId,
+    UGL_RECT *     pSrcRect,
+    UGL_DDB_ID     destBmpId,
+    UGL_POINT *    pDestPoint
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_GC_ID            gc;
+    UGL_RASTER_OP        rasterOp;
+    UGL_UINT8            fg;
+    UGL_UINT8            bg;
+    UGL_RECT             clipRect;
+    const UGL_RECT *     pRect;
+    UGL_GEN_MDDB *       pSrcBmp;
+    UGL_GEN_DDB *        pDestBmp;
+    UGL_RECT             srcRect;
+    UGL_RECT             destRect;
+    UGL_POINT            destPoint;
+    UGL_INT32            srcStride;
+    UGL_UINT8 *          pSrc;
+    UGL_INT32            srcRowStart;
+    UGL_INT32            srcRow;
+    UGL_INT32            destStride;
+    UGL_UINT8 *          pDest;
+    UGL_INT32            width;
+    UGL_INT32            x;
+    UGL_INT32            y;
+    UGL_UINT8 *          src;
+    UGL_UINT8            mask;
+    UGL_UINT8 *          dest;
+
+    /* Clear region rect */
+    pRect = UGL_NULL;
+
+    /* Cache attributes */
+    gc = pDrv->gc;
+    rasterOp = gc->rasterOp;
+    fg       = (UGL_UINT8) gc->foregroundColor;
+    bg       = (UGL_UINT8) gc->backgroundColor;
+
+    if (destBmpId == UGL_DEFAULT_ID) {
+        UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
+
+        if (uglClipListGet (gc, &clipRect, &pRect) != UGL_STATUS_OK) {
+            return (UGL_STATUS_OK);
+        }
+    }
+
+    do {
+
+        /* Store source and dest */
+        pSrcBmp  = (UGL_GEN_MDDB *) srcBmpId;
+        pDestBmp = (UGL_GEN_DDB *) destBmpId;
+
+        /* Get geometry */
+        UGL_RECT_COPY (&srcRect, pSrcRect);
+        UGL_POINT_COPY (&destPoint, pDestPoint);
+
+        /* Clip */
+        if (uglGenericClipDdbToDdb (devId, &clipRect,
+                                    (UGL_BMAP_ID *) &pSrcBmp, &srcRect,
+                                    (UGL_BMAP_ID *) &pDestBmp,
+                                    &destPoint) == UGL_TRUE) {
+
+            /* Setup geometry */
+            destRect.left = destPoint.x;
+            destRect.top  = destPoint.y;
+            UGL_RECT_SIZE_TO (destRect, UGL_RECT_WIDTH (srcRect),
+                              UGL_RECT_HEIGHT (srcRect));
+
+            /* Setup source */
+            srcStride     = pSrcBmp->stride;
+            pSrc          = (UGL_UINT8 *) pSrcBmp->pData;
+            srcRowStart   = (srcRect.top * srcStride) + srcRect.left;
+
+            /* Setup destination */
+            if ((UGL_DDB_ID) pDestBmp == UGL_DISPLAY_ID) {
+                pDestBmp = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+            }
+
+            width      = UGL_RECT_WIDTH (destRect);
+            destStride = pDestBmp->stride;
+            pDest      = (UGL_UINT8 *) pDestBmp->pData +
+                         (destRect.top * destStride) + destRect.left;
+
+            if (pDrv->gpBusy == UGL_TRUE) {
+                if ((*pDrv->gpWait) (pDrv) != UGL_STATUS_OK) {
+                    return (UGL_STATUS_ERROR);
+                }
+            }
+
+            if (gc->foregroundColor != UGL_COLOR_TRANSPARENT) {
+
+                srcRow = srcRowStart;
+                dest   = pDest;
+                switch (rasterOp) {
+                    case UGL_RASTER_OP_COPY:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) != 0x00) {
+                                    dest[x] = fg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+
+                    case UGL_RASTER_OP_AND:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) != 0x00) {
+                                    dest[x] &= fg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+
+                    case UGL_RASTER_OP_OR:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) != 0x00) {
+                                    dest[x] |= fg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+
+                    case UGL_RASTER_OP_XOR:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) != 0x00) {
+                                    dest[x] ^= fg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+                }
+            }
+
+            if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
+
+                srcRow = srcRowStart;
+                dest   = pDest;
+                switch (rasterOp) {
+                    case UGL_RASTER_OP_COPY:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) == 0x00) {
+                                    dest[x] = bg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+
+                    case UGL_RASTER_OP_AND:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) == 0x00) {
+                                    dest[x] &= bg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+
+                    case UGL_RASTER_OP_OR:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) == 0x00) {
+                                    dest[x] |= bg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+
+                    case UGL_RASTER_OP_XOR:
+                        for (y = srcRect.top; y <= srcRect.bottom; y++) {
+                            src  = pSrc + (srcRow >> 3);
+                            mask = (UGL_UINT8) (0x80 >> (srcRow & 0x07));
+                            for (x = 0; x < width; x++) {
+                                if ((*src & mask) == 0x00) {
+                                    dest[x] ^= bg;
+                                }
+
+                                /* Advance column */
+                                if ((mask >>= 1) == 0x00) {
+                                    mask = 0x80;
+                                    src++;
+                                }
+                            }
+
+                            /* Advance row */
+                            srcRow += srcStride;
+                            dest   += destStride;
+                        }
+                        break;
+                }
+            }
+        }
+
+        if (destBmpId != UGL_DEFAULT_ID) {
+            break;
+        }
+
+    } while (uglClipListGet (gc, &clipRect, &pRect) == UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapWrite - Write monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitMonoBitmapWrite (
+    UGL_DEVICE_ID  devId,
+    UGL_MDIB *     pMdib,
+    UGL_RECT *     pSrcRect,
+    UGL_MDDB_ID    mDdbId,
+    UGL_POINT *    pDestPoint
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_INT32            srcStride;
+    UGL_UINT8 *          pSrc;
+    UGL_INT32            srcIndex;
+    UGL_INT32            destStride;
+    UGL_UINT8 *          pDest;
+    UGL_INT32            destIndex;
+    UGL_GEN_MDDB *       pMddb;
+    UGL_INT32            width;
+    UGL_INT32            height;
+
+    /* Get driver first in device struct */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Store bitmap */
+    pMddb = (UGL_GEN_MDDB *) mDdbId;
+
+    /* Clip */
+    if (uglGenericClipDibToDdb (devId, (UGL_DIB *) pMdib, pSrcRect,
+                                (UGL_BMAP_ID *) &pMddb,
+                                pDestPoint) == UGL_TRUE) {
+
+        /* Setup variables for write */
+        width      = UGL_RECT_WIDTH (*pSrcRect);
+        height     = UGL_RECT_HEIGHT (*pSrcRect);
+        srcStride  = pMdib->stride;
+        pSrc       = pMdib->pData;
+        srcIndex   = (pSrcRect->top * srcStride) + pSrcRect->left;
+        destStride = pMddb->stride;
+        pDest      = pMddb->pData;
+        destIndex  = (pDestPoint->y * destStride) + pDestPoint->x;
+
+        if (pDrv->gpBusy == UGL_TRUE) {
+            if ((*pDrv->gpWait) (pDrv) != UGL_STATUS_OK) {
+                return (UGL_STATUS_ERROR);
+            }
+        }
+
+        /* Write bitmap */
+        while (--height >= 0) {
+            uglCommonBitCopy (pSrc, srcIndex, pDest, destIndex,
+                              width, UGL_RASTER_OP_COPY);
+
+            /* Advance line */
+            srcIndex  += srcStride;
+            destIndex += destStride;
+        }
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglGeneric8BitMonoBitmapRead - Read monochrome bitmap
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitMonoBitmapRead (
+    UGL_DEVICE_ID  devId,
+    UGL_MDDB_ID    mDdbId,
+    UGL_RECT *     pSrcRect,
+    UGL_MDIB *     pMdib,
+    UGL_POINT *    pDestPoint
+    ) {
+    UGL_GENERIC_DRIVER * pDrv;
+    UGL_GEN_MDDB *       pMddb;
+    UGL_INT32            srcStride;
+    UGL_UINT8 *          pSrc;
+    UGL_INT32            srcIndex;
+    UGL_INT32            destStride;
+    UGL_UINT8 *          pDest;
+    UGL_INT32            destIndex;
+    UGL_INT32            width;
+    UGL_INT32            height;
+
+    /* Get driver first in device struct */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
+
+    /* Store bitmap */
+    pMddb = (UGL_GEN_MDDB *) mDdbId;
+
+    /* Clip */
+    if (uglGenericClipDdbToDib (devId, (UGL_BMAP_ID *) &pMddb, pSrcRect,
+                                (UGL_DIB *) pMdib, pDestPoint) == UGL_TRUE) {
+
+        /* Setup variables for read */
+        width      = UGL_RECT_WIDTH (*pSrcRect);
+        height     = UGL_RECT_HEIGHT (*pSrcRect);
+        srcStride  = pMddb->stride;
+        pSrc       = (UGL_UINT8 *) pMddb->pData;
+        srcIndex   = (pSrcRect->top * srcStride) + pSrcRect->left;
+        destStride = pMdib->stride;
+        pDest      = (UGL_UINT8 *) pMdib->pData;
+        destIndex  = (pDestPoint->y * destStride) + pDestPoint->x;
+
+        if (pDrv->gpBusy == UGL_TRUE) {
+            if ((*pDrv->gpWait) (pDrv) != UGL_STATUS_OK) {
+                return (UGL_STATUS_ERROR);
+            }
+        }
+
+        while (--height >= 0) {
+            uglCommonBitCopy (pSrc, srcIndex, pDest, destIndex,
+                              width, UGL_RASTER_OP_COPY);
+
+            /* Advance row */
+            srcIndex  += srcStride;
+            destIndex += destStride;
         }
     }
 

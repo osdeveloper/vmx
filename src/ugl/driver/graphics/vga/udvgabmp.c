@@ -1055,8 +1055,8 @@ UGL_STATUS uglVgaBitmapBlt (
     }
 
     if (destBmpId == UGL_DEFAULT_ID) {
+        UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
 
-        /* Enable clipping region rectnagles if destination is default bitmap */
         if  (pDestPoint->x > pSrcRect->left) {
             rectOrder |= UGL_BLT_RIGHT;
         }
@@ -1069,8 +1069,6 @@ UGL_STATUS uglVgaBitmapBlt (
                                   rectOrder) != UGL_STATUS_OK) {
             return (UGL_STATUS_OK);
         }
-
-        UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
     }
 
     do {
@@ -2369,13 +2367,12 @@ UGL_STATUS uglVgaMonoBitmapBlt (
     pRect = UGL_NULL;
 
     if (destBmpId == UGL_DEFAULT_ID) {
+        UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
 
         /* If drawing to default bitmap, enable clip region */
         if (uglClipListGet (gc, &clipRect, &pRect) != UGL_STATUS_OK) {
             return (UGL_STATUS_OK);
         }
-
-        UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
     }
 
     do {

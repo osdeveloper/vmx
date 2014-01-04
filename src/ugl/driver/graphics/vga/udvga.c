@@ -100,26 +100,54 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     /* Set frame buffer address */
     pDrv->generic.fbAddress = (UGL_UINT8 *) 0xa0000L;
 
+    /* Set generic driver methods */
+    pDrv->generic.fill   = uglGenericFill;
+    pDrv->generic.gpWait = uglVgaGpWait;
+
     /* Setup device support methods */
-    devId->destroy          = uglVgaDevDestroy;
+    devId->destroy = uglVgaDevDestroy;
 
     /* Setup info method */
-    devId->info             = uglVgaInfo;
+    devId->info = uglVgaInfo;
 
     /* Setup mode support methods */
-    devId->modeAvailGet     = uglVgaModeAvailGet;
-    devId->modeSet          = uglVgaModeSet;
+    devId->modeAvailGet = uglVgaModeAvailGet;
+    devId->modeSet      = uglVgaModeSet;
 
     /* Setup graphics context support methods */
-    devId->gcCreate         = uglGenericGcCreate;
-    devId->gcCopy           = uglGenericGcCopy;
-    devId->gcDestroy        = uglGenericGcDestroy;
+    devId->gcCreate  = uglGenericGcCreate;
+    devId->gcCopy    = uglGenericGcCopy;
+    devId->gcDestroy = uglGenericGcDestroy;
 
     /* Setup color support methods */
-    devId->colorAlloc       = uglGenericColorAllocIndexed;
-    devId->colorFree        = uglGenericColorFreeIndexed;
-    devId->clutGet          = uglVgaClutGet;
-    devId->clutSet          = uglVgaClutSet;
+    devId->colorAlloc = uglGenericColorAllocIndexed;
+    devId->colorFree  = uglGenericColorFreeIndexed;
+    devId->clutGet    = uglVgaClutGet;
+    devId->clutSet    = uglVgaClutSet;
+
+    /* Setup graphics primitives support methods */
+    devId->line      = uglGenericLine;
+    devId->rectangle = uglGenericRectangle;
+    devId->polygon   = uglGenericPolygon;
+
+    /* Setup bitmap support methods */
+    devId->transBitmapCreate        = uglGenericTransBitmapCreate;
+    devId->transBitmapCreateFromDdb = uglGenericTransBitmapCreateFromDdb;
+    devId->transBitmapDestroy       = uglGenericTransBitmapDestroy;
+    devId->transBitmapBlt           = uglGenericTransBitmapLinearBlt;
+
+    /* Setup cursor support methods */
+    devId->cursorInit          = uglGenericCursorInit;
+    devId->cursorDeinit        = uglGenericCursorDeinit;
+    devId->cursorBitmapCreate  = uglGenericCursorBitmapCreate;
+    devId->cursorBitmapDestroy = uglGenericCursorBitmapDestroy;
+    devId->cursorImageSet      = uglGenericCursorImageSet;
+    devId->cursorImageGet      = uglGenericCursorImageGet;
+    devId->cursorOn            = uglGenericCursorOn;
+    devId->cursorOff           = uglGenericCursorOff;
+    devId->cursorHide          = uglGenericCursorHide;
+    devId->cursorShow          = uglGenericCursorShow;
+    devId->cursorMove          = uglGenericCursorMove;
 
     return (devId);
 }
@@ -217,9 +245,6 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->bytesPerLine = devId->pMode->width;
             pDrv->colorPlanes  = devId->pMode->colorDepth;
 
-            /* Set generic driver methods */
-            pDrv->generic.gpWait        = uglVgaGpWait;
-
             /* Setup first drawing page */
             devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
                                                         sizeof (UGL_GEN_DDB));
@@ -257,10 +282,15 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->pixelSet = uglGeneric8BitPixelSet;
 
             /* Setup bitmap support methods */
-            devId->bitmapCreate  = uglGeneric8BitBitmapCreate;
-            devId->bitmapDestroy = uglGeneric8BitBitmapDestroy;
-            devId->bitmapBlt     = uglGeneric8BitBitmapBlt;
-            devId->bitmapWrite   = uglGeneric8BitBitmapWrite;
+            devId->bitmapCreate      = uglGeneric8BitBitmapCreate;
+            devId->bitmapDestroy     = uglGeneric8BitBitmapDestroy;
+            devId->bitmapBlt         = uglGeneric8BitBitmapBlt;
+            devId->bitmapWrite       = uglGeneric8BitBitmapWrite;
+            devId->monoBitmapCreate  = uglGeneric8BitMonoBitmapCreate;
+            devId->monoBitmapDestroy = uglGeneric8BitMonoBitmapDestroy;
+            devId->monoBitmapBlt     = uglGeneric8BitMonoBitmapBlt;
+            devId->monoBitmapWrite   = uglGeneric8BitMonoBitmapWrite;
+            devId->monoBitmapRead    = uglGeneric8BitMonoBitmapRead;
 
             /* Clear screen */
             memset (pDrv->generic.fbAddress, 0,
@@ -274,11 +304,9 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->colorPlanes  = devId->pMode->colorDepth;
 
             /* Set generic driver methods */
-            pDrv->generic.hLine =         uglVgaHLine;
-            pDrv->generic.vLine =         uglVgaVLine;
+            pDrv->generic.hLine         = uglVgaHLine;
+            pDrv->generic.vLine         = uglVgaVLine;
             pDrv->generic.bresenhamLine = uglVgaBresenhamLine;
-            pDrv->generic.fill          = uglGenericFill;
-            pDrv->generic.gpWait        = uglVgaGpWait;
 
             /* Setup first drawing page */
             devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
@@ -314,40 +342,19 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             devId->colorConvert = uglVga4BitColorConvert;
 
             /* Setup graphics primitives support methods */
-            devId->pixelSet  = uglVgaPixelSet;
-            devId->line      = uglGenericLine;
-            devId->rectangle = uglGenericRectangle;
-            devId->polygon   = uglGenericPolygon;
+            devId->pixelSet = uglVgaPixelSet;
 
             /* Setup bitmap support methods */
-            devId->bitmapCreate             = uglVgaBitmapCreate;
-            devId->bitmapDestroy            = uglVgaBitmapDestroy;
-            devId->bitmapBlt                = uglVgaBitmapBlt;
-            devId->bitmapWrite              = uglVgaBitmapWrite;
-            devId->bitmapRead               = uglVgaBitmapRead;
-            devId->monoBitmapCreate         = uglVgaMonoBitmapCreate;
-            devId->monoBitmapDestroy        = uglVgaMonoBitmapDestroy;
-            devId->monoBitmapBlt            = uglVgaMonoBitmapBlt;
-            devId->monoBitmapWrite          = uglVgaMonoBitmapWrite;
-            devId->monoBitmapRead           = uglVgaMonoBitmapRead;
-            devId->transBitmapCreate        = uglGenericTransBitmapCreate;
-            devId->transBitmapCreateFromDdb =
-                uglGenericTransBitmapCreateFromDdb;
-            devId->transBitmapDestroy       = uglGenericTransBitmapDestroy;
-            devId->transBitmapBlt           = uglGenericTransBitmapLinearBlt;
-
-            /* Setup cursor support methods */
-            devId->cursorInit          = uglGenericCursorInit;
-            devId->cursorDeinit        = uglGenericCursorDeinit;
-            devId->cursorBitmapCreate  = uglGenericCursorBitmapCreate;
-            devId->cursorBitmapDestroy = uglGenericCursorBitmapDestroy;
-            devId->cursorImageSet      = uglGenericCursorImageSet;
-            devId->cursorImageGet      = uglGenericCursorImageGet;
-            devId->cursorOn            = uglGenericCursorOn;
-            devId->cursorOff           = uglGenericCursorOff;
-            devId->cursorHide          = uglGenericCursorHide;
-            devId->cursorShow          = uglGenericCursorShow;
-            devId->cursorMove          = uglGenericCursorMove;
+            devId->bitmapCreate      = uglVgaBitmapCreate;
+            devId->bitmapDestroy     = uglVgaBitmapDestroy;
+            devId->bitmapBlt         = uglVgaBitmapBlt;
+            devId->bitmapWrite       = uglVgaBitmapWrite;
+            devId->bitmapRead        = uglVgaBitmapRead;
+            devId->monoBitmapCreate  = uglVgaMonoBitmapCreate;
+            devId->monoBitmapDestroy = uglVgaMonoBitmapDestroy;
+            devId->monoBitmapBlt     = uglVgaMonoBitmapBlt;
+            devId->monoBitmapWrite   = uglVgaMonoBitmapWrite;
+            devId->monoBitmapRead    = uglVgaMonoBitmapRead;
 
             /* Set write mode 3 */
             UGL_OUT_BYTE (0x3ce, 0x05);
@@ -384,6 +391,8 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
 UGL_LOCAL UGL_STATUS uglVgaGpWait (
     UGL_GENERIC_DRIVER * pDrv
     ) {
+
+    pDrv->gpBusy = UGL_FALSE;
 
     return (UGL_STATUS_OK);
 }
