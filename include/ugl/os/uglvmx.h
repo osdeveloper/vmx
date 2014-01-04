@@ -24,6 +24,7 @@
 #define _uglvmx_h
 
 #include <vmx.h>
+#include <arch/arch.h>
 #include <vmx/taskLib.h>
 #include <vmx/semLib.h>
 #include <os/memPartLib.h>
@@ -32,6 +33,14 @@
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+/* Byte order */
+
+#if (_BYTE_ORDER == _BIG_ENDIAN)
+#define UGL_BIG_ENDIAN
+#else
+#define UGL_LITTLE_ENDIAN
 #endif
 
 /* Macros */
