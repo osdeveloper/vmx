@@ -105,6 +105,22 @@ UGL_STATUS uglCommonClutMapNearest (
 
 /******************************************************************************
  *
+ * uglCommonCubeMapNearest - Map to nearest match using color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCommonCubeMapNearest (
+    UGL_CLUT *        pClut,
+    UGL_COLOR_FORMAT  format,
+    UGL_ARGB *        pMapColors,
+    UGL_ARGB *        pActualColors,
+    UGL_COLOR *       pUglColors,
+    UGL_SIZE          numColors
+    );
+
+/******************************************************************************
+ *
  * uglCommonClutAlloc - Allocate color
  *
  * RETURNS: UGL_FALSE if no need to allocate a new color else UGL_TRUE

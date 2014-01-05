@@ -607,6 +607,7 @@ SYMBOL standTable[] =
   {NULL, "_uglColorCubeDestroy", uglColorCubeDestroy, 0, N_TEXT | N_EXT},
   {NULL, "_uglColorCubeAlloc", uglColorCubeAlloc, 0, N_TEXT | N_EXT},
   {NULL, "_uglColorCubeFree", uglColorCubeFree, 0, N_TEXT | N_EXT},
+  {NULL, "_uglColorCubeLookupExt", uglColorCubeLookupExt, 0, N_TEXT | N_EXT},
   {NULL, "_uglColorCubeLookup", uglColorCubeLookup, 0, N_TEXT | N_EXT},
 
   /* xbd devices */

@@ -63,6 +63,24 @@ UGL_STATUS uglGeneric8BitColorConvert (
                 }
                 break;
 
+            case UGL_ARGB8888: {
+                    UGL_ARGB *  pSrc  = (UGL_ARGB *) srcArray;
+                    UGL_UINT8 * pDest = (UGL_UINT8 *) destArray;
+                    UGL_COLOR   color;
+                    UGL_INT32   i;
+
+                    for (i = 0; i < arraySize; i++) {
+                        if (uglCommonCubeMapNearest (pDrv->pClut, UGL_ARGB8888,
+                                                     &pSrc[i], UGL_NULL, &color,
+                                                     1) != UGL_STATUS_OK) {
+                            return (UGL_STATUS_ERROR);
+                        }
+
+                        pDest[i] = (UGL_UINT8) color;
+                    }
+                }
+                break;
+
             default:
                 /* TODO */
                 return (UGL_STATUS_ERROR);

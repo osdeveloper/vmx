@@ -52,7 +52,7 @@ UGL_COLOR_CUBE * uglColorCubeCreate (
 
     pCube = (UGL_COLOR_CUBE *) UGL_CALLOC (1, sizeof (UGL_COLOR_CUBE) +
                                            sizeof (UGL_ARGB) * nColors +
-                                           sizeof (UGL_ARGB) * nColors +
+                                           sizeof (UGL_COLOR) * nColors +
                                            sizeof (UGL_ARGB) * nColors);
     if (pCube == UGL_NULL) {
         return (UGL_NULL);
@@ -60,8 +60,8 @@ UGL_COLOR_CUBE * uglColorCubeCreate (
 
     /* Setup pointers */
     pCube->pArgbArray       = (UGL_ARGB *) &pCube[1];
-    pCube->pActualArgbArray = (UGL_ARGB *) &pCube->pArgbArray[nColors];
-    pCube->pUglColorArray   = (UGL_ARGB *) &pCube->pActualArgbArray[nColors];
+    pCube->pUglColorArray   = (UGL_COLOR *) &pCube->pArgbArray[nColors];
+    pCube->pActualArgbArray = (UGL_ARGB *) &pCube->pUglColorArray[nColors];
     pCube->nRedColors       = nRed;
     pCube->nGreenColors     = nGreen;
     pCube->nBlueColors      = nBlue;
@@ -157,14 +157,15 @@ UGL_STATUS uglColorCubeFree (
 
 /******************************************************************************
  *
- * uglColorCubeLookup - Find nearst march using color cube
+ * uglColorCubeLookupExt - Find nearst march for format using color cube
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
  */
 
-UGL_STATUS uglColorCubeLookup (
+UGL_STATUS uglColorCubeLookupExt (
     UGL_COLOR_CUBE * pCube,
     UGL_ARGB *       pArgb,
+    UGL_ARGB_SPEC *  pSpec,
     UGL_ARGB *       pUglColor,
     UGL_ARGB *       pActualArgb
     ) {
@@ -184,13 +185,16 @@ UGL_STATUS uglColorCubeLookup (
     blue  = (UGL_UINT8) UGL_ARGB_BLUE (*pArgb);
 
     /* Calculate color index */
-    index = ((((red * pCube->nRedColors) >> 8) *
+    index = ((((red * pCube->nRedColors) >> pSpec->nRedBits) *
                  (pCube->nGreenColors * pCube->nBlueColors)) +
-             (((green * pCube->nGreenColors) >> 8) * (pCube->nBlueColors)) +
-              ((blue * pCube->nBlueColors) >> 8));
+             (((green * pCube->nGreenColors) >> pSpec->nGreenBits) *
+                 (pCube->nBlueColors)) +
+              ((blue * pCube->nBlueColors) >> pSpec->nBlueBits));
 
-    /* Get color */
-    *pUglColor = pCube->pUglColorArray[index];
+    /* Get color if requested */
+    if (pUglColor != UGL_NULL) {
+        *pUglColor = pCube->pUglColorArray[index];
+    }
 
     /* Store actual color if requested */
     if (pActualArgb != UGL_NULL) {
@@ -198,5 +202,31 @@ UGL_STATUS uglColorCubeLookup (
     }
 
     return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglColorCubeLookup - Find nearst march using color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglColorCubeLookup (
+    UGL_COLOR_CUBE * pCube,
+    UGL_ARGB *       pArgb,
+    UGL_ARGB *       pUglColor,
+    UGL_ARGB *       pActualArgb
+    ) {
+    UGL_STATUS     status;
+    UGL_ARGB_SPEC  spec;
+
+    spec.nRedBits   = 8;
+    spec.nGreenBits = 8;
+    spec.nBlueBits  = 8;
+
+    status = uglColorCubeLookupExt (pCube, pArgb, &spec,
+                                    pUglColor, pActualArgb);
+
+    return (status);
 }
 

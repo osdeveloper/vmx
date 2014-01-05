@@ -31,7 +31,12 @@
 UGL_LOCAL UGL_VOID uglCubeMap (
     UGL_CLUT * pClut,
     UGL_INT32  index,
-    UGL_ARGB   allocColor
+    UGL_ARGB   reqColor
+    );
+
+UGL_LOCAL UGL_VOID uglCubeUnmap (
+    UGL_CLUT * pClut,
+    UGL_COLOR  color
     );
 
 /******************************************************************************
@@ -188,11 +193,11 @@ UGL_STATUS uglCommonClutMapNearest (
     UGL_ARGB         r;
     UGL_ARGB         g;
     UGL_ARGB         b;
-    unsigned long    minError;
-    unsigned long    rError;
-    unsigned long    gError;
-    unsigned long    bError;
-    unsigned long    errorVal;
+    UGL_UINT32       minError;
+    UGL_UINT32       rError;
+    UGL_UINT32       gError;
+    UGL_UINT32       bError;
+    UGL_UINT32       errorVal;
 
     /* Store clut and maximize minimum error */
     clut     = pClut->clut;
@@ -241,6 +246,46 @@ UGL_STATUS uglCommonClutMapNearest (
         /* Store palette index */
         if (pUglColors != UGL_NULL) {
             pUglColors[i] = (UGL_COLOR) nearIndex;
+        }
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglCommonCubeMapNearest - Map to nearest match using color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglCommonCubeMapNearest (
+    UGL_CLUT *        pClut,
+    UGL_COLOR_FORMAT  format,
+    UGL_ARGB *        pMapColors,
+    UGL_ARGB *        pActualColors,
+    UGL_COLOR *       pUglColors,
+    UGL_SIZE          numColors
+    ) {
+    UGL_COLOR_CUBE * pCube;
+    UGL_ARGB_SPEC    spec;
+    UGL_INT32        i;
+
+    /* Get color cube */
+    pCube = pClut->pCube;
+    if (pCube == UGL_NULL || pMapColors == UGL_NULL) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    /* Get ARGB color specification for format */
+    if (uglARGBSpecGet (format, &spec) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    for (i = 0; i < numColors; i++) {
+        if (uglColorCubeLookupExt (pCube, &pMapColors[i], &spec, &pUglColors[i],
+                                   &pActualColors[i]) != UGL_STATUS_OK) {
+            return (UGL_STATUS_ERROR);
         }
     }
 
@@ -318,6 +363,7 @@ UGL_BOOL uglCommonClutAlloc (
             /* Setup store arguments */
             *pIndex       = index;
             *pActualColor = reqColor;
+            uglCubeMap (pClut, index, reqColor);
 
             return (UGL_TRUE);
         }
@@ -367,6 +413,7 @@ UGL_BOOL uglCommonClutAlloc (
         clut[index].useCount++;
         *pIndex       = index;
         *pActualColor = reqColor;
+        uglCubeMap (pClut, index, reqColor);
 
         return (UGL_TRUE);
     }
@@ -432,6 +479,7 @@ UGL_STATUS uglCommonClutFree (
             clut[index].nextIndex = pClut->firstFreeIndex;
             clut[index].prevIndex = -1;
             pClut->firstFreeIndex = index;
+            uglCubeUnmap (pClut, index);
         }
     }
 
@@ -468,40 +516,130 @@ UGL_STATUS uglCommonClutDestroy(
 UGL_LOCAL UGL_VOID uglCubeMap (
     UGL_CLUT * pClut,
     UGL_INT32  index,
-    UGL_ARGB   allocColor
+    UGL_ARGB   reqColor
     ) {
     UGL_COLOR_CUBE * pCube;
     UGL_INT32        componentError;
     UGL_UINT32       error;
     UGL_UINT32       i;
 
+    pCube = pClut->pCube;
     if (pCube != UGL_NULL) {
         for (i = 0; i < pCube->arraySize; i++) {
             if (pCube->pArgbArray[i] != pCube->pActualArgbArray[i]) {
 
                 /* Set error contribution from red component */
                 componentError = UGL_ARGB_RED (pCube->pArgbArray[i]) -
-                                 UGL_ARGB_RED (allocColor);
+                                 UGL_ARGB_RED (reqColor);
                 error = componentError * componentError;
 
                 /* Add error contribution from green component */
                 componentError = UGL_ARGB_GREEN (pCube->pArgbArray[i]) -
-                                 UGL_ARGB_GREEN (allocColor);
+                                 UGL_ARGB_GREEN (reqColor);
                 error += componentError * componentError;
 
                 /* Add error contribution from blue component */
                 componentError = UGL_ARGB_BLUE (pCube->pArgbArray[i]) -
-                                 UGL_ARGB_BLUE (allocColor);
+                                 UGL_ARGB_BLUE (reqColor);
                 error += componentError * componentError;
 
                 if (error <= pClut->pCubeError[i]) {
-                    pClut->pCube->pActualArgbArray[i] = allocColor;
+                    pClut->pCube->pActualArgbArray[i] = reqColor;
                     pClut->pCube->pUglColorArray[i]   = (UGL_COLOR) index;
                 }
             }
             else if (pClut->pCubeError[i] != 0) {
                 pClut->pCubeError[i] = 0;
                 pClut->pCube->pUglColorArray[i] = (UGL_COLOR) index;
+            }
+        }
+    }
+}
+
+/******************************************************************************
+ *
+ * uglCubeUnmap - Unmap color from color cube
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL UGL_VOID uglCubeUnmap (
+    UGL_CLUT * pClut,
+    UGL_COLOR  color
+    ) {
+    UGL_COLOR_CUBE * pCube;
+    UGL_UINT32       index;
+    UGL_UINT32       i;
+    UGL_ARGB         argb;
+    UGL_COLOR        col;
+    UGL_BOOL         match;
+    UGL_INT32        componentError;
+    UGL_UINT32       error;
+    UGL_UINT32       minError;
+
+    if (pClut != UGL_NULL) {
+        pCube = pClut->pCube;
+        if (pCube != UGL_NULL) {
+            index    = 0;
+            argb     = 0;
+            col      = 0;
+            match    = UGL_FALSE;
+            minError = 0xffffffff;
+
+            if (pClut->firstFreeIndex != -1) {
+                for (index = 0; index < pCube->arraySize; index++) {
+                    if (pCube->pUglColorArray[index] == color) {
+                        match = UGL_TRUE;
+                        break;
+                    }
+                }
+
+                /* If match found */
+                if (match == UGL_TRUE) {
+                    for (i = 0; i < pCube->arraySize; i++) {
+                        if (pCube->pUglColorArray[i] != color) {
+
+                            /* Set error contribution from red component */
+                            componentError =
+                                UGL_ARGB_RED (pCube->pArgbArray[index]) -
+                                UGL_ARGB_RED (i);
+                            error = componentError * componentError;
+
+                            /* Add error contribution from green component */
+                            componentError =
+                                UGL_ARGB_GREEN (pCube->pArgbArray[index]) -
+                                UGL_ARGB_GREEN (i);
+                            error += componentError * componentError;
+
+                            /* Add error contribution from blue component */
+                            componentError =
+                                UGL_ARGB_BLUE (pCube->pArgbArray[index]) -
+                                UGL_ARGB_BLUE (i);
+                            error += componentError * componentError;
+
+                            if (error <= minError) {
+                                minError = error;
+                                argb     = pCube->pActualArgbArray[i];
+                                col      = pCube->pUglColorArray[i];
+                            }
+                        }
+                    }
+
+                    for (i = 0; i < pCube->arraySize; i++) {
+                        if (pCube->pUglColorArray[i] == color) {
+                            pCube->pActualArgbArray[i] = argb;
+                            pCube->pUglColorArray[i]   = col;
+                            pClut->pCubeError[i] = minError;
+                        }
+                    }
+                }
+            }
+            else {
+                for (i = 0; i < pCube->arraySize; i++) {
+                    pCube->pActualArgbArray[index] = 0;
+                    pCube->pUglColorArray[index]   = 0;
+                    pClut->pCubeError[index] = 0xffffffff;
+                }
             }
         }
     }

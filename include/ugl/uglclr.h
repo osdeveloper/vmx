@@ -87,6 +87,22 @@ typedef UGL_UINT32  UGL_COLOR_FORMAT;
 typedef UGL_UINT32  UGL_ARGB;
 typedef UGL_ARGB    UGL_RGB;
 
+typedef struct {
+    UGL_UINT8  alphaMask;
+    UGL_UINT8  alphaShift;
+    UGL_UINT8  nAlphaBits;
+    UGL_UINT8  redMask;
+    UGL_UINT8  redShift;
+    UGL_UINT8  nRedBits;
+    UGL_UINT8  greenMask;
+    UGL_UINT8  greenShift;
+    UGL_UINT8  nGreenBits;
+    UGL_UINT8  blueMask;
+    UGL_UINT8  blueShift;
+    UGL_UINT8  nBlueBits;
+    UGL_UINT8  numBytesPerARGB;
+} UGL_ARGB_SPEC;
+
 typedef struct ugl_color_cube {
     UGL_ARGB *              pArgbArray;
     UGL_COLOR *             pUglColorArray;

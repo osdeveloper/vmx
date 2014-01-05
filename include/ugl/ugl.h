@@ -359,6 +359,30 @@ UGL_STATUS uglColorFree (
     UGL_SIZE       numColors
     );
 
+/******************************************************************************
+ *
+ * uglARGBSpecGet - Decode UGL_COLOR_FORMAT to ARGB
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglARGBSpecGet (
+    UGL_COLOR_FORMAT  format,
+    UGL_ARGB_SPEC *   pSpec
+    );
+
+/******************************************************************************
+ *
+ * uglARGBSpecSet - Encode ARGB to UGL_COLOR_FORMAT
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglARGBSpecSet (
+    UGL_COLOR_FORMAT * pFormat,
+    UGL_ARGB_SPEC *    pSpec
+    );
+
 /* Line drawing support functions */
 
 /******************************************************************************
@@ -912,6 +936,21 @@ UGL_STATUS uglColorCubeAlloc (
 
 UGL_STATUS uglColorCubeFree (
     UGL_COLOR_CUBE * pCube
+    );
+
+/******************************************************************************
+ *
+ * uglColorCubeLookupExt - Find nearst march for format using color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglColorCubeLookupExt (
+    UGL_COLOR_CUBE * pCube,
+    UGL_ARGB *       pArgb,
+    UGL_ARGB_SPEC *  pSpec,
+    UGL_ARGB *       pUglColor,
+    UGL_ARGB *       pActualArgb
     );
 
 /******************************************************************************
