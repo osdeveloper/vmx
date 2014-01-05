@@ -22,8 +22,8 @@
 
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/common/udcomm.h>
-#include <ugl/driver/graphics/generic/udgen8.h>
 #include <ugl/driver/graphics/generic/udgen.h>
+#include <ugl/driver/graphics/generic/udgen8.h>
 
 /******************************************************************************
  *

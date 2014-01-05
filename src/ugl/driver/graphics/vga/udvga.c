@@ -245,6 +245,11 @@ UGL_LOCAL UGL_STATUS uglVgaModeSet (
             pDrv->bytesPerLine = devId->pMode->width;
             pDrv->colorPlanes  = devId->pMode->colorDepth;
 
+            /* Set generic driver methods */
+            pDrv->generic.hLine         = uglGeneric8BitHLine;
+            pDrv->generic.vLine         = uglGeneric8BitVLine;
+            pDrv->generic.bresenhamLine = uglGeneric8BitBresenhamLine;
+
             /* Setup first drawing page */
             devId->pPageZero = (UGL_PAGE *) UGL_CALLOC (1, sizeof (UGL_PAGE) + 
                                                         sizeof (UGL_GEN_DDB));

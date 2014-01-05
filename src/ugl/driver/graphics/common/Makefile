@@ -1,7 +1,7 @@
 # Makefile -
 #
 
-OBJS = udcbcopy.o udcclr.o uglugi.o
+OBJS = udcbcopy.o udcmset.o udcclr.o uglugi.o
 SUBDIRS =
 LIB_TGT = ugl-driver
 

@@ -18,50 +18,11 @@
  *   along with Real VMX.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* udcomm.h - Common support functions for Universal Graphics Library */
+/* udcmset.c - Memory set functions for graphics */
 
-#ifndef _udcomm_h
-#define _udcomm_h
-
-#ifndef _ASMLANGUAGE
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Functions */
-
+#include <string.h>
 #include <ugl/ugl.h>
-
-/******************************************************************************
- *
- * uglCommonByteCopy - Copy data bytewise using raster operation
- *
- * RETURNS: N/A
- */
-
-UGL_VOID uglCommonByteCopy (
-    const void *   pSrc,
-    void *         pDest,
-    int            nBytes,
-    UGL_RASTER_OP  rasterOp
-    );
-
-/******************************************************************************
- *
- * uglCommonBitCopy - Copy data bitwise using raster operation
- *
- * RETURNS: N/A
- */
-
-UGL_VOID uglCommonBitCopy (
-    const void *   pSrc,
-    int            srcBitOffset,
-    void *         pDest,
-    int            destBitOffset,
-    int            nBits,
-    UGL_RASTER_OP  rasterOp
-    );
+#include <ugl/driver/graphics/common/udcomm.h>
 
 /******************************************************************************
  *
@@ -78,13 +39,13 @@ UGL_VOID uglCommonMemSet (
     int            bpp,
     UGL_COLOR *    pColor,
     UGL_RASTER_OP  rasterOp
-    );
+    ) {
 
-#ifdef __cplusplus
+    if (rasterOp == UGL_RASTER_OP_COPY && bpp == 8) {
+        memset (pBuf + offset, *pColor, nItems);
+    }
+    else {
+        /* TODO */
+    }
 }
-#endif /* __cplusplus */
-
-#endif /* _ASMLANGUAGE */
-
-#endif /* _udcomm_h */
 

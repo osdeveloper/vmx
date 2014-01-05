@@ -1,7 +1,7 @@
 # Makefile -
 #
 
-OBJS = udg8bmp.o udg8pix.o
+OBJS = udg8bmp.o udg8pix.o udg8lin.o
 SUBDIRS =
 LIB_TGT = ugl-driver
 

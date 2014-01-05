@@ -44,6 +44,57 @@ UGL_STATUS uglGeneric8BitPixelSet (
     UGL_COLOR      c
     );
 
+/* 8-Bit line support functions */
+
+/******************************************************************************
+ *
+ * uglGeneric8BitHLine - Draw horizontal line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitHLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POS              y,
+    UGL_POS              x1,
+    UGL_POS              x2,
+    UGL_COLOR            color
+    );
+
+/******************************************************************************
+ *
+ * uglGeneric8BitVLine - Draw vertical line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitVLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POS              x,
+    UGL_POS              y1,
+    UGL_POS              y2,
+    UGL_COLOR            color
+    );
+
+/******************************************************************************
+ *
+ * uglGeneric8BitBresenhamLine - Draw bresenham line
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGeneric8BitBresenhamLine (
+    UGL_GENERIC_DRIVER * pDrv,
+    UGL_POINT *          pStartPoint,
+    UGL_SIZE             numPoints,
+    UGL_BOOL             xMajor,
+    UGL_ORD              majorInc,
+    UGL_ORD              minorInc,
+    UGL_ORD              errorValue,
+    UGL_ORD              majorErrorInc,
+    UGL_ORD              minorErrorInc
+    );
+
 /******************************************************************************
  *
  * uglGeneric8BitBitmapCreate - Create 8-bit bitmap
