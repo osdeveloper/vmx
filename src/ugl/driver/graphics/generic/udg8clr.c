@@ -40,6 +40,7 @@ UGL_STATUS uglGeneric8BitColorConvert (
     UGL_SIZE          arraySize
     ) {
     UGL_GENERIC_DRIVER * pDrv;
+    UGL_STATUS           status;
 
     /* Get generic driver */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -50,6 +51,7 @@ UGL_STATUS uglGeneric8BitColorConvert (
         switch (srcFormat) {
             case UGL_DEVICE_COLOR:
                 memcpy (destArray, srcArray, arraySize * sizeof (UGL_UINT8));
+                status = UGL_STATUS_OK;
                 break;
 
             case UGL_DEVICE_COLOR_32: {
@@ -60,6 +62,8 @@ UGL_STATUS uglGeneric8BitColorConvert (
                     for (i = 0; i < arraySize; i++) {
                         pDest[i] = (UGL_UINT8) (pSrc[i] & 0x000000ff);
                     }
+
+                    status = UGL_STATUS_OK;
                 }
                 break;
 
@@ -69,11 +73,13 @@ UGL_STATUS uglGeneric8BitColorConvert (
                     UGL_COLOR   color;
                     UGL_INT32   i;
 
+                    status = UGL_STATUS_OK;
                     for (i = 0; i < arraySize; i++) {
                         if (uglCommonCubeMapNearest (pDrv->pClut, UGL_ARGB8888,
                                                      &pSrc[i], UGL_NULL, &color,
                                                      1) != UGL_STATUS_OK) {
-                            return (UGL_STATUS_ERROR);
+                            status = UGL_STATUS_ERROR;
+                            break;
                         }
 
                         pDest[i] = (UGL_UINT8) color;
@@ -83,14 +89,29 @@ UGL_STATUS uglGeneric8BitColorConvert (
 
             default:
                 /* TODO */
-                return (UGL_STATUS_ERROR);
+                status = UGL_STATUS_ERROR;
+                break;
+        }
+    }
+    else if (destFormat == UGL_DEVICE_COLOR_32) {
+        status = uglGeneric8BitColorConvert (devId, srcArray, srcFormat,
+                                             destArray, UGL_DEVICE_COLOR,
+                                             arraySize);
+        if (status == UGL_STATUS_OK) {
+            UGL_UINT8 * pSrc  = (UGL_UINT8 *) srcArray;
+            UGL_COLOR * pDest = (UGL_COLOR *) destArray;
+            UGL_INT32   i;
+
+            for (i = 0; i < arraySize; i++) {
+                pDest[i] = (UGL_COLOR) pSrc[i];
+            }
         }
     }
     else {
         /* TODO */
-        return (UGL_STATUS_ERROR);
+        status = UGL_STATUS_ERROR;
     }
 
-    return (UGL_STATUS_OK);
+    return (status);
 }
 
