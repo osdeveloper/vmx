@@ -1456,6 +1456,9 @@ int uglText4Test(char *fontfam, char *str)
   getchar();
 
   uglGcDestroy(gc);
+  for (i = 0; i < numFonts; i++) {
+    uglFontDestroy(fontId[i]);
+  }
   restoreConsole(&oldRegs);
 
   return 0;
@@ -2729,6 +2732,9 @@ int uglText8Test(char *fontfam, char *str)
   getchar();
 
   uglGcDestroy(gc);
+  for (i = 0; i < numFonts; i++) {
+    uglFontDestroy(fontId[i]);
+  }
   restoreConsole(&oldRegs);
 
   return 0;

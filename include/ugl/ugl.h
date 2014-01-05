@@ -865,6 +865,69 @@ UGL_STATUS uglTextDraw (
     const UGL_CHAR * pText
     );
 
+/* Color cube support functions */
+
+/******************************************************************************
+ *
+ * uglColorCubeCreate - Create color cube without color allocation
+ *
+ * RETURNS: Pointer to color cube or UGL_NULL
+ */
+
+UGL_COLOR_CUBE * uglColorCubeCreate (
+    UGL_ORD  nRed,
+    UGL_ORD  nGreen,
+    UGL_ORD  nBlue
+    );
+
+/******************************************************************************
+ *
+ * uglColorCubeDestroy - Destroy color cube without color deallocation
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglColorCubeDestroy (
+    UGL_COLOR_CUBE * pCube
+    );
+
+/******************************************************************************
+ *
+ * uglColorCubeAlloc - Allocate colors for color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglColorCubeAlloc (
+    UGL_DEVICE_ID    devId,
+    UGL_COLOR_CUBE * pCube
+    );
+
+/******************************************************************************
+ *
+ * uglColorCubeFree - Deallocate colors for color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglColorCubeFree (
+    UGL_COLOR_CUBE * pCube
+    );
+
+/******************************************************************************
+ *
+ * uglColorCubeLookup - Find nearst march using color cube
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglColorCubeLookup (
+    UGL_COLOR_CUBE * pCube,
+    UGL_ARGB *       pArgb,
+    UGL_ARGB *       pUglColor,
+    UGL_ARGB *       pActualArgb
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

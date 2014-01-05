@@ -26,6 +26,14 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/common/udcclr.h>
 
+/* Locals */
+
+UGL_LOCAL UGL_VOID uglCubeMap (
+    UGL_CLUT * pClut,
+    UGL_INT32  index,
+    UGL_ARGB   allocColor
+    );
+
 /******************************************************************************
  *
  * uglCommonClutCreate - Create palette
@@ -36,14 +44,37 @@
 UGL_CLUT * uglCommonClutCreate (
     UGL_SIZE numColors
     ) {
-    UGL_INT32  i;
-    UGL_CLUT * pClut;
+    UGL_INT32   i;
+    UGL_UINT32  ui;
+    UGL_CLUT *  pClut;
 
     /* Allocate memory for struct */
     pClut = (UGL_CLUT *) UGL_CALLOC (1, sizeof (UGL_CLUT) +
                                      sizeof (UGL_CLUT_ENTRY) * numColors);
     if (pClut == NULL) {
         return (UGL_NULL);
+    }
+
+    if (numColors >= 216 && numColors <= 256) {
+
+        /* Create color cube */
+        pClut->pCube = uglColorCubeCreate (6, 6, 6);
+        if (pClut->pCube == UGL_NULL) {
+            UGL_FREE (pClut);
+            return (UGL_NULL);
+        }
+
+        pClut->pCubeError = (UGL_UINT32 *) UGL_MALLOC (pClut->pCube->arraySize *
+                                                       sizeof (UGL_UINT32));
+        if (pClut->pCubeError == UGL_NULL) {
+            uglColorCubeDestroy (pClut->pCube);
+            UGL_FREE (pClut);
+            return (UGL_NULL);
+        }
+
+        for (ui = 0; ui < pClut->pCube->arraySize; ui++) {
+            pClut->pCubeError[ui] = 0xffffffff;
+        }
     }
 
     /* Setup struct */
@@ -83,6 +114,12 @@ UGL_STATUS uglCommonClutSet (
     if (pClut == UGL_NULL) {
         return (UGL_STATUS_ERROR);
     }
+
+    if (pClut->pCubeError != UGL_NULL) {
+        UGL_FREE (pClut->pCubeError);
+    }
+
+    uglColorCubeDestroy (pClut->pCube);
 
     /* Check offset and color number */
     if (offset < 0 || numColors < 0 || 
@@ -419,5 +456,54 @@ UGL_STATUS uglCommonClutDestroy(
     UGL_FREE (pClut);
 
     return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
+ * uglCubeMap - Map color to color cube
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL UGL_VOID uglCubeMap (
+    UGL_CLUT * pClut,
+    UGL_INT32  index,
+    UGL_ARGB   allocColor
+    ) {
+    UGL_COLOR_CUBE * pCube;
+    UGL_INT32        componentError;
+    UGL_UINT32       error;
+    UGL_UINT32       i;
+
+    if (pCube != UGL_NULL) {
+        for (i = 0; i < pCube->arraySize; i++) {
+            if (pCube->pArgbArray[i] != pCube->pActualArgbArray[i]) {
+
+                /* Set error contribution from red component */
+                componentError = UGL_ARGB_RED (pCube->pArgbArray[i]) -
+                                 UGL_ARGB_RED (allocColor);
+                error = componentError * componentError;
+
+                /* Add error contribution from green component */
+                componentError = UGL_ARGB_GREEN (pCube->pArgbArray[i]) -
+                                 UGL_ARGB_GREEN (allocColor);
+                error += componentError * componentError;
+
+                /* Add error contribution from blue component */
+                componentError = UGL_ARGB_BLUE (pCube->pArgbArray[i]) -
+                                 UGL_ARGB_BLUE (allocColor);
+                error += componentError * componentError;
+
+                if (error <= pClut->pCubeError[i]) {
+                    pClut->pCube->pActualArgbArray[i] = allocColor;
+                    pClut->pCube->pUglColorArray[i]   = (UGL_COLOR) index;
+                }
+            }
+            else if (pClut->pCubeError[i] != 0) {
+                pClut->pCubeError[i] = 0;
+                pClut->pCube->pUglColorArray[i] = (UGL_COLOR) index;
+            }
+        }
+    }
 }
 

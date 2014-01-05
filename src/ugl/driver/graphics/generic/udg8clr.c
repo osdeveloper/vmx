@@ -20,6 +20,7 @@
 
 /* udg8clr.c - Generic color convert support for 8 bit color */
 
+#include <string.h>
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 
@@ -38,20 +39,27 @@ UGL_STATUS uglGeneric8BitColorConvert (
     UGL_COLOR_FORMAT  destFormat,
     UGL_SIZE          arraySize
     ) {
-    UGL_INT32   i;
-    UGL_COLOR * pSrc;
-    UGL_UINT8 * pDest;
+    UGL_GENERIC_DRIVER * pDrv;
+
+    /* Get generic driver */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
     /* TODO: Function not complete */
 
     if (destFormat == UGL_DEVICE_COLOR) {
         switch (srcFormat) {
-            case UGL_DEVICE_COLOR_32:
-                pSrc = (UGL_COLOR *) srcArray;
-                pDest = (UGL_UINT8 *) destArray;
+            case UGL_DEVICE_COLOR:
+                memcpy (destArray, srcArray, arraySize * sizeof (UGL_UINT8));
+                break;
 
-                for (i = 0; i < arraySize; i++) {
-                    pDest[i] = (UGL_UINT8) (pSrc[i] & 0x000000ff);
+            case UGL_DEVICE_COLOR_32: {
+                    UGL_COLOR * pSrc  = (UGL_COLOR *) srcArray;
+                    UGL_UINT8 * pDest = (UGL_UINT8 *) destArray;
+                    UGL_INT32   i;
+
+                    for (i = 0; i < arraySize; i++) {
+                        pDest[i] = (UGL_UINT8) (pSrc[i] & 0x000000ff);
+                    }
                 }
                 break;
 

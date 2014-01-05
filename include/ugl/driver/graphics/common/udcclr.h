@@ -43,6 +43,8 @@ typedef struct ugl_clut {
     UGL_INT32        firstFreeIndex;    /* First free slot */
     UGL_INT32        firstUsedIndex;    /* First used slot */
     UGL_CLUT_ENTRY * clut;              /* Clut entry */
+    UGL_COLOR_CUBE * pCube;             /* Pointer to color cube */
+    UGL_UINT32 *     pCubeError;        /* Array of errors from color cube */
 } UGL_CLUT;
 
 /* Functions */

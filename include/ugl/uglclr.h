@@ -69,18 +69,34 @@
 
 #ifndef _ASMLANGUAGE
 
+/* Transparent color */
+#define UGL_COLOR_TRANSPARENT           ((UGL_COLOR) 0x00010101L)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Color types */
+/* Structs */
+
+struct ugl_ugi_driver;
+
+/* Types */
+
 typedef UGL_INT32   UGL_COLOR_MODEL;
 typedef UGL_UINT32  UGL_COLOR_FORMAT;
 typedef UGL_UINT32  UGL_ARGB;
 typedef UGL_ARGB    UGL_RGB;
 
-/* Draw color */
-#define UGL_COLOR_TRANSPARENT           ((UGL_COLOR) 0x00010101L)
+typedef struct ugl_color_cube {
+    UGL_ARGB *              pArgbArray;
+    UGL_COLOR *             pUglColorArray;
+    UGL_ARGB *              pActualArgbArray;
+    UGL_UINT32              nRedColors;
+    UGL_UINT32              nGreenColors;
+    UGL_UINT32              nBlueColors;
+    UGL_UINT32              arraySize;
+    struct ugl_ugi_driver * devId;
+} UGL_COLOR_CUBE;
 
 /* Macros */
 
@@ -124,7 +140,7 @@ typedef UGL_ARGB    UGL_RGB;
  *
  * UGL_MAKE_ARGB - Genereate color info from argb values
  *
- * RETURNS: Argb balue
+ * RETURNS: Argb value
  */
 
 #define UGL_MAKE_ARGB(a, r, g, b)                                             \
@@ -132,6 +148,16 @@ typedef UGL_ARGB    UGL_RGB;
           ((UGL_ARGB)(r) << 16) |                                             \
           ((UGL_ARGB)(g) << 8 ) |                                             \
            (UGL_ARGB)(b)      )
+
+/******************************************************************************
+ *
+ * UGL_MAKE_RGB - Genereate color info from rgb values with full opacity
+ *
+ * RETURNS: Rgb value
+ */
+
+#define UGL_MAKE_RGB(r, g, b)                                                 \
+    UGL_MAKE_ARGB(0xff, (r), (g), (b))
 
 #ifdef __cplusplus
 }
