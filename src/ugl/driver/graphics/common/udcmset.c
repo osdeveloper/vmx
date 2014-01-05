@@ -41,8 +41,42 @@ UGL_VOID uglCommonMemSet (
     UGL_RASTER_OP  rasterOp
     ) {
 
-    if (rasterOp == UGL_RASTER_OP_COPY && bpp == 8) {
-        memset (pBuf + offset, *pColor, nItems);
+    if (bpp == 8) {
+        UGL_UINT8 * pDest = (UGL_UINT8 *) pBuf + offset;
+        UGL_UINT8   color = (UGL_UINT8) *pColor;
+        int         count = nItems;
+        switch (rasterOp) {
+            case UGL_RASTER_OP_COPY:
+                memset (pDest, color, count);
+                break;
+
+            case UGL_RASTER_OP_AND:
+                while (--count >= 0) {
+                    *pDest &= color;
+
+                    /* Advance */
+                    pDest++;
+                }
+                break;
+
+            case UGL_RASTER_OP_OR:
+                while (--count >= 0) {
+                    *pDest |= color;
+
+                    /* Advance */
+                    pDest++;
+                }
+                break;
+
+            case UGL_RASTER_OP_XOR:
+                while (--count >= 0) {
+                    *pDest ^= color;
+
+                    /* Advance */
+                    pDest++;
+                }
+                break;
+        }
     }
     else {
         /* TODO */

@@ -63,6 +63,11 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
         height = pDib->height;
     }
 
+    /* Check if trivial */
+    if (width == 0 || height == 0) {
+        return (UGL_NULL);
+    }
+
     /* Calculate image size */
     size = width * height * sizeof(UGL_UINT8);
 
@@ -79,7 +84,7 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
     pGenBmp->header.width  = width;
     pGenBmp->header.height = height;
     pGenBmp->stride        = width;
-    pGenBmp->pData         = (void *) ((int) pGenBmp + sizeof (UGL_GEN_DDB));
+    pGenBmp->pData         = &pGenBmp[1];
 
     buf = (UGL_UINT8 *) pGenBmp->pData;
 
@@ -457,8 +462,7 @@ UGL_MDDB_ID uglGeneric8BitMonoBitmapCreate (
     UGL_POINT            destPoint;
     UGL_SIZE             width;
     UGL_SIZE             height;
-    UGL_SIZE             stride;
-    UGL_INT32            planeSize;
+    UGL_INT32            size;
 
     /* Get bitmap info, from screen if NULL MDIB */
     if (pMdib == UGL_NULL) {
@@ -470,32 +474,33 @@ UGL_MDDB_ID uglGeneric8BitMonoBitmapCreate (
         height = pMdib->height;
     }
 
-    /* Calcualte stride */
-    stride = ((width + 7) / 8 + 1) * 8;
+    /* Check if trivial */
+    if (width == 0 || height == 0) {
+        return (UGL_NULL);
+    }
 
-    /* Caclulate plane size */
-    planeSize = (stride >> 3) * height;
+    /* Caclulate size */
+    size = ((pMdib->width * pMdib->height) + 7) / 8;
 
     /* Allocate memory for bitmap */
     pGenMonoBmp = (UGL_GEN_MDDB *) uglOSMemCalloc (poolId, 1,
                                                    sizeof (UGL_GEN_MDDB) +
-                                                   planeSize);
+                                                   size);
     if (pGenMonoBmp == UGL_NULL) {
         return (UGL_NULL);
     }
 
     /* Initialize structure */
-    pGenMonoBmp->header.width  = pMdib->width;
-    pGenMonoBmp->header.height = pMdib->height;
+    pGenMonoBmp->header.width  = width;
+    pGenMonoBmp->header.height = height;
     pGenMonoBmp->header.type   = UGL_MDDB_TYPE;
-    pGenMonoBmp->stride        = stride;
-    pGenMonoBmp->pData         = (void *) ((UGL_UINT8 *) pGenMonoBmp +
-                                 sizeof (UGL_GEN_MDDB));
+    pGenMonoBmp->stride        = width;
+    pGenMonoBmp->pData         = &pGenMonoBmp[1];
 
     /* Intiaialize data */
     switch(createMode) {
         case UGL_DIB_INIT_VALUE:
-            memset (pGenMonoBmp->pData, initValue, planeSize);
+            memset (pGenMonoBmp->pData, initValue, size);
             break;
 
         case UGL_DIB_INIT_DATA:
@@ -635,7 +640,6 @@ UGL_STATUS uglGeneric8BitMonoBitmapBlt (
             }
 
             if (gc->foregroundColor != UGL_COLOR_TRANSPARENT) {
-
                 srcRow = srcRowStart;
                 dest   = pDest;
                 switch (rasterOp) {
@@ -730,7 +734,6 @@ UGL_STATUS uglGeneric8BitMonoBitmapBlt (
             }
 
             if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
-
                 srcRow = srcRowStart;
                 dest   = pDest;
                 switch (rasterOp) {

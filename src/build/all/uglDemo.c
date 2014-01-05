@@ -48,6 +48,7 @@
 #define DB_CLEAR_COLOR         0x06
 #define FOREGROUND_COLOR       14
 #define BACKGROUND_COLOR       4
+#define DEFAULT_NUM_PRIMITIVES 0xff
 #define TEXT_FG_COLOR          0
 #define TEXT_BG_COLOR          DB_CLEAR_COLOR
 #define MAX_FONTS              32
@@ -197,7 +198,7 @@ int uglPixel4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode4Enter(&oldRegs)) {
@@ -276,7 +277,7 @@ int uglHLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i, y, x, x1, x2;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode4Enter(&oldRegs)) {
@@ -368,7 +369,7 @@ int uglVLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i, x, y, y1, y2;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode4Enter(&oldRegs)) {
@@ -460,7 +461,7 @@ int uglLine4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode4Enter(&oldRegs)) {
@@ -547,7 +548,7 @@ int uglRect4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int y, y1, y2;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode4Enter(&oldRegs)) {
@@ -677,7 +678,7 @@ int uglPoly4Test(int maxtimes, int nPoints, UGL_REGION_ID clipRegionId)
   int i, j;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (nPoints < 3) {
@@ -1356,43 +1357,6 @@ int uglCursor4Test(UGL_REGION_ID clipRegionId)
   return 0;
 }
 
-int mode8Enter(struct vgaHWRec *oldRegs)
-{
-  UGL_MODE gfxMode;
-
-  if (gfxDevId == UGL_NULL) {
-    return 1;
-  }
-
-  vgaSave(oldRegs);
-
-  /* Enter video mode */
-  gfxMode.width = 320;
-  gfxMode.height = 200;
-  gfxMode.colorDepth = 8;
-  gfxMode.refreshRate = 60;
-  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
-
-  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
-    return 1;
-  }
-
-  setPalette();
-
-  return 0;
-}
-
-void mode8Background(UGL_GC_ID gc)
-{
-  int i, j;
-
-  for (j = 0; j < 200; j++) {
-    for(i = 0; i < 320; i++) {
-      uglPixelSet(gc, i, j, j / 16);
-    }
-  }
-}
-
 int uglText4Test(char *fontfam, char *str)
 {
   static char defFnt[] = "Times";
@@ -1432,7 +1396,7 @@ int uglText4Test(char *fontfam, char *str)
   uglDefaultBitmapSet(gc, NULL);
   uglForegroundColorSet(gc, UGL_COLOR_TRANSPARENT);
   uglBackgroundColorSet(gc, TEXT_BG_COLOR);
-  uglRectangle(gc, 0, 0, 639, 479);
+  uglRectangle(gc, 0, 0, 640, 480);
 
   uglRasterModeSet(gc, rasterOp);
   uglForegroundColorSet(gc, TEXT_FG_COLOR);
@@ -1497,6 +1461,43 @@ int uglText4Test(char *fontfam, char *str)
   return 0;
 }
 
+int mode8Enter(struct vgaHWRec *oldRegs)
+{
+  UGL_MODE gfxMode;
+
+  if (gfxDevId == UGL_NULL) {
+    return 1;
+  }
+
+  vgaSave(oldRegs);
+
+  /* Enter video mode */
+  gfxMode.width = 320;
+  gfxMode.height = 200;
+  gfxMode.colorDepth = 8;
+  gfxMode.refreshRate = 60;
+  gfxMode.flags = UGL_MODE_INDEXED_COLOR;
+
+  if (uglModeSet(gfxDevId, &gfxMode) != UGL_STATUS_OK) {
+    return 1;
+  }
+
+  setPalette();
+
+  return 0;
+}
+
+void mode8Background(UGL_GC_ID gc)
+{
+  int i, j;
+
+  for (j = 0; j < 200; j++) {
+    for(i = 0; i < 320; i++) {
+      uglPixelSet(gc, i, j, j / 16);
+    }
+  }
+}
+
 int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
 {
   UGL_DDB *pDbBmp;
@@ -1507,7 +1508,7 @@ int uglPixel8Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode8Enter(&oldRegs)) {
@@ -1586,7 +1587,7 @@ int uglHLine8Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i, y, x, x1, x2;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode8Enter(&oldRegs)) {
@@ -1678,7 +1679,7 @@ int uglVLine8Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i, x, y, y1, y2;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode8Enter(&oldRegs)) {
@@ -1770,7 +1771,7 @@ int uglLine8Test(int maxtimes, UGL_REGION_ID clipRegionId)
   int i;
 
   if (maxtimes <= 0) {
-    maxtimes = 1000;
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
   }
 
   if (mode8Enter(&oldRegs)) {
@@ -1839,6 +1840,260 @@ int uglLine8Test(int maxtimes, UGL_REGION_ID clipRegionId)
     uglBitmapDestroy(gfxDevId, pDbBmp);
   }
   uglGcDestroy(gc);
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
+int uglRect8Test(int maxtimes, UGL_REGION_ID clipRegionId)
+{
+  UGL_DDB *pDbBmp;
+  UGL_MDDB *pMddb;
+  UGL_RECT dbSrcRect;
+  UGL_POINT dbPt;
+  UGL_GC_ID gc;
+  struct vgaHWRec oldRegs;
+  int i;
+  int x, x1, x2;
+  int y, y1, y2;
+
+  if (maxtimes <= 0) {
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
+  }
+
+  if (mode8Enter(&oldRegs)) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
+    return 1;
+  }
+
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             DB_CLEAR_COLOR, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  gc = uglGcCreate(gfxDevId);
+  if (gc == UGL_NULL) {
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
+    restoreConsole(&oldRegs);
+    printf("Unable to create graphics context.\n");
+    return 1;
+  }
+
+  if (fillPattern == TRUE) {
+    pMddb = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
+                                0, gfxPartId);
+    if (pMddb == UGL_NULL) {
+      if (doubleBuffer == TRUE) {
+        uglBitmapDestroy(gfxDevId, pDbBmp);
+      }
+      uglGcDestroy(gc);
+      restoreConsole(&oldRegs);
+      printf("Unable to create monochrome image\n");
+      return 1;
+    }
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gc, NULL);
+  }
+
+  uglClipRegionSet (gc, clipRegionId);
+  uglLineWidthSet (gc, lineWidth);
+  uglLineStyleSet (gc, lineStyle);
+
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 320;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 200;
+  dbPt.x = 0;
+  dbPt.y = 0;
+
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gc, pMddb);
+  }
+
+  for (i = 0; i < maxtimes; i++) {
+    do {
+      x1 = rand() % 320;
+      y1 = rand () % 200;
+      x2 = rand () % 320;
+      y2 = rand () % 200;
+
+      if (x1 > x2) {
+        x = x1;
+        x1 = x2;
+        x2 = x1;
+      }
+
+      if (y1 > y2) {
+        y = y1;
+        y1 = y2;
+        y2 = y1;
+      }
+    } while ((x2 - x1) <= 1 || (y2 - y1) <= 1);
+
+    uglRasterModeSet(gc, rasterOp);
+    uglForegroundColorSet(gc, rand () % 256);
+    uglBackgroundColorSet(gc, rand () % 256);
+    uglRectangle(gc, x1, y1, x2, y2);
+    uglRasterModeSet(gc, UGL_RASTER_OP_COPY);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
+
+    taskDelay(animTreshold);
+  }
+
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gc, UGL_NULL);
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
+  }
+  uglGcDestroy(gc);
+  if (fillPattern == TRUE) {
+    uglMonoBitmapDestroy(gfxDevId, pMddb);
+  }
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
+int uglPoly8Test(int maxtimes, int nPoints, UGL_REGION_ID clipRegionId)
+{
+  static UGL_POS points[64];
+  UGL_DDB *pDbBmp;
+  UGL_MDDB *pMddb;
+  UGL_RECT dbSrcRect;
+  UGL_POINT dbPt;
+  struct vgaHWRec oldRegs;
+  UGL_GC_ID gc;
+  int i, j;
+
+  if (maxtimes <= 0) {
+    maxtimes = DEFAULT_NUM_PRIMITIVES;
+  }
+
+  if (nPoints < 3) {
+      nPoints = 3;
+  }
+
+  if (mode8Enter(&oldRegs)) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
+    return 1;
+  }
+
+  if (doubleBuffer == TRUE) {
+    pDbBmp = uglBitmapCreate(gfxDevId, UGL_NULL, UGL_DIB_INIT_VALUE,
+                             DB_CLEAR_COLOR, gfxPartId);
+    if (pDbBmp == UGL_NULL) {
+      restoreConsole(&oldRegs);
+      printf("Unable to create double buffer\n");
+      return 1;
+    }
+  }
+
+  gc = uglGcCreate(gfxDevId);
+  if (gc == UGL_NULL) {
+    if (doubleBuffer == TRUE) {
+      uglBitmapDestroy(gfxDevId, pDbBmp);
+    }
+    restoreConsole(&oldRegs);
+    printf("Unable to create graphics context.\n");
+    return 1;
+  }
+
+  if (fillPattern == TRUE) {
+    pMddb = uglMonoBitmapCreate(gfxDevId, &mDib, UGL_DIB_INIT_DATA,
+                                0, gfxPartId);
+    if (pMddb == UGL_NULL) {
+      if (doubleBuffer == TRUE) {
+        uglBitmapDestroy(gfxDevId, pDbBmp);
+      }
+      uglGcDestroy(gc);
+      restoreConsole(&oldRegs);
+      printf("Unable to create monochrome image\n");
+      return 1;
+    }
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglDefaultBitmapSet(gc, pDbBmp);
+  }
+  else {
+    uglDefaultBitmapSet(gc, NULL);
+  }
+
+  uglClipRegionSet (gc, clipRegionId);
+  uglLineWidthSet (gc, lineWidth);
+  uglLineStyleSet (gc, lineStyle);
+
+  dbSrcRect.left = 0;
+  dbSrcRect.right = 320;
+  dbSrcRect.top = 0;
+  dbSrcRect.bottom = 200;
+  dbPt.x = 0;
+  dbPt.y = 0;
+
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gc, pMddb);
+  }
+
+  for (i = 0; i < maxtimes; i++) {
+    for (j = 0; j < nPoints; j++) {
+      points[j * 2] = rand() % 320;
+      points[j * 2 + 1] = rand () % 200;
+    }
+
+    points[nPoints * 2] = points[0];
+    points[nPoints * 2 + 1] = points[1];
+
+    uglRasterModeSet(gc, rasterOp);
+    uglForegroundColorSet(gc, rand () % 256);
+    uglBackgroundColorSet(gc, rand () % 256);
+    uglPolygon(gc, nPoints + 1, points);
+    uglRasterModeSet(gc, UGL_RASTER_OP_COPY);
+
+    /* Draw double buffer on screen */
+    if (doubleBuffer == TRUE) {
+      uglBitmapBlt(gc, pDbBmp,
+                   dbSrcRect.left, dbSrcRect.top,
+                   dbSrcRect.right, dbSrcRect.bottom,
+                   UGL_DISPLAY_ID, dbPt.x, dbPt.y);
+    }
+
+    taskDelay(animTreshold);
+  }
+
+  if (fillPattern == TRUE) {
+    uglFillPatternSet (gc, UGL_NULL);
+  }
+
+  if (doubleBuffer == TRUE) {
+    uglBitmapDestroy(gfxDevId, pDbBmp);
+  }
+  uglGcDestroy(gc);
+  if (fillPattern == TRUE) {
+    uglMonoBitmapDestroy(gfxDevId, pMddb);
+  }
   restoreConsole(&oldRegs);
 
   return 0;
@@ -2305,6 +2560,180 @@ int uglTrans8Test(UGL_REGION_ID clipRegionId)
   return 0;
 }
 
+int uglCursor8Test(UGL_REGION_ID clipRegionId)
+{
+  struct vgaHWRec oldRegs;
+  UGL_GC_ID gc;
+  UGL_CDDB *pFgBmp;
+  UGL_GENERIC_DRIVER *pDrv;
+  UGL_GEN_CURSOR_DATA *pCursorData;
+
+  if (mode8Enter(&oldRegs)) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
+    return 1;
+  }
+
+  gc = uglGcCreate(gfxDevId);
+  if (gc == UGL_NULL) {
+    restoreConsole(&oldRegs);
+    printf("Unable to create graphics context.\n");
+    return 1;
+  }
+
+  if (uglCursorInit (gfxDevId, cDib.width, cDib.height, 0, 0)
+                     != UGL_STATUS_OK) {
+      restoreConsole(&oldRegs);
+      printf("Unable to initialize cursor.\n");
+    return 1;
+  }
+
+  pDrv = (UGL_GENERIC_DRIVER *) gfxDevId;
+  pCursorData = pDrv->pCursorData;
+
+  uglClipRegionSet (gc, clipRegionId);
+
+  /* Draw background */
+  mode8Background(gc);
+
+  pFgBmp = uglCursorBitmapCreate(gfxDevId, &cDib);
+  if (pFgBmp == UGL_NULL) {
+    uglGcDestroy(gc);
+    restoreConsole(&oldRegs);
+    printf("Unable to create foreground image\n");
+    return 1;
+  }
+
+  if (uglCursorImageSet(gfxDevId, pFgBmp) != UGL_STATUS_OK) {
+    uglGcDestroy(gc);
+    uglCursorBitmapDestroy(gfxDevId, pFgBmp);
+    restoreConsole(&oldRegs);
+    printf("Unable to set cursor image\n");
+    return 1;
+  }
+
+  uglCursorOn(gfxDevId);
+  while (pCursorData->position.y < 200) {
+    uglCursorMove (gfxDevId,
+                   pCursorData->position.x + BALL_SPEED,
+                   pCursorData->position.y + BALL_SPEED);
+
+    /* Delay */
+    taskDelay(animTreshold);
+  }
+
+  uglCursorBitmapDestroy(gfxDevId, pFgBmp);
+  uglCursorDeinit(gfxDevId);
+  uglGcDestroy(gc);
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
+int uglText8Test(char *fontfam, char *str)
+{
+  static char defFnt[] = "Times";
+  static char defStr[] = "Hello World!";
+  struct vgaHWRec oldRegs;
+  UGL_FONT_DESC fontDesc;
+  UGL_FONT_DEF  fontDef;
+  UGL_SEARCH_ID searchId;
+  UGL_FONT_ID fontId[MAX_FONTS + 1];
+  UGL_SIZE height;
+  UGL_GC_ID gc;
+  UGL_INT32 i;
+  UGL_POS y = 0;
+  UGL_INT32 numFonts = 0;
+
+  if (fontfam == UGL_NULL) {
+      fontfam = defFnt;
+  }
+
+  if (str == UGL_NULL) {
+      str = defStr;
+  }
+
+  if (mode8Enter(&oldRegs)) {
+    restoreConsole(&oldRegs);
+    printf("Unable to set graphics mode to 320x200 @60Hz, 256 color.\n");
+    return 1;
+  }
+
+  gc = uglGcCreate(gfxDevId);
+  if (gc == UGL_NULL) {
+    restoreConsole(&oldRegs);
+    printf("Unable to create graphics context.\n");
+    return 1;
+  }
+
+  uglDefaultBitmapSet(gc, NULL);
+  uglForegroundColorSet(gc, UGL_COLOR_TRANSPARENT);
+  uglBackgroundColorSet(gc, TEXT_BG_COLOR);
+  uglRectangle(gc, 0, 0, 320, 200);
+
+  uglRasterModeSet(gc, rasterOp);
+  uglForegroundColorSet(gc, TEXT_FG_COLOR);
+
+  searchId = uglFontFindFirst(fntDrvId, &fontDesc);
+  if (searchId == UGL_NULL) {
+    restoreConsole(&oldRegs);
+    printf("Unable to retreive fonts.\n");
+    return 1;
+  }
+
+  do {
+    if (strcmp(fontfam, fontDesc.familyName) == 0) {
+      fontDef.structSize = sizeof (UGL_FONT_DEF);
+      fontDef.pixelSize  = fontDesc.pixelSize.min;
+      fontDef.weight = fontDesc.weight.min;
+      fontDef.italic = fontDesc.italic;
+      fontDef.charSet = fontDesc.charSet;
+      strcpy (fontDef.faceName, fontDesc.faceName);
+      strcpy (fontDef.familyName, fontDesc.familyName);
+
+      fontId[numFonts] = uglFontCreate (fntDrvId, &fontDef);
+      if (fontId[numFonts] == UGL_NULL) {
+        restoreConsole(&oldRegs);
+        printf("Unable to load font %s.\n", fontDesc.faceName);
+        return 1;
+      }
+      if (++numFonts == MAX_FONTS) {
+        break;
+      }
+    }
+  } while (uglFontFindNext(fntDrvId, &fontDesc, searchId) == UGL_STATUS_OK);
+
+  uglFontFindClose(fntDrvId, searchId);
+
+  if (numFonts == 0) {
+    restoreConsole(&oldRegs);
+    printf("No fonts found for font family %s.\n", fontfam);
+    return 1;
+  }
+
+  for (i = 0; i < numFonts; i++) {
+
+    if (uglTextSizeGet(fontId[i], UGL_NULL, &height,
+                       strlen(str), str) != UGL_STATUS_OK) {
+      restoreConsole(&oldRegs);
+      printf("Unable to retreive text size for %s.\n", str);
+      return 1;
+    }
+
+    y += height;
+
+    uglFontSet(gc, fontId[i]);
+    uglTextDraw(gc, 0, y, strlen(str), str);
+  }
+
+  getchar();
+
+  uglGcDestroy(gc);
+  restoreConsole(&oldRegs);
+
+  return 0;
+}
+
 int uglSetAnimTreshold(int value)
 {
   if (value < 0) {
@@ -2538,9 +2967,13 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglHLine8Test", uglHLine8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglVLine8Test", uglVLine8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglLine8Test", uglLine8Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglRect8Test", uglRect8Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglPoly8Test", uglPoly8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglBlt8Test", uglBlt8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglMono8Test", uglMono8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglTrans8Test", uglTrans8Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglCursor8Test", uglCursor8Test, 0, N_TEXT | N_EXT},
+  {NULL, "_uglText8Test", uglText8Test, 0, N_TEXT | N_EXT},
   {NULL, "_uglSetAnimTreshold", uglSetAnimTreshold, 0, N_TEXT | N_EXT},
   {NULL, "_uglRasterOpCopy", uglRasterOpCopy, 0, N_TEXT | N_EXT},
   {NULL, "_uglRasterOpAnd", uglRasterOpAnd, 0, N_TEXT | N_EXT},
