@@ -559,8 +559,6 @@ UGL_STATUS uglGeneric8BitMonoBitmapBlt (
     UGL_RASTER_OP        rasterOp;
     UGL_UINT8            fg;
     UGL_UINT8            bg;
-    UGL_RECT             clipRect;
-    const UGL_RECT *     pRect;
     UGL_GEN_MDDB *       pSrcBmp;
     UGL_GEN_DDB *        pDestBmp;
     UGL_RECT             srcRect;
@@ -578,19 +576,25 @@ UGL_STATUS uglGeneric8BitMonoBitmapBlt (
     UGL_UINT8 *          src;
     UGL_UINT8            mask;
     UGL_UINT8 *          dest;
+    UGL_RECT             clipRect;
+    const UGL_RECT *     pRect;
 
-    /* Clear region rect */
-    pRect = UGL_NULL;
+    /* Get driver first in device struct */
+    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
-    /* Cache attributes */
+    /* Get gc and cache attributes */
     gc = pDrv->gc;
     rasterOp = gc->rasterOp;
     fg       = (UGL_UINT8) gc->foregroundColor;
     bg       = (UGL_UINT8) gc->backgroundColor;
 
+    /* Start from the top of the clip region list */
+    pRect = UGL_NULL;
+
     if (destBmpId == UGL_DEFAULT_ID) {
         UGL_POINT_MOVE (*pDestPoint, gc->viewPort.left, gc->viewPort.top);
 
+        /* If drawing to default bitmap, enable clip region */
         if (uglClipListGet (gc, &clipRect, &pRect) != UGL_STATUS_OK) {
             return (UGL_STATUS_OK);
         }
@@ -833,6 +837,8 @@ UGL_STATUS uglGeneric8BitMonoBitmapBlt (
         }
 
     } while (uglClipListGet (gc, &clipRect, &pRect) == UGL_STATUS_OK);
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************
