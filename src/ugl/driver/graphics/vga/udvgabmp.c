@@ -24,9 +24,6 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include <vmx.h>
-#include <arch/sysArchLib.h>
-
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/generic/udgen.h>
 #include <ugl/driver/graphics/vga/udvga.h>
