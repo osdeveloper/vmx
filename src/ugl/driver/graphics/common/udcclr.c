@@ -26,6 +26,14 @@
 #include <ugl/ugl.h>
 #include <ugl/driver/graphics/common/udcclr.h>
 
+/* Defines */
+
+#define UGL_COLOR_CUBE_RED_SIZE         6
+#define UGL_COLOR_CUBE_GREEN_SIZE       6
+#define UGL_COLOR_CUBE_BLUE_SIZE        6
+#define UGL_COLOR_CUBE_NUM_COLORS_LOW   216
+#define UGL_COLOR_CUBE_NUM_COLORS_HIGH  256
+
 /* Locals */
 
 UGL_LOCAL UGL_VOID uglCubeMap (
@@ -60,10 +68,13 @@ UGL_CLUT * uglCommonClutCreate (
         return (UGL_NULL);
     }
 
-    if (numColors >= 216 && numColors <= 256) {
+    if (numColors >= UGL_COLOR_CUBE_NUM_COLORS_LOW &&
+        numColors <= UGL_COLOR_CUBE_NUM_COLORS_HIGH) {
 
         /* Create color cube */
-        pClut->pCube = uglColorCubeCreate (6, 6, 6);
+        pClut->pCube = uglColorCubeCreate (UGL_COLOR_CUBE_RED_SIZE,
+                                           UGL_COLOR_CUBE_GREEN_SIZE,
+                                           UGL_COLOR_CUBE_BLUE_SIZE);
         if (pClut->pCube == UGL_NULL) {
             UGL_FREE (pClut);
             return (UGL_NULL);

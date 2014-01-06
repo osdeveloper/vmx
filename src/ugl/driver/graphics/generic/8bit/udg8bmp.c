@@ -313,8 +313,8 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
     UGL_GEN_DDB *        pDdb;
     UGL_RECT             srcRect;
     UGL_POINT            destPoint;
-    UGL_UINT8 *          src;
-    UGL_UINT8 *          dest;
+    UGL_UINT8 *          pSrc;
+    UGL_UINT8 *          pDest;
     UGL_ORD              srcStride;
     UGL_ORD              destStride;
     UGL_INT32            i;
@@ -322,7 +322,10 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
     UGL_INT32            height;
     UGL_INT32            srcOffset;
     UGL_INT32            numBytes;
-    UGL_CLUT *           pClut;
+    UGL_COLOR            color;
+    UGL_ARGB_SPEC        spec;
+    UGL_UINT8 *          pClut;
+    UGL_ARGB *           pARGBClut = UGL_NULL;
 
     /* Get driver first in device struct */
     pDrv = (UGL_GENERIC_DRIVER *) devId;
@@ -338,12 +341,17 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
     if (uglGenericClipDibToDdb (devId, pDib, &srcRect, (UGL_BMAP_ID *) &pDdb,
                                 &destPoint) == UGL_TRUE) {
 
+        /* Set destination */
+        if ((UGL_DDB_ID) pDdb == UGL_DISPLAY_ID) {
+            pDdb = (UGL_GEN_DDB *) pDrv->pDrawPage->pDdb;
+        }
+
         /* Calculate variables */
         width      = UGL_RECT_WIDTH(srcRect);
         height     = UGL_RECT_HEIGHT(srcRect);
         srcOffset  = srcRect.top * pDib->stride + srcRect.left;
         destStride = pDdb->stride;
-        dest       = (UGL_UINT8 *) pDdb->pData +
+        pDest      = (UGL_UINT8 *) pDdb->pData +
                      destPoint.y * destStride + destPoint.x;
 
         if (pDrv->gpBusy == UGL_TRUE) {
@@ -358,15 +366,15 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
             switch (pDib->colorFormat) {
                 case UGL_DEVICE_COLOR:
                     srcStride  = pDib->stride;
-                    src = (UGL_UINT8 *) pDib->pData + srcOffset;
+                    pSrc = (UGL_UINT8 *) pDib->pData + srcOffset;
 
                     /* While source height */
                     while (--height >= 0) {
-                        memcpy (dest, src, width);
+                        memcpy (pDest, pSrc, width);
 
                         /* Advance to next line */
-                        src  += srcStride;
-                        dest += destStride;
+                        pSrc  += srcStride;
+                        pDest += destStride;
                     }
                     break;
 
@@ -375,20 +383,24 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
                         numBytes = sizeof (UGL_COLOR);
                     }
                     else {
-                        /* TODO */ numBytes = 1;
+                        if ((uglARGBSpecGet (pDib->colorFormat,
+                                             &spec)) != UGL_STATUS_OK) {
+                            return (UGL_STATUS_ERROR);
+                        }
+                        numBytes = spec.numBytesPerARGB;
                     }
 
                     srcStride = pDib->stride * numBytes;
-                    src = (UGL_UINT8 *) pDib->pData + (srcOffset * numBytes);
+                    pSrc = (UGL_UINT8 *) pDib->pData + (srcOffset * numBytes);
 
                     /* While source height */
                     while (--height >= 0) {
-                        (*devId->colorConvert) (devId, src, pDib->colorFormat,
-                                                dest, UGL_DEVICE_COLOR, width);
+                        (*devId->colorConvert) (devId, pSrc, pDib->colorFormat,
+                                                pDest, UGL_DEVICE_COLOR, width);
 
                         /* Advance to next line */
-                        src  += srcStride;
-                        dest += destStride;
+                        pSrc  += srcStride;
+                        pDest += destStride;
                     }
                     break;
             }
@@ -396,45 +408,70 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
         else {
 
             /* Check if temporary clut should be generated */
-            if (pDib->colorFormat != UGL_DEVICE_COLOR_32) {
+            if (pDib->colorFormat != UGL_DEVICE_COLOR) {
 
-                pClut = UGL_MALLOC (pDib->clutSize * sizeof (UGL_COLOR));
-                if (pClut == UGL_NULL) {
+                pARGBClut = (UGL_ARGB *)
+                    UGL_MALLOC (pDib->clutSize * sizeof (UGL_ARGB));
+                if (pARGBClut == UGL_NULL) {
                     return (UGL_STATUS_ERROR);
                 }
 
-                /* Convert to 32-bit color */
-                if ((*devId->colorConvert) (devId, pDib->pClut,
-                                            pDib->colorFormat, pClut,
-                                            UGL_DEVICE_COLOR_32,
-                                            pDib->clutSize
-                                            ) == UGL_STATUS_ERROR) {
-                    UGL_FREE (pClut);
-                    return (UGL_STATUS_ERROR);
+                if (pDib->colorFormat == UGL_DEVICE_COLOR_32) {
+                    if ((*devId->colorConvert) (devId, pDib->pClut,
+                                                pDib->colorFormat, pARGBClut,
+                                                UGL_DEVICE_COLOR,
+                                                pDib->clutSize
+                                                ) != UGL_STATUS_OK) {
+                        UGL_FREE (pARGBClut);
+                        return (UGL_STATUS_ERROR);
+                    }
                 }
+                else {
+                    if ((*devId->colorConvert) (devId, pDib->pClut,
+                                                pDib->colorFormat, pARGBClut,
+                                                UGL_ARGB8888,
+                                                pDib->clutSize
+                                                ) != UGL_STATUS_OK) {
+                        UGL_FREE (pClut);
+                        return (UGL_STATUS_ERROR);
+                    }
+
+                    for (i = 0; i < pDib->clutSize; i++) {
+                        uglCommonClutMapNearest (pDrv->pClut, &pARGBClut[i],
+                                                 UGL_NULL, &color, 1);
+                        ((UGL_UINT8 *) pARGBClut)[i] = (UGL_UINT8) color;
+                    }
+                }
+                pClut = (UGL_UINT8 *) pARGBClut;
             }
             else {
-                pClut = pDib->pClut;
+                pClut = (UGL_UINT8 *) pDib->pClut;
             }
 
             /* Select color mode */
             switch(pDib->imageFormat) {
                 case UGL_INDEXED_8:
                     srcStride = pDib->stride;
-                    src = (UGL_UINT8 *) pDib->pData + srcOffset;
+                    pSrc = (UGL_UINT8 *) pDib->pData + srcOffset;
 
                     /* While source height */
                     while (--height >= 0) {
-                        memcpy(dest, src, width);
+                        for (i = 0; i < width; i++) {
+                            pDest[i] = pClut[pSrc[i]];
+                        }
 
                         /* Advance to next line */
-                        src  += srcStride;
-                        dest += destStride;
+                        pSrc  += srcStride;
+                        pDest += destStride;
                     }
                     break;
 
                     default:
                         return (UGL_STATUS_ERROR);
+            }
+
+            if (pARGBClut != UGL_NULL) {
+                UGL_FREE (pARGBClut);
             }
         }
     }
