@@ -23,17 +23,17 @@
 #ifndef _ugl_h
 #define _ugl_h
 
-#include <ugl/ugltypes.h>
-#include <ugl/uglclr.h>
-#include <ugl/uglinfo.h>
-#include <ugl/uglmode.h>
-#include <ugl/ugldib.h>
-#include <ugl/uglos.h>
-#include <ugl/uglmem.h>
-#include <ugl/uglregn.h>
-#include <ugl/uglpage.h>
-#include <ugl/uglugi.h>
-#include <ugl/uglfont.h>
+#include "ugltypes.h"
+#include "uglclr.h"
+#include "uglinfo.h"
+#include "uglmode.h"
+#include "ugldib.h"
+#include "uglos.h"
+#include "uglmem.h"
+#include "uglregn.h"
+#include "uglpage.h"
+#include "uglugi.h"
+#include "uglfont.h"
 
 #ifndef _ASMLANGUAGE
 

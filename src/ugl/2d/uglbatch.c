@@ -20,7 +20,7 @@
 
 /* uglbatch.c - Universal graphics library batch job support */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *

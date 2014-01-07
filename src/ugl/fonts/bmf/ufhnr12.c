@@ -31,8 +31,8 @@
  * Source: blenderocv.googlecode.com/svn/
  */
 
-#include <ugl/ugl.h>
-#include <ugl/driver/font/udbmffnt.h>
+#include "ugl.h"
+#include "driver/font/udbmffnt.h"
 
 
 UGL_LOCAL const UGL_UINT8 page0Data[] = {

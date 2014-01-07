@@ -23,7 +23,7 @@
 #ifndef _udcclr_h
 #define _udcclr_h
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 #ifndef _ASMLANGUAGE
 

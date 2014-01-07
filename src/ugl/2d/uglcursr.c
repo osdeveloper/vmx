@@ -20,7 +20,7 @@
 
 /* uglcursr.c - Universal graphics library cursor support */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /* Locals */
 

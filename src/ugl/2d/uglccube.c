@@ -20,9 +20,9 @@
 
 /* uglccube.c - Color cube support for Universal Graphics Library */
 
-#include <ugl/ugl.h>
-#include <ugl/uglclr.h>
-#include <ugl/uglugi.h>
+#include "ugl.h"
+#include "uglclr.h"
+#include "uglugi.h"
 
 /******************************************************************************
  *

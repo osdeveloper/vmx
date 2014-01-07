@@ -1,6 +1,8 @@
 # Makefile -
 #
 
+ADDED_INCFLAGS += -I$(VMX_BASE)/include/ugl
+
 OBJS = udbmffnt.o
 SUBDIRS =
 LIB_TGT = ugl-driver

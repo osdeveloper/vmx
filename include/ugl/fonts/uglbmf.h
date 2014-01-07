@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /* Imports */
 

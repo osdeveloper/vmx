@@ -20,7 +20,7 @@
 
 /* uglmode.c - Universal graphics library mode support library */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *

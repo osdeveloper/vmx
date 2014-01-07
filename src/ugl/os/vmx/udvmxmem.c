@@ -22,8 +22,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include <os/memPartLib.h>
-#include <ugl/ugl.h>
+
+#include "ugl.h"
 
 /* Types */
 

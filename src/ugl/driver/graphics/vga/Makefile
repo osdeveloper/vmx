@@ -1,6 +1,8 @@
 # Makefile -
 #
 
+ADDED_INCFLAGS += -I$(VMX_BASE)/include/ugl
+
 OBJS = udvgabmp.o udvgaclr.o udvgagc.o udvgapix.o udvgalin.o udvga.o \
        udvgadev.o udvgainf.o udvgamode.o
 SUBDIRS =

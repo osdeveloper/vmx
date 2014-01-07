@@ -20,9 +20,8 @@
 
 /* udgenclp.c - Generic clipping routines */
 
-
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
 
 /******************************************************************************
  *
@@ -64,7 +63,7 @@ UGL_STATUS uglGenericClipDdbToDdb (
     /* Setup source clip rect */
     if ((UGL_DDB_ID) *pSrcBmpId == UGL_DEFAULT_ID) {
         *pSrcBmpId = (UGL_BMAP_ID) gc->pDefaultBitmap;
-        UGL_RECT_COPY (&srcClip, gc->boundRect);
+        UGL_RECT_COPY (&srcClip, &gc->boundRect);
     }
     else if ((UGL_DDB_ID) *pSrcBmpId == UGL_DISPLAY_ID) {
         srcClip.top    = 0;

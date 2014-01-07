@@ -21,8 +21,9 @@
 /* udg8clr.c - Generic color convert support for 8 bit color */
 
 #include <string.h>
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
+
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
 
 /******************************************************************************
  *

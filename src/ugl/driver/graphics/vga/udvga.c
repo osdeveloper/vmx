@@ -22,13 +22,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <arch/sysArchLib.h>
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
-#include <ugl/driver/graphics/generic/udgen8.h>
-#include <ugl/driver/graphics/vga/udvgamode.h>
-#include <ugl/driver/graphics/vga/udvga.h>
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
+#include "driver/graphics/generic/udgen8.h"
+#include "driver/graphics/vga/udvgamode.h"
+#include "driver/graphics/vga/udvga.h"
 
 /* Locals */
 UGL_LOCAL UGL_MODE modes[] = {
@@ -101,7 +100,10 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     pDrv->generic.fbAddress = (UGL_UINT8 *) 0xa0000L;
 
     /* Set generic driver methods */
+    devId->line          = uglGenericLine;
     pDrv->generic.fill   = uglGenericFill;
+    devId->rectangle     = uglGenericRectangle;
+    devId->polygon       = uglGenericPolygon;
     pDrv->generic.gpWait = uglVgaGpWait;
 
     /* Setup device support methods */
@@ -124,11 +126,6 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     devId->colorFree  = uglGenericColorFreeIndexed;
     devId->clutGet    = uglVgaClutGet;
     devId->clutSet    = uglVgaClutSet;
-
-    /* Setup graphics primitives support methods */
-    devId->line      = uglGenericLine;
-    devId->rectangle = uglGenericRectangle;
-    devId->polygon   = uglGenericPolygon;
 
     /* Setup bitmap support methods */
     devId->transBitmapCreate        = uglGenericTransBitmapCreate;

@@ -20,8 +20,8 @@
 
 /* udbmffnt.c - Bitmap font driver for Universal Graphics Library */
 
-#include <ugl/ugl.h>
-#include <ugl/driver/font/udbmffnt.h>
+#include "ugl.h"
+#include "driver/font/udbmffnt.h"
 
 /* Defines */
 

@@ -25,8 +25,8 @@
 
 #ifndef _ASMLANGUAGE
 
-#include <ugl/ugltypes.h>
-#include <ugl/uglos.h>
+#include "ugltypes.h"
+#include "uglos.h"
 
 #ifdef __cplusplus
 extern "C" {

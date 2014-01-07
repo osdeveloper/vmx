@@ -21,7 +21,8 @@
 /* udgmode.c - Universal graphics library generic mode */
 
 #include <stdlib.h>
-#include <ugl/ugl.h>
+
+#include "ugl.h"
 
 /******************************************************************************
  *

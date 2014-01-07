@@ -21,8 +21,9 @@
 /* udcmset.c - Memory set functions for graphics */
 
 #include <string.h>
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/common/udcomm.h>
+
+#include "ugl.h"
+#include "driver/graphics/common/udcomm.h"
 
 /******************************************************************************
  *

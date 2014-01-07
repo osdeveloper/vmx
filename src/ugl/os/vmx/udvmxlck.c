@@ -20,7 +20,9 @@
 
 /* udvmxlck.c - Universal graphics library lock support */
 
-#include <ugl/ugl.h>
+#include <vmx/semLib.h>
+
+#include "ugl.h"
 
 /******************************************************************************
  *

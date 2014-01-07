@@ -31,8 +31,9 @@
 */
 
 #include <stdlib.h>
-#include <ugl/driver/graphics/vga/udvgamode.h>
-#include <ugl/uglmode.h>
+
+#include "driver/graphics/vga/udvgamode.h"
+#include "uglmode.h"
 
 /* Default ANSI (PC's) palette */
 

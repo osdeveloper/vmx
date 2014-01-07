@@ -21,8 +21,9 @@
 /* udgenrec.c - Universal graphics library rectangle drawing support */
 
 #include <stdlib.h>
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
+
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
 
 /* Locals */
 

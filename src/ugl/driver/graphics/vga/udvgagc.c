@@ -20,10 +20,9 @@
 
 /* udvgagc.c - Universal graphics library graphics context support */
 
-#include <arch/sysArchLib.h>
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
-#include <ugl/driver/graphics/vga/udvga.h>
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
+#include "driver/graphics/vga/udvga.h"
 
 /******************************************************************************
  *

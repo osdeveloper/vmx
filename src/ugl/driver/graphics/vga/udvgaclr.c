@@ -20,11 +20,9 @@
 
 /* udvgaclr.c - Vga color support */
 
-#include <arch/sysArchLib.h>
-
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/common/udcclr.h>
-#include <ugl/driver/graphics/vga/udvga.h>
+#include "ugl.h"
+#include "driver/graphics/common/udcclr.h"
+#include "driver/graphics/vga/udvga.h"
 
 /******************************************************************************
  *

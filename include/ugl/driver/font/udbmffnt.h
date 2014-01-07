@@ -29,9 +29,9 @@
 extern "C" {
 #endif
 
-#include <ugl/ugltypes.h>
-#include <ugl/uglfont.h>
-#include <ugl/uglugi.h>
+#include "ugltypes.h"
+#include "uglfont.h"
+#include "uglugi.h"
 
 /* Defines */
 

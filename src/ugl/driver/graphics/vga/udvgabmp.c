@@ -22,11 +22,10 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
-#include <ugl/driver/graphics/vga/udvga.h>
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
+#include "driver/graphics/vga/udvga.h"
 
 /******************************************************************************
  *
@@ -1885,7 +1884,7 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
         dest = destStart;
 
         /* Set foreground color */
-        UGL_OUT_WORD (0x3ce, (u_int16_t) (gc->foregroundColor << 8));
+        UGL_OUT_WORD (0x3ce, (UGL_UINT16) (gc->foregroundColor << 8));
 
         /* Set bitmask register */
         UGL_OUT_BYTE (0x3ce, 0x08);
@@ -1948,7 +1947,7 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
         dest = destStart;
 
         /* Set foreground color */
-        UGL_OUT_WORD (0x3ce, (u_int16_t) (gc->backgroundColor << 8));
+        UGL_OUT_WORD (0x3ce, (UGL_UINT16) (gc->backgroundColor << 8));
 
         /* Set bitmask register */
         UGL_OUT_BYTE (0x3ce, 0x08);
@@ -2007,7 +2006,7 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     UGL_OUT_BYTE (0x3cf, 0xff);
 
     /* Restore color */
-    UGL_OUT_WORD (0x3ce, ((u_int16_t) pVgaDrv->color << 8));
+    UGL_OUT_WORD (0x3ce, ((UGL_UINT16) pVgaDrv->color << 8));
 }
 
 /******************************************************************************

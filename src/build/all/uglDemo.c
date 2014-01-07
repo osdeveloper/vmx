@@ -31,12 +31,12 @@
 #include <os/symLib.h>
 #include <os/memPartLib.h>
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/vga/udvga.h>
-#include <ugl/driver/graphics/vga/udvgamode.h>
-#include <ugl/driver/graphics/generic/udgen.h>
-#include <ugl/driver/font/udbmffnt.h>
-#include <ugl/fonts/uglbmf.h>
+#include "ugl.h"
+#include "driver/graphics/vga/udvga.h"
+#include "driver/graphics/vga/udvgamode.h"
+#include "driver/graphics/generic/udgen.h"
+#include "driver/font/udbmffnt.h"
+#include "fonts/uglbmf.h"
 
 #include "vmxball.cbm"
 #include "pinball.cbm"
@@ -906,7 +906,7 @@ int uglBlt4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   while (pt.y < 480) {
 
     /* Copy background */
-    uglBitmapBlt(gc, gc->pDefaultBitmap,
+    uglBitmapBlt(gc, UGL_DEFAULT_ID,
                  saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                  pSaveBmp, pt0.x, pt0.y);
 
@@ -1076,7 +1076,7 @@ int uglMono4Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   while (pt.y < 480) {
 
     /* Copy background */
-    uglBitmapBlt(gc, gc->pDefaultBitmap,
+    uglBitmapBlt(gc, UGL_DEFAULT_ID,
                  saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                  pSaveBmp, pt0.x, pt0.y);
 
@@ -1231,7 +1231,7 @@ int uglTrans4Test(UGL_REGION_ID clipRegionId)
   while (pt.y < 480) {
 
     /* Copy background */
-    uglBitmapBlt(gc, gc->pDefaultBitmap,
+    uglBitmapBlt(gc, UGL_DEFAULT_ID,
                  saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                  pSaveBmp, pt0.x, pt0.y);
 
@@ -2209,7 +2209,7 @@ int uglBlt8Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   while (pt.y < 200) {
 
     /* Copy background */
-    uglBitmapBlt(gc, gc->pDefaultBitmap,
+    uglBitmapBlt(gc, UGL_DEFAULT_ID,
                  saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                  pSaveBmp, pt0.x, pt0.y);
 
@@ -2369,7 +2369,7 @@ int uglMono8Test(UGL_REGION_ID clipRegionId, int x1, int y1, int x2, int y2)
   while (pt.y < 200) {
 
     /* Copy background */
-    uglBitmapBlt(gc, gc->pDefaultBitmap,
+    uglBitmapBlt(gc, UGL_DEFAULT_ID,
                  saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                  pSaveBmp, pt0.x, pt0.y);
 
@@ -2514,7 +2514,7 @@ int uglTrans8Test(UGL_REGION_ID clipRegionId)
   while (pt.y < 200) {
 
     /* Copy background */
-    uglBitmapBlt(gc, gc->pDefaultBitmap,
+    uglBitmapBlt(gc, UGL_DEFAULT_ID,
                  saveRect.left, saveRect.top, saveRect.right, saveRect.bottom,
                  pSaveBmp, pt0.x, pt0.y);
 

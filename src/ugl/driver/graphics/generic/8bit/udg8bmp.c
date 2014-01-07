@@ -20,10 +20,10 @@
 
 /* udg8bmp.c - 8-Bit general bitmap */
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/common/udcomm.h>
-#include <ugl/driver/graphics/generic/udgen.h>
-#include <ugl/driver/graphics/generic/udgen8.h>
+#include "ugl.h"
+#include "driver/graphics/common/udcomm.h"
+#include "driver/graphics/generic/udgen.h"
+#include "driver/graphics/generic/udgen8.h"
 
 /******************************************************************************
  *

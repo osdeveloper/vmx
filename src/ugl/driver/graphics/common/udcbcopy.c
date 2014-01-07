@@ -21,8 +21,9 @@
 /* udcbcopy.c - Common byte copy with raster operation */
 
 #include <string.h>
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/common/udcomm.h>
+
+#include "ugl.h"
+#include "driver/graphics/common/udcomm.h"
 
 /******************************************************************************
  *

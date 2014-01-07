@@ -65,20 +65,19 @@
 extern "C" {
 #endif
 
-#include <sys/types.h>
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /* This structure keeps contents of mode registers including palette */
 
 struct vgaHWRec
 {
-  u_int8_t MiscOutReg;     /* */
-  u_int8_t CRTC[25];       /* Crtc Controller */
-  u_int8_t Sequencer[5];   /* Video Sequencer */
-  u_int8_t Graphics[9];    /* Video Graphics */
-  u_int8_t Attribute[21];  /* Video Atribute */
-  u_int8_t DAC[768];       /* Internal Colorlookuptable */
-  int8_t NoClock;                 /* number of selected clock */
+  UGL_UINT8  MiscOutReg;     /* */
+  UGL_UINT8  CRTC[25];       /* Crtc Controller */
+  UGL_UINT8  Sequencer[5];   /* Video Sequencer */
+  UGL_UINT8  Graphics[9];    /* Video Graphics */
+  UGL_UINT8  Attribute[21];  /* Video Atribute */
+  UGL_UINT8  DAC[768];       /* Internal Colorlookuptable */
+  UGL_INT8   NoClock;                 /* number of selected clock */
 };
 
 struct vgaHWBitmap

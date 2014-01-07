@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/common/udcclr.h>
+#include "ugl.h"
+#include "driver/graphics/common/udcclr.h"
 
 typedef struct ugl_gen_bitmap {
     UGL_BMAP_HEADER  header;

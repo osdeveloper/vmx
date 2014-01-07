@@ -31,8 +31,8 @@
 extern "C" {
 #endif
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/generic/udgen.h>
+#include "ugl.h"
+#include "driver/graphics/generic/udgen.h"
 
 typedef struct ugl_vga_driver {
     UGL_GENERIC_DRIVER  generic;        /* Generic driver (required) */

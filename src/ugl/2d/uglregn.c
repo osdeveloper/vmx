@@ -21,7 +21,9 @@
 /* uglregn.c - Universal graphics library region support */
 
 #include <stdio.h>
-#include <ugl/ugl.h>
+#include <stdlib.h>
+
+#include "ugl.h"
 
 /* Defines */
 
@@ -610,7 +612,8 @@ UGL_STATUS uglRegionRectExclude (
                 coord = includeRect.bottom;
                 includeRect.bottom = intersectRect.top - 1;
 
-                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                if (uglRegionRectInclude (regionId,
+                                          &includeRect) != UGL_STATUS_OK) {
                     return (UGL_STATUS_ERROR);
                 }
 
@@ -622,7 +625,8 @@ UGL_STATUS uglRegionRectExclude (
                 coord = includeRect.top;
                 includeRect.top = intersectRect.bottom + 1;
 
-                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                if (uglRegionRectInclude (regionId,
+                                          &includeRect) != UGL_STATUS_OK) {
                     return (UGL_STATUS_ERROR);
                 }
 
@@ -638,7 +642,8 @@ UGL_STATUS uglRegionRectExclude (
                 coord = includeRect.right;
                 includeRect.right = intersectRect.left - 1;
 
-                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                if (uglRegionRectInclude (regionId,
+                                          &includeRect) != UGL_STATUS_OK) {
                     return (UGL_STATUS_ERROR);
                 }
 
@@ -649,7 +654,8 @@ UGL_STATUS uglRegionRectExclude (
             if (intersectRect.right < includeRect.right) {
                 includeRect.left = intersectRect.right + 1;
 
-                if (uglRegionRectInclude (regionId, &includeRect) != OK) {
+                if (uglRegionRectInclude (regionId,
+                                          &includeRect) != UGL_STATUS_OK) {
                     return (UGL_STATUS_ERROR);
                 }
             }

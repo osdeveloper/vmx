@@ -20,7 +20,7 @@
 
 /* uglfont.c - Universal graphics library font driver support */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *

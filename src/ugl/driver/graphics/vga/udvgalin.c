@@ -21,8 +21,9 @@
 /* udvgalin.c - Universal graphics library vga line operations */
 
 #include <string.h>
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/vga/udvga.h>
+
+#include "ugl.h"
+#include "driver/graphics/vga/udvga.h"
 
 /******************************************************************************
  *

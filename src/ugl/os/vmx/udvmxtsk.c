@@ -20,8 +20,9 @@
 
 /* udvmxtsk.c - Universal graphics library task support */
 
-#include <ugl/ugl.h>
 #include <vmx/taskLib.h>
+
+#include "ugl.h"
 
 /******************************************************************************
  *

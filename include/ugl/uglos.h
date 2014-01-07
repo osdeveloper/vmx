@@ -23,13 +23,22 @@
 #ifndef _uglos_h
 #define _uglos_h
 
-#include <ugl/ugltypes.h>
-#include <ugl/os/uglvmx.h>
-
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#include "ugltypes.h"
+#ifndef LINUX
+#include "os/uglvmx.h"
+#else
+struct ugl_mem_pool;
+struct ugl_lock;
+
+typedef struct ugl_mem_pool * UGL_MEM_POOL_ID;
+typedef struct ugl_lock *     UGL_LOCK_ID;
+
 #endif
 
 /* Memory pools */

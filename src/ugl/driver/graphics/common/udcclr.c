@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ugl/ugl.h>
-#include <ugl/driver/graphics/common/udcclr.h>
+#include "ugl.h"
+#include "driver/graphics/common/udcclr.h"
 
 /* Defines */
 

@@ -20,7 +20,7 @@
 
 /* uglline.c - Universal graphics library line drawing support */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *

@@ -20,7 +20,7 @@
 
 /* uglugi.c - Universal graphics library common device */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 #define UGL_SCRATCH_BUF_BLK_SIZE    64
 

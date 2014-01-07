@@ -29,9 +29,9 @@
 extern "C" {
 #endif
 
-/* Functions */
+#include "ugl.h"
 
-#include <ugl/ugl.h>
+/* Functions */
 
 /******************************************************************************
  *

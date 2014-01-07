@@ -20,7 +20,7 @@
 
 /* uglpoly.c - Universal graphics library polygon drawing support */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *

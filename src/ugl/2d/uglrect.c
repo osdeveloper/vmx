@@ -20,7 +20,7 @@
 
 /* uglrect.c - Universal graphics library rectangle drawing support */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *

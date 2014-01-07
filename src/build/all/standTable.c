@@ -85,7 +85,7 @@
 #include <net/mbuf.h>
 #include <net/netLib.h>
 #include <net/netShow.h>
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /* Gloabals */
 int standTableSize = 0;

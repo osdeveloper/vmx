@@ -20,7 +20,7 @@
 
 /* uglpixel.c - Universal graphics library pixel support functions */
 
-#include <ugl/ugl.h>
+#include "ugl.h"
 
 /******************************************************************************
  *
