@@ -71,7 +71,6 @@ UGL_STATUS uglBitmapDestroy (
     UGL_DDB *        pDdb
     ) {
     UGL_STATUS  status;
-    UGL_DDB_ID  bmpId;
 
     /* Validate */
     if (devId == NULL) {

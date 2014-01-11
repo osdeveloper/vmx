@@ -428,6 +428,8 @@ UGL_STATUS uglVgaVLine (
                 return (UGL_STATUS_ERROR);
         }
     }
+
+    return (UGL_STATUS_OK);
 }
 
 /******************************************************************************

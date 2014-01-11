@@ -244,7 +244,7 @@ UGL_STATUS uglGenericPolygon (
                     /* Calculate next slope */
                     j = i;
                     nextSlope = 0;
-                    while (nextSlope = 0) {
+                    while (nextSlope == 0) {
                         if (j == numPoints - 2) {
                             nextSlope = pointArray[1].y - pointArray[0].y;
                         }

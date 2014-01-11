@@ -211,11 +211,11 @@ void vgaDACLoad(struct vgaHWRec *restore, unsigned char start, int num)
 */
 void vgaRestore(struct vgaHWRec *restore, BOOL onlyDac)
 {
-    int i,tmp;
+    int i;
 
     if (!onlyDac)
     {
-    tmp = sysInByte(vgaIOBase + 0x0A);		/* Reset flip-flop */
+    (void) sysInByte(vgaIOBase + 0x0A);		/* Reset flip-flop */
     sysOutByte(0x3C0, 0x00);			/* Enables pallete access */
 
     restore->MiscOutReg |= 0x01;
@@ -232,7 +232,7 @@ void vgaRestore(struct vgaHWRec *restore, BOOL onlyDac)
     for (i=0; i<9;  i++) sysOutWord(0x3CE, (restore->Graphics[i] << 8) | i);
 
     for (i=0; i<21; i++) {
-	tmp = sysInByte(vgaIOBase + 0x0A);
+	(void) sysInByte(vgaIOBase + 0x0A);
 	sysOutByte(0x3C0,i); sysOutByte(0x3C0, restore->Attribute[i]);
     }
 
@@ -244,7 +244,7 @@ void vgaRestore(struct vgaHWRec *restore, BOOL onlyDac)
     if (!onlyDac)
     {
     /* Turn on PAS bit */
-    tmp = sysInByte(vgaIOBase + 0x0A);
+    (void) sysInByte(vgaIOBase + 0x0A);
     sysOutByte(0x3C0, 0x20);
     }
 }
@@ -257,19 +257,17 @@ void vgaRestore(struct vgaHWRec *restore, BOOL onlyDac)
 */
 void *vgaSave(struct vgaHWRec *save)
 {
-    int	i,tmp;
-    int	first_time = FALSE;	/* Should be static? */
+    int	i;
 
     /*
      * Here we are, when we first save the videostate. This means we came here
      * to save the original Text mode. Because some drivers may depend
      * on NoClock we set it here to a resonable value.
      */
-    first_time = TRUE;
     save->NoClock = (sysInByte(0x3CC) >> 2) & 3;
     save->MiscOutReg = sysInByte(0x3CC);
 
-    tmp = sysInByte(vgaIOBase + 0x0A); /* reset flip-flop */
+    (void) sysInByte(vgaIOBase + 0x0A); /* reset flip-flop */
     sysOutByte(0x3C0, 0x00);
 
     /*			 
@@ -290,7 +288,7 @@ void *vgaSave(struct vgaHWRec *save)
 
     for (i=0; i<21; i++)
     {
-	tmp = sysInByte(vgaIOBase + 0x0A);
+	(void) sysInByte(vgaIOBase + 0x0A);
 	sysOutByte(0x3C0,i);
 	save->Attribute[i] = sysInByte(0x3C1);
     }
@@ -307,7 +305,7 @@ void *vgaSave(struct vgaHWRec *save)
 	save->Sequencer[i] = sysInByte(0x3C5);
     }
 
-    tmp = sysInByte(vgaIOBase + 0x0A);
+    (void) sysInByte(vgaIOBase + 0x0A);
     sysOutByte(0x3C0, 0x20);
     
     return ((void *) save);
@@ -696,7 +694,6 @@ void vgaRefreshArea(struct vgaHWBitmap *bmap, int num, struct vgaHWBox *pbox)
 void vgaPutPixel(int x, int y, int pixel)
 {
     int pix;
-    int i;
     unsigned char *ptr;
 
     ptr = (unsigned char*)(0xa0000 + (x + (y * 640 /* SHOULD get dynamic  */)) / 8);

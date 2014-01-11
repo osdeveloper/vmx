@@ -346,6 +346,8 @@ UGL_STATUS uglRegionMove (
         return (UGL_STATUS_ERROR);
     }
 
+    pRegion = (UGL_REGION *) regionId;
+
     /* Move all rectangles */
     pRegionRect = pRegion->pFirstTL2BR;
     while (pRegionRect != UGL_NULL) {

@@ -25,6 +25,7 @@
 
 #include <vmx.h>
 #include <arch/arch.h>
+#include <arch/sysArchLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/semLib.h>
 #include <os/memPartLib.h>

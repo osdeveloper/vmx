@@ -95,8 +95,8 @@ struct vgaHWBox
 
 #define DACDelay \
 	{ \
-		unsigned char temp = sysInByte(vgaIOBase + 0x0A); \
-		temp = sysInByte(vgaIOBase + 0x0A); \
+		(void) sysInByte(vgaIOBase + 0x0A); \
+		(void) sysInByte(vgaIOBase + 0x0A); \
 	}
 
 extern void vgaLoadPalette(struct vgaHWRec *regs, unsigned char *pal);

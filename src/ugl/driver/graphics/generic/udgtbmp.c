@@ -54,11 +54,7 @@ UGL_TDDB_ID uglGenericTransBitmapCreate (
     UGL_COLOR            initValue,
     UGL_MEM_POOL_ID      poolId
     ) {
-    UGL_GENERIC_DRIVER * pDrv;
     UGL_GEN_TDDB *       pTddb;
-
-    /* Get generic driver */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
     /* Create scratch bitmap */
     if (uglGenericScratchBitmapCreate (devId, pDib->width, pDib->height) ==

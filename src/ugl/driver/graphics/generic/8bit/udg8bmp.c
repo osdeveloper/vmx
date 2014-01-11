@@ -39,7 +39,6 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
     UGL_UINT32           initValue,
     UGL_MEM_POOL_ID      poolId
     ) {
-    UGL_GENERIC_DRIVER * pDrv;
     UGL_GEN_DDB *        pGenBmp;
     UGL_UINT32           i;
     UGL_UINT32           size;
@@ -49,9 +48,6 @@ UGL_DDB_ID uglGeneric8BitBitmapCreate (
     UGL_POINT            destPoint;
     UGL_UINT8 *          buf;
     UGL_STATUS           status;
-
-    /* Get driver first in device struct */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
     /* Get bitmap info, from screen if NULL DIB */
     if (pDib == UGL_NULL) {
@@ -432,7 +428,7 @@ UGL_STATUS uglGeneric8BitBitmapWrite (
                                                 UGL_ARGB8888,
                                                 pDib->clutSize
                                                 ) != UGL_STATUS_OK) {
-                        UGL_FREE (pClut);
+                        UGL_FREE (pARGBClut);
                         return (UGL_STATUS_ERROR);
                     }
 
@@ -493,7 +489,6 @@ UGL_MDDB_ID uglGeneric8BitMonoBitmapCreate (
     UGL_UINT8            initValue,
     UGL_MEM_POOL_ID      poolId
     ) {
-    UGL_GENERIC_DRIVER * pDrv;
     UGL_GEN_MDDB *       pGenMonoBmp;
     UGL_RECT             srcRect;
     UGL_POINT            destPoint;

@@ -24,6 +24,10 @@
 
 #include "ugl.h"
 
+/* Imports */
+
+int sysClockRateGet (void);
+
 /******************************************************************************
  *
  * uglOSTaskDelay - Put task to sleep

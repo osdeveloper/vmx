@@ -36,7 +36,6 @@ UGL_STATUS uglPolygon (
     ) {
     UGL_STATUS     status;
     UGL_DEVICE_ID  devId;
-    UGL_RECT       rect;
 
     /* Start batch job */
     if ((uglBatchStart (gc)) == UGL_STATUS_ERROR) {

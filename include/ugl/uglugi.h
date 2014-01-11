@@ -393,9 +393,9 @@ typedef struct ugl_ugi_driver * UGL_DEVICE_ID;
 
 #define UGL_GC_SET(devId, gcId)                                               \
     if ((devId)->magicNumber != (gcId)->magicNumber) {                        \
-        (*(devId)->gcSet) (devId, gcId);                                      \
+        (*(devId)->gcSet) ((devId), (gcId));                                  \
         (gcId)->changed = 0;                                                  \
-        UGL_GC_CHANGED_CLEAR (gcId);                                          \
+        UGL_GC_CHANGED_CLEAR ((gcId));                                        \
         (devId)->magicNumber = (gcId)->magicNumber;                           \
     }                                                                         \
 

@@ -88,7 +88,7 @@ UGL_STATUS uglVgaInfo (
             }
             modeInfo->fbAddress       = pDrv->fbAddress;
             modeInfo->displayMemAvail = 0;
-            fbInfo->flags = 0;
+            modeInfo->flags = 0;
             break;
 
         default:

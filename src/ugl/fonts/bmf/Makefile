@@ -1,6 +1,7 @@
 # Makefile -
 #
 
+ADDED_CFLAGS += -Wall
 ADDED_INCFLAGS += -I$(VMX_BASE)/include/ugl
 
 OBJS = ufcbi08.o ufcbr08.o ufcni08.o ufcnr08.o \

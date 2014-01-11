@@ -171,26 +171,6 @@ STATUS semFlush(
     );
 
 /******************************************************************************
- * semGiveDefer - Give sempahore defered
- *
- * RETURNS: OK or ERROR
- */
-
-LOCAL STATUS semGiveDefer(
-    SEM_ID semId
-    );
-
-/******************************************************************************
- * semFlushDefer - Flush all tasks depending on semaphore
- *
- * RETURNS: OK or ERROR
- */
-
-LOCAL STATUS semFlushDefer(
-    SEM_ID semId
-    );
-
-/******************************************************************************
  * semQFlush - Flush semaphore queue
  *
  * RETURNS: OK or ERROR

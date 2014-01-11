@@ -80,8 +80,8 @@ UGL_VOID uglCommonByteCopy (
         else {
 
             /* Backward copy */
-            const UGL_UINT8 * src   = (char *) pSrc + nBytes;
-            UGL_UINT8 *       dest  = (char *) pDest + nBytes;
+            const UGL_UINT8 * src   = (UGL_UINT8 *) pSrc + nBytes;
+            UGL_UINT8 *       dest  = (UGL_UINT8 *) pDest + nBytes;
             int               count = nBytes;
 
             switch (rasterOp) {

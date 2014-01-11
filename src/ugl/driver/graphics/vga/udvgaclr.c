@@ -206,7 +206,7 @@ UGL_STATUS uglVga4BitColorConvert (
                 size       = sizeof (UGL_COLOR) * arraySize;
 
                 /* Zero out destination array */
-                memset (pDest, 0, size);
+                memset (pDestColor, 0, size);
 
                 /* Setup destination mask */
                 destMask = 0x01;

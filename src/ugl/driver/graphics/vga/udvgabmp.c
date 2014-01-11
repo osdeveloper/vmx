@@ -278,7 +278,7 @@ UGL_LOCAL UGL_VOID uglVgaShiftBitmap (
  * RETURNS: N/A
  */
 
-UGL_LOCAL uglVgaBltAlign (
+UGL_LOCAL UGL_VOID uglVgaBltAlign (
     UGL_DEVICE_ID     devId,
     UGL_BMAP_HEADER * pSrcBmp,
     UGL_RECT *        pSrcRect,
@@ -644,7 +644,7 @@ UGL_LOCAL UGL_VOID uglVgaBltColorToColor (
         uglVgaBltPlane (devId,
                         src, pSrcRect, srcStride,
                         dest, pDestRect, destStride,
-                        pDrv->gc->rasterOp);
+                        rasterOp);
     }
 }
 
@@ -1711,7 +1711,6 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     UGL_UINT8           initValue,
     UGL_MEM_POOL_ID     poolId
     ) {
-    UGL_VGA_DRIVER * pDrv;
     UGL_VGA_MDDB *   pVgaMonoBmp;
     UGL_SIZE         width;
     UGL_SIZE         height;
@@ -1721,9 +1720,6 @@ UGL_MDDB_ID uglVgaMonoBitmapCreate (
     UGL_UINT8 *      ptr;
     UGL_SIZE         stride;
     UGL_SIZE         planeSize;
-
-    /* Get driver first in device struct */
-    pDrv = (UGL_VGA_DRIVER *) devId;
 
     /* Get bitmap info, from screen if NULL MDIB */
     if (pMdib == UGL_NULL) {
@@ -1833,8 +1829,6 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
     UGL_INT32            y;
     UGL_INT32            width;
     UGL_INT32            height;
-    UGL_SIZE             planeIndex;
-    UGL_SIZE             numPlanes;
     UGL_INT32            destBytesPerLine;
     UGL_INT32            srcBytesPerLine;
     UGL_INT32            srcOffset;
@@ -1860,7 +1854,6 @@ UGL_LOCAL UGL_VOID uglVgaBltMonoToFrameBuffer (
 
     /* Setup variables for blit */
     width            = (pDestRect->right >> 3) - (pDestRect->left >> 3) + 1;
-    numPlanes        = devId->pMode->colorDepth;
     destBytesPerLine = pVgaDrv->bytesPerLine;
     srcBytesPerLine  = (pBmp->header.width + 7) / 8 + 1;
     destStart        = (UGL_UINT8 *) pDrv->fbAddress +
@@ -2430,7 +2423,6 @@ UGL_STATUS uglVgaMonoBitmapWrite (
     UGL_MDDB_ID    mDdbId,
     UGL_POINT *    pDestPoint
     ) {
-    UGL_GENERIC_DRIVER * pDrv;
     UGL_VGA_MDDB *       pVgaMonoBmp;
     UGL_UINT8 *          srcStart;
     UGL_RECT             srcRect;
@@ -2448,14 +2440,10 @@ UGL_STATUS uglVgaMonoBitmapWrite (
     UGL_INT32            width;
     UGL_INT32            height;
     UGL_UINT8 *          src;
-    UGL_UINT8 *          dest;
     UGL_UINT8            destMask;
     UGL_UINT8            srcMask;
     UGL_UINT8 *          destFg;
     UGL_UINT8 *          destBg;
-
-    /* Get driver first in device struct */
-    pDrv = (UGL_GENERIC_DRIVER *) devId;
 
     /* Get device dependent bitmap */
     pVgaMonoBmp = (UGL_VGA_MDDB *) mDdbId;
@@ -2575,7 +2563,6 @@ UGL_STATUS uglVgaMonoBitmapRead (
     UGL_UINT8 *    dest;
     UGL_UINT8      srcMask;
     UGL_UINT8      destMask;
-    UGL_SIZE       srcStride;
     UGL_UINT8 *    destStart;
 
     /* Get device dependent bitmap */
@@ -2595,7 +2582,6 @@ UGL_STATUS uglVgaMonoBitmapRead (
         /* Setup variables */
         width     = UGL_RECT_WIDTH (srcRect);
         height    = UGL_RECT_HEIGHT (srcRect);
-        srcStride = ((pVgaMonoBmp->header.width + 7) / 8 + 1) * 8;
         destIndex = destPoint.x;
         srcIndex  = (srcRect.top * pVgaMonoBmp->stride) + srcRect.left +
                     pVgaMonoBmp->shiftValue;
