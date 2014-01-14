@@ -51,17 +51,12 @@ typedef struct ugl_ellipse_data {
     UGL_UINT32            extDataSize;
     UGL_UINT32            extBufSize;
 
-    UGL_POS               left;
-    UGL_POS               top;
-    UGL_POS               right;
-    UGL_POS               bottom;
+    UGL_RECT              boundRect;
+    UGL_POINT             startArc;
+    UGL_POINT             endArc;
 
     UGL_POS               x;
     UGL_POS               y;
-    UGL_POS               startX;
-    UGL_POS               startY;
-    UGL_POS               endX;
-    UGL_POS               endY;
 
     UGL_INT32             innerStartX;
     UGL_INT32             innerEndX;
@@ -81,7 +76,7 @@ typedef struct ugl_ellipse_data {
 #define MATH_TO_SCRY(E, Y)    ((E)->y - (Y))
 #define SCR_TO_MATHX(E, X)    ((X) - (E)->x)
 #define SCR_TO_MATHY(E, Y)    ((E)->y - (Y))
-#define MATH_TO_ARRAYY(E, Y)  ((((E)->bottom - (E)->top) >> 1) - (Y))
+#define MATH_TO_ARRAYY(E, Y)  ((((E)->boundRect.bottom - (E)->boundRect.top) >> 1) - (Y))
 #define SRC_TO_ARRAYY(E, Y)   ((Y) - ((E)->lineWidth >> 1))
 
 /* Locals */
@@ -143,17 +138,12 @@ UGL_STATUS uglGenericEllipse (
     UGL_POINT_MOVE (*pEndArc, gc->viewPort.left, gc->viewPort.top);
 
     /* Setup ellipse struct */
-    elp.left      = pBoundRect->left;
-    elp.top       = pBoundRect->top;
-    elp.right     = pBoundRect->right;
-    elp.bottom    = pBoundRect->bottom;
-    elp.y         = ((elp.left + elp.right) >> 1);
-    elp.y         = ((elp.bottom + elp.top) >> 1);
+    UGL_RECT_COPY (&elp.boundRect, pBoundRect);
+    UGL_POINT_COPY (&elp.startArc, pStartArc);
+    UGL_POINT_COPY (&elp.endArc, pEndArc);
+    elp.x         = ((elp.boundRect.left + elp.boundRect.right) >> 1);
+    elp.y         = ((elp.boundRect.bottom + elp.boundRect.top) >> 1);
     elp.lineWidth = gc->lineWidth;
-    elp.startX    = pStartArc->x;
-    elp.startY    = pStartArc->y;
-    elp.endX      = pEndArc->x;
-    elp.endY      = pEndArc->y;
 
     /* Check if trivial */
     if (UGL_RECT_WIDTH (*pBoundRect) <= 0 ||
@@ -161,7 +151,8 @@ UGL_STATUS uglGenericEllipse (
         return (UGL_STATUS_OK);
     }
 
-    if (elp.left > elp.right || elp.top > elp.bottom) {
+    if (elp.boundRect.left > elp.boundRect.right ||
+        elp.boundRect.top > elp.boundRect.bottom) {
         return (UGL_STATUS_OK);
     }
 
@@ -172,7 +163,9 @@ UGL_STATUS uglGenericEllipse (
 
     pFillBuf = elp.pFillBuf;
     pExtBuf  = elp.pExtBuf;
-    for (i = 0; i < elp.bottom - elp.top + 1 + elp.lineWidth + 2; i++) {
+    for (i = 0;
+         i < elp.boundRect.bottom - elp.boundRect.top + 1 + elp.lineWidth + 2;
+         i++) {
         elp.ppFillData[i] = pFillBuf;
         pFillBuf += (MAX_TOGGLE_POINTS + 1);
 
@@ -180,25 +173,29 @@ UGL_STATUS uglGenericEllipse (
         pExtBuf += (MAX_TOGGLE_POINTS + 1);
     }
 
-    if (elp.startX == elp.endX && elp.startY == elp.endY) {
+    if (elp.startArc.x == elp.endArc.x && elp.startArc.y == elp.endArc.y) {
 
         /* Draw closed ellipse */
-        if (elp.lineWidth < (elp.right - elp.left) &&
-            elp.lineWidth < (elp.bottom - elp.top)) {
-            if (elp.lineWidth < (elp.right - elp.left) &&
-                elp.lineWidth < (elp.bottom - elp.top)) {
+        if (elp.lineWidth < (elp.boundRect.right - elp.boundRect.left) &&
+            elp.lineWidth < (elp.boundRect.bottom - elp.boundRect.top)) {
+            if (elp.lineWidth < (elp.boundRect.right - elp.boundRect.left) &&
+                elp.lineWidth < (elp.boundRect.bottom - elp.boundRect.top)) {
 
                 if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
 
                     /* Get inner ellpise */
                     uglEllipseGet (&elp, UGL_TRUE);
-                    if (elp.lineWidth < (elp.right - elp.left) &&
-                        elp.lineWidth < (elp.bottom - elp.top)) {
+                    if (elp.lineWidth < (elp.boundRect.right -
+                                         elp.boundRect.left) &&
+                        elp.lineWidth < (elp.boundRect.bottom -
+                                         elp.boundRect.top)) {
 
                         /* Fill inner ellipse */
                         (*elp.pDrv->fill) (elp.pDrv,
-                                           elp.top - (elp.lineWidth >> 1),
-                                           elp.bottom - (elp.lineWidth >> 1),
+                                           elp.boundRect.top -
+                                               (elp.lineWidth >> 1),
+                                           elp.boundRect.bottom -
+                                               (elp.lineWidth >> 1),
                                            elp.ppFillData);
                     }
                 }
@@ -237,17 +234,19 @@ UGL_LOCAL UGL_STATUS uglEllipseAlloc (
     UGL_INT32   totalSize;
     UGL_UINT8 * pData;
 
-    a = (pEd->right - pEd->left) / 2;
-    b = (pEd->bottom - pEd->top) / 2;
+    a = (pEd->boundRect.right - pEd->boundRect.left) / 2;
+    b = (pEd->boundRect.bottom - pEd->boundRect.top) / 2;
 
-    pEd->fillDataSize = (pEd->bottom - pEd->top + 1 + pEd->lineWidth + 2) *
-                        sizeof (UGL_POS *);
-    pEd->extDataSize  = (pEd->bottom - pEd->top + 1 + pEd->lineWidth + 2) *
-                        sizeof (UGL_POS *);
-    pEd->fillBufSize  = (pEd->bottom - pEd->top + 1 + pEd->lineWidth + 2) *
-                        (MAX_TOGGLE_POINTS + 1) * sizeof (UGL_POS);
-    pEd->extBufSize   = (pEd->bottom - pEd->top + 1 + pEd->lineWidth + 2) *
-                        (MAX_TOGGLE_POINTS + 1) * sizeof (UGL_POS);
+    pEd->fillDataSize = (pEd->boundRect.bottom - pEd->boundRect.top + 1 +
+                        pEd->lineWidth + 2) * sizeof (UGL_POS *);
+    pEd->extDataSize  = (pEd->boundRect.bottom - pEd->boundRect.top + 1 +
+                        pEd->lineWidth + 2) * sizeof (UGL_POS *);
+    pEd->fillBufSize  = (pEd->boundRect.bottom - pEd->boundRect.top + 1 +
+                        pEd->lineWidth + 2) * (MAX_TOGGLE_POINTS + 1) *
+                        sizeof (UGL_POS);
+    pEd->extBufSize   = (pEd->boundRect.bottom - pEd->boundRect.top + 1 +
+                        pEd->lineWidth + 2) * (MAX_TOGGLE_POINTS + 1) *
+                        sizeof (UGL_POS);
     pEd->lineDataSize = max (a + (pEd->lineWidth >> 1) + 1,
                              b + (pEd->lineWidth >> 1) + 1) *
                         sizeof (UGL_POINT);
@@ -302,13 +301,13 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
     x = 0;
     xMax = INT_MIN;
 
-    xRefl = (pEd->right - pEd->left) & 1;
-    yRefl = (pEd->bottom - pEd->top) & 1;
+    xRefl = (pEd->boundRect.right - pEd->boundRect.left) & 1;
+    yRefl = (pEd->boundRect.bottom - pEd->boundRect.top) & 1;
 
     if (inner == UGL_TRUE) {
-        a = ((pEd->right - pEd->left) >> 1) -
+        a = ((pEd->boundRect.right - pEd->boundRect.left) >> 1) -
              (pEd->lineWidth >> 1) - (pEd->lineWidth & 1);
-        b = ((pEd->bottom - pEd->top) >> 1) -
+        b = ((pEd->boundRect.bottom - pEd->boundRect.top) >> 1) -
              (pEd->lineWidth >> 1) - (pEd->lineWidth & 1);
         y = b;
         ppData = pEd->ppFillData;
@@ -319,8 +318,10 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
         pEd->innerEndY   = MATH_TO_SCRY (pEd, 0);
     }
     else {
-        a = ((pEd->right - pEd->left) >> 1) - (pEd->lineWidth >> 1);
-        b = ((pEd->bottom - pEd->top) >> 1) - (pEd->lineWidth >> 1);
+        a = ((pEd->boundRect.right - pEd->boundRect.left) >> 1) -
+             (pEd->lineWidth >> 1);
+        b = ((pEd->boundRect.bottom - pEd->boundRect.top) >> 1) -
+             (pEd->lineWidth >> 1);
         y = b;
         ppData = pEd->ppExtData;
 
@@ -331,7 +332,8 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
     }
 
     if ((a >= 0) && (b >= 0)) {
-        if ((pEd->startX == pEd->endX) && (pEd->startY == pEd->endY)) {
+        if ((pEd->startArc.x == pEd->endArc.x) &&
+            (pEd->startArc.y == pEd->endArc.y)) {
             minStartError = 0;
             minEndError   = 0;
         }
@@ -435,14 +437,14 @@ UGL_LOCAL UGL_INT32 uglEllipseIntersectStart (
     UGL_INT32  xRefl;
     UGL_INT32  yRefl;
 
-    xRefl = (pEd->right - pEd->left) & 1;
-    yRefl = (pEd->bottom - pEd->top) & 1;
+    xRefl = (pEd->boundRect.right - pEd->boundRect.left) & 1;
+    yRefl = (pEd->boundRect.bottom - pEd->boundRect.top) & 1;
 
-    x = (SIGN (SCR_TO_MATHX (pEd, pEd->startX)) == -1) ? -x : x + xRefl;
-    y = (SIGN (SCR_TO_MATHY (pEd, pEd->startY)) == -1) ? -y - yRefl : y;
+    x = (SIGN (SCR_TO_MATHX (pEd, pEd->startArc.x)) == -1) ? -x : x + xRefl;
+    y = (SIGN (SCR_TO_MATHY (pEd, pEd->startArc.y)) == -1) ? -y - yRefl : y;
 
-    errorValue = abs (SCR_TO_MATHX (pEd, pEd->startX) * y -
-                      SCR_TO_MATHY (pEd, pEd->startY) * x);
+    errorValue = abs (SCR_TO_MATHX (pEd, pEd->startArc.x) * y -
+                      SCR_TO_MATHY (pEd, pEd->startArc.y) * x);
     if (errorValue < minError) {
         if (inner == UGL_TRUE) {
             pEd->innerStartX = MATH_TO_SCRX (pEd, x);
@@ -477,14 +479,14 @@ UGL_LOCAL UGL_INT32 uglEllipseIntersectEnd (
     UGL_INT32  xRefl;
     UGL_INT32  yRefl;
 
-    xRefl = (pEd->right - pEd->left) & 1;
-    yRefl = (pEd->bottom - pEd->top) & 1;
+    xRefl = (pEd->boundRect.right - pEd->boundRect.left) & 1;
+    yRefl = (pEd->boundRect.bottom - pEd->boundRect.top) & 1;
 
-    x = (SIGN (SCR_TO_MATHX (pEd, pEd->endX)) == -1) ? -x : x + xRefl;
-    y = (SIGN (SCR_TO_MATHY (pEd, pEd->endY)) == -1) ? -y - yRefl: y;
+    x = (SIGN (SCR_TO_MATHX (pEd, pEd->endArc.x)) == -1) ? -x : x + xRefl;
+    y = (SIGN (SCR_TO_MATHY (pEd, pEd->endArc.y)) == -1) ? -y - yRefl: y;
 
-    errorValue = abs (SCR_TO_MATHX (pEd, pEd->endX) * y -
-                      SCR_TO_MATHY (pEd, pEd->endY) * x);
+    errorValue = abs (SCR_TO_MATHX (pEd, pEd->endArc.x) * y -
+                      SCR_TO_MATHY (pEd, pEd->endArc.y) * x);
     if (errorValue < minError) {
         if (inner == UGL_TRUE) {
             pEd->innerEndX = MATH_TO_SCRX (pEd, x);
@@ -513,7 +515,10 @@ UGL_LOCAL UGL_VOID uglEllpiseFlatFix (
     ) {
     UGL_INT32  i;
 
-    for (i = 1; i <= pEd->bottom - pEd->top + (pEd->lineWidth & ~1) - 1; i++) {
+    for (i = 1;
+         i <= pEd->boundRect.bottom - pEd->boundRect.top +
+              (pEd->lineWidth & ~1) - 1;
+         i++) {
         if (pEd->ppFillData[i][0] > 0) {
             if (i < SRC_TO_ARRAYY (pEd, pEd->y)) {
                 if (pEd->ppExtData[i - 1][0] > 0) {

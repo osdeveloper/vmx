@@ -797,7 +797,7 @@ int uglEllip4Test(int maxtimes, UGL_REGION_ID clipRegionId)
   UGL_POINT dbPt;
   struct vgaHWRec oldRegs;
   UGL_GC_ID gc;
-  int i;
+  int i, x, y, xrad, yrad;
 
   if (maxtimes <= 0) {
     maxtimes = DEFAULT_NUM_PRIMITIVES;
@@ -867,10 +867,14 @@ int uglEllip4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 
   for (i = 0; i < maxtimes; i++) {
 
+    x = rand () % 640;
+    y = rand () % 480;
+    xrad = rand () % 128;
+    yrad = rand () % 128;
     uglRasterModeSet(gc, rasterOp);
     uglForegroundColorSet(gc, rand () % 16);
     uglBackgroundColorSet(gc, rand () % 16);
-    uglEllipse (gc, 0, 0, 64, 64, 32, 0, 32, 0);
+    uglEllipse (gc, x, y, x + xrad, y + yrad, x + xrad / 2, y, x + xrad / 2, y);
     uglRasterModeSet(gc, UGL_RASTER_OP_COPY);
 
     /* Draw double buffer on screen */
