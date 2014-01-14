@@ -193,10 +193,20 @@ typedef struct ugl_ugi_driver {
         );
 
     /* Polygon drawing */
+
     UGL_STATUS   (*polygon) (
         struct ugl_ugi_driver * pDrv,
         const UGL_POINT *       pointArray,
         UGL_ORD                 numPoints
+        );
+
+    /* Ellipse drawing */
+
+    UGL_STATUS   (*ellipse) (
+        struct ugl_ugi_driver * pDrv,
+        UGL_RECT *              pBoundRect,
+        UGL_POINT *             pStartArc,
+        UGL_POINT *             pEndArc
         );
 
     /* Bitmap support */

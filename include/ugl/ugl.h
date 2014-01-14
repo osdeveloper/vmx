@@ -432,6 +432,27 @@ UGL_STATUS uglPolygon (
     UGL_POS *  pData
     );
 
+/* Ellipse drawing support functions */
+
+/******************************************************************************
+ *
+ * uglEllipse - Draw ellipse
+ *
+ * RETURNS: N/A
+ */
+
+UGL_STATUS uglEllipse (
+    UGL_GC_ID  gc,
+    UGL_POS    left,
+    UGL_POS    top,
+    UGL_POS    right,
+    UGL_POS    bottom,
+    UGL_POS    startX,
+    UGL_POS    startY,
+    UGL_POS    endX,
+    UGL_POS    endY
+    );
+
 /* Bitmap support functions */
 
 /******************************************************************************

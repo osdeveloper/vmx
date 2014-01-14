@@ -399,6 +399,22 @@ UGL_STATUS uglGenericPolygon (
     UGL_ORD           numPoints
     );
 
+/* Generic ellipse drawing support functions */
+
+/******************************************************************************
+ *
+ * uglGenericEllipse - Generic ellipse draw
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericEllipse (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pBoundRect,
+    UGL_POINT *    pArcStart,
+    UGL_POINT *    pArcEnd
+    );
+
 /* Generic transparent bitmap support functions */
 
 /******************************************************************************

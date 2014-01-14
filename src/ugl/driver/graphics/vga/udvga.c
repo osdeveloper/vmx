@@ -104,6 +104,7 @@ UGL_UGI_DRIVER * uglVgaDevCreate (
     pDrv->generic.fill   = uglGenericFill;
     devId->rectangle     = uglGenericRectangle;
     devId->polygon       = uglGenericPolygon;
+    devId->ellipse       = uglGenericEllipse;
     pDrv->generic.gpWait = uglVgaGpWait;
 
     /* Setup device support methods */

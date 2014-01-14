@@ -117,6 +117,113 @@ UGL_LOCAL UGL_VOID uglEllpiseFlatFix (
 
 /******************************************************************************
  *
+ * uglGenericEllipse - Generic ellipse draw
+ *
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglGenericEllipse (
+    UGL_DEVICE_ID  devId,
+    UGL_RECT *     pBoundRect,
+    UGL_POINT *    pStartArc,
+    UGL_POINT *    pEndArc
+    ) {
+    UGL_ELLIPSE_DATA  elp;
+    UGL_GC_ID         gc;
+    UGL_POS *         pFillBuf;
+    UGL_POS *         pExtBuf;
+    UGL_INT32         i;
+
+    elp.pDrv = (UGL_GENERIC_DRIVER *) devId;
+    gc = elp.pDrv->gc;
+
+    /* Translate to viewport */
+    UGL_RECT_MOVE (*pBoundRect, gc->viewPort.left, gc->viewPort.top);
+    UGL_POINT_MOVE (*pStartArc, gc->viewPort.left, gc->viewPort.top);
+    UGL_POINT_MOVE (*pEndArc, gc->viewPort.left, gc->viewPort.top);
+
+    /* Setup ellipse struct */
+    elp.left      = pBoundRect->left;
+    elp.top       = pBoundRect->top;
+    elp.right     = pBoundRect->right;
+    elp.bottom    = pBoundRect->bottom;
+    elp.y         = ((elp.left + elp.right) >> 1);
+    elp.y         = ((elp.bottom + elp.top) >> 1);
+    elp.lineWidth = gc->lineWidth;
+    elp.startX    = pStartArc->x;
+    elp.startY    = pStartArc->y;
+    elp.endX      = pEndArc->x;
+    elp.endY      = pEndArc->y;
+
+    /* Check if trivial */
+    if (UGL_RECT_WIDTH (*pBoundRect) <= 0 ||
+        UGL_RECT_HEIGHT (*pBoundRect) <= 0) {
+        return (UGL_STATUS_OK);
+    }
+
+    if (elp.left > elp.right || elp.top > elp.bottom) {
+        return (UGL_STATUS_OK);
+    }
+
+    /* Allocate memory */
+    if (uglEllipseAlloc (&elp) != UGL_STATUS_OK) {
+        return (UGL_STATUS_ERROR);
+    }
+
+    pFillBuf = elp.pFillBuf;
+    pExtBuf  = elp.pExtBuf;
+    for (i = 0; i < elp.bottom - elp.top + 1 + elp.lineWidth + 2; i++) {
+        elp.ppFillData[i] = pFillBuf;
+        pFillBuf += (MAX_TOGGLE_POINTS + 1);
+
+        elp.ppExtData[i] = pExtBuf;
+        pExtBuf += (MAX_TOGGLE_POINTS + 1);
+    }
+
+    if (elp.startX == elp.endX && elp.startY == elp.endY) {
+
+        /* Draw closed ellipse */
+        if (elp.lineWidth < (elp.right - elp.left) &&
+            elp.lineWidth < (elp.bottom - elp.top)) {
+            if (elp.lineWidth < (elp.right - elp.left) &&
+                elp.lineWidth < (elp.bottom - elp.top)) {
+
+                if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
+
+                    /* Get inner ellpise */
+                    uglEllipseGet (&elp, UGL_TRUE);
+                    if (elp.lineWidth < (elp.right - elp.left) &&
+                        elp.lineWidth < (elp.bottom - elp.top)) {
+
+                        /* Fill inner ellipse */
+                        (*elp.pDrv->fill) (elp.pDrv,
+                                           elp.top - (elp.lineWidth >> 1),
+                                           elp.bottom - (elp.lineWidth >> 1),
+                                           elp.ppFillData);
+                    }
+                }
+            }
+        }
+
+        if (gc->foregroundColor != UGL_COLOR_TRANSPARENT) {
+
+            /* Draw external ellipse */
+            /* TODO */
+        }
+
+        uglScratchBufferFree (devId, elp.ppFillData);
+    }
+    else {
+
+        /* Draw open ellipse */
+        /* TODO */
+    }
+
+    return (UGL_STATUS_OK);
+}
+
+/******************************************************************************
+ *
  * uglEllipseAlloc - Allocate memory for ellipse data
  *
  * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
