@@ -869,8 +869,8 @@ int uglEllip4Test(int maxtimes, UGL_REGION_ID clipRegionId)
 
     x = rand () % 640;
     y = rand () % 480;
-    xrad = rand () % 128;
-    yrad = rand () % 128;
+    xrad = rand () % 256;
+    yrad = rand () % 256;
     uglRasterModeSet(gc, rasterOp);
     uglForegroundColorSet(gc, rand () % 16);
     uglBackgroundColorSet(gc, rand () % 16);

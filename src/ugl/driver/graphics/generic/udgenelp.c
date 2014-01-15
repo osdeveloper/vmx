@@ -77,7 +77,7 @@ typedef struct ugl_ellipse_data {
 #define SCR_TO_MATHX(E, X)    ((X) - (E)->x)
 #define SCR_TO_MATHY(E, Y)    ((E)->y - (Y))
 #define MATH_TO_ARRAYY(E, Y)  ((((E)->boundRect.bottom - (E)->boundRect.top) >> 1) - (Y))
-#define SRC_TO_ARRAYY(E, Y)   ((Y) - ((E)->lineWidth >> 1))
+#define SRC_TO_ARRAYY(E, Y)   ((Y) - (E)->boundRect.top + ((E)->lineWidth >> 1))
 
 /* Locals */
 
@@ -88,6 +88,14 @@ UGL_LOCAL UGL_STATUS uglEllipseAlloc (
 UGL_LOCAL UGL_VOID uglEllipseGet (
     UGL_ELLIPSE_DATA *  pEd,
     UGL_BOOL            inner
+    );
+
+UGL_LOCAL UGL_VOID uglEllipseFgGet (
+    UGL_ELLIPSE_DATA *  pEd
+    );
+
+UGL_LOCAL UGL_VOID uglEllipseFgDraw (
+    UGL_ELLIPSE_DATA *  pEd
     );
 
 UGL_LOCAL UGL_INT32 uglEllipseIntersectStart (
@@ -106,7 +114,11 @@ UGL_LOCAL UGL_INT32 uglEllipseIntersectEnd (
     UGL_BOOL            inner
     );
 
-UGL_LOCAL UGL_VOID uglEllpiseFlatFix (
+UGL_LOCAL UGL_VOID uglEllipseFlatFix (
+    UGL_ELLIPSE_DATA * pEd
+    );
+
+UGL_LOCAL UGL_VOID uglEllipseLinesFix (
     UGL_ELLIPSE_DATA * pEd
     );
 
@@ -178,43 +190,45 @@ UGL_STATUS uglGenericEllipse (
         /* Draw closed ellipse */
         if (elp.lineWidth < (elp.boundRect.right - elp.boundRect.left) &&
             elp.lineWidth < (elp.boundRect.bottom - elp.boundRect.top)) {
-            if (elp.lineWidth < (elp.boundRect.right - elp.boundRect.left) &&
-                elp.lineWidth < (elp.boundRect.bottom - elp.boundRect.top)) {
 
-                if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
+            /* Draw inner part of ellipse */
+            if (gc->backgroundColor != UGL_COLOR_TRANSPARENT) {
 
-                    /* Get inner ellpise */
-                    uglEllipseGet (&elp, UGL_TRUE);
-                    if (elp.lineWidth < (elp.boundRect.right -
-                                         elp.boundRect.left) &&
-                        elp.lineWidth < (elp.boundRect.bottom -
-                                         elp.boundRect.top)) {
+                /* Get inner ellpise */
+                uglEllipseGet (&elp, UGL_TRUE);
+                if (elp.lineWidth < (elp.boundRect.right -
+                                     elp.boundRect.left) &&
+                    elp.lineWidth < (elp.boundRect.bottom -
+                                     elp.boundRect.top)) {
 
-                        /* Fill inner ellipse */
-                        (*elp.pDrv->fill) (elp.pDrv,
-                                           elp.boundRect.top -
+                    /* Fill inner ellipse */
+                    (*elp.pDrv->fill) (elp.pDrv,
+                                       elp.boundRect.top - (elp.lineWidth >> 1),
+                                       elp.boundRect.bottom -
                                                (elp.lineWidth >> 1),
-                                           elp.boundRect.bottom -
-                                               (elp.lineWidth >> 1),
-                                           elp.ppFillData);
-                    }
+                                       elp.ppFillData);
                 }
             }
         }
 
-        if (gc->foregroundColor != UGL_COLOR_TRANSPARENT) {
+        if (gc->foregroundColor != UGL_COLOR_TRANSPARENT && gc->lineWidth > 0) {
 
-            /* Draw external ellipse */
-            /* TODO */
+#ifdef notyet
+            /* Draw external part of ellipse */
+            uglEllipseFgGet (&elp);
+            uglEllipseLinesFix (&elp);
+            uglEllipseFgDraw (&elp);
+#endif
         }
 
-        uglScratchBufferFree (devId, elp.ppFillData);
     }
     else {
 
         /* Draw open ellipse */
         /* TODO */
     }
+
+    uglScratchBufferFree (devId, elp.ppFillData);
 
     return (UGL_STATUS_OK);
 }
@@ -292,14 +306,11 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
     UGL_INT32    yRefl;
     UGL_INT32    a;
     UGL_INT32    b;
-    UGL_INT32 *  pData;
-    UGL_INT32 ** ppData;
+    UGL_POS *    pData;
+    UGL_POS **   ppData;
     UGL_INT32    xMax;
     UGL_INT32    minStartError;
     UGL_INT32    minEndError;
-
-    x = 0;
-    xMax = INT_MIN;
 
     xRefl = (pEd->boundRect.right - pEd->boundRect.left) & 1;
     yRefl = (pEd->boundRect.bottom - pEd->boundRect.top) & 1;
@@ -318,9 +329,9 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
         pEd->innerEndY   = MATH_TO_SCRY (pEd, 0);
     }
     else {
-        a = ((pEd->boundRect.right - pEd->boundRect.left) >> 1) -
+        a = ((pEd->boundRect.right - pEd->boundRect.left) >> 1) +
              (pEd->lineWidth >> 1);
-        b = ((pEd->boundRect.bottom - pEd->boundRect.top) >> 1) -
+        b = ((pEd->boundRect.bottom - pEd->boundRect.top) >> 1) +
              (pEd->lineWidth >> 1);
         y = b;
         ppData = pEd->ppExtData;
@@ -342,6 +353,8 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
             minEndError   = INT_MAX;
         }
 
+        x = 0;
+        xMax = INT_MIN;
         d = a * a - 4 * b * (a * a - b);
         while (a * a * (2 * y - 1) > 2 * b * b * (x + 1)) {
             if (minStartError > 0) {
@@ -383,7 +396,7 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
 
         xMax = INT_MIN;
         d = b * b * (2 * x + 1) * (2 * x + 1) + 4 * a * a * (y - 1) * (y - 1) -
-            4 * a * a* b * b;
+            4 * a * a * b * b;
         while (y >= 0) {
             if (minStartError > 0) {
                 minStartError = uglEllipseIntersectStart (pEd, x, y,
@@ -416,6 +429,94 @@ UGL_LOCAL UGL_VOID uglEllipseGet (
 
             y--;
         }
+    }
+}
+
+/******************************************************************************
+ *
+ * uglEllipseFgGet - Get ellipse foreground
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL UGL_VOID uglEllipseFgGet (
+    UGL_ELLIPSE_DATA *  pEd
+    ) {
+    UGL_INT32  i;
+    UGL_INT32  count;
+    UGL_POS *  pFillBuf;
+    UGL_POS *  pExtBuf;
+
+    uglEllipseGet (pEd, UGL_FALSE);
+    uglEllipseFlatFix (pEd);
+
+    if (pEd->lineWidth >= 1) {
+        count = pEd->boundRect.bottom - pEd->boundRect.top +
+                (pEd->lineWidth & ~1);
+
+        for (i = 0; i <= count; i++) {
+            pFillBuf = pEd->ppFillData[i];
+            pExtBuf = pEd->ppExtData[i];
+
+            if (pFillBuf[0] > 0) {
+                pFillBuf[0] = 4;
+                pFillBuf[3] = pFillBuf[2];
+                pFillBuf[2] = pFillBuf[1];
+                pFillBuf[1] = pExtBuf[1];
+                pFillBuf[4] = pExtBuf[2];
+            }
+            else {
+                pFillBuf[0] = 2;
+                pFillBuf[1] = pExtBuf[1];
+                pFillBuf[2] = pExtBuf[2];
+            }
+        }
+    }
+}
+
+/******************************************************************************
+ *
+ * uglEllipseFgDraw - Draw ellipse foreground
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL UGL_VOID uglEllipseFgDraw (
+    UGL_ELLIPSE_DATA *  pEd
+    ) {
+    UGL_GC_ID    gc;
+    UGL_COLOR    fg;
+    UGL_COLOR    bg;
+    UGL_MDDB_ID  pPatBmp;
+
+    if (pEd->lineWidth > 0) {
+        gc      = pEd->pDrv->gc;
+        fg      = gc->foregroundColor;
+        bg      = gc->backgroundColor;
+        pPatBmp = gc->pPatternBitmap;
+
+        gc->pPatternBitmap  = UGL_NULL;
+        gc->foregroundColor = UGL_COLOR_TRANSPARENT;
+        gc->backgroundColor = fg;
+        gc->changed         = UGL_GC_PATTERN_BITMAP_CHANGED |
+                              UGL_GC_FOREGROUND_COLOR_CHANGED |
+                              UGL_GC_BACKGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+        UGL_GC_SET ((UGL_DEVICE_ID) pEd->pDrv, gc);
+
+        (*pEd->pDrv->fill) (pEd->pDrv,
+                            pEd->boundRect.top - (pEd->lineWidth >> 1),
+                            pEd->boundRect.bottom - (pEd->lineWidth >> 1),
+                            pEd->ppFillData);
+
+        gc->pPatternBitmap  = pPatBmp;
+        gc->foregroundColor = fg;
+        gc->backgroundColor = bg;
+        gc->changed         = UGL_GC_PATTERN_BITMAP_CHANGED |
+                              UGL_GC_FOREGROUND_COLOR_CHANGED |
+                              UGL_GC_BACKGROUND_COLOR_CHANGED;
+        UGL_GC_CHANGED_SET (gc);
+        UGL_GC_SET ((UGL_DEVICE_ID) pEd->pDrv, gc);
     }
 }
 
@@ -483,7 +584,7 @@ UGL_LOCAL UGL_INT32 uglEllipseIntersectEnd (
     yRefl = (pEd->boundRect.bottom - pEd->boundRect.top) & 1;
 
     x = (SIGN (SCR_TO_MATHX (pEd, pEd->endArc.x)) == -1) ? -x : x + xRefl;
-    y = (SIGN (SCR_TO_MATHY (pEd, pEd->endArc.y)) == -1) ? -y - yRefl: y;
+    y = (SIGN (SCR_TO_MATHY (pEd, pEd->endArc.y)) == -1) ? -y - yRefl : y;
 
     errorValue = abs (SCR_TO_MATHX (pEd, pEd->endArc.x) * y -
                       SCR_TO_MATHY (pEd, pEd->endArc.y) * x);
@@ -510,7 +611,7 @@ UGL_LOCAL UGL_INT32 uglEllipseIntersectEnd (
  * RETURNS: N/A
  */
 
-UGL_LOCAL UGL_VOID uglEllpiseFlatFix (
+UGL_LOCAL UGL_VOID uglEllipseFlatFix (
     UGL_ELLIPSE_DATA * pEd
     ) {
     UGL_INT32  i;
@@ -538,6 +639,44 @@ UGL_LOCAL UGL_VOID uglEllpiseFlatFix (
 
                 if (pEd->ppFillData[i][2] < pEd->ppExtData[i + 1][2]) {
                     pEd->ppFillData[i][2] = pEd->ppExtData[i + 1][2];
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************
+ *
+ * uglEllipseLinesFix - Fix lines for ellipse
+ *
+ * RETURNS: N/A
+ */
+
+UGL_LOCAL UGL_VOID uglEllipseLinesFix (
+    UGL_ELLIPSE_DATA * pEd
+    ) {
+    UGL_INT32  i;
+    UGL_INT32  count;
+
+    if (pEd->lineWidth > 0) {
+        count = pEd->boundRect.bottom - pEd->boundRect.top + 1 +
+                (pEd->lineWidth >> 1) - pEd->lineWidth;
+
+        for (i = pEd->lineWidth; i < count; i++) {
+            if (pEd->ppFillData[i][0] > 0) {
+
+                if (pEd->ppFillData[i][2] > pEd->ppFillData[i][1]) {
+                    if (pEd->ppFillData[i][1] < pEd->x) {
+                        pEd->ppFillData[i][2]--;
+                    }
+                    else {
+                        pEd->ppFillData[i][1]++;
+                    }
+                }
+
+                if (pEd->ppFillData[i][0] > 2 &&
+                    (pEd->ppFillData[i][3] < pEd->ppFillData[i][4])) {
+                    pEd->ppFillData[i][3]++;
                 }
             }
         }
