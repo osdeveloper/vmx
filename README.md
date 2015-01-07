@@ -15,12 +15,14 @@ Installation instructions:
 sudo cp vmx /boot   
    
 This only has to be done once!  
-sudo cat >> vi /etc/grub.d/40_custom   
+sudo cat >> /etc/grub.d/40_custom   
 menuentry 'Real VMX' {  
     insmod bsd  
     set root=(hd0,n)       # Where n is the partition containing /boot  
     knetbsd /boot/vmx  
 }  
+Press Control-D
+
 sudo update-grub  
    
 Reboot and;  
