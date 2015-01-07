@@ -24,6 +24,13 @@
 #define _i8042_h
 
 #include <sys/types.h>
+#include <os/tyLib.h>
+
+#define I8042_KBD_OBFULL  0x01
+#define I8042_KBD_IBFULL  0x02
+#define I8042_KBD_AUXB    0x20
+
+#define I8042_WAIT_SEC  2
 
 #define KBD_NORMAL      0x0000
 #define KBD_STP         0x0001
@@ -59,15 +66,24 @@
 extern "C" {
 #endif
 
+/* Keyboard device */
 typedef struct
 {
     BOOL      cursorMode;
     u_int16_t flags;
     u_int16_t state;
-    int currConsole;
-    FUNCPTR consoleHook;
-    BOOL convertChar;
+    int       currConsole;
+    FUNCPTR   consoleHook;
+    BOOL      convertChar;
 } KBD_CON_DEV;
+
+/* Mouse device */
+typedef struct
+{
+    TY_DEV    tyDev;
+    u_int32_t dataReg;
+    u_int32_t cmdReg;
+} I8042_MSE_DEVICE;
 
 /******************************************************************************
  * kbdHrdInit - Initialize keyboard hardware
@@ -87,6 +103,16 @@ void kbdHrdInit(
 
 void kbdIntr(
     void
+    );
+
+/******************************************************************************
+ * i8042MseDevCreate - Create mouse driver
+ *
+ * RETURNS: N/A
+ */
+
+int i8042MseDevCreate(
+    char *name
     );
 
 #ifdef __cplusplus
