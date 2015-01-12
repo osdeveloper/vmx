@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <vmx.h>
 #include <arch/sysArchLib.h>
+#include <arch/intArchLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/wdLib.h>
 #include <drv/input/i8042.h>
@@ -155,13 +156,18 @@ int i8042MseDevCreate(
             }
             else
             {
-                /* TODO: Initialize device cmdReg and dataReg */
+                /* Initialize device registers */
+                pDev->dataReg = I8042_KBD_DATA_REG;
+                pDev->statReg = I8042_KBD_STAT_REG;
+                pDev->cmdReg  = I8042_KBD_CMD_REG;
 
-                /* TODO: Connect interrupt handler */
+                /* Connect interrupt handler */
+                intConnectDefault(I8042_MSE_INT, (VOIDFUNCPTR) i8042Intr, pDev);
 
                 i8042MseHwInit(pDev);
 
-                /* TODO: Enable interrupt */
+                /* Enable interrupt level */
+                sysIntEnablePIC(I8042_MSE_INT_LVL);
 
                 if (iosDevAdd(&pDev->tyDev.devHeader, name, drvNum) != OK)
                 {
@@ -189,7 +195,54 @@ LOCAL void i8042MseHwInit(
     I8042_MSE_DEVICE *pDev
     )
 {
-    /* TODO */
+    u_int8_t  cfg;
+    u_int8_t  stat;
+
+    i8042Command(pDev->cmdReg, I8042_KBD_DISABLE);
+
+    /* Get configuration */
+    i8042Command(pDev->cmdReg, I8042_KBD_RD_CONFIG);
+    i8042Read(pDev->statReg, pDev->dataReg, &cfg);
+
+    /* Suspend keyboard interrupts */
+    i8042Command(pDev->cmdReg, I8042_KBD_WT_CONFIG);
+    i8042Write(pDev->cmdReg, pDev->dataReg, cfg & 0xfc);
+
+    /* Enable auxilary */
+    i8042Command(pDev->cmdReg, I8042_KBD_ENABLE_AUX);
+
+    /* Check device interface */
+    i8042Command(pDev->cmdReg, I8042_KBD_IF_AUX_TEST);
+    if (i8042Read(pDev->statReg, pDev->dataReg, &stat) == OK) {
+        if (stat == I8042_KBD_IF_OK)
+        {
+            /* Setup mouse mode */
+            i8042Command(pDev->cmdReg, I8042_KBD_WT_AUX);
+            i8042Write(pDev->cmdReg, pDev->dataReg, I8042_KBDM_SETS_CMD);
+            if (i8042Read(pDev->statReg, pDev->dataReg, &stat) == OK)
+            {
+                if (stat == I8042_KBDM_ACK)
+                {
+                    /* Enable mouse */
+                    i8042Command(pDev->cmdReg, I8042_KBD_WT_AUX);
+                    i8042Write(pDev->cmdReg, pDev->dataReg,
+                               I8042_KBDM_ENABLE_CMD);
+                    if (i8042Read(pDev->statReg, pDev->dataReg, &stat) == OK)
+                    {
+                        if (stat == I8042_KBDM_ACK)
+                        {
+                            cfg |= I8042_KBD_AUX_INT;
+
+                            /* Enable keyboard with mouse support */
+                            i8042Command(pDev->cmdReg, I8042_KBD_WT_CONFIG);
+                            i8042Write(pDev->cmdReg, pDev->dataReg, cfg);
+                            i8042Command(pDev->cmdReg, I8042_KBD_ENABLE);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /******************************************************************************

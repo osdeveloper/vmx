@@ -26,12 +26,6 @@
 #include <sys/types.h>
 #include <os/tyLib.h>
 
-#define I8042_KBD_OBFULL  0x01
-#define I8042_KBD_IBFULL  0x02
-#define I8042_KBD_AUXB    0x20
-
-#define I8042_WAIT_SEC  2
-
 #define KBD_NORMAL      0x0000
 #define KBD_STP         0x0001
 #define KBD_NUM         0x0002
@@ -60,6 +54,67 @@
 #define KBA_EXT         6
 #define KBA_ESC         7
 
+#define I8042_WAIT_SEC  2
+
+/* Keyboard driver registers */
+#define I8042_KBD_DATA_REG       0x60
+#define I8042_KBD_STAT_REG       0x64
+#define I8042_KBD_CMD_REG        0x64
+
+/* Keyboard driver status registers */
+#define I8042_KBD_OBFULL         0x01
+#define I8042_KBD_IBFULL         0x02
+#define I8042_KBD_AUXB           0x20
+
+/* Keyboard driver configuration */
+#define I8042_KBD_INT            0x01
+#define I8042_KBD_AUX_INT        0x02
+
+/* Keyboard driver commands */
+#define I8042_KBD_RD_CONFIG      0x20
+#define I8042_KBD_WT_CONFIG      0x60
+#define I8042_KBD_DISABLE_AUX    0xa7
+#define I8042_KBD_ENABLE_AUX     0xa8
+#define I8042_KBD_IF_AUX_TEST    0xa9
+#define I8042_KBD_IF_SELF_TEST   0xaa
+#define I8042_KBD_IF_TEST        0xab
+#define I8042_KBD_ENABLE         0xae
+#define I8042_KBD_DISABLE        0xad
+#define I8042_KBD_WT_AUX         0xd4
+
+/* Keyboard driver command results */
+#define I8042_KBD_IF_OK          0x00
+#define I8042_KBD_IF_CLKL        0x01
+#define I8042_KBD_IF_CLKH        0x02
+#define I8042_KBD_IF_DATAL       0x03
+#define I8042_KBD_IF_DATAH       0x04
+#define I8042_KBD_SF_OK          0x55
+#define I8042_KBD_NO_DEV         0xff
+
+/* Keboard driver command return values */
+#define I8042_KBD_BAT_OK         0xaa
+#define I8042_KBD_CMD_ACK        0xfa
+#define I8042_KBD_BAT_ERROR      0xfc
+
+/* PS/2 mouse interrupt */
+#define I8042_MSE_INT            0x2c
+#define I8042_MSE_INT_LVL        0x12
+
+/* PS/2 mouse commands */
+#define I8042_KBDM_SR_CMD        0xe8
+#define I8042_KBDM_DS_CMD        0xe9
+#define I8042_KBDM_SS_CMD        0xf3
+#define I8042_KBDM_ENABLE_CMD    0xf4
+#define I8042_KBDM_DIS_CMD       0xf5
+#define I8042_KBDM_SETS_CMD      0xf6
+#define I8042_KBDM_RESEND_CMD    0xfe
+#define I8042_KBDM_RESET_CMD     0xff
+
+/* PS/2 command return values */
+#define I8042_KBDM_ID            0x00
+#define I8042_KBDM_ACK           0xfa
+#define I8042_KBDM_RESEND        0xfe
+
 #ifndef _ASMLANGUAGE
 
 #ifdef __cplusplus
@@ -82,6 +137,7 @@ typedef struct
 {
     TY_DEV    tyDev;
     u_int32_t dataReg;
+    u_int32_t statReg;
     u_int32_t cmdReg;
 } I8042_MSE_DEVICE;
 
