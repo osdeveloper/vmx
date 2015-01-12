@@ -37,6 +37,7 @@
 #include "driver/graphics/generic/udgen.h"
 #include "driver/font/udbmffnt.h"
 #include "fonts/uglbmf.h"
+#include "drv/input/i8042.h"
 
 #include "vmxball.cbm"
 #include "pinball.cbm"
@@ -3070,6 +3071,39 @@ int uglFontList(int index)
   return 0;
 }
 
+int uglMouseInit(void)
+{
+  i8042MseDrvInit();
+  i8042MseDevCreate("/mouse");
+
+  return 0;
+}
+
+int uglMouseLogger(void)
+{
+    static char buf[2];
+    int i, nread;
+    int fd;
+
+    fd = open("/mouse", 0);
+    while (1) {
+        nread = read(fd, buf, 2);
+        for (i = 0; i < 2; i++) {
+            printf("%d ", buf[i]);
+        }
+        printf("\n");
+    }
+    close(fd);
+
+    return 0;
+}
+
+int uglMouseLog(void)
+{
+    return taskSpawn("tMouseLog", 10, 0, 8192, uglMouseLogger,
+                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+}
+
 int uglDemoInit(void)
 {
 static SYMBOL symTableUglDemo[] = {
@@ -3107,7 +3141,9 @@ static SYMBOL symTableUglDemo[] = {
   {NULL, "_uglSetLineStyle", uglSetLineStyle, 0, N_TEXT | N_EXT},
   {NULL, "_uglConvertTest", uglConvertTest, 0, N_TEXT | N_EXT},
   {NULL, "_uglFontList", uglFontList, 0, N_TEXT | N_EXT},
-  {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT}
+  {NULL, "_uglRectCreate", uglRectCreate, 0, N_TEXT | N_EXT},
+  {NULL, "_uglMouseInit", uglMouseInit, 0, N_TEXT | N_EXT},
+  {NULL, "_uglMouseLog", uglMouseLog, 0, N_TEXT | N_EXT}
 };
 
     int i;

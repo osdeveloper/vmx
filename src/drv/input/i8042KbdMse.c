@@ -30,6 +30,7 @@
 
 IMPORT int sysClockRateGet();
 
+LOCAL BOOL    i8042MseLibInstalled = FALSE;
 LOCAL BOOL    i8042Timeout;
 LOCAL int     i8042TimeoutCount;
 LOCAL WDOG_ID i8042Wdid;
@@ -89,18 +90,18 @@ LOCAL void i8042Wd(
     );
 
 LOCAL STATUS i8042Command(
-    u_int32_t reg,
+    u_int32_t cmdReg,
     u_int8_t  cmd
     );
 
 LOCAL STATUS i8042Read(
-    u_int32_t cmdReg,
+    u_int32_t statReg,
     u_int32_t dataReg,
     u_int8_t *pData
     );
 
 LOCAL STATUS i8042Write(
-    u_int32_t cmdReg,
+    u_int32_t statReg,
     u_int32_t dataReg,
     u_int8_t  dData
     );
@@ -108,6 +109,39 @@ LOCAL STATUS i8042Write(
 LOCAL void i8042Intr(
     I8042_MSE_DEVICE *pDev
     );
+
+/******************************************************************************
+ * i8042MseDrvInit - Initialize mouse driver library
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS i8042MseDrvInit(
+   void
+   )
+{
+    STATUS status;
+
+    if (i8042MseLibInstalled == TRUE)
+    {
+       status = OK;
+    }
+    else
+    {
+        i8042Wdid = wdCreate();
+        if (i8042Wdid == NULL)
+        {
+            status = ERROR;
+        }
+        else
+        {
+            i8042MseLibInstalled = TRUE;
+            status = OK;
+        }
+    }
+
+    return status;
+}
 
 /******************************************************************************
  * i8042MseDevCreate - Create mouse driver
@@ -236,13 +270,14 @@ LOCAL void i8042MseHwInit(
                             /* Enable keyboard with mouse support */
                             i8042Command(pDev->cmdReg, I8042_KBD_WT_CONFIG);
                             i8042Write(pDev->cmdReg, pDev->dataReg, cfg);
-                            i8042Command(pDev->cmdReg, I8042_KBD_ENABLE);
                         }
                     }
                 }
             }
         }
     }
+
+    i8042Command(pDev->cmdReg, I8042_KBD_ENABLE);
 }
 
 /******************************************************************************
@@ -386,7 +421,7 @@ LOCAL void i8042Wd(
  */
 
 LOCAL STATUS i8042Command(
-    u_int32_t reg,
+    u_int32_t cmdReg,
     u_int8_t  cmd
     )
 {
@@ -400,13 +435,13 @@ LOCAL STATUS i8042Command(
             0);
 
     /* Wait for input buffer */
-    while ((sysInByte(reg) & I8042_KBD_IBFULL) && (i8042Timeout == FALSE));
+    while ((sysInByte(cmdReg) & I8042_KBD_IBFULL) && (i8042Timeout == FALSE));
 
     /* Send command */
-    sysOutByte(reg, cmd);
+    sysOutByte(cmdReg, cmd);
 
     /* Wait for command completion */
-    while ((sysInByte(reg) & I8042_KBD_IBFULL) && (i8042Timeout == FALSE));
+    while ((sysInByte(cmdReg) & I8042_KBD_IBFULL) && (i8042Timeout == FALSE));
     wdCancel(i8042Wdid);
 
     if (i8042Timeout == FALSE)
@@ -424,7 +459,7 @@ LOCAL STATUS i8042Command(
  */
 
 LOCAL STATUS i8042Read(
-    u_int32_t cmdReg,
+    u_int32_t statReg,
     u_int32_t dataReg,
     u_int8_t *pData
     )
@@ -439,7 +474,7 @@ LOCAL STATUS i8042Read(
             0);
 
     /* Wait for output buffer to be ready */
-    while (((sysInByte(cmdReg) & I8042_KBD_OBFULL)  == 0) &&
+    while (((sysInByte(statReg) & I8042_KBD_OBFULL) == 0) &&
             (i8042Timeout == FALSE));
     wdCancel(i8042Wdid);
     taskDelay(sysClockRateGet() >> 4);
@@ -462,7 +497,7 @@ LOCAL STATUS i8042Read(
  */
 
 LOCAL STATUS i8042Write(
-    u_int32_t cmdReg,
+    u_int32_t statReg,
     u_int32_t dataReg,
     u_int8_t  data
     )
@@ -477,7 +512,7 @@ LOCAL STATUS i8042Write(
             0);
 
     /* Wait for output buffer to be ready */
-    while ((sysInByte(cmdReg) & I8042_KBD_IBFULL) && (i8042Timeout == FALSE));
+    while ((sysInByte(statReg) & I8042_KBD_IBFULL) && (i8042Timeout == FALSE));
     wdCancel(i8042Wdid);
 
     /* Write data */
@@ -503,7 +538,7 @@ LOCAL void i8042Intr(
 {
     u_int8_t inByte;
 
-    if (sysInByte(pDev->cmdReg) & (I8042_KBD_OBFULL | I8042_KBD_AUXB))
+    if (sysInByte(pDev->statReg) & (I8042_KBD_OBFULL | I8042_KBD_AUXB))
     {
         inByte = sysInByte(pDev->dataReg);
         tyIntRd(&pDev->tyDev, inByte);

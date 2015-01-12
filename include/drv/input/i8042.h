@@ -98,7 +98,7 @@
 
 /* PS/2 mouse interrupt */
 #define I8042_MSE_INT            0x2c
-#define I8042_MSE_INT_LVL        0x12
+#define I8042_MSE_INT_LVL        0x0c
 
 /* PS/2 mouse commands */
 #define I8042_KBDM_SR_CMD        0xe8
@@ -158,6 +158,16 @@ void kbdHrdInit(
  */
 
 void kbdIntr(
+    void
+    );
+
+/******************************************************************************
+ * i8042MseDrvInit - Initialize mouse driver library
+ *
+ * RETURNS: OK or ERROR
+ */
+
+STATUS i8042MseDrvInit(
     void
     );
 
