@@ -72,6 +72,7 @@
 #define FIOLABELGET             35
 #define FIOLABELSET             36
 
+#define OPT_RAW                 0x00
 #define OPT_ECHO                0x01
 #define OPT_CRMOD               0x02
 #define OPT_TANDEM              0x04
