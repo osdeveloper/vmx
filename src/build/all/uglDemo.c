@@ -3081,17 +3081,26 @@ int uglMouseInit(void)
 
 int uglMouseLogger(void)
 {
-    static char buf[2];
-    int i, nread;
+    static int8_t buf[3];
+    int16_t mouse_x, mouse_y;
+    int nread;
     int fd;
 
     fd = open("/mouse", 0);
     while (1) {
-        nread = read(fd, buf, 2);
-        for (i = 0; i < 2; i++) {
-            printf("%d ", buf[i]);
+        nread = read(fd, buf, 3);
+        if (nread == 3) {
+            mouse_x += (int16_t) buf[1];
+            if (mouse_x < 0) {
+                mouse_x = 0;
+            }
+
+            mouse_y -= (int16_t) buf[2];
+            if (mouse_y < 0) {
+                mouse_y = 0;
+            }
         }
-        printf("\n");
+        printf("Mouse logger: %d %d\n", mouse_x, mouse_y);
     }
     close(fd);
 
