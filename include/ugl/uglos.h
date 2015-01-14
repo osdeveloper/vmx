@@ -208,6 +208,57 @@ UGL_STATUS uglOSTaskUnlock (
     void
     );
 
+/******************************************************************************
+ *
+ * uglOSMsgQCreate - Create message queue
+ *
+ * RETURNS: UGL_OS_MSG_Q_ID or UGL_NULL
+ */
+
+UGL_OS_MSG_Q_ID uglOSMsgQCreate (
+    UGL_UINT32  maxMsgs,
+    UGL_UINT32  maxMsgSize
+    );
+
+/******************************************************************************
+ *
+ * uglOSMsgQDelete - Delete message queue
+ * 
+ * RETURNS: UGL_STATUS_OK or UGL_STATUS_ERROR
+ */
+ 
+UGL_STATUS uglOSMsgQDelete(
+    UGL_OS_MSG_Q_ID  qId
+    );
+
+/******************************************************************************
+ *
+ * uglOSMsgQPost - Post message on message queue
+ *
+ * RETURNS: UGL_STATUS_OK, UGL_STATUS_Q_FULL or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSMsgQPost(
+    UGL_OS_MSG_Q_ID  qId,
+    UGL_TIMEOUT      timeout,
+    void            *pMsg,
+    UGL_UINT32       msgSize
+    );
+
+/******************************************************************************
+ *
+ * uglOSMsgQGet - Get message from message queue
+ *
+ * RETURNS: UGL_STATUS_OK, UGL_STATUS_Q_EMPTY or UGL_STATUS_ERROR
+ */
+
+UGL_STATUS uglOSMsgQGet(
+    UGL_OS_MSG_Q_ID  qId,
+    UGL_TIMEOUT      timeout,
+    void            *pMsg,
+    UGL_UINT32       msgSize
+    );
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

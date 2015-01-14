@@ -28,7 +28,11 @@
 #include <arch/sysArchLib.h>
 #include <vmx/taskLib.h>
 #include <vmx/semLib.h>
+#include <vmx/msgQLib.h>
 #include <os/memPartLib.h>
+
+#define UGL_WAIT_FOREVER    WAIT_FOREVER
+#define UGL_NO_WAIT         WAIT_NONE
 
 #ifndef _ASMLANGUAGE
 
@@ -55,8 +59,9 @@ extern "C" {
 #define UGL_IN_LONG(port)               sysInLong(port)
 #define UGL_OUT_LONG(port, val)         sysOutLong(port, val)
 
-typedef SEM_ID  UGL_LOCK_ID;
-typedef PART_ID UGL_MEM_POOL_ID;
+typedef SEM_ID      UGL_LOCK_ID;
+typedef MSG_Q_ID    UGL_OS_MSG_Q_ID;
+typedef PART_ID     UGL_MEM_POOL_ID;
 
 #ifdef __cplusplus
 }

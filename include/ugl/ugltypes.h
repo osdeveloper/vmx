@@ -28,6 +28,10 @@
 #define UGL_STATUS_OK                   0
 #define UGL_STATUS_ERROR                -1
 
+#define UGL_STATUS_Q_ACTIVE             -4
+#define UGL_STATUS_Q_EMPTY              -5
+#define UGL_STATUS_Q_FULL               -6
+
 /* UGL_RASTER_OP */
 #define UGL_RASTER_OP_COPY              0x02020101
 #define UGL_RASTER_OP_AND               0x00020002
